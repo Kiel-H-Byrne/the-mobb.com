@@ -1,0 +1,80 @@
+@import 'style/variables';
+@import 'style/mixins';
+@import 'style/frames';
+
+@include breakpoint(phablet) {
+  // $drawerWidth: 640px;
+}
+
+
+.App {
+  text-align: center;
+}
+
+.App-header {
+  background-color: #282c34;
+  height: 5vh;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(110%);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+.App-marker {
+  color: #61dafb;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  user-select: none;
+  transform: translate(-50%, -50%);
+}
+
+.App-drawer {
+  // @include breakpoint(desktop) {
+  //   $drawerWidth: 440px;
+  // }
+  @include breakpoint(mobileonly) {
+    width: 240px;
+  }
+  padding: 0 3px;
+  width: $drawerWidth;
+}
+
+.App-map {
+/*  @include breakpoint(mobileonly) {
+    width: calc(100% - 240px);  
+  }*/
+  /*width: calc(100% - 440px);*/
+  background-color: #61dafb;
+  position: fixed !important;
+  right: 0;
+  bottom: 0;
+  height: 90vh;
+  width: 100%;
+  ;
+}
+
+.App-infowindow {
+  /*height: 150px;*/
+  width: 150px;
+  color: #000;
+  padding: 0;
+}
+
+.App-Centerbutton {
+  position: absolute;
+  bottom: 110px;
+  right: 0;
+  margin: 7px;
+}
+.App-fancytext {
+  transition: all 1s ease-in;
+  animation: fadeIn 2s ease-in; 
+}

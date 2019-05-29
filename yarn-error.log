@@ -1,0 +1,72 @@
+Arguments: 
+  C:\Program Files\nodejs\node.exe C:\Program Files (x86)\Yarn\bin\yarn.js init
+
+PATH: 
+  U:\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\local\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\cmd;C:\Program Files\Git\usr\bin;C:\_portableConEmu\ConEmu\Scripts;C:\_portableConEmu;C:\_portableConEmu\ConEmu;C:\Program Files (x86)\Intel\iCLS Client;C:\Program Files\Intel\iCLS Client;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0;C:\Program Files (x86)\Box\Box Edit;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files\nodejs;C:\Program Files\Intel\WiFi\bin;C:\Program Files\Common Files\Intel\WirelessCommon;C:\Program Files\Git\cmd;C:\ProgramData\chocolatey\bin;C:\Program Files (x86)\Yarn\bin;C:\Users\byrne_admin\AppData\Local\Microsoft\WindowsApps;C:\Program Files\Intel\WiFi\bin;C:\Program Files\Common Files\Intel\WirelessCommon;C:\Users\byrne_admin\AppData\Local\.meteor;C:\Users\byrne_admin\AppData\Local\Yarn\bin;C:\Program Files\Git\usr\bin\vendor_perl;C:\Program Files\Git\usr\bin\core_perl
+
+Yarn version: 
+  1.15.2
+
+Node version: 
+  10.15.1
+
+Platform: 
+  win32 x64
+
+Trace: 
+  SyntaxError: C:\users\byrne_admin\sites\mobb\package.json: Unexpected token / in JSON at position 536
+      at JSON.parse (<anonymous>)
+      at C:\Program Files (x86)\Yarn\lib\cli.js:1625:59
+      at Generator.next (<anonymous>)
+      at step (C:\Program Files (x86)\Yarn\lib\cli.js:304:30)
+      at C:\Program Files (x86)\Yarn\lib\cli.js:315:13
+
+npm manifest: 
+  {
+    "name": "BOOTZ",
+    "version": "0.0.1",
+    "private": true,
+    "dependencies": {
+      "@material-ui/core": "^3.9.2",
+      "@material-ui/icons": "^3.0.2",
+      "@react-google-maps/api": "^1.2.3-alpha.11",
+      "connected-react-router": "^6.3.2",
+      "date-fns": "^1.30.1",
+      "history": "^4.9.0",
+      "prop-types": "^15.7.2",
+      "react": "^16.8.4",
+      "react-devtools": "^3.6.1",
+      "react-dom": "^16.8.4",
+      "react-flip-toolkit": "^6.6.2",
+      "react-redux": "^7.0.3",
+      "react-router": "^5.0.0",
+      "react-scripts": "3.0.1",
+      // "recharts": "^1.5.0",
+      "redux": "^4.0.1",
+      "redux-devtools": "^3.5.0",
+      "redux-logger": "^3.0.6",
+      "redux-saga": "^1.0.2",
+      "typescript": "^3.4.1"
+    },
+    "scripts": {
+      "start": "react-scripts start",
+      "build": "react-scripts build",
+      "test": "react-scripts test",
+      "eject": "react-scripts eject"
+    },
+    "eslintConfig": {
+      "extends": "react-app"
+    },
+    "browserslist": [
+      ">0.2%",
+      "not dead",
+      "not ie <= 11",
+      "not op_mini all"
+    ]
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
