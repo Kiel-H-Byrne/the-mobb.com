@@ -304,7 +304,7 @@ class AppMap extends Component {
 
       <LoadScript
       id="script-loader"
-      googleMapsApiKey="AIzaSyCa7QqTqLMM66gRtaW9KPFPdfkXgFAG8pA"
+      googleMapsApiKey="AIzaSyAuvQtaNuOF1phJQcTv3ytk9VyNCrlrOO4"
       language="en"
       region="us" 
       libraries={libraries} 
