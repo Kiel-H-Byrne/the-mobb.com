@@ -10,7 +10,7 @@ import PrimarySearchAppBar from './components/Nav/Nav.js';
 
 class App extends Component { 
   render() {
-    const { stations, state } = this.props;
+    const { listings, state } = this.props;
     return (
         <div className="App"> 
         <PrimarySearchAppBar />
@@ -28,7 +28,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   dispatch,
-  getAllListings: () => dispatch({ type: ACTIONS.STATIONS_API_REQUEST })
+  getAllListings: () => dispatch({ type: ACTIONS.LISTINGS_API_REQUEST })
 });
 
 export default compose(

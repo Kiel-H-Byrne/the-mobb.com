@@ -25,7 +25,7 @@ const sagaMiddleware = createSagaMiddleware();
 
 // eslint-disable-next-line
 const INITIAL_STATE = {
-  stations: {},
+  listings: {},
 };
 
 //Create Store
