@@ -11,7 +11,8 @@ import m4 from "./images/m4.png";
 import m5 from "./images/m5.png";
 import * as ACTIONS from "../../actions/actionConstants";
 
-import MyMarker from './MyMarker'
+import MyMarker from './MyMarker';
+import { getCollection } from './../../db/mlab';
 // import CenterButton from './CenterButton'
 
 const clusterStyles= [
@@ -290,6 +291,7 @@ class AppMap extends Component {
     //Render WAN Markers (cluster, but change colors...)
     //Render LAN Markers (Cluster)
     //Render Info Window(s)
+    console.log(this.props)
     // let lanData = Object.values(data).filter(x => isHome(x.ip_local));
     // let wanData = Object.values(data).filter(x => !isHome(x.ip_local))
     // const listingData = [{"name":"store name", "address":"134 random address","createdBy": "randomuserId"},{"name":"another store name", "address":"2343 random address","createdBy": "randomuserId234"}]
@@ -332,7 +334,7 @@ class AppMap extends Component {
 function mapStateToProps(state) {
   return {
     state,
-    markerData: state.map.showInfoWindow
+    markerData: getCollection("listings")
   };
 }
 function mapDispatchToProps(dispatch) {

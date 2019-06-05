@@ -1,8 +1,17 @@
-const MongoClient = require('mongodb').MongoClient;
-const uri = "mongodb+srv://tkhb:Vivitr0n@ds139715.mlab.com/tkhb_mongodb?retryWrites=true";
-const client = new MongoClient(uri, { useNewUrlParser: true });
-client.connect(err => {
-  const collection = client.db("test").collection("devices");
-  // perform actions on the collection object
-  client.close();
-});
+
+  export const getCollection = (collection) => {
+		const MLAB_KEY="xg6a4RoaBglG-hNhV-fAWdkr6hKMDZkg"
+		const uri = `https://api.mlab.com/api/1/databases/tkhb_mongodb/collections/${collection}?apiKey=${MLAB_KEY}`
+
+		fetch(uri)
+	  .then(function(response) {
+	   if (response.status === 200 ) {
+	   	return response.json()
+	   } else {
+	   	return new Error("bad news")
+	   }
+	  })
+	  .then(function(myJson) {
+	    return myJson;
+	  });
+  }

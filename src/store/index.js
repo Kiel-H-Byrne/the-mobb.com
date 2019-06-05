@@ -12,7 +12,7 @@ import { createBrowserHistory } from "history";
 
 //Sagas
 import createSagaMiddleware from "redux-saga";
-import rootSaga from "./../sagas";
+import rootSaga from "./../sagas/root";
 
 // import Schemas from "./../api/schemas";
 

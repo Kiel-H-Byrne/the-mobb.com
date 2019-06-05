@@ -1,4 +1,5 @@
-import { GCache } from './../db/cache.js'
+import { GCache } from './../db/cache.js';
+import './../db/mlab.js';
 
 //====== APP GLOBALS ======
 const clientMarker = null;
