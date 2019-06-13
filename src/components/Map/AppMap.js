@@ -67,9 +67,9 @@ const StationWindow = (props) => {
       }}
       >
       <div className="App-infowindow">
-        <h3>{data.hostname}</h3>
-        <p><strong>{isHome(data.ip_local) ? data.region : data.ip_public} </strong><br />
-        Last Connection: {distanceInWords(new Date(data._changed), new Date())}</p>
+        <h3>{data.name}</h3>
+        <p><strong>{JSON.stringify(data)}</strong></p>
+
       </div>
     </InfoWindow>
   )
@@ -277,6 +277,11 @@ class AppMap extends Component {
     }
   };
   
+  componentDidMount() {
+    this.props.getAllListings();
+  }
+  
+
   handleMouseOverCluster = (cluster) => {
     this.setState({
       showInfoWindows: true
@@ -285,13 +290,14 @@ class AppMap extends Component {
 
   render() {
     let { center, zoom, options } = this.props
-    let { mapLoaded, markerData, data, browserLoc } = this.props;
+    let { mapLoaded, markerInfo, listingsData, browserLoc } = this.props;
+    
     //Render What? A HOC that loads the google-maps-sdk, the Map container and all components within it. 
     //Render Map
     //Render WAN Markers (cluster, but change colors...)
     //Render LAN Markers (Cluster)
     //Render Info Window(s)
-    console.log(this.props)
+    // console.log(this.props)
     // let lanData = Object.values(data).filter(x => isHome(x.ip_local));
     // let wanData = Object.values(data).filter(x => !isHome(x.ip_local))
     // const listingData = [{"name":"store name", "address":"134 random address","createdBy": "randomuserId"},{"name":"another store name", "address":"2343 random address","createdBy": "randomuserId234"}]
@@ -314,14 +320,26 @@ class AppMap extends Component {
         <GoogleMap
           onLoad={map => {
             // const bounds = new window.google.maps.LatLngBounds();
-            this.setState({map: map})
-            // mapLoaded(map)
+            mapLoaded(map)
           }}
           mapContainerClassName="App-map"
           center={browserLoc || center}
           zoom={zoom}
           options={options}
           >  
+
+         {listingsData && (
+             
+            <MarkerClusterer 
+                styles={clusterStyles}
+                // onClick={(event) =>{console.log(event.getMarkers())}}
+                minimumClusterSize = {15}
+                >
+                    { (clusterer) => Object.values(listingsData).map( z => <MyMarker key={z._id} data={z} clusterer={clusterer} /> ) } 
+            </MarkerClusterer> 
+         )}
+          { markerInfo && (<StationWindow position={markerInfo.location} data={markerInfo}/>) }
+                    
           {/* <CenterButton /> */}
           {/* <HeatmapLayer map={this.state.map && this.state.map} data={data.map(x => {x.location})} /> */}
         </GoogleMap>
@@ -334,14 +352,16 @@ class AppMap extends Component {
 function mapStateToProps(state) {
   return {
     state,
-    markerData: getCollection("listings")
+    markerInfo: state.map.showInfoWindow,
+    listingsData: state.listings.byId
   };
 }
 function mapDispatchToProps(dispatch) {
   return {
     dispatch,
-    // mapLoaded: (map) => dispatch({ type: ACTIONS.MAP_LOADED, payload: map }),
-    // getInfoWindow: (data) => dispatch({ type: ACTIONS.SHOW_INFOWINDOW, payload: data }),
+    mapLoaded: (map) => dispatch({ type: ACTIONS.MAP_LOADED, payload: map }),
+    getAllListings: () => dispatch({ type: ACTIONS.LISTINGS_API_REQUEST }),
+    getInfoWindow: (data) => dispatch({ type: ACTIONS.SHOW_INFOWINDOW, payload: data }),
   };
 }
 

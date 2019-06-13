@@ -13,7 +13,8 @@ function MyMarker(props) {
     props.hideInfoWindow();
   }
   let { data, clusterer } = props;
-  let loc = data.location.split(',');
+  let loc;
+  (data.location) ? (loc = data.location.split(',')) : (loc = "50.60982,-1.34987");
   let locObj = {lat: parseFloat(loc[0]), lng: parseFloat(loc[1])}
   let image ={
     url: "https://cdn0.iconfinder.com/data/icons/gloss-basic-icons-by-momentum/32/pin-red.png",

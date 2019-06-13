@@ -1,98 +1,32 @@
-import { call, put, takeEvery } from "redux-saga/effects";
-
+import {
+  all,
+  call,
+  put,
+  fork,
+  takeEvery
+} from "redux-saga/effects";
 //Actions
 import * as ACTIONS from "../actions/actionConstants";
 
 //DB Functions
 import { getCollection } from "../db/mlab";
 
-// import { push } from "react-router-redux";
+function* listingsFetchWatcherSaga() {
+  console.log("watching...")
+  yield takeEvery(ACTIONS.LISTINGS_API_REQUEST, listingsFetchSaga);
+}
 
-function* handleListings(action) {
-  switch (action.aspect) {
-    // case "getListing": {
-    //   yield put({
-    //     type: ACTIONS.UPDATE_LISTINGS_ASPECT,
-    //     aspect: "fetchingListing",
-    //     payload: true
-    //   });
-
-    //   const listing = yield call(getListing, action.payload);
-    //   if (listing) {
-    //     yield put({
-    //       type: ACTIONS.UPDATE_FETCHED_LISTINGS,
-    //       payload: listing
-    //     });
-
-    //     yield put({
-    //       type: ACTIONS.UPDATE_LISTINGS_ASPECT,
-    //       aspect: "thisListing",
-    //       payload: listing
-    //     });
-    //   }
-
-    //   yield put({
-    //     type: ACTIONS.UPDATE_LISTINGS_ASPECT,
-    //     aspect: "fetchingListing",
-    //     payload: false
-    //   });
-    //   break;
-    // }
-
-    case "getListings": {
-      yield put({
-        type: ACTIONS.UPDATE_LISTINGS_ASPECT,
-        aspect: "fetching",
-        payload: true
-      });
-      try {
-        const listings = yield call(getCollection("listings"));
-        yield put({
-          type: ACTIONS.UPDATE_LISTINGS_ASPECT,
-          aspect: "listings",
-          payload: listings
-        });
-      } catch (error) {
-        yield put({
-          type: ACTIONS.UPDATE_LISTINGS_ASPECT,
-          aspect: "fetchListingsError",
-          payload: error
-        });
-      }
-      yield put({
-        type: ACTIONS.UPDATE_LISTINGS_ASPECT,
-        aspect: "fetching",
-        payload: false
-      });
-      break;
-    }
-
-    // case "submitListing": {
-    //   try {
-    //     const id = yield call(submitListing, action.payload);
-    //     yield put({
-    //       type: ACTIONS.UPDATE_LISTINGS_ASPECT,
-    //       aspect: "activeListing",
-    //       payload: id
-    //     });
-    //     yield put(push(`/listings/${id}`));
-    //   } catch (error) {
-    //     yield put({
-    //       type: ACTIONS.UPDATE_LISTINGS_ASPECT,
-    //       aspect: "submitListingError",
-    //       payload: error
-    //     });
-    //   }
-
-    //   break;
-    // }
-
-    default: {
-      yield;
-    }
+function* listingsFetchSaga() {
+  yield put({ type: ACTIONS.LISTINGS_API_START });
+  try {
+    const listings = yield call( getCollection, "listings" );
+    yield put({ type: ACTIONS.LISTINGS_API_RESULT, payload: listings });
+  } catch (error) {
+    console.warn("ERROR:", error);
+    yield put({ type: ACTIONS.LISTINGS_API_RESULT, error: error });
   }
 }
 
-export default function* listingsSaga() {
-  yield takeEvery(ACTIONS.LISTINGS_SAGA, handleListings);
+export default function* listingsWatcherSaga() {
+  yield all([fork(listingsFetchWatcherSaga)]);
 }

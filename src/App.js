@@ -8,9 +8,13 @@ import './App.scss';
 import AppMap from './components/Map/AppMap';
 import PrimarySearchAppBar from './components/Nav/Nav.js';
 
+
 class App extends Component { 
+  componentDidMount() {
+  }
+  
   render() {
-    const { listings, state } = this.props;
+    // const { listings, state } = this.props;
     return (
         <div className="App"> 
         <PrimarySearchAppBar />
@@ -27,8 +31,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  dispatch,
-  getAllListings: () => dispatch({ type: ACTIONS.LISTINGS_API_REQUEST })
+  dispatch
 });
 
 export default compose(

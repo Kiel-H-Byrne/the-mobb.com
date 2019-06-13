@@ -1,13 +1,13 @@
 //Redux
 import { applyMiddleware, compose, createStore } from "redux";
-import rootReducer from "../reducers";
+import createRootReducer from "../reducers";
 
 //Middleware
 //Logger
 import logger from "redux-logger";
 
 //Router
-import { connectRouter, routerMiddleware } from "connected-react-router";
+import { routerMiddleware } from "connected-react-router";
 import { createBrowserHistory } from "history";
 
 //Sagas
@@ -32,17 +32,17 @@ const INITIAL_STATE = {
 const store =
   process.env.NODE_ENV === "production"
     ? createStore(
-        connectRouter(history)(rootReducer),
+        createRootReducer(history),
         applyMiddleware(routerMiddleware(history), sagaMiddleware)
       )
     : createStore(
-        connectRouter(history)(rootReducer),
+        createRootReducer(history),
         INITIAL_STATE,
         composeEnhancers(
           applyMiddleware(
             routerMiddleware(history),
-            logger,
-            sagaMiddleware
+            sagaMiddleware,
+            logger
           )
         )
       );

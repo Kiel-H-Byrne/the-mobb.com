@@ -6,5 +6,5 @@ import { all } from "redux-saga/effects";
 import listingsWatcherSaga from "./listings";
 
 export default function* rootSaga() {
-  yield all([listingsWatcherSaga]);
+  yield all([listingsWatcherSaga()]);
 }

@@ -2,43 +2,28 @@
 import * as ACTIONS from "../actions/actionConstants";
 
 const INITIAL_STATE = {
-  listings: [],
-  fetchedEvents: [],
-  fetching: false,
-  fetchingEvent: false,
-  thisListing: { listingId: "", creatorId: "", meta: { location: {} } },
-  error: null
+  'status': null
 };
 
-function listingsReducer(state = INITIAL_STATE, action) {
-  switch (action.type) {
-    //Generic Updates
-    case ACTIONS.UPDATE_LISTINGS_ASPECT: {
-      return { ...state, [`${action.aspect}`]: action.payload };
+function ListingsReducer(state = INITIAL_STATE, action) {
+  const { payload, type, error } = action;
+  switch (type) {
+    case ACTIONS.LISTINGS_API_REQUEST: {
+      return { ...state, 'status': "FETCHING"};
     }
-
-    case ACTIONS.UPDATE_LISTINGS_REDUCER: {
-      return { ...state, ...action.payload };
+    case ACTIONS.LISTINGS_API_START: {
+      return { ...state, 'status': null };
     }
-
-    //Specific Updates
-    case ACTIONS.UPDATE_FETCHED_LISTINGS: {
-      return {
-        ...state,
-        fetchedEvents: [...state.fetchedEvents, action.payload]
-      };
+    case ACTIONS.LISTINGS_API_RESULT: {
+      // console.log(error)
+      return { ...state, 
+        'status': error || "SUCCESS", 
+        'byId': payload 
+      }
     }
-
-    // case ACTIONS.UPDATE_FETCHED_LOCATIONS: {
-    //   return {
-    //     ...state,
-    //     fetchedLocations: [...state.fetchedLocations, action.payload]
-    //   };
-    // }
-
     default:
       return state;
   }
 }
 
-export default listingsReducer;
+export default ListingsReducer;
