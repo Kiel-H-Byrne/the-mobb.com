@@ -14,6 +14,7 @@ import * as ACTIONS from "../../actions/actionConstants";
 import MyMarker from './MyMarker';
 import { getCollection } from './../../db/mlab';
 // import CenterButton from './CenterButton'
+import MapAutoComplete from './../Nav/MapAutoComplete';
 
 const clusterStyles= [
   {
@@ -67,15 +68,20 @@ const StationWindow = (props) => {
       }}
       >
       <div className="App-infowindow">
-        <h3>{data.name}</h3>
-        <p><strong>{JSON.stringify(data)}</strong></p>
+        <h5>{data.name}</h5>
+        {data.image && (<img src={data.image.url} height="50px" />) }
+        <p>
+        {data.address} <br />
+        <a href={`tel:+${data.phone}`}>{data.phone}</a> <br />
+        <a href={data.url}>{data.url}</a>
+        </p>
 
       </div>
     </InfoWindow>
   )
 }
 
-const libraries = ["visualization"];
+const libraries = ["visualization", "places"];
 
 class AppMap extends Component {
   constructor(props) {
@@ -275,12 +281,7 @@ class AppMap extends Component {
               ]
           }]
     }
-  };
-  
-  componentDidMount() {
-    this.props.getAllListings();
-  }
-  
+  };  
 
   handleMouseOverCluster = (cluster) => {
     this.setState({
@@ -322,13 +323,15 @@ class AppMap extends Component {
             // const bounds = new window.google.maps.LatLngBounds();
             mapLoaded(map)
           }}
+          id="GMap"
           mapContainerClassName="App-map"
           center={browserLoc || center}
           zoom={zoom}
           options={options}
-          >  
+        >  
 
-         {listingsData && (
+        <MapAutoComplete />
+        {listingsData && (
              
             <MarkerClusterer 
                 styles={clusterStyles}
@@ -352,16 +355,13 @@ class AppMap extends Component {
 function mapStateToProps(state) {
   return {
     state,
-    markerInfo: state.map.showInfoWindow,
-    listingsData: state.listings.byId
+    markerInfo: state.map.showInfoWindow
   };
 }
 function mapDispatchToProps(dispatch) {
   return {
     dispatch,
-    mapLoaded: (map) => dispatch({ type: ACTIONS.MAP_LOADED, payload: map }),
-    getAllListings: () => dispatch({ type: ACTIONS.LISTINGS_API_REQUEST }),
-    getInfoWindow: (data) => dispatch({ type: ACTIONS.SHOW_INFOWINDOW, payload: data }),
+    mapLoaded: (map) => dispatch({ type: ACTIONS.MAP_LOADED, payload: map })
   };
 }
 

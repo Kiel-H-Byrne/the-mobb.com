@@ -1,6 +1,9 @@
 import React from 'react';
+import { useStore, useDispatch } from 'react-redux'
+
 import { makeStyles } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
+import CardMedia from '@material-ui/core/CardMedia';
 import Button from '@material-ui/core/Button';
 import List from '@material-ui/core/List';
 import Divider from '@material-ui/core/Divider';
@@ -10,6 +13,8 @@ import ListItemText from '@material-ui/core/ListItemText';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
 
+import * as ACTIONS from "../../actions/actionConstants";
+
 const useStyles = makeStyles({
   list: {
     width: 250,
@@ -17,63 +22,67 @@ const useStyles = makeStyles({
   fullList: {
     width: 'auto',
   },
+  media: {
+    height: 0,
+    paddingTop: '56.25%',
+  }
 });
 
 function SideDrawer() {
   const classes = useStyles();
-  const [state, setState] = React.useState({
-    left: false,
-    bottom: false,
-    right: false,
-  });
+  // const [state, setState] = React.useState({
+  //   left: false,
+  //   bottom: false,
+  //   right: false,
+  // });
+  const store = useStore();
+  const dispatch = useDispatch();
 
+  let {listings, map, router} = useStore().getState()
+  
   const toggleDrawer = (side, open) => event => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
       return;
     }
-    setState({ ...state, [side]: open });
+    // setState({ ...state, [side]: open });
+    dispatch({type: ACTIONS.SHOW_SIDEDRAWER, payload: false})
   };
 
-  const sideList = side => (
+  const sideList = (side,data) => (
     <div
       className={classes.list}
       role="presentation"
       onClick={toggleDrawer(side, false)}
       onKeyDown={toggleDrawer(side, false)}
     >
-      <List>
-        {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-          <ListItem button key={text}>
-            <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
-      </List>
+      {data.image && <CardMedia image={data.image.url} className={classes.media}/> }
       <Divider />
-      <List>
-        {['All mail', 'Trash', 'Spam'].map((text, index) => (
-          <ListItem button key={text}>
-            <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
-      </List>
+      <div>Table</div>
+      <Divider />
+      <div>List</div>
+      <Divider />
+      <div>CTA</div>
+      {data.url}
+
     </div>
   );
 
+  if (map.showSideDrawer) {     
   return (
     <div>
-      <Button onClick={toggleDrawer('right', true)}>Open Right</Button>
-      <Drawer anchor="right" open={state.right} onClose={toggleDrawer('right', false)}>
-        {sideList('right')}
+      <Drawer anchor="left" open={true} onClick={toggleDrawer()}>
+        {sideList('left', map.showSideDrawer)}
       </Drawer>
     </div>
   );
+  } else {
+    return null
+  }
 }
 
 export default SideDrawer;
 
-
+{/* 
 <Drawer name="sideCard">
 
       <a href="#" data-activates="slide-out" class="hide button-collapse"></a>
@@ -267,3 +276,4 @@ export default SideDrawer;
     {{/with}}
   </ul>
 </Drawer>
+*/}

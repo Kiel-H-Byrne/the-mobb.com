@@ -15,17 +15,21 @@ import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
 
+import MapAutoComplete from './MapAutoComplete';
+// import AppFilter from './AppFilter'
+
 export default class PrimarySearchAppBar extends React.Component {
 
 	constructor(props) {
 		super(props);
 	}
 
-	render() {
+	render(props) {
+
 		return (
-			<AppBar position="static">
+			<AppBar position="static" className="App-header">
 				<Toolbar>
-					
+					[LOGO] - - - [NavList] -  [Filter] - [Search]
 				</Toolbar>
 			</AppBar>
 		);
