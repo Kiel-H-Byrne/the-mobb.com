@@ -336,7 +336,7 @@ class AppMap extends Component {
             <MarkerClusterer 
                 styles={clusterStyles}
                 // onClick={(event) =>{console.log(event.getMarkers())}}
-                minimumClusterSize = {15}
+                minimumClusterSize = {3}
                 >
                     { (clusterer) => Object.values(listingsData).map( z => <MyMarker key={z._id} data={z} clusterer={clusterer} /> ) } 
             </MarkerClusterer> 
