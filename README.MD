@@ -1,17 +1,19 @@
-### The Map of Black Businesses (MOBB) is meant to educate clients on the black owned businesses in their vicinity (or search another area on the map); directing more consumers to black owned businesses, with the goal of growing the community's economy and championing for black entrepreneurship.
+### The Map of Black Businesses (MOBB) is meant to make consumers aware of black owned businesses in their locale (or search another area on the map); with the goal of growing the community's economy and championing for black entrepreneurship.
 
 # Architecture
 
-- React.js
+- React.js ([Create-React-App](https://github.com/facebook/create-react-app))
 - Material-UI
 - Google Firebase
 - Google Maps
+
+###### _Documentation links can be found in [SUPPORT](SUPPORT.md)_
 
 # Contributing
 
 First off, thank you for considering contributing to the MOBB. It’s people like you that make the MOBB such a great tool.
 
-- [Fork](somelink.com) this repo
+- [Fork](https://github.com/tdotholla/MOBB.git) this repo
 - create a [pull request]()
 - File a [bug report]()
 - Suggest a [new feature]()
@@ -29,21 +31,19 @@ Thanks to @devkollektiv, @ludakhris, @tdblackston0, @theDevCollective, @tmanunde
 
 ### Roadmap as user stories
 
-- [x] **As an end-user, I would like to see the locations of black owned businesses near me, on a map**
-- [ ] **I would like to see the one closest business to me, at all times**
-- [x] **I would like to see details of the busineses shown on the map**
-- [ ] **I would like to become a registered user**
-- [ ] **I would like to get directions to the business I am viewing**
-- [ ] **As a registered user, I would like to add a business to the map**
-- [ ] **As a registered user, I would like to modify business I am viewing**
-- [ ] **The map and business details should be current**
+- [x] _As an end-user, I would like to see the locations of black owned businesses near me, on a map_
+- [ ] _I would like to see the one closest business to me, at all times_
+- [x] _I would like to see details of the busineses shown on the map_
+- [ ] _I would like to become a registered user_
+- [ ] _I would like to get directions to the business I am viewing_
+- [ ] _As a registered user, I would like to add a business to the map_
+- [ ] _As a registered user, I would like to modify business I am viewing_
+- [ ] _The map and business details should be current_
 
 ### Branches:
 
-Branches are named for their purpose, `master`, `ft-<featureName>`, `fix-<featureName>`, etc...
-
-- `master` branch remains untouched, will merge before production
-- `ft-dirs` branch is to implement a feature w/ directions from current location.
+Try to name branches in a descriptive way, `master`, `ft-<featureName>`, `fix-<fixName>`, etc...
+**No pull requests will be merged into `master` branch.**
 
 ### Resources:
 
