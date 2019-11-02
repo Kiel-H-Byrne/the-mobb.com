@@ -20,6 +20,10 @@ function MyMarker(props) {
     url: "https://cdn0.iconfinder.com/data/icons/gloss-basic-icons-by-momentum/32/pin-red.png",
   }
 
+  const handleClickMarker = (data) => {
+    props.showSideDrawer(data)
+  }
+
   return (
     <Marker 
       className="App-marker"
@@ -32,6 +36,7 @@ function MyMarker(props) {
       customData={JSON.stringify(data)}
       onMouseOver={(m) => handleMouseOverMarker(m,data)}
       onMouseOut={() => handleMouseExitMarker()}
+      onClick={() => handleClickMarker(data)}
     />
   )
   
@@ -42,7 +47,8 @@ function mapDispatchToProps(dispatch) {
   return {
     dispatch,
     showInfoWindow: (data) => dispatch({ type: ACTIONS.SHOW_INFOWINDOW, payload: data }),
-    hideInfoWindow: () => dispatch({type: ACTIONS.SHOW_INFOWINDOW, payload: false})
+    hideInfoWindow: () => dispatch({type: ACTIONS.SHOW_INFOWINDOW, payload: false}),
+    showSideDrawer: (data) => dispatch({type: ACTIONS.SHOW_SIDEDRAWER, payload: data })
   };
 }
 

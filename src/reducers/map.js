@@ -13,8 +13,12 @@ function MapReducer(state = INITIAL_STATE, action) {
         'showInfoWindow': payload
       };
     }
+    case ACTIONS.SHOW_SIDEDRAWER: {
+      return { ...state, 
+        'showSideDrawer': payload
+      };
+    }
     case ACTIONS.MAP_LOADED: {
-      // console.log(error)
       return { ...state, 
         'GMap': payload 
       };

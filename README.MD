@@ -9,8 +9,13 @@
 
 # Contributing
 
-Fork this repo, ...
-create pull request ...
+First off, thank you for considering contributing to the MOBB. It’s people like you that make the MOBB such a great tool.
+
+- [Fork](somelink.com) this repo
+- create a [pull request]()
+- File a [bug report]()
+- Suggest a [new feature]()
+- Set up your [environment]() & [test]()
 
 # Licenses
 
@@ -39,3 +44,7 @@ Branches are named for their purpose, `master`, `ft-<featureName>`, `fix-<featur
 
 - `master` branch remains untouched, will merge before production
 - `ft-dirs` branch is to implement a feature w/ directions from current location.
+
+### Resources:
+
+[Github Contribution setup](https://help.github.com/en/github/building-a-strong-community/setting-up-your-project-for-healthy-contributions)
