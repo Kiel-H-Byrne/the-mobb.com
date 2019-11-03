@@ -1,11 +1,14 @@
 ### The Map of Black Businesses (MOBB) is meant to make consumers aware of black owned businesses in their locale (or search another area on the map); with the goal of growing the community's economy and championing for black entrepreneurship.
 
+#### [TheMOBB.com](https://mobb.kielbyrne.now.sh/)
+
 # Architecture
 
 - React.js ([Create-React-App](https://github.com/facebook/create-react-app))
 - Material-UI
 - Google Firebase
 - Google Maps
+- Now Deployment
 
 ###### _Documentation links can be found in [SUPPORT](SUPPORT.md)_
 
