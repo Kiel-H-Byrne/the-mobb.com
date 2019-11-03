@@ -1,28 +1,32 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 import { compose } from "redux";
 import { connect } from "react-redux";
 
+import { Grid } from "@material-ui/core";
 import * as ACTIONS from "./actions/actionConstants";
 
-import './App.scss';
-import AppMap from './components/Map/AppMap';
-import PrimarySearchAppBar from './components/Nav/Nav.js';
-import AppDrawer from './components/SideDrawer/SideDrawer'
+import "./App.scss";
+import AppMap from "./components/Map/AppMap";
+import Nav from "./components/Nav/Nav.js";
+import SideDrawer from "./components/SideDrawer/SideDrawer";
 
-class App extends Component { 
-  
+class App extends Component {
   componentDidMount() {
     this.props.getAllListings();
   }
-  
+
   render() {
     const { listings, state } = this.props;
+    const activeListing = state.listings.activeListing;
+
     return (
-        <div className="App"> 
-          <PrimarySearchAppBar suggestions={listings}/>
-          <AppDrawer />
+      <div className="App_wrapper">
+        <SideDrawer activeListing={activeListing} />
+        <Grid container>
+          <Nav searchSuggestions={listings} />
           <AppMap listingsData={listings} />
-        </div>
+        </Grid>
+      </div>
     );
   }
 }
@@ -35,7 +39,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   dispatch,
-  getAllListings: () => dispatch({ type: ACTIONS.LISTINGS_API_REQUEST }),
+  getAllListings: () => dispatch({ type: ACTIONS.LISTINGS_API_REQUEST })
 });
 
 export default compose(
