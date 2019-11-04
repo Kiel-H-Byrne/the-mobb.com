@@ -26,7 +26,6 @@ const MapFilter = ({ listings, categories }) => {
   const selected_categories = useSelector(
     state => state.categories.selected_categories
   );
-  console.log(`selected_categories: `, selected_categories);
 
   const handleChange = event => {
     //update selected_categories array (push/pop?)
