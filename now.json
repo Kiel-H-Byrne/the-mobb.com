@@ -1,0 +1,8 @@
+{
+  "build": {
+    "env": {
+"REACT_APP_GOOGLE_MAPS_KEY":"AIzaSyAuvQtaNuOF1phJQcTv3ytk9VyNCrlrOO4",
+"REACT_APP_MLAB_KEY":"xg6a4RoaBglG-hNhV-fAWdkr6hKMDZkg"
+    }
+  }
+}
