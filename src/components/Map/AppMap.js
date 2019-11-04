@@ -275,7 +275,7 @@ class AppMap extends Component {
 
   render() {
     let { center, zoom, options } = this.props;
-    let { mapLoaded, markerInfo, listingsData, browserLoc } = this.props;
+    let { mapLoaded, markerInfo, listings, browserLoc } = this.props;
 
     //Render What? A HOC that loads the google-maps-sdk, the Map container and all components within it.
     //Render Map
@@ -314,14 +314,14 @@ class AppMap extends Component {
           options={options}
         >
           <MapAutoComplete />
-          {listingsData && (
+          {listings && (
             <MarkerClusterer
               styles={clusterStyles}
               // onClick={(event) =>{console.log(event.getMarkers())}}
               minimumClusterSize={3}
             >
               {clusterer =>
-                Object.values(listingsData).map(z => (
+                Object.values(listings).map(z => (
                   <MyMarker key={z._id} data={z} clusterer={clusterer} />
                 ))
               }

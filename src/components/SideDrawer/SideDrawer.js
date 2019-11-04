@@ -121,8 +121,7 @@ _id: "3Nh99P2JxxCpBGm5v"
   }
 };
 
-{
-  /* 
+/* 
 
 -image
 -details
@@ -132,5 +131,5 @@ _id: "3Nh99P2JxxCpBGm5v"
 -google place details (yelp details & others?)
 
 */
-}
+
 export default SideDrawer;

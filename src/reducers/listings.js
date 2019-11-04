@@ -2,7 +2,7 @@
 import * as ACTIONS from "../actions/actionConstants";
 
 const INITIAL_STATE = {
-  'status': null
+  'status': null,
 };
 
 function ListingsReducer(state = INITIAL_STATE, action) {
