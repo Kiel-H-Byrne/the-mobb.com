@@ -19,7 +19,6 @@ const MyLocationButton = () => {
   useEffect(() => {
     //do nothing, then cleanup
     return () => {
-      console.log("cleanup", geoWatchId);
       if (geoWatchId) {
         window.navigator.geolocation.clearWatch(geoWatchId);
       }
