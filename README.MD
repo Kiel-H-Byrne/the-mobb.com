@@ -1,6 +1,6 @@
 ### The Map of Black Businesses (MOBB) is meant to make consumers aware of black owned businesses in their locale (or search another area on the map); with the goal of growing the community's economy and championing for black entrepreneurship.
 
-#### [TheMOBB.com](https://mobb.kielbyrne.now.sh/)
+#### [TheMOBB.com](https://mobb.biz)
 
 # Architecture
 
