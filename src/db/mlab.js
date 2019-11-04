@@ -1,4 +1,5 @@
 const MLAB_KEY = "xg6a4RoaBglG-hNhV-fAWdkr6hKMDZkg";
+console.log(process.env)
 
 export const getCollection = collection => {
   const dbOptions = {
