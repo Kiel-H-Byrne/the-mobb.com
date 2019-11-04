@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import {
   FormControl,
@@ -15,8 +15,6 @@ import { useDispatch, useSelector } from "react-redux";
 
 //Actions
 import * as ACTIONS from "./../../actions/actionConstants";
-//DB Functions
-import { getCollection } from "./../../db/mlab";
 
 const useStyles = makeStyles({
   root: {}
@@ -25,27 +23,28 @@ const useStyles = makeStyles({
 const MapFilter = ({ listings, categories }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
-  const selectedCategories = useSelector(
-    state => state.categories.selectedCategories
+  const selected_categories = useSelector(
+    state => state.categories.selected_categories
   );
-  console.log(selectedCategories);
+  console.log(`selected_categories: `, selected_categories);
 
   const handleChange = event => {
-    //update selectedCategories array (push/pop?)
-    let cat_name = event.target.value;
+    //update selected_categories array (push/pop?)
+    // let cat_name = event.target.value;
 
-    let idx = selectedCategories.findIndex(({ name }) => name === cat_name);
-    console.log(idx);
-    let newArray = [...selectedCategories];
-    if (idx === -1) {
-      newArray.push(cat_name);
-    } else {
-      newArray.splice(idx, 1);
-    }
-    console.log(newArray);
+    // let idx = selected_categories.findIndex(({ name }) => name === cat_name);
+    // console.log(cat_name);
+    // let newArray = [...selected_categories];
+    // console.log(newArray)
+    // if (idx === -1) {
+    //   newArray = [...newArray,]
+    // } else {
+    //   newArray.splice(idx, 1);
+    // }
+    // console.log(newArray);
     dispatch({
-      type: "UPDATE_SELECTED_CATEGORIES",
-      payload: newArray
+      type: ACTIONS.UPDATE_SELECTED_CATEGORIES,
+      payload: event.target.value
     });
   };
   if (!categories) {
@@ -55,21 +54,25 @@ const MapFilter = ({ listings, categories }) => {
   return (
     <div>
       <FormControl className={classes.root}>
-        <InputLabel id="demo-mutiple-checkbox-label">Tag</InputLabel>
+        <InputLabel id="demo-mutiple-checkbox-label">Category</InputLabel>
         <Select
-          labelId="demo-mutiple-checkbox-label"
           id="demo-mutiple-checkbox"
           multiple
-          value={selectedCategories}
+          value={selected_categories}
           onChange={handleChange}
           input={<Input />}
-          renderValue={selected => {
-            selected.join(", ");
-          }}
+          renderValue={selected => (
+            <div className={classes.chips}>
+              {`Selected: ${selected.length}`}
+              {/* {selected.map(value => (
+                <Chip key={value} label={value} className={classes.chip} />
+              ))} */}
+            </div>
+          )}
         >
           {categories.map(({ name }) => (
             <MenuItem key={name} value={name}>
-              <Checkbox checked={false} />
+              <Checkbox checked={selected_categories.indexOf(name) > -1} />
               <ListItemText primary={name} />
             </MenuItem>
           ))}

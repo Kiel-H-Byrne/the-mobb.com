@@ -9,7 +9,8 @@ const MyMarker = ({
   clusterer,
   showInfoWindow,
   hideInfoWindow,
-  showSideDrawer
+  showSideDrawer,
+  selected_categories
 }) => {
   const handleMouseOverMarker = (e, data) => {
     showInfoWindow(data);
@@ -31,7 +32,6 @@ const MyMarker = ({
   const handleClickMarker = data => {
     showSideDrawer(data);
   };
-
   return (
     <Marker
       className="App-marker"
@@ -41,6 +41,7 @@ const MyMarker = ({
       data={data}
       icon={image}
       title={data.name}
+      // visible={selected_categories.indexOf(name) > -1} 
       customData={JSON.stringify(data)}
       onMouseOver={m => handleMouseOverMarker(m, data)}
       onMouseOut={() => handleMouseExitMarker()}
@@ -58,8 +59,12 @@ MyMarker.propTypes = {
 };
 
 //Redux
-function mapDispatchToProps(dispatch) {
-  return {
+const mapStateToProps = (state) => ({
+  state,
+  selected_categories: state.categories.selected_categories
+})
+
+const mapDispatchToProps = dispatch => ({
     dispatch,
     showInfoWindow: data =>
       dispatch({ type: ACTIONS.SHOW_INFOWINDOW, payload: data }),
@@ -67,10 +72,9 @@ function mapDispatchToProps(dispatch) {
       dispatch({ type: ACTIONS.SHOW_INFOWINDOW, payload: false }),
     showSideDrawer: data =>
       dispatch({ type: ACTIONS.SHOW_SIDEDRAWER, payload: data })
-  };
-}
+})
 
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(MyMarker);

@@ -36,8 +36,8 @@ const MyLocationButton = () => {
             type: UPDATE_SESSION_REDUCER,
             aspect: "browser_location",
             payload: {
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
             }
           });
         },

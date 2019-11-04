@@ -17,7 +17,6 @@ import * as ACTIONS from "../../actions/actionConstants";
 
 import MyMarker from "./MyMarker";
 import ListingInfoWindow from "./ListingInfoWindow";
-// import CenterButton from './CenterButton'
 import MapAutoComplete from "./MapAutoComplete";
 
 const clusterStyles = [
@@ -85,8 +84,8 @@ class AppMap extends Component {
       streetViewControl: false,
       gestureHandling: "cooperative",
       scrollwheel: true,
-      maxZoom: 14,
-      minZoom: 3,
+      maxZoom: 18,
+      minZoom: 4,
       // Map styles; snippets from 'Snazzy Maps'.
       styles: [
         {
@@ -275,13 +274,8 @@ class AppMap extends Component {
 
   render() {
     let { center, zoom, options } = this.props;
-    let { mapLoaded, markerInfo, listings, browserLoc } = this.props;
-
-    //Render What? A HOC that loads the google-maps-sdk, the Map container and all components within it.
-    //Render Map
-    //Render WAN Markers (cluster, but change colors...)
-    //Render LAN Markers (Cluster)
-    //Render Info Window(s)
+    let { mapLoaded, markerInfo, listings, browserLoc, selected_categories } = this.props;
+        
     // console.log(this.props)
     // let lanData = Object.values(data).filter(x => isHome(x.ip_local));
     // let wanData = Object.values(data).filter(x => !isHome(x.ip_local))
@@ -297,7 +291,7 @@ class AppMap extends Component {
 
       <LoadScript
         id="script-loader"
-        googleMapsApiKey="AIzaSyAuvQtaNuOF1phJQcTv3ytk9VyNCrlrOO4"
+        googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_KEY}
         language="en"
         region="us"
         libraries={libraries}
@@ -310,7 +304,7 @@ class AppMap extends Component {
           id="GMap"
           mapContainerClassName="App-map"
           center={browserLoc || center}
-          zoom={zoom}
+          zoom={browserLoc ? 16 : zoom}
           options={options}
         >
           <MapAutoComplete />
@@ -321,10 +315,11 @@ class AppMap extends Component {
               minimumClusterSize={3}
             >
               {clusterer =>
-                Object.values(listings).map(z => (
-                  <MyMarker key={z._id} data={z} clusterer={clusterer} />
-                ))
-              }
+                Object.values(listings).map(listing => {
+                  //return marker if element categories array includes value from selected_categories
+                  return (listing.categories ? listing.categories.some( el => selected_categories.includes(el)) : false) ? <MyMarker key={listing._id} data={listing} clusterer={clusterer} /> : null
+                }
+                )}
             </MarkerClusterer>
           )}
           {markerInfo && (
@@ -345,7 +340,9 @@ class AppMap extends Component {
 function mapStateToProps(state) {
   return {
     state,
-    markerInfo: state.map.showInfoWindow
+    markerInfo: state.map.showInfoWindow,
+    browserLoc: state.session.browser_location,
+    selected_categories: state.categories.selected_categories
   };
 }
 function mapDispatchToProps(dispatch) {

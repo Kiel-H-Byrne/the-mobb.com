@@ -3,7 +3,7 @@ import * as ACTIONS from "../actions/actionConstants";
 
 const INITIAL_STATE = {
   status: null,
-  selectedCategories: []
+  selected_categories: []
 };
 
 function CategoriesReducer(state = INITIAL_STATE, action) {
@@ -17,7 +17,11 @@ function CategoriesReducer(state = INITIAL_STATE, action) {
     }
     case ACTIONS.CATEGORIES_API_RESULT: {
       // console.log(error)
-      return { ...state, status: error || "SUCCESS", byId: payload };
+      window.thesenutz = payload;
+      return { ...state, 
+        status: error || "SUCCESS", 
+        byId: payload,
+        selected_categories: payload.map(el => el.name)};
     }
     case ACTIONS.UPDATE_CATEGORIES_ASPECT: {
       return { ...state, [`${aspect}`]: payload };
@@ -26,7 +30,7 @@ function CategoriesReducer(state = INITIAL_STATE, action) {
     case ACTIONS.UPDATE_SELECTED_CATEGORIES: {
       return {
         ...state,
-        selectedCategories: [...state.selectedCategories, payload]
+        selected_categories: payload
       };
     }
 

@@ -1,5 +1,4 @@
-const MLAB_KEY = "xg6a4RoaBglG-hNhV-fAWdkr6hKMDZkg";
-console.log(process.env)
+const MLAB_KEY = process.env.REACT_APP_MLAB_KEY
 
 export const getCollection = collection => {
   const dbOptions = {
