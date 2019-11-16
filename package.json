@@ -44,5 +44,8 @@
   "main": "index.js",
   "repository": "https://github.com/tdotholla/MOBB.git",
   "author": "Kiel H. Byrne",
-  "license": "None"
+  "license": "None",
+  "devDependencies": {
+    "lerna": "^3.18.4"
+  }
 }
