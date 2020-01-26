@@ -4,7 +4,7 @@ The Map of Black Businesses (MOBB) is a tool to practice group economics. The ap
 <!--- These are examples. See https://shields.io for others or to customize this set of shields. You might want to include dependencies, project status and license info here --->
 ![Github License](https://img.shields.io/github/license/tdotholla/mobb)
 ![Node Version](https://img.shields.io/node/v/canary)
-![W3C Validation](https://img.shields.io/w3c-validation/default?targetUrl=https%3A%2F%2Fwww.mobb.biz)
+![W3C Validation](https://img.shields.io/w3c-validation/default?targetUrl=https%3A%2F%2Fmobb.kielbyrne.com)
 
 ![GitHub repo size](https://img.shields.io/github/repo-size/tdotholla/mobb)
 ![Github code size](https://img.shields.io/github/languages/code-size/tdotholla/mobb)

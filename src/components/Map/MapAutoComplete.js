@@ -57,8 +57,7 @@ const MapAutoComplete = () => {
         <IconButton
           color="primary"
           className={classes.iconButton}
-          aria-label="Directions"
-        >
+          aria-label="Directions">
           <DirectionsIcon />
         </IconButton>
         <Divider className={classes.divider} />
