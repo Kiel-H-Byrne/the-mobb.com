@@ -18,6 +18,7 @@ import * as ACTIONS from "../../actions/actionConstants";
 import MyMarker from "./MyMarker";
 import ListingInfoWindow from "./ListingInfoWindow";
 import MapAutoComplete from "./MapAutoComplete";
+import ClosestCard from "../ClosestCard/ClosestCard";
 
 const clusterStyles = [
   {
@@ -62,7 +63,7 @@ const clusterStyles = [
   }
 ];
 
-const libraries = ["visualization", "places"];
+const libraries = ["visualization", "places", "geometry", "localContext"];
 
 class AppMap extends Component {
   constructor(props) {
@@ -274,9 +275,8 @@ class AppMap extends Component {
 
   render() {
     let { center, zoom, options } = this.props;
-    let { mapLoaded, markerInfo, listings, browserLoc, selected_categories } = this.props;
+    let { mapLoaded, markerInfo, listings, browserLoc, selected_categories, closestListing } = this.props;
         
-    // console.log(this.props)
     // let lanData = Object.values(data).filter(x => isHome(x.ip_local));
     // let wanData = Object.values(data).filter(x => !isHome(x.ip_local))
     // const listingData = [{"name":"store name", "address":"134 random address","createdBy": "randomuserId"},{"name":"another store name", "address":"2343 random address","createdBy": "randomuserId234"}]
@@ -328,9 +328,8 @@ class AppMap extends Component {
               data={markerInfo}
             />
           )}
-
-          {/* <CenterButton /> */}
           {/* <HeatmapLayer map={this.state.map && this.state.map} data={data.map(x => {x.location})} /> */}
+          {closestListing && <ClosestCard closestListing={closestListing} />}
         </GoogleMap>
       </LoadScript>
     );
@@ -342,6 +341,7 @@ function mapStateToProps(state) {
     state,
     markerInfo: state.map.showInfoWindow,
     browserLoc: state.session.browser_location,
+    closestListing: state.session.closest_listing,
     selected_categories: state.categories.selected_categories
   };
 }

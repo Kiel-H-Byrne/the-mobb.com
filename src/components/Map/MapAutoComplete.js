@@ -1,4 +1,5 @@
 import React from "react";
+import { useSelector } from 'react-redux';
 import { Autocomplete } from "@react-google-maps/api";
 
 import { makeStyles } from "@material-ui/core/styles";
@@ -38,6 +39,8 @@ const useStyles = makeStyles({
 
 const MapAutoComplete = () => {
   const classes = useStyles();
+  const listings = useSelector(state => state.listings)
+  let count = listings.byId.length;
 
   return (
     <Autocomplete style={{ backgroundColor: "#fff" }}>
@@ -47,7 +50,7 @@ const MapAutoComplete = () => {
         </IconButton>
         <InputBase
           className={classes.input}
-          placeholder="Search The MOBB"
+          placeholder={`Search ${count} Listings...`}
           inputProps={{ "aria-label": "Search The MOBB" }}
         />
         <IconButton className={classes.iconButton} aria-label="Search">
@@ -55,7 +58,7 @@ const MapAutoComplete = () => {
         </IconButton>
         <Divider className={classes.divider} />
         <IconButton
-          color="primary"
+          color="disabled"
           className={classes.iconButton}
           aria-label="Directions">
           <DirectionsIcon />

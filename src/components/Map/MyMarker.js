@@ -43,8 +43,8 @@ const MyMarker = ({
       title={data.name}
       // visible={selected_categories.indexOf(name) > -1} 
       customData={JSON.stringify(data)}
-      onMouseOver={m => handleMouseOverMarker(m, data)}
-      onMouseOut={() => handleMouseExitMarker()}
+      // onMouseOver={m => handleMouseOverMarker(m, data)}
+      // onMouseOut={() => handleMouseExitMarker()}
       onClick={() => handleClickMarker(data)}
     />
   );
