@@ -1,5 +1,5 @@
 {
-  "name": "MOBB",
+  "name": "mobb",
   "version": "0.0.1",
   "private": true,
   "dependencies": {
@@ -23,7 +23,7 @@
     "redux-devtools": "^3.5.0",
     "redux-logger": "^3.0.6",
     "redux-saga": "^1.0.3",
-    "typescript": "^3.5.1"
+    "typescript": "^4.0.3"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -40,7 +40,7 @@
     "not ie <= 11",
     "not op_mini all"
   ],
-  "description": "the Mobb",
+  "description": "The MoBB",
   "main": "index.js",
   "repository": "https://github.com/tdotholla/MOBB.git",
   "author": "Kiel H. Byrne",
