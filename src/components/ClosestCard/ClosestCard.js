@@ -1,18 +1,29 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import { Card, Button } from '@material-ui/core';
+import React from "react";
+import PropTypes from "prop-types";
+import { Card, Button } from "@material-ui/core";
 import DirectionsIcon from "@material-ui/icons/DirectionsTwoTone";
 import "./ClosestCard.scss";
 
-const ClosestCard = ({closestListing}) => {
-  //onclick  set openlisting to this id. 
+const ClosestCard = ({ closestListing }) => {
+  //onclick  set openlisting to this id.
   //pan to location of listing on map
   //onClick of button, open directions to this listing.
-  const {address, city, state, url, phone, name, location} = closestListing;
-
+  const {
+    address,
+    city,
+    state,
+    url,
+    phone,
+    name,
+    location,
+    image,
+  } = closestListing;
+  const divStyle = {
+    background: `radial-gradient(circle at top left, rgba(22, 15, 77, 0.6), rgba(086,082,080, 0.6)), url(${image.url})`,
+  };
   return (
-    <div>
-      <Card id="card_closest">
+    <div id="bottom_Row">
+      <Card id="card_closest" style={divStyle}>
         <h6 className="card-title center-align">{name}</h6>
         <p className="center-align address">
           {address ? (
@@ -44,16 +55,26 @@ const ClosestCard = ({closestListing}) => {
             <i className="material-icons">info_outline</i>
           </Button>
         </div>
-        <Button size="large" color="primary" onClick={() => window.open(`https://www.google.com/maps/dir/Current+Location/${location}`) }>
-          <DirectionsIcon className="large material-icons">directions</DirectionsIcon>
+        <Button
+          size="large"
+          color="primary"
+          onClick={() =>
+            window.open(
+              `https://www.google.com/maps/dir/Current+Location/${location}`
+            )
+          }
+        >
+          <DirectionsIcon className="large material-icons">
+            directions
+          </DirectionsIcon>
         </Button>
       </Card>
     </div>
   );
-}
+};
 
 ClosestCard.propTypes = {
-  closestListing: PropTypes.object
-}
+  closestListing: PropTypes.object,
+};
 
-export default ClosestCard
+export default ClosestCard;

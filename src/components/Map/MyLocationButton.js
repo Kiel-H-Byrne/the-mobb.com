@@ -5,7 +5,7 @@ import { makeStyles } from "@material-ui/styles";
 import { IconButton } from "@material-ui/core";
 import MyLocationIcon from "@material-ui/icons/MyLocationTwoTone";
 import { UPDATE_SESSION_REDUCER } from "./../../actions/actionConstants";
-import { findClosestMarker, placeMyMarker } from "./../../util/functions";
+import { findClosestMarker } from "./../../util/functions";
 
 const useStyles = makeStyles({
   root: {},
