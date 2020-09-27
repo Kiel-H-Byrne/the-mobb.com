@@ -47,7 +47,7 @@ const { $, GoogleMaps, google } = () => {
 //   }
 
 // }
-const toggleGroup = function(type) {
+const toggleGroup = function (type) {
   for (let i = 0; i < MARKER_GROUPS[type].length; i++) {
     let marker = MARKER_GROUPS[type][i];
     if (!marker.getVisible()) {
@@ -66,16 +66,16 @@ const toggleGroup = function(type) {
   }
 };
 
-const installSW = function() {
+const installSW = function () {
   if ("serviceWorker" in navigator) {
-    window.addEventListener("load", function() {
+    window.addEventListener("load", function () {
       navigator.serviceWorker
         .register("/sw.js")
-        .then(function(registration) {
+        .then(function (registration) {
           // Registration was successful
           // console.log('ServiceWorker registration successful with scope: ', registration.scope);
         })
-        .catch(function(err) {
+        .catch(function (err) {
           // registration failed :(
           console.log("ServiceWorker registration failed: ", err);
         });
@@ -89,7 +89,7 @@ const installSW = function() {
 //     return pos;
 // };
 
-const targetClient = function(map, pos) {
+const targetClient = function (map, pos) {
   // SET CENTER,
   // ZOOM TO CERTAIN LEVEL
   map.instance.panTo(pos);
@@ -97,7 +97,7 @@ const targetClient = function(map, pos) {
   map.instance.setZoom(12);
 };
 
-const targetBrowser = function(map) {
+const targetBrowser = function (map) {
   // SET CENTER,
   // ZOOM TO CERTAIN LEVEL
   // const pos = Session.get('browserLoc');
@@ -109,21 +109,14 @@ const targetBrowser = function(map) {
 
 // let clientMarker;
 
-const placeMyMarker = function(map, pos) {
+export const placeMyMarker = (mapInstance, pos) => {
   // CREATE MARKER IF IT DOESN'T ALREADY EXIST,
   //SET MARKER POSITION
 
   // google.maps.event.trigger(map, 'resize');
   //would only not exist if the template reloaded and the browser didn't...(dev mode)
-  if (!clientMarker) {
     // const radius = 3;
-    // clientMarker = new google.maps.Marker({
-    //   position: new google.maps.LatLng(pos.lat, pos.lng),
-    //   map: map.instance,
-    //   icon: {url: 'img/orange_dot_sm_2.png'},
-    //   title: "My Location",
-    //   // animation: google.maps.Animation.BOUNCE,
-    // });
+    
     // clientRadius = new google.maps.Circle({
     //   map: map.instance,
     //   center: pos,
@@ -134,23 +127,18 @@ const placeMyMarker = function(map, pos) {
     //   fillColor: '#FFAA00',
     //   fillOpacity: 0.10,
     // });
-  } else {
-    //MARKER EXISTS, SO WE MOVE IT TO NEW POSITION.
-    clientMarker.setMap(map.instance);
-    clientMarker.setPosition(pos);
-  }
 
-  $(document).ready(function() {
-    $('[id="centerButton_button"]').removeClass("pulse");
-  });
+  // $(document).ready(function () {
+  //   $('[id="centerButton_button"]').removeClass("pulse");
+  // });
 };
 
-const hideImg = function() {
+const hideImg = function () {
   $(this).css({ display: "none" });
   console.log("img broken");
 };
 
-const setGReviews = function(gid) {
+const setGReviews = function (gid) {
   if (gid) {
     let dataFromCache = GCache.get(gid);
     const res = {};
@@ -167,9 +155,9 @@ const setGReviews = function(gid) {
         // const service = new google.maps.places.PlacesService(map.instance);
 
         const req = {
-          placeId: gid
+          placeId: gid,
         };
-        const cbk = function(res, stat) {
+        const cbk = function (res, stat) {
           // if (stat === google.maps.places.PlacesServiceStatus.OK) {
           //     // Session.set('thisPlace', res);
           //     console.log(res);
@@ -196,7 +184,7 @@ const setGReviews = function(gid) {
   }
 };
 
-const getGDetails = function(gid) {
+const getGDetails = function (gid) {
   if (GoogleMaps.loaded()) {
     console.log("Details Data from API...");
     //   //get the response and stash it in GCache.
@@ -204,9 +192,9 @@ const getGDetails = function(gid) {
     console.log(map);
     const service = new google.maps.places.PlacesService(map.instance);
     const req = {
-      placeId: gid
+      placeId: gid,
     };
-    const cbk = function(res, stat) {
+    const cbk = function (res, stat) {
       if (stat === google.maps.places.PlacesServiceStatus.OK) {
         console.log(res);
         // ID_Cache.findOne({key: key}, {$set: {value: place_id}});
@@ -221,25 +209,37 @@ const getGDetails = function(gid) {
     };
     return service.getDetails(req, cbk);
   } else {
-    console.log("no map laoded");
+    console.log("no map loaded");
   }
 };
 
-const find_closest_marker = function(markers, position) {
+export const toPosition = (location) => {
+  let latLng = location.split(",");
+  let lat = Number(latLng[0]);
+  let lng = Number(latLng[1]);
+  let pos = new window.google.maps.LatLng({ lat: lat, lng: lng });
+  return pos;
+};
+
+export const findClosestMarker = function (listings, location) {
+  // marker {position: latlngObj, map: mapinstnace, icon: iconurl}
   let distances = [];
   let closest = -1;
-  const start = new google.maps.LatLng(position);
-  for (let i = 0; i < markers.length; i++) {
-    let d = google.maps.geometry.spherical.computeDistanceBetween(
-      markers[i].position,
-      start
-    );
-    distances[i] = d;
-    if (closest === -1 || d < distances[closest]) {
-      closest = i;
+  const start = new window.google.maps.LatLng(location);
+  for (let i = 0; i < listings.length; i++) {
+    if (listings[i].location) {
+      let d = window.google.maps.geometry.spherical.computeDistanceBetween(
+        toPosition(listings[i].location),
+        start
+      );
+      distances[i] = d;
+      if (closest === -1 || d < distances[closest]) {
+        closest = i;
+      }
     }
   }
-  const closestMarker = markers[closest];
+  const closestMarker = listings[closest];
+  //find in store, dispatch doc to closestListing
   // const doc = Listings.findOne({name: closestMarker.getTitle() });
   // Session.set('closestListing', doc);
   return closestMarker;
@@ -294,7 +294,7 @@ const find_closest_marker = function(markers, position) {
 ///////////////////////////////////////
 ///////////////////////////////////////
 
-export const isHome = ip => {
+export const isHome = (ip) => {
   const home_octets = [
     "114",
     "117",
@@ -308,7 +308,7 @@ export const isHome = ip => {
     "111",
     "109",
     "126",
-    "150"
+    "150",
   ];
   let base = ip.split(".")[0];
   let octet = ip.split(".")[1];
@@ -335,7 +335,7 @@ export function stableSort(array, cmp) {
     if (order !== 0) return order;
     return a[1] - b[1];
   });
-  return stabilizedThis.map(el => el[0]);
+  return stabilizedThis.map((el) => el[0]);
 }
 
 export function getSorting(order, orderBy) {
