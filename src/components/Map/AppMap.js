@@ -1,5 +1,4 @@
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useState } from "react";
 
 import {
   GoogleMap,
@@ -14,12 +13,10 @@ import m2 from "./images/m2.png";
 import m3 from "./images/m3.png";
 import m4 from "./images/m4.png";
 import m5 from "./images/m5.png";
-import * as ACTIONS from "../../actions/actionConstants";
 
 import MyMarker from "./MyMarker";
 import ListingInfoWindow from "./ListingInfoWindow";
 import MapAutoComplete from "./MapAutoComplete";
-import ClosestCard from "../ClosestCard/ClosestCard";
 
 const clusterStyles = [
   {
@@ -66,14 +63,10 @@ const clusterStyles = [
 
 const libraries = ["visualization", "places", "geometry", "localContext"];
 
-const AppMap = ({listings}) => {
-  const dispatch = useDispatch();
-  const markerInfo = useSelector((state) => state.map.showInfoWindow);
-  const browserLoc = useSelector((state) => state.session.browser_location);
-  const closestListing = useSelector((state) => state.session.closest_listing);
-  const selected_categories = useSelector(
-    (state) => state.categories.selected_categories
-  );
+const AppMap = ({ listings, categories, browserLocation }) => {
+  const [mapInstance, setMapInstance] = useState(null);
+  const selected_categories = categories.map((el) => el.name);
+  const markerInfo = mapInstance?.showInfoWindow;
 
   const defaultProps = {
     center: GEOCENTER,
@@ -269,10 +262,6 @@ const AppMap = ({listings}) => {
       ],
     },
   };
-
-  const mapLoaded = (map) =>
-    dispatch({ type: ACTIONS.MAP_LOADED, payload: map });
-
   let { center, zoom, options } = defaultProps;
 
   return (
@@ -288,15 +277,15 @@ const AppMap = ({listings}) => {
       <GoogleMap
         onLoad={(map) => {
           // const bounds = new window.google.maps.LatLngBounds();
-          mapLoaded(map);
+          setMapInstance(map);
         }}
         id="GMap"
         mapContainerClassName="App-map"
-        center={browserLoc || center}
-        zoom={browserLoc ? 16 : zoom}
+        center={browserLocation || center}
+        zoom={browserLocation ? 16 : zoom}
         options={options}
       >
-        <MapAutoComplete />
+        {listings && <MapAutoComplete listings={listings} mapInstance={mapInstance} />}
         {listings && (
           <MarkerClusterer
             styles={clusterStyles}
@@ -327,7 +316,6 @@ const AppMap = ({listings}) => {
           <ListingInfoWindow position={markerInfo.location} data={markerInfo} />
         )}
         {/* <HeatmapLayer map={this.state.map && this.state.map} data={data.map(x => {x.location})} /> */}
-        {closestListing && <ClosestCard closestListing={closestListing} />}
       </GoogleMap>
     </LoadScript>
   );

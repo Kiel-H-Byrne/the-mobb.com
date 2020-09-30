@@ -1,24 +1,22 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect, useState } from "react";
 
 import { makeStyles } from "@material-ui/styles";
 import { IconButton } from "@material-ui/core";
 import MyLocationIcon from "@material-ui/icons/MyLocationTwoTone";
-import { UPDATE_SESSION_REDUCER } from "./../../actions/actionConstants";
-import { findClosestMarker } from "./../../util/functions";
+import { findClosestMarker, targetClient } from "./../../util/functions";
+import ClosestCard from "../ClosestCard/ClosestCard";
 
 const useStyles = makeStyles({
   root: {},
 });
 
-const MyLocationButton = () => {
+const MyLocationButton = ({ listings, mapInstance }) => {
   const classes = useStyles();
-  const dispatch = useDispatch();
-  const myLocation = useSelector((state) => state.session.browser_location);
-  const geoWatchId = useSelector((state) => state.session.geolocation_watch_id);
-  const clientMarker = useSelector((state) => state.session.client_marker);
-  const listings = useSelector((state) => state.listings.byId);
-  const mapInstance = useSelector((state) => state.map.GMap);
+  const [myLocation, setMyLocation] = useState(null);
+  const [closestListing, setClosestListing] = useState(null);
+  const [geoWatchId, setGeoWatchId] = useState(null);
+  const [clientMarker, setClientMarker] = useState(null);
+  const [toggleDisplay, setToggleDisplay] = useState(false);
 
   useEffect(() => {
     //pan map to new center every new lat/long
@@ -28,8 +26,7 @@ const MyLocationButton = () => {
         window.navigator.geolocation.clearWatch(geoWatchId);
       }
     };
-  }, [geoWatchId, clientMarker, myLocation]);
-
+  }, [geoWatchId, myLocation]);
   const handleClick = () => {
     //when clicked, find users location. keep finding every x minutes or as position changes. if position doesn't change after x minutes. turn off
     //zoom o position
@@ -55,68 +52,51 @@ const MyLocationButton = () => {
                 title: "My Location",
                 // animation: google.maps.Animation.BOUNCE,
               });
-
-              dispatch({
-                type: UPDATE_SESSION_REDUCER,
-                aspect: "client_marker",
-                payload: marker,
-              });
+              setClientMarker(marker);
             } else {
               //MARKER EXISTS, SO WE MOVE IT TO NEW POSITION.
               clientMarker.setMap(mapInstance);
               clientMarker.setPosition(positionObject);
             }
+            setMyLocation(positionObject);
+            targetClient(mapInstance, (positionObject))
 
-            let closestListing = findClosestMarker(listings, positionObject);
+            if (!closestListing) {
+              setClosestListing(findClosestMarker(listings, positionObject));
+            }
+
             if (oldMarker !== closestListing) {
               // set old marker icon
               //   url: "img/orange_marker_sm.png",
+              // console.log("change color of marker")
             } else {
               // set closest marker icon
               //   url: "img/red_marker_sm.png",
               oldMarker = closestListing;
             }
-            dispatch({
-              type: UPDATE_SESSION_REDUCER,
-              aspect: "browser_location",
-              payload: {
-                ...positionObject,
-                searching: false,
-              },
-            });
-            dispatch({
-              type: UPDATE_SESSION_REDUCER,
-              aspect: "closest_listing",
-              payload: closestListing,
-            });
           },
           (error) => {
+            console.warn(error)
             // setMyLocation({
             //   latitude: "err-latitude",
             //   longitude: "err-longitude"
             // });
           }
         );
-        dispatch({
-          type: UPDATE_SESSION_REDUCER,
-          aspect: "geolocation_watch_id",
-          payload: watchId,
-        });
+        setGeoWatchId(watchId);
       } else {
-        dispatch({
-          type: UPDATE_SESSION_REDUCER,
-          aspect: "browser_location",
-          payload: {
-            lat: null,
-            lng: null,
-            searching: true,
-          },
+        setMyLocation({
+          lat: null,
+          lng: null,
         });
       }
     }
+    myLocation && targetClient(mapInstance, myLocation);
+    !toggleDisplay ? setToggleDisplay(true) : setToggleDisplay(false);
   };
 
   return (
+    <>
     <IconButton
       color={myLocation ? "secondary" : "default"}
       className={classes.root}
@@ -125,6 +105,8 @@ const MyLocationButton = () => {
     >
       <MyLocationIcon />
     </IconButton>
+    {(closestListing && toggleDisplay) && <ClosestCard closestListing={closestListing}/>}
+    </>
   );
 };
 

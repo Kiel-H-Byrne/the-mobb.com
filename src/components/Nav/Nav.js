@@ -14,7 +14,7 @@ const Nav = ({ listings, categories }) => {
         <Avatar />
         <ul>
           {navListings.map((listing, index) => (
-            <li>{listing}</li>
+            <li key={index}>{listing}</li>
           ))}
         </ul>
         <MapFilter listings={listings} categories={categories} />
@@ -24,7 +24,7 @@ const Nav = ({ listings, categories }) => {
 };
 
 Nav.propTypes = {
-  listings: PropTypes.object
+  listings: PropTypes.array,
 };
 
 export default Nav;

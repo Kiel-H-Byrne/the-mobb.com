@@ -7,6 +7,6 @@ export const getCollection = collection => {
   };
 
   return fetch(dbOptions.url)
-    .then(data => data.json())
-    .then(results => results);
+    .then((data) => data.json())
+    .then((results) =>  results);
 };

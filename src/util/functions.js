@@ -89,12 +89,12 @@ const installSW = function () {
 //     return pos;
 // };
 
-const targetClient = function (map, pos) {
+export const targetClient = function (map, pos) {
   // SET CENTER,
   // ZOOM TO CERTAIN LEVEL
-  map.instance.panTo(pos);
+  map.panTo(pos);
   // google.maps.event.trigger(map, 'resize');
-  map.instance.setZoom(12);
+  map.setZoom(12);
 };
 
 const targetBrowser = function (map) {

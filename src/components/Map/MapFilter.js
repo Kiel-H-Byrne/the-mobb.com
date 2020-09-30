@@ -82,7 +82,7 @@ const MapFilter = ({ listings, categories }) => {
 };
 
 MapFilter.propTypes = {
-  listings: PropTypes.object
+  listings: PropTypes.array
 };
 
 export default MapFilter;

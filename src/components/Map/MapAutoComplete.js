@@ -1,5 +1,4 @@
 import React from "react";
-import { useSelector } from 'react-redux';
 import { Autocomplete } from "@react-google-maps/api";
 
 import { makeStyles } from "@material-ui/core/styles";
@@ -21,26 +20,25 @@ const useStyles = makeStyles({
     padding: "1px 3px",
     display: "flex",
     alignItems: "center",
-    width: "23rem"
+    width: "23rem",
   },
   input: {
     marginLeft: 8,
-    flex: 1
+    flex: 1,
   },
   iconButton: {
-    padding: 10
+    padding: 10,
   },
   divider: {
     width: 1,
     height: 28,
-    margin: 4
-  }
+    margin: 4,
+  },
 });
 
-const MapAutoComplete = () => {
+const MapAutoComplete = ({ listings,mapInstance }) => {
   const classes = useStyles();
-  const listings = useSelector(state => state.listings)
-  let count = listings.byId.length;
+  let count = listings.length;
 
   return (
     <Autocomplete style={{ backgroundColor: "#fff" }}>
@@ -58,13 +56,14 @@ const MapAutoComplete = () => {
         </IconButton>
         <Divider className={classes.divider} />
         <IconButton
-          color="disabled"
+          color="inherit"
           className={classes.iconButton}
-          aria-label="Directions">
+          aria-label="Directions"
+        >
           <DirectionsIcon />
         </IconButton>
         <Divider className={classes.divider} />
-        <MyLocationButton />
+        <MyLocationButton listings={listings} mapInstance={mapInstance}/>
       </Paper>
     </Autocomplete>
   );

@@ -24,7 +24,7 @@ const MyMarker = ({
   let locObj = { lat: parseFloat(loc[0]), lng: parseFloat(loc[1]) };
   let image = {
     url:
-      "https://cdn0.iconfinder.com/data/icons/gloss-basic-icons-by-momentum/32/pin-red.png",
+      "img/orange_marker_sm.png",
   };
 
   const handleClickMarker = (data) => {
