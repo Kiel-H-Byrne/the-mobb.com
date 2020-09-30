@@ -28,7 +28,7 @@ const MyMarker = ({
   };
 
   const handleClickMarker = (data) => {
-    dispatch({ type: ACTIONS.SHOW_SIDEDRAWER, payload: data });
+    dispatch({ type: ACTIONS.SHOW_SIDEDRAWER, payload: true });
   };
   return (
     <Marker

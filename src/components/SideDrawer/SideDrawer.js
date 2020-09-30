@@ -7,6 +7,7 @@ import { Drawer, Button, Grid, Typography } from "@material-ui/core";
 import DirectionsIcon from "@material-ui/icons/Directions";
 
 import * as ACTIONS from "../../actions/actionConstants";
+import { getOGImage } from "../../util/functions";
 
 const useStyles = makeStyles({
   root: {
@@ -34,7 +35,7 @@ const SideDrawer = ({ activeListing }) => {
   //   right: false,
   // });
   const dispatch = useDispatch();
-  const map = useSelector(state => state.map);
+  const showSideDrawer = useSelector(state => state.map.showSideDrawer);
   // const router = useSelector(state => state.router);
 
   const toggleDrawer = (side, open) => event => {
@@ -61,9 +62,15 @@ submitted: {$date: "2017-09-04T22:49:18.696Z"}
 url: "http://www.totallifechanges.com/6923871"
 _id: "3Nh99P2JxxCpBGm5v"
 */
+
+/*
+//img
+
+
+*/
   const sideList = (
     side,
-    { image, url, address, description, name, phone }
+    { _id, image, url, address, description, name, phone }
   ) => (
     <Grid
       container
@@ -77,7 +84,7 @@ _id: "3Nh99P2JxxCpBGm5v"
       <Grid item>
         <a href={url}>
           <img
-            src={image ? image.url : "http://placeimg.com/89/50/arch"}
+            src={image ? image.url : getOGImage(url, _id)}
             className={classes.media}
             alt={name}
           />
@@ -106,19 +113,11 @@ _id: "3Nh99P2JxxCpBGm5v"
     </Grid>
   );
 
-  if (!!map.showSideDrawer) {
-    return (
-      <Drawer
-        anchor="left"
-        open={!!map.showSideDrawer}
-        onClick={toggleDrawer()}
-      >
-        {sideList("left", map.showSideDrawer)}
+    return activeListing ? (
+      <Drawer anchor="left" open={!!activeListing} onClick={toggleDrawer()}>
+        {sideList("left", activeListing)}
       </Drawer>
-    );
-  } else {
-    return null;
-  }
+    ) : null;
 };
 
 /* 

@@ -47,6 +47,91 @@ const { $, GoogleMaps, google } = () => {
 //   }
 
 // }
+
+export const getOGImage = function (siteUrl, listingId) {
+
+  if (!siteUrl) {
+    console.log(`No URL for ${listingId}, so no OpenGraph Data.`);
+    return false;
+  } else {
+    let param = encodeURIComponent(siteUrl);
+    // console.log(param);
+    // console.log(`***calling OPENGRAPH API method with URL ${param} and KEY ${Meteor.settings.public.keys.openGraph.key}`);
+    let apiUrl = `https://opengraph.io/api/1.0/site/${param}?app_id=${process.env.OPENGRAPH_KEY}`;
+    // console.log("--OGP REQ URL--"+apiUrl);
+    let response;
+    try {
+      response = fetch(apiUrl)
+    .then(data => data.json())
+    .then(results => results);
+    } catch (error) {
+      console.log("openGraph ERROR", error.message)
+      return false
+    }
+    const res = {};
+    // console.log(response);
+
+    const hiObj = response.htmlInferred;
+    let hgObj = response.hybridGraph.image ? response.hybridGraph : null;
+    let ogObj =
+      !response.openGraph.error && response.openGraph.image
+        ? response.openGraph
+        : null;
+
+    res.obj = hgObj || ogObj || hiObj;
+    // console.log(res.obj);
+
+    // img = (ogObj) ? ogObj.image.url : (hgObj) ? hiObj.image : (hiObj) ? hiObj.image_guess : console.log("no img");
+    let img = res.obj.image
+      ? res.obj.image || res.obj.image.url
+      : res.obj.image_guess
+      ? res.obj.image_guess
+      : res.obj.images[0];
+
+    // description = (ogObj) ? ogObj.description || ogObj.title : (hgObj) ? hgObj.description || hgObj.title : (hiObj) ? hiObj.description || hiObj.title : console.log("no descr");;
+    let description = res.obj.description || res.obj.title || null;
+    if (description && description.length > 200) {
+      description = description.substring(0, 200);
+    }
+
+    const status = response.requestInfo.responseCode;
+    // console.log(status);
+    if (img) {
+      // uri = encodeURIComponent(img);
+      // console.log(img);
+      // if (uri.includes('http://')) {
+      if (img.includes("http://")) {
+        img = img.replace("http://", "https://images.weserv.nl/?url=");
+        // console.log(img);
+      }
+      // else if (img.includes('https://')) {
+      // else if (img.includes('https://')) {
+      //   uri = img.replace("https://", "https://images.weserv.nl/?url=ssl:");
+      //   console.log(uri);
+      // }
+      //this was causing schema to balk; had to add "if this.isInsert" to location autovalue.
+      //sibling fields were returning undefined in schemas during update process.
+
+      // Listings.update(
+      //   {
+      //     _id: listingId,
+      //   },
+      //   {
+      //     $set: {
+      //       "image.url": img,
+      //       description: description,
+      //     },
+      //   }
+      // );
+      //update listing with new image. 
+
+      console.log(img);
+      return img;
+    }
+  }
+};
+
+
 const toggleGroup = function (type) {
   for (let i = 0; i < MARKER_GROUPS[type].length; i++) {
     let marker = MARKER_GROUPS[type][i];
