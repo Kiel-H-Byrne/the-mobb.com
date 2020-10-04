@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import {
   FormControl,
@@ -8,26 +8,28 @@ import {
   Checkbox,
   ListItemText,
   Input,
-  LinearProgress
+  LinearProgress,
+  Chip,
+  Menu,
+  IconButton,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
-import { useDispatch, useSelector } from "react-redux";
-
-//Actions
-import * as ACTIONS from "./../../actions/actionConstants";
+import LocationOffIcon from "@material-ui/icons/LocationOffTwoTone";
 
 const useStyles = makeStyles({
-  root: {}
+  root: {
+    width: "300px",
+    margin: "1rem",
+  },
 });
 
 const MapFilter = ({ listings, categories }) => {
   const classes = useStyles();
-  const dispatch = useDispatch();
-  const selected_categories = useSelector(
-    state => state.categories.selected_categories
-  );
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const isMenuOpen = Boolean(anchorEl);
 
-  const handleChange = event => {
+  const handleChange = (event) => {
     //update selected_categories array (push/pop?)
     // let cat_name = event.target.value;
 
@@ -41,48 +43,60 @@ const MapFilter = ({ listings, categories }) => {
     //   newArray.splice(idx, 1);
     // }
     // console.log(newArray);
-    dispatch({
-      type: ACTIONS.UPDATE_SELECTED_CATEGORIES,
-      payload: event.target.value
-    });
+    setSelectedCategories(event.target.value);
   };
-  if (!categories) {
-    return <LinearProgress />;
-  }
-
+  const handleFilterMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleFilterMenuClose = () => {
+    setAnchorEl(null);
+  };
   return (
-    <div>
-      <FormControl className={classes.root}>
+    <>
+      {/* <FormControl className={classes.root}>
         <InputLabel id="demo-mutiple-checkbox-label">Category</InputLabel>
         <Select
           id="demo-mutiple-checkbox"
           multiple
-          value={selected_categories}
+          value={selectedCategories}
           onChange={handleChange}
           input={<Input />}
-          renderValue={selected => (
+          renderValue={(selected) => (
             <div className={classes.chips}>
               {`Selected: ${selected.length}`}
-              {/* {selected.map(value => (
+              {*//* selected.map(value => (
                 <Chip key={value} label={value} className={classes.chip} />
-              ))} */}
+              )) *//*}
             </div>
           )}
-        >
-          {categories.map(({ name }) => (
-            <MenuItem key={name} value={name}>
-              <Checkbox checked={selected_categories.indexOf(name) > -1} />
-              <ListItemText primary={name} />
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-    </div>
+        > */}
+        <IconButton aria-label="show 17 new notifications" color="inherit" onClick={handleFilterMenuOpen}>
+                <LocationOffIcon />
+            </IconButton>
+          <Menu
+            anchorEl={anchorEl}
+            anchorOrigin={{ vertical: "top", horizontal: "right" }}
+            id={"map-filter-menu"}
+            keepMounted
+            transformOrigin={{ vertical: "top", horizontal: "right" }}
+            open={isMenuOpen}
+            onClose={handleFilterMenuClose}
+          >
+            {categories.map(({ name }) => (
+              <MenuItem key={name} value={name}>
+                <Checkbox checked={selectedCategories.indexOf(name) > -1} />
+                <ListItemText primary={name} />
+              </MenuItem>
+            ))}
+          </Menu>
+        {/* </Select>
+      </FormControl> */}
+    </>
   );
 };
 
 MapFilter.propTypes = {
-  listings: PropTypes.array
+  listings: PropTypes.array,
 };
 
 export default MapFilter;

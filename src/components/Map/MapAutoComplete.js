@@ -15,8 +15,8 @@ import MyLocationButton from "./MyLocationButton";
 const useStyles = makeStyles({
   root: {
     position: "relative",
-    top: "3rem",
-    margin: "3px",
+    zIndex: 1100,
+    margin: "6px 0",
     padding: "1px 3px",
     display: "flex",
     alignItems: "center",
@@ -36,12 +36,12 @@ const useStyles = makeStyles({
   },
 });
 
-const MapAutoComplete = ({ listings,mapInstance }) => {
+const MapAutoComplete = ({ listings, mapInstance }) => {
   const classes = useStyles();
   let count = listings.length;
 
   return (
-    <Autocomplete style={{ backgroundColor: "#fff" }}>
+    <Autocomplete style={{  }}>
       <Paper className={classes.root}>
         <IconButton className={classes.iconButton} aria-label="Menu">
           <MenuIcon />
@@ -63,7 +63,7 @@ const MapAutoComplete = ({ listings,mapInstance }) => {
           <DirectionsIcon />
         </IconButton>
         <Divider className={classes.divider} />
-        <MyLocationButton listings={listings} mapInstance={mapInstance}/>
+        <MyLocationButton listings={listings} mapInstance={mapInstance} />
       </Paper>
     </Autocomplete>
   );

@@ -239,9 +239,6 @@ export const findClosestMarker = function (listings, location) {
     }
   }
   const closestMarker = listings[closest];
-  //find in store, dispatch doc to closestListing
-  // const doc = Listings.findOne({name: closestMarker.getTitle() });
-  // Session.set('closestListing', doc);
   return closestMarker;
 };
 

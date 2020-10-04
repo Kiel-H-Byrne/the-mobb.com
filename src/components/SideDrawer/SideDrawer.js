@@ -1,12 +1,8 @@
 import React from "react";
-import { useSelector, useDispatch } from "react-redux";
 
 import { makeStyles } from "@material-ui/core/styles";
-
 import { Drawer, Button, Grid, Typography } from "@material-ui/core";
 import DirectionsIcon from "@material-ui/icons/Directions";
-
-import * as ACTIONS from "../../actions/actionConstants";
 
 const useStyles = makeStyles({
   root: {
@@ -26,26 +22,17 @@ const useStyles = makeStyles({
   }
 });
 
-const SideDrawer = ({ activeListing }) => {
+const SideDrawer = ({ activeListing, isOpen, setOpen }) => {
   const classes = useStyles();
-  // const [state, setState] = useState({
-  //   left: false,
-  //   bottom: false,
-  //   right: false,
-  // });
-  const dispatch = useDispatch();
-  const map = useSelector(state => state.map);
-  // const router = useSelector(state => state.router);
 
-  const toggleDrawer = (side, open) => event => {
+  const toggleDrawer = (open) => event => {
     if (
       event.type === "keydown" &&
       (event.key === "Tab" || event.key === "Shift")
     ) {
       return;
     }
-    // setState({ ...state, [side]: open });
-    dispatch({ type: ACTIONS.SHOW_SIDEDRAWER, payload: false });
+    setOpen(open);
   };
   /*
 address: "2729 Piatt St, Wichita, KS 67219"
@@ -71,8 +58,8 @@ _id: "3Nh99P2JxxCpBGm5v"
       alignContent="stretch"
       className={classes.root + " App_drawer"}
       role="presentation"
-      onClick={toggleDrawer(side, false)}
-      onKeyDown={toggleDrawer(side, false)}
+      // onClick={toggleDrawer(side, false)}
+      // onKeyDown={toggleDrawer(side, false)}
     >
       <Grid item>
         <a href={url}>
@@ -106,19 +93,16 @@ _id: "3Nh99P2JxxCpBGm5v"
     </Grid>
   );
 
-  if (!!map.showSideDrawer) {
     return (
       <Drawer
         anchor="left"
-        open={!!map.showSideDrawer}
-        onClick={toggleDrawer()}
+        open={isOpen}
+        // onClick={toggleDrawer()}
+        onClose={toggleDrawer(false)}
       >
-        {sideList("left", map.showSideDrawer)}
+        {sideList("left", activeListing)}
       </Drawer>
     );
-  } else {
-    return null;
-  }
 };
 
 /* 

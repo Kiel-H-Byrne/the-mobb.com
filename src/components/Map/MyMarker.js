@@ -1,50 +1,44 @@
 import React from "react";
 
 import { Marker } from "@react-google-maps/api";
-import { useDispatch } from "react-redux";
-import * as ACTIONS from "./../../actions/actionConstants";
 
-const MyMarker = ({
+const MyMarker = React.memo(({
   data,
   clusterer,
+  setisDrawerOpen,
+  setisInfoWindowOpen,
+  setactiveListing,
 }) => {
-  const dispatch = useDispatch();
-
-  const handleMouseOverMarker = (e, data) => {
-    dispatch({ type: ACTIONS.SHOW_INFOWINDOW, payload: data });
-  };
-
-  const handleMouseExitMarker = () => {
-    dispatch({ type: ACTIONS.SHOW_INFOWINDOW, payload: false });
-  };
   let loc;
-  data.location
-    ? (loc = data.location.split(","))
-    : (loc = "50.60982,-1.34987");
+  const { location, _id } = data;
+  location ? (loc = location.split(",")) : (loc = "50.60982,-1.34987");
   let locObj = { lat: parseFloat(loc[0]), lng: parseFloat(loc[1]) };
   let image = {
-    url:
-      "img/orange_marker_sm.png",
+    url: "img/orange_marker_sm.png",
   };
 
-  const handleClickMarker = (data) => {
-    dispatch({ type: ACTIONS.SHOW_SIDEDRAWER, payload: data });
+  const handleMouseOverMarker = () => {
+    setactiveListing(data);
+    setisInfoWindowOpen(true);
   };
+
+  const handleClickMarker = () => {
+    // setactiveListing(data)
+    setisDrawerOpen(true);
+  };
+
   return (
     <Marker
       className="App-marker"
-      key={data._id}
+      key={_id}
       position={locObj}
       clusterer={clusterer}
-      data={data}
       icon={image}
-      title={data.name}
-      customData={JSON.stringify(data)}
-      onMouseOver={m => handleMouseOverMarker(m, data)}
-      onMouseOut={() => handleMouseExitMarker()}
-      onClick={() => handleClickMarker(data)}
+      onMouseOver={() => handleMouseOverMarker()}
+      onMouseOut={() => setisInfoWindowOpen(false)}
+      onClick={() => handleClickMarker()}
     />
   );
-};
+});
 
 export default MyMarker;

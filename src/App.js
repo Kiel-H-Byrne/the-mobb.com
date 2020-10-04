@@ -7,7 +7,8 @@ import Nav from "./components/Nav/Nav.js";
 import SideDrawer from "./components/SideDrawer/SideDrawer";
 import "./App.scss";
 
-const App = () => {
+const App = React.memo(() => {
+  const [mapInstance, setMapInstance] = useState(null);
   const [listings, setListings] = useState([]);
   const [categories, setCategories] = useState([]);
   useEffect(() => {
@@ -26,15 +27,14 @@ const App = () => {
         <LinearProgress />
       ) : (
         <div>
-          <SideDrawer activeListing={listings.activeListing} />
           <Grid container>
-            <Nav listings={listings} categories={categories} />
-            <AppMap listings={listings} categories={categories} />
+            <Nav listings={listings} categories={categories} map={mapInstance} />
+            <AppMap listings={listings} categories={categories} setMapInstance={setMapInstance} mapInstance={mapInstance} />
           </Grid>
         </div>
       )}
     </div>
   );
-};
+});
 
 export default App;

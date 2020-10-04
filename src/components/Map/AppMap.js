@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, memo } from "react";
 
 import {
   GoogleMap,
@@ -17,6 +17,7 @@ import m5 from "./images/m5.png";
 import MyMarker from "./MyMarker";
 import ListingInfoWindow from "./ListingInfoWindow";
 import MapAutoComplete from "./MapAutoComplete";
+import SideDrawer from "../SideDrawer/SideDrawer";
 
 const clusterStyles = [
   {
@@ -63,10 +64,12 @@ const clusterStyles = [
 
 const libraries = ["visualization", "places", "geometry", "localContext"];
 
-const AppMap = ({ listings, categories, browserLocation }) => {
-  const [mapInstance, setMapInstance] = useState(null);
+const AppMap = React.memo(({ listings, categories, browserLocation, setMapInstance, mapInstance }) => {
+  const [isDrawerOpen, setisDrawerOpen] = useState(false);
+  const [isInfoWindowOpen, setisInfoWindowOpen] = useState(false);
+  const [activeListing, setactiveListing] = useState(null);
+
   const selected_categories = categories.map((el) => el.name);
-  const markerInfo = mapInstance?.showInfoWindow;
 
   const defaultProps = {
     center: GEOCENTER,
@@ -263,7 +266,6 @@ const AppMap = ({ listings, categories, browserLocation }) => {
     },
   };
   let { center, zoom, options } = defaultProps;
-
   return (
     // Important! Always set the container height explicitly
     //set via app-map classname
@@ -285,7 +287,9 @@ const AppMap = ({ listings, categories, browserLocation }) => {
         zoom={browserLocation ? 16 : zoom}
         options={options}
       >
-        {listings && <MapAutoComplete listings={listings} mapInstance={mapInstance} />}
+        {listings && (
+          <MapAutoComplete listings={listings} mapInstance={mapInstance} />
+        )}
         {listings && (
           <MarkerClusterer
             styles={clusterStyles}
@@ -303,22 +307,30 @@ const AppMap = ({ listings, categories, browserLocation }) => {
                     : false
                 ) ? (
                   <MyMarker
-                    key={listing._id}
+                    key={listing.location}
                     data={listing}
                     clusterer={clusterer}
+                    setactiveListing={setactiveListing}
+                    setisDrawerOpen={setisDrawerOpen}
+                    setisInfoWindowOpen={setisInfoWindowOpen}
                   />
                 ) : null;
               })
             }
           </MarkerClusterer>
         )}
-        {markerInfo && (
-          <ListingInfoWindow position={markerInfo.location} data={markerInfo} />
+        {activeListing && isInfoWindowOpen && (
+          <ListingInfoWindow position={activeListing.location} activeListing={activeListing}/>
         )}
+
+        {activeListing && isDrawerOpen && (
+          <SideDrawer activeListing={activeListing} isOpen={isDrawerOpen} setOpen={setisDrawerOpen} />
+        )}
+
         {/* <HeatmapLayer map={this.state.map && this.state.map} data={data.map(x => {x.location})} /> */}
       </GoogleMap>
     </LoadScript>
   );
-};
+});
 
 export default AppMap;

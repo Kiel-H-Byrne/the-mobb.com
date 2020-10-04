@@ -1,9 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { InfoWindow } from "@react-google-maps/api";
-const ListingInfoWindow = ({ data, position }) => {
+const ListingInfoWindow = ({ activeListing, position }) => {
   let loc = position.split(",");
   let locObj = { lat: parseFloat(loc[0]), lng: parseFloat(loc[1]) };
+  const { name, image } = activeListing;
 
   return (
     <InfoWindow
@@ -13,11 +14,11 @@ const ListingInfoWindow = ({ data, position }) => {
       }}
     >
       <div className="App-infowindow">
-        <h5>{data.name}</h5>
+        <h5>{name}</h5>
         <img
-          src={data.image ? data.image.url : "http://placeimg.com/89/50/arch"}
+          src={image ? image.url : "http://placeimg.com/89/50/arch"}
           height="50px"
-          alt={data.name}
+          alt={name}
         />
       </div>
     </InfoWindow>
@@ -25,7 +26,7 @@ const ListingInfoWindow = ({ data, position }) => {
 };
 
 ListingInfoWindow.propTypes = {
-  data: PropTypes.object,
+  activeListing: PropTypes.object,
   position: PropTypes.string
 };
 
