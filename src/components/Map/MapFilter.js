@@ -1,15 +1,9 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import {
-  FormControl,
-  Select,
-  InputLabel,
   MenuItem,
   Checkbox,
   ListItemText,
-  Input,
-  LinearProgress,
-  Chip,
   Menu,
   IconButton,
 } from "@material-ui/core";
@@ -18,8 +12,8 @@ import LocationOffIcon from "@material-ui/icons/LocationOffTwoTone";
 
 const useStyles = makeStyles({
   root: {
-    width: "300px",
-    margin: "1rem",
+    // width: "300px",
+    // margin: "1rem",
   },
 });
 
@@ -64,32 +58,39 @@ const MapFilter = ({ listings, categories }) => {
           renderValue={(selected) => (
             <div className={classes.chips}>
               {`Selected: ${selected.length}`}
-              {*//* selected.map(value => (
+              {*/
+      /* selected.map(value => (
                 <Chip key={value} label={value} className={classes.chip} />
-              )) *//*}
+              )) */
+      /*}
             </div>
           )}
         > */}
-        <IconButton aria-label="show 17 new notifications" color="inherit" onClick={handleFilterMenuOpen}>
-                <LocationOffIcon />
-            </IconButton>
-          <Menu
-            anchorEl={anchorEl}
-            anchorOrigin={{ vertical: "top", horizontal: "right" }}
-            id={"map-filter-menu"}
-            keepMounted
-            transformOrigin={{ vertical: "top", horizontal: "right" }}
-            open={isMenuOpen}
-            onClose={handleFilterMenuClose}
-          >
-            {categories.map(({ name }) => (
-              <MenuItem key={name} value={name}>
-                <Checkbox checked={selectedCategories.indexOf(name) > -1} />
-                <ListItemText primary={name} />
-              </MenuItem>
-            ))}
-          </Menu>
-        {/* </Select>
+      <IconButton
+        aria-label="show 17 new notifications"
+        color="inherit"
+        onClick={handleFilterMenuOpen}
+      >
+        <LocationOffIcon />
+      </IconButton>
+      <Menu
+        anchorEl={anchorEl}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        id={"map-filter-menu"}
+        className={classes.root}
+        keepMounted
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
+        open={isMenuOpen}
+        onClose={handleFilterMenuClose}
+      >
+        {categories.map(({ name }) => (
+          <MenuItem key={name} value={name}>
+            <Checkbox checked={selectedCategories.indexOf(name) > -1} onChange={handleChange}/>
+            <ListItemText primary={name} />
+          </MenuItem>
+        ))}
+      </Menu>
+      {/* </Select>
       </FormControl> */}
     </>
   );

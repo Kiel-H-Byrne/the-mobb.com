@@ -4,7 +4,6 @@ import { Grid, LinearProgress } from "@material-ui/core";
 import { getCollection } from "./db/mlab";
 import AppMap from "./components/Map/AppMap";
 import Nav from "./components/Nav/Nav.js";
-import SideDrawer from "./components/SideDrawer/SideDrawer";
 import "./App.scss";
 
 const App = React.memo(() => {

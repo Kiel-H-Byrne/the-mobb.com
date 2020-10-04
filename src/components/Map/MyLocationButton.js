@@ -102,7 +102,7 @@ const MyLocationButton = ({ listings, mapInstance }) => {
     <>
     <IconButton
       color={myLocation ? "secondary" : "default"}
-      className={classes.root, myLocation ? null : classes.hasLocation }
+      className={[classes.root, myLocation ? "" : classes.hasLocation] }
       aria-label="My Location"
       onClick={handleClick}
     >

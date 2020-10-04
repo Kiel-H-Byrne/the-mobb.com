@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Avatar, makeStyles, fade, AppBar, Toolbar, IconButton, Badge } from "@material-ui/core";
+import { Avatar, makeStyles, fade, AppBar, Toolbar, IconButton } from "@material-ui/core";
 import MapFilter from "../Map/MapFilter";
 import AddLocationIcon from "@material-ui/icons/AddLocationTwoTone";
 /**
