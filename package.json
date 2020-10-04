@@ -16,13 +16,8 @@
     "react": "^16.8.4",
     "react-devtools": "^3.6.1",
     "react-dom": "^16.8.4",
-    "react-redux": "^7.1.0",
     "react-router": "^5.0.1",
     "react-scripts": "3.0.1",
-    "redux": "^4.0.1",
-    "redux-devtools": "^3.5.0",
-    "redux-logger": "^3.0.6",
-    "redux-saga": "^1.0.3",
     "typescript": "^3.5.1"
   },
   "scripts": {

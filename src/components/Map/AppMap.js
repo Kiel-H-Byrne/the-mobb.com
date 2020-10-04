@@ -8,11 +8,6 @@ import {
 } from "@react-google-maps/api";
 
 import { GEOCENTER } from "../../util/functions";
-import m1 from "./images/m1.png";
-import m2 from "./images/m2.png";
-import m3 from "./images/m3.png";
-import m4 from "./images/m4.png";
-import m5 from "./images/m5.png";
 
 import MyMarker from "./MyMarker";
 import ListingInfoWindow from "./ListingInfoWindow";
@@ -21,7 +16,7 @@ import SideDrawer from "../SideDrawer/SideDrawer";
 
 const clusterStyles = [
   {
-    url: m1,
+    url: "img/map/m1.png",
     height: 53,
     width: 53,
     anchor: [26, 26],
@@ -29,7 +24,7 @@ const clusterStyles = [
     textSize: 11,
   },
   {
-    url: m2,
+    url: "img/map/m2.png",
     height: 56,
     width: 56,
     anchor: [28, 28],
@@ -37,7 +32,7 @@ const clusterStyles = [
     textSize: 11,
   },
   {
-    url: m3,
+    url: "img/map/m3.png",
     height: 66,
     width: 66,
     anchor: [33, 33],
@@ -45,7 +40,7 @@ const clusterStyles = [
     textSize: 11,
   },
   {
-    url: m4,
+    url: "img/map/m4.png",
     height: 78,
     width: 78,
     anchor: [39, 39],
@@ -53,7 +48,7 @@ const clusterStyles = [
     textSize: 11,
   },
   {
-    url: m5,
+    url: "img/map/m5.png",
     height: 90,
     width: 90,
     anchor: [45, 45],
@@ -64,273 +59,400 @@ const clusterStyles = [
 
 const libraries = ["visualization", "places", "geometry", "localContext"];
 
-const AppMap = React.memo(({ listings, categories, browserLocation, setMapInstance, mapInstance }) => {
-  const [isDrawerOpen, setisDrawerOpen] = useState(false);
-  const [isInfoWindowOpen, setisInfoWindowOpen] = useState(false);
-  const [activeListing, setactiveListing] = useState(null);
+const AppMap = memo(
+  ({ listings, categories, browserLocation, setMapInstance, mapInstance }) => {
+    const [isDrawerOpen, setisDrawerOpen] = useState(false);
+    const [isInfoWindowOpen, setisInfoWindowOpen] = useState(false);
+    const [activeListing, setactiveListing] = useState(null);
 
-  const selected_categories = categories.map((el) => el.name);
+    const selected_categories = categories.map((el) => el.name);
 
-  const defaultProps = {
-    center: GEOCENTER,
-    zoom: 5,
-    options: {
-      clickableIcons: false,
-      disableDefaultUI: false,
-      fullscreenControl: false,
-      mapTypeControl: false,
-      scaleControl: false,
-      rotateControl: true,
-      streetViewControl: false,
-      gestureHandling: "cooperative",
-      scrollwheel: true,
-      maxZoom: 18,
-      minZoom: 4,
-      // Map styles; snippets from 'Snazzy Maps'.
-      styles: [
-        {
-          featureType: "water",
-          elementType: "geometry",
-          stylers: [
-            {
-              color: "#000000",
-            },
-            {
-              lightness: 17,
-            },
-          ],
-        },
-        {
-          featureType: "landscape.natural",
-          elementType: "geometry",
-          stylers: [
-            {
-              color: "#000000",
-            },
-            {
-              lightness: 30,
-            },
-          ],
-        },
-        {
-          featureType: "landscape.man_made",
-          elementType: "geometry",
-          stylers: [
-            {
-              color: "#000",
-            },
-            {
-              lightness: 10,
-            },
-          ],
-        },
-        {
-          featureType: "road.highway",
-          elementType: "geometry.fill",
-          stylers: [
-            {
-              color: "#000000",
-            },
-            {
-              lightness: 17,
-            },
-          ],
-        },
-        {
-          featureType: "road.highway",
-          elementType: "geometry.stroke",
-          stylers: [
-            {
-              color: "#000000",
-            },
-            {
-              lightness: 29,
-            },
-            {
-              weight: 0.2,
-            },
-          ],
-        },
-        {
-          featureType: "road.arterial",
-          elementType: "geometry",
-          stylers: [
-            {
-              color: "#000000",
-            },
-            {
-              lightness: 18,
-            },
-          ],
-        },
-        {
-          featureType: "road.local",
-          elementType: "geometry",
-          stylers: [
-            {
-              color: "#000000",
-            },
-            {
-              lightness: 16,
-            },
-          ],
-        },
-        {
-          featureType: "poi",
-          elementType: "geometry",
-          stylers: [
-            {
-              color: "#fff",
-            },
-            {
-              lightness: 21,
-            },
-          ],
-        },
-        {
-          elementType: "labels.text.stroke",
-          stylers: [
-            {
-              visibility: "on",
-            },
-            {
-              color: "#000000",
-            },
-            {
-              lightness: 25,
-            },
-          ],
-        },
-        {
-          elementType: "labels.text.fill",
-          stylers: [
-            {
-              saturation: 36,
-            },
-            {
-              color: "#000000",
-            },
-            {
-              lightness: 50,
-            },
-          ],
-        },
-        {
-          elementType: "labels.icon",
-          stylers: [
-            {
-              visibility: "off",
-            },
-          ],
-        },
-        {
-          featureType: "transit",
-          elementType: "geometry",
-          stylers: [
-            {
-              color: "#000000",
-            },
-            {
-              lightness: 19,
-            },
-          ],
-        },
-        {
-          featureType: "administrative",
-          elementType: "geometry.fill",
-          stylers: [
-            {
-              color: "#000000",
-            },
-            {
-              lightness: 20,
-            },
-          ],
-        },
-        {
-          featureType: "administrative",
-          elementType: "geometry.stroke",
-          stylers: [
-            {
-              color: "#000000",
-            },
-            {
-              lightness: 17,
-            },
-            {
-              weight: 1.2,
-            },
-          ],
-        },
-      ],
-    },
-  };
-  let { center, zoom, options } = defaultProps;
-  return (
-    // Important! Always set the container height explicitly
-    //set via app-map classname
-    <LoadScript
-      id="script-loader"
-      googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_KEY}
-      language="en"
-      region="us"
-      libraries={libraries}
-    >
-      <GoogleMap
-        onLoad={(map) => {
-          // const bounds = new window.google.maps.LatLngBounds();
-          setMapInstance(map);
-        }}
-        id="GMap"
-        mapContainerClassName="App-map"
-        center={browserLocation || center}
-        zoom={browserLocation ? 16 : zoom}
-        options={options}
+    const defaultProps = {
+      center: GEOCENTER,
+      zoom: 5,
+      options: {
+        clickableIcons: false,
+        disableDefaultUI: false,
+        fullscreenControl: false,
+        mapTypeControl: false,
+        scaleControl: false,
+        rotateControl: true,
+        streetViewControl: false,
+        gestureHandling: "cooperative",
+        scrollwheel: true,
+        maxZoom: 18,
+        minZoom: 4,
+        // Map styles; snippets from 'Snazzy Maps'.
+        styles: [
+          {
+            featureType: "administrative",
+            elementType: "labels.text.fill",
+            stylers: [
+              {
+                color: "#C3BBAE",
+              },
+            ],
+          },
+          {
+            featureType: "administrative",
+            elementType: "labels.text.stroke",
+            stylers: [
+              {
+                color: "#565250",
+              },
+            ],
+          },
+          {
+            featureType: "administrative.country",
+            elementType: "labels.text.stroke",
+            stylers: [
+              {
+                color: "#5C5A6F",
+              },
+            ],
+          },
+          {
+            featureType: "administrative.locality",
+            elementType: "labels.text.fill",
+            stylers: [
+              {
+                color: "#FFFAF3",
+              },
+            ],
+          },
+          {
+            featureType: "administrative.locality",
+            elementType: "labels.text.stroke",
+            stylers: [
+              {
+                color: "#696969",
+              },
+            ],
+          },
+          {
+            featureType: "administrative.neighborhood",
+            elementType: "labels.text.stroke",
+            stylers: [
+              {
+                color: "#696969",
+              },
+            ],
+          },
+          {
+            featureType: "landscape",
+            elementType: "all",
+            stylers: [
+              {
+                color: "#FBB03B",
+              },
+              {
+                weight: 2,
+              },
+            ],
+          },
+          {
+            featureType: "landscape",
+            elementType: "geometry.fill",
+            stylers: [
+              {
+                color: "#565250",
+              },
+              {
+                visibility: "on",
+              },
+            ],
+          },
+          {
+            featureType: "poi.park",
+            elementType: "geometry.fill",
+            stylers: [
+              {
+                hue: "#003300",
+              },
+              {
+                saturation: -80,
+              },
+              {
+                lightness: -5,
+              },
+              {
+                gamma: 0.3,
+              },
+              {
+                visibility: "simplified",
+              },
+            ],
+          },
+          {
+            featureType: "poi",
+            elementType: "all",
+            stylers: [
+              {
+                visibility: "on",
+              },
+            ],
+          },
+          {
+            featureType: "poi.business",
+            elementType: "geometry",
+            stylers: [
+              {
+                saturation: -10,
+              },
+              {
+                visibility: "on",
+              },
+            ],
+          },
+          {
+            featureType: "poi.business",
+            elementType: "labels",
+            stylers: [
+              {
+                visibility: "off",
+              },
+            ],
+          },
+          {
+            featureType: "road",
+            elementType: "all",
+            stylers: [
+              {
+                saturation: -60,
+              },
+              {
+                lightness: -45,
+              },
+            ],
+          },
+          {
+            featureType: "road",
+            elementType: "labels.text.fill",
+            stylers: [
+              {
+                color: "#FBB03B",
+              },
+            ],
+          },
+          {
+            featureType: "road",
+            elementType: "labels.text.stroke",
+            stylers: [
+              {
+                weight: 4,
+              },
+              {
+                color: "#484848",
+              },
+            ],
+          },
+          {
+            featureType: "road",
+            elementType: "labels.icon",
+            stylers: [
+              {
+                visibility: "off",
+              },
+            ],
+          },
+          {
+            featureType: "road.highway",
+            elementType: "all",
+            stylers: [
+              {
+                visibility: "simplified",
+              },
+              {
+                color: "#323232",
+              },
+            ],
+          },
+          {
+            featureType: "road.highway",
+            elementType: "labels",
+            stylers: [
+              {
+                visibility: "off",
+              },
+            ],
+          },
+          {
+            featureType: "road.arterial",
+            elementType: "labels.icon",
+            stylers: [
+              {
+                visibility: "off",
+              },
+            ],
+          },
+          {
+            featureType: "transit",
+            elementType: "all",
+            stylers: [
+              {
+                visibility: "off",
+              },
+            ],
+          },
+          {
+            featureType: "transit.station.bus",
+            elementType: "all",
+            stylers: [
+              {
+                visibility: "off",
+              },
+            ],
+          },
+          {
+            featureType: "transit.station.bus",
+            elementType: "geometry",
+            stylers: [
+              {
+                visibility: "off",
+              },
+            ],
+          },
+          {
+            featureType: "transit.station.bus",
+            elementType: "labels",
+            stylers: [
+              {
+                visibility: "off",
+              },
+              {
+                hue: "#ff0000",
+              },
+            ],
+          },
+          {
+            featureType: "transit.station.bus",
+            elementType: "labels.icon",
+            stylers: [
+              {
+                visibility: "off",
+              },
+              {
+                hue: "#ff2300",
+              },
+            ],
+          },
+          {
+            featureType: "transit.station.rail",
+            elementType: "geometry",
+            stylers: [
+              {
+                visibility: "on",
+              },
+            ],
+          },
+          {
+            featureType: "transit.station.rail",
+            elementType: "labels",
+            stylers: [
+              {
+                visibility: "on",
+              },
+            ],
+          },
+          {
+            featureType: "transit.station.rail",
+            elementType: "labels.icon",
+            stylers: [
+              {
+                visibility: "on",
+              },
+            ],
+          },
+          {
+            featureType: "water",
+            elementType: "all",
+            stylers: [
+              {
+                color: "#ffffff",
+              },
+              {
+                visibility: "on",
+              },
+            ],
+          },
+        ],
+      },
+    };
+    let { center, zoom, options } = defaultProps;
+    return (
+      // Important! Always set the container height explicitly
+      //set via app-map classname
+      <LoadScript
+        id="script-loader"
+        googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_KEY}
+        language="en"
+        region="us"
+        libraries={libraries}
       >
-        {listings && (
-          <MapAutoComplete listings={listings} mapInstance={mapInstance} />
-        )}
-        {listings && (
-          <MarkerClusterer
-            styles={clusterStyles}
-            // onClick={(event) =>{console.log(event.getMarkers())}}
-            minimumClusterSize={3}
-          >
-            {(clusterer) =>
-              Object.values(listings).map((listing) => {
-                //return marker if element categories array includes value from selected_categories
-                return (
-                  listing.categories
-                    ? listing.categories.some((el) =>
-                        selected_categories.includes(el)
-                      )
-                    : false
-                ) ? (
-                  <MyMarker
-                    key={listing.location}
-                    data={listing}
-                    clusterer={clusterer}
-                    setactiveListing={setactiveListing}
-                    setisDrawerOpen={setisDrawerOpen}
-                    setisInfoWindowOpen={setisInfoWindowOpen}
-                  />
-                ) : null;
-              })
-            }
-          </MarkerClusterer>
-        )}
-        {activeListing && isInfoWindowOpen && (
-          <ListingInfoWindow position={activeListing.location} activeListing={activeListing}/>
-        )}
+        <GoogleMap
+          onLoad={(map) => {
+            // const bounds = new window.google.maps.LatLngBounds();
+            setMapInstance(map);
+          }}
+          id="GMap"
+          mapContainerClassName="App-map"
+          center={browserLocation || center}
+          zoom={browserLocation ? 16 : zoom}
+          options={options}
+        >
+          {listings && (
+            <MapAutoComplete listings={listings} mapInstance={mapInstance} />
+          )}
+          {listings && (
+            <MarkerClusterer
+              styles={clusterStyles}
+              // onClick={(event) =>{console.log(event.getMarkers())}}
+              gridSize={23}
+              // minimumClusterSize={3}
+            >
+              {(clusterer) =>
+                Object.values(listings).map((listing) => {
+                  //return marker if element categories array includes value from selected_categories
+                  return (
+                    listing.categories
+                      ? listing.categories.some((el) =>
+                          selected_categories.includes(el)
+                        )
+                      : false
+                  ) ? (
+                    <MyMarker
+                      key={listing.location}
+                      data={listing}
+                      clusterer={clusterer}
+                      setactiveListing={setactiveListing}
+                      setisDrawerOpen={setisDrawerOpen}
+                      setisInfoWindowOpen={setisInfoWindowOpen}
+                    />
+                  ) : null;
+                })
+              }
+            </MarkerClusterer>
+          )}
+          {activeListing && isInfoWindowOpen && (
+            <ListingInfoWindow
+              position={activeListing.location}
+              activeListing={activeListing}
+            />
+          )}
 
-        {activeListing && isDrawerOpen && (
-          <SideDrawer activeListing={activeListing} isOpen={isDrawerOpen} setOpen={setisDrawerOpen} />
-        )}
+          {activeListing && isDrawerOpen && (
+            <SideDrawer
+              activeListing={activeListing}
+              isOpen={isDrawerOpen}
+              setOpen={setisDrawerOpen}
+            />
+          )}
 
-        {/* <HeatmapLayer map={this.state.map && this.state.map} data={data.map(x => {x.location})} /> */}
-      </GoogleMap>
-    </LoadScript>
-  );
-});
+          {/* <HeatmapLayer map={this.state.map && this.state.map} data={data.map(x => {x.location})} /> */}
+        </GoogleMap>
+      </LoadScript>
+    );
+  }
+);
 
 export default AppMap;

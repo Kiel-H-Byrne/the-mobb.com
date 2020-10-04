@@ -8,6 +8,9 @@ import ClosestCard from "../ClosestCard/ClosestCard";
 
 const useStyles = makeStyles({
   root: {},
+  hasLocation: {
+    color: "#0abab5",
+  }
 });
 
 const MyLocationButton = ({ listings, mapInstance }) => {
@@ -48,7 +51,7 @@ const MyLocationButton = ({ listings, mapInstance }) => {
               let marker = new window.google.maps.Marker({
                 position: new window.google.maps.LatLng(positionObject),
                 map: mapInstance,
-                icon: { url: "img/orange_dot_sm_2.png" },
+                icon: { url: "img/map/orange_dot_sm_2.png" },
                 title: "My Location",
                 // animation: google.maps.Animation.BOUNCE,
               });
@@ -64,14 +67,14 @@ const MyLocationButton = ({ listings, mapInstance }) => {
             if (!closestListing) {
               setClosestListing(findClosestMarker(listings, positionObject));
             }
-
+            // IN order to change the marker background i need the marker. in the old app an array of markers were stored in redux state
             if (oldMarker !== closestListing) {
               // set old marker icon
-              //   url: "img/orange_marker_sm.png",
+              //   url: "img/map/orange_marker_sm.png",
               // console.log("change color of marker")
             } else {
               // set closest marker icon
-              //   url: "img/red_marker_sm.png",
+              //   url: "img/map/red_marker_sm.png",
               oldMarker = closestListing;
             }
           },
@@ -99,7 +102,7 @@ const MyLocationButton = ({ listings, mapInstance }) => {
     <>
     <IconButton
       color={myLocation ? "secondary" : "default"}
-      className={classes.root}
+      className={classes.root, myLocation ? null : classes.hasLocation }
       aria-label="My Location"
       onClick={handleClick}
     >
