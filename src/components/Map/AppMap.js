@@ -69,19 +69,33 @@ const AppMap = memo(
 
     const defaultProps = {
       center: GEOCENTER,
-      zoom: 5,
+      zoom: 5, //mobb0
       options: {
-        clickableIcons: false,
-        disableDefaultUI: false,
+        backgroundColor: "#555",
+        clickableIcons: true,
+        disableDefaultUI: true,
         fullscreenControl: false,
+        zoomControl: true,
+        // zoomControlOptions: {
+        //   position: window.google.maps.ControlPosition.RIGHT_CENTER,
+        // },
         mapTypeControl: false,
+        // mapTypeControlOptions: {
+        //   style: window.google.maps.MapTypeControlStyle.DROPDOWN_MENU,
+        //   position: window.google.maps.ControlPosition.RIGHT_CENTER,
+        //   mapTypeIds: ['roadmap', 'terrain']
+        // },
         scaleControl: false,
         rotateControl: true,
         streetViewControl: false,
-        gestureHandling: "cooperative",
+        // streetViewControlOptions: {
+        //   position: window.google.maps.ControlPosition.BOTTOM_CENTER,
+        // },
+        //gestureHandling sets the mobile panning on a scrollable page: COOPERATIVE, GREEDY, AUTO, NONE
+        gestureHandling: "greedy",
         scrollwheel: true,
         maxZoom: 18,
-        minZoom: 4,
+        minZoom: 4, //3 at mobbv0
         // Map styles; snippets from 'Snazzy Maps'.
         styles: [
           {
