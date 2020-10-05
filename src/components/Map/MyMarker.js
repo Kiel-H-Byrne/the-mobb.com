@@ -21,12 +21,13 @@ const MyMarker = React.memo(({
     setactiveListing(data);
     setisInfoWindowOpen(true);
   };
-
+  const handleMouseOut = () => {
+    setisInfoWindowOpen(false)
+  }
   const handleClickMarker = () => {
-    // setactiveListing(data)
+    setactiveListing(data)
     setisDrawerOpen(true);
   };
-
   return (
     <Marker
       className="App-marker"
@@ -35,7 +36,7 @@ const MyMarker = React.memo(({
       clusterer={clusterer}
       icon={image}
       onMouseOver={() => handleMouseOverMarker()}
-      onMouseOut={() => setisInfoWindowOpen(false)}
+      onMouseOut={() => handleMouseOut()}
       onClick={() => handleClickMarker()}
     />
   );

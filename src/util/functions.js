@@ -15,7 +15,6 @@ const { $, GoogleMaps, google } = () => {
   "null";
 };
 
-//=====  GoogleMaps load =====
 
 // getOGS = function(url) {
 //   let options = {
@@ -47,41 +46,44 @@ const { $, GoogleMaps, google } = () => {
 //   }
 
 // }
-const toggleGroup = function (type) {
-  for (let i = 0; i < MARKER_GROUPS[type].length; i++) {
-    let marker = MARKER_GROUPS[type][i];
-    if (!marker.getVisible()) {
-      marker.setVisible(true);
-      //add to cluster
-      MAP_CLUSTER.addMarker(marker);
-      // console.log('setting marker visible!');
-      //marker.setMap(map);
-    } else {
-      marker.setVisible(false);
-      // console.log('setting marker invisible!');
-      //marker.setMap(null);
-      //remove from cluster
-      MAP_CLUSTER.removeMarker(marker);
-    }
-  }
-};
 
-const installSW = function () {
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", function () {
-      navigator.serviceWorker
-        .register("/sw.js")
-        .then(function (registration) {
-          // Registration was successful
-          // console.log('ServiceWorker registration successful with scope: ', registration.scope);
-        })
-        .catch(function (err) {
-          // registration failed :(
-          console.log("ServiceWorker registration failed: ", err);
-        });
-    });
-  }
-};
+
+
+// const toggleGroup = function (type) {
+//   for (let i = 0; i < MARKER_GROUPS[type].length; i++) {
+//     let marker = MARKER_GROUPS[type][i];
+//     if (!marker.getVisible()) {
+//       marker.setVisible(true);
+//       //add to cluster
+//       MAP_CLUSTER.addMarker(marker);
+//       // console.log('setting marker visible!');
+//       //marker.setMap(map);
+//     } else {
+//       marker.setVisible(false);
+//       // console.log('setting marker invisible!');
+//       //marker.setMap(null);
+//       //remove from cluster
+//       MAP_CLUSTER.removeMarker(marker);
+//     }
+//   }
+// };
+
+// const installSW = function () {
+//   if ("serviceWorker" in navigator) {
+//     window.addEventListener("load", function () {
+//       navigator.serviceWorker
+//         .register("/sw.js")
+//         .then(function (registration) {
+//           // Registration was successful
+//           // console.log('ServiceWorker registration successful with scope: ', registration.scope);
+//         })
+//         .catch(function (err) {
+//           // registration failed :(
+//           console.log("ServiceWorker registration failed: ", err);
+//         });
+//     });
+//   }
+// };
 
 // const getLocation = async function() {
 //   //const or let??
@@ -89,27 +91,17 @@ const installSW = function () {
 //     return pos;
 // };
 
-export const targetClient = function (map, pos) {
-  // SET CENTER,
-  // ZOOM TO CERTAIN LEVEL
-  map.panTo(pos);
-  // google.maps.event.trigger(map, 'resize');
-  map.setZoom(12);
-};
+// const targetBrowser = function (map) {
+//   // SET CENTER,
+//   // ZOOM TO CERTAIN LEVEL
+//   const pos = Session.get('browserLoc');
+//   if (pos) {
+//     map.instance.panTo(pos);
+//     map.instance.setZoom(8);
+//   }
+// };
 
-const targetBrowser = function (map) {
-  // SET CENTER,
-  // ZOOM TO CERTAIN LEVEL
-  // const pos = Session.get('browserLoc');
-  // if (pos) {
-  //   map.instance.panTo(pos);
-  //   map.instance.setZoom(8);
-  // }
-};
-
-// let clientMarker;
-
-export const placeMyMarker = (mapInstance, pos) => {
+// export const placeMyMarker = (mapInstance, pos) => {
   // CREATE MARKER IF IT DOESN'T ALREADY EXIST,
   //SET MARKER POSITION
 
@@ -131,86 +123,195 @@ export const placeMyMarker = (mapInstance, pos) => {
   // $(document).ready(function () {
   //   $('[id="centerButton_button"]').removeClass("pulse");
   // });
-};
+// };
 
-const hideImg = function () {
-  $(this).css({ display: "none" });
-  console.log("img broken");
-};
 
-const setGReviews = function (gid) {
-  if (gid) {
-    let dataFromCache = GCache.get(gid);
-    const res = {};
-    if (dataFromCache) {
-      console.log("Reviews Data from GCache...");
-      console.log(dataFromCache);
-      return dataFromCache;
-    } else {
-      if (GoogleMaps.loaded()) {
-        console.log("Reviews Data from API...");
-        //   //get the response and stash it in GCache.
-        // const map = GoogleMaps.maps[Object.keys(GoogleMaps.maps)[0]];
-        // console.log(map);
-        // const service = new google.maps.places.PlacesService(map.instance);
+// const hideImg = function () {
+//   $(this).css({ display: "none" });
+//   console.log("img broken");
+// };
 
-        const req = {
-          placeId: gid,
-        };
-        const cbk = function (res, stat) {
-          // if (stat === google.maps.places.PlacesServiceStatus.OK) {
-          //     // Session.set('thisPlace', res);
-          //     console.log(res);
-          //     GCache.set(gid, res);
-          //     return res;
-          //     //inject with jquery into dom?
-          // } else {
-          //     console.log(stat);
-          // }
-        };
+// const setGReviews = function (gid) {
+//   if (gid) {
+//     let dataFromCache = GCache.get(gid);
+//     const res = {};
+//     if (dataFromCache) {
+//       console.log("Reviews Data from GCache...");
+//       console.log(dataFromCache);
+//       return dataFromCache;
+//     } else {
+//       if (GoogleMaps.loaded()) {
+//         console.log("Reviews Data from API...");
+//         //   //get the response and stash it in GCache.
+//         // const map = GoogleMaps.maps[Object.keys(GoogleMaps.maps)[0]];
+//         // console.log(map);
+//         // const service = new google.maps.places.PlacesService(map.instance);
 
-        // console.log(service);
-        // service.getDetails(req, cbk);
+//         const req = {
+//           placeId: gid,
+//         };
+//         const cbk = function (res, stat) {
+//           // if (stat === google.maps.places.PlacesServiceStatus.OK) {
+//           //     // Session.set('thisPlace', res);
+//           //     console.log(res);
+//           //     GCache.set(gid, res);
+//           //     return res;
+//           //     //inject with jquery into dom?
+//           // } else {
+//           //     console.log(stat);
+//           // }
+//         };
 
-        // return resolvedData.get('placeDetails');
-      } else {
-        console.log("Map not yet loaded...");
-      }
-    }
-  } else {
-    console.log("no Google ID");
-    //NO GOOGLE ID
+//         // console.log(service);
+//         // service.getDetails(req, cbk);
+
+//         // return resolvedData.get('placeDetails');
+//       } else {
+//         console.log("Map not yet loaded...");
+//       }
+//     }
+//   } else {
+//     console.log("no Google ID");
+//     //NO GOOGLE ID
+//     return false;
+//   }
+// };
+
+// const getGDetails = function (gid) {
+//   if (GoogleMaps.loaded()) {
+//     console.log("Details Data from API...");
+//     //   //get the response and stash it in GCache.
+//     const map = GoogleMaps.maps.map;
+//     console.log(map);
+//     const service = new google.maps.places.PlacesService(map.instance);
+//     const req = {
+//       placeId: gid,
+//     };
+//     const cbk = function (res, stat) {
+//       if (stat === google.maps.places.PlacesServiceStatus.OK) {
+//         console.log(res);
+//         // ID_Cache.findOne({key: key}, {$set: {value: place_id}});
+//         // Meteor.call('setGCache', gid, res);
+//         // resolvedData.set('placeDetails', res);
+//         // Session.set('thisPlace', res);
+//         return res;
+//         //inject with jquery into dom?
+//       } else {
+//         console.log(stat);
+//       }
+//     };
+//     return service.getDetails(req, cbk);
+//   } else {
+//     console.log("no map loaded");
+//   }
+// };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const getOG = async (url) => {
+  // check(url, String);
+  // check(id, String);
+
+  if (!url) {
+    console.log(`No URL for ${url}, so no OpenGraph Data.`);
     return false;
+  } else {
+    let param = encodeURIComponent(url);
+    // console.log(param);
+    // console.log(`***calling OPENGRAPH API method with URL ${param} and KEY ${Meteor.settings.public.keys.openGraph.key}`);
+    let apiUrl = `https://opengraph.io/api/1.0/site/${param}?app_id=${process.env.REACT_APP_OG_KEY}`;
+    // console.log("--OGP REQ URL--"+apiUrl);
+    const response = await fetch(apiUrl)
+      .then((response) => response.json())
+      .then((data) => data);
+    if (response.error) {
+      console.error(`OGP FAILED:::${response.error.message}`);
+      return "http://placeimg.com/89/50/arch/sepia";
+    }
+
+    const res = {};
+
+    const hiObj = response.htmlInferred;
+    let hgObj = response.hybridGraph.image ? response.hybridGraph : null;
+    let ogObj =
+      !response.openGraph.error && response.openGraph.image
+        ? response.openGraph
+        : null;
+
+    res.obj = hgObj || ogObj || hiObj;
+    // console.log(res.obj);
+
+    // img = (ogObj) ? ogObj.image.url : (hgObj) ? hiObj.image : (hiObj) ? hiObj.image_guess : console.log("no img");
+    let img = res.obj.image
+      ? res.obj.image || res.obj.image.url
+      : res.obj.image_guess
+      ? res.obj.image_guess
+      : res.obj.images[0];
+
+    // description = (ogObj) ? ogObj.description || ogObj.title : (hgObj) ? hgObj.description || hgObj.title : (hiObj) ? hiObj.description || hiObj.title : console.log("no descr");;
+    let description = res.obj.description || res.obj.title || null;
+    if (description && description.length > 200) {
+      description = description.substring(0, 200);
+    }
+
+    const status = response.requestInfo.responseCode;
+    // console.log(status);
+    if (img) {
+      // uri = encodeURIComponent(img);
+      // console.log(img);
+      // if (uri.includes('http://')) {
+      if (img.includes("http://")) {
+        img = img.replace("http://", "https://images.weserv.nl/?url=");
+        // console.log(img);
+      }
+      // else if (img.includes('https://')) {
+      // else if (img.includes('https://')) {
+      //   uri = img.replace("https://", "https://images.weserv.nl/?url=ssl:");
+      //   console.log(uri);
+      // }
+      //this was causing schema to balk; had to add "if this.isInsert" to location autovalue.
+      //sibling fields were returning undefined in schemas during update process.
+
+      // Listings.update(
+      //   {
+      //     _id: id,
+      //   },
+      //   {
+      //     $set: {
+      //       "image.url": img,
+      //       description: description,
+      //     },
+      //   }
+      // );
+
+      console.log(img);
+      return img;
+    }
   }
 };
 
-const getGDetails = function (gid) {
-  if (GoogleMaps.loaded()) {
-    console.log("Details Data from API...");
-    //   //get the response and stash it in GCache.
-    const map = GoogleMaps.maps.map;
-    console.log(map);
-    const service = new google.maps.places.PlacesService(map.instance);
-    const req = {
-      placeId: gid,
-    };
-    const cbk = function (res, stat) {
-      if (stat === google.maps.places.PlacesServiceStatus.OK) {
-        console.log(res);
-        // ID_Cache.findOne({key: key}, {$set: {value: place_id}});
-        // Meteor.call('setGCache', gid, res);
-        // resolvedData.set('placeDetails', res);
-        // Session.set('thisPlace', res);
-        return res;
-        //inject with jquery into dom?
-      } else {
-        console.log(stat);
-      }
-    };
-    return service.getDetails(req, cbk);
-  } else {
-    console.log("no map loaded");
-  }
+export const targetClient = function (map, pos) {
+  // SET CENTER,
+  // ZOOM TO CERTAIN LEVEL
+  map.panTo(pos);
+  // google.maps.event.trigger(map, 'resize');
+  map.setZoom(12);
 };
 
 export const toPosition = (location) => {

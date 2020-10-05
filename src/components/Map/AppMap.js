@@ -435,7 +435,7 @@ const AppMap = memo(
                       : false
                   ) ? (
                     <MyMarker
-                      key={listing.location}
+                      key={`marker-${listing._id}`}
                       data={listing}
                       clusterer={clusterer}
                       setactiveListing={setactiveListing}

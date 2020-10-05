@@ -3,6 +3,7 @@ import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { Drawer, Button, Grid, Typography } from "@material-ui/core";
 import DirectionsIcon from "@material-ui/icons/Directions";
+import ListingImage from "../ListingImage";
 
 const useStyles = makeStyles({
   root: {
@@ -63,11 +64,7 @@ _id: "3Nh99P2JxxCpBGm5v"
     >
       <Grid item>
         <a href={url}>
-          <img
-            src={image ? image.url : "http://placeimg.com/89/50/arch"}
-            className={classes.media}
-            alt={name}
-          />
+          <ListingImage image={image} name={name} url={url}/>
         </a>
       </Grid>
       <Grid item>
@@ -97,7 +94,6 @@ _id: "3Nh99P2JxxCpBGm5v"
       <Drawer
         anchor="left"
         open={isOpen}
-        // onClick={toggleDrawer()}
         onClose={toggleDrawer(false)}
       >
         {sideList("left", activeListing)}
