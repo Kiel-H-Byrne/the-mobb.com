@@ -1,12 +1,11 @@
 {
-  "name": "MOBB",
+  "name": "mobb",
   "version": "0.0.1",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.1.0",
     "@material-ui/icons": "^4.1.0",
     "@react-google-maps/api": "^1.3.0",
-    "connected-react-router": "^6.3.2",
     "date-fns": "^1.30.1",
     "dotenv": "^8.2.0",
     "history": "^4.9.0",
@@ -17,8 +16,7 @@
     "react-devtools": "^3.6.1",
     "react-dom": "^16.8.4",
     "react-router": "^5.0.1",
-    "react-scripts": "3.0.1",
-    "typescript": "^3.5.1"
+    "react-scripts": "3.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -41,6 +39,6 @@
   "author": "Kiel H. Byrne",
   "license": "None",
   "devDependencies": {
-    "lerna": "^3.18.4"
+    "typescript": "^3.5.1"
   }
 }
