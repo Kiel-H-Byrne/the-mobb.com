@@ -66,16 +66,11 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   sectionDesktop: {
-    display: "none",
-    paddingLeft: "344px",
+    position: "fixed",
+    padding: '0 .4rem',
+    right: 0,
     [theme.breakpoints.up("md")]: {
       display: "flex",
-    },
-  },
-  sectionMobile: {
-    display: "flex",
-    [theme.breakpoints.up("md")]: {
-      display: "none",
     },
   },
 }));
