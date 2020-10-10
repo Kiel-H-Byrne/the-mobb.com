@@ -8,14 +8,14 @@ import "./App.scss";
 
 const App = React.memo(() => {
   const [mapInstance, setMapInstance] = useState(null);
-  const [listings, setListings] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [listings, getListings] = useState([]);
+  const [categories, getCategories] = useState([]);
   useEffect(() => {
     async function fetchListings() {
-      setListings(await getCollection("listings"));
+      getListings(await getCollection("listings"));
     }
     async function fetchCategories() {
-      setCategories(await getCollection("categories"));
+      getCategories(await getCollection("categories"));
     }
     fetchListings();
     fetchCategories();
@@ -27,8 +27,17 @@ const App = React.memo(() => {
       ) : (
         <div>
           <Grid container>
-            <Nav listings={listings} categories={categories} map={mapInstance} />
-            <AppMap listings={listings} categories={categories} setMapInstance={setMapInstance} mapInstance={mapInstance} />
+            <Nav
+              listings={listings}
+              categories={categories}
+              map={mapInstance}
+            />
+            <AppMap
+              listings={listings}
+              categories={categories}
+              setMapInstance={setMapInstance}
+              mapInstance={mapInstance}
+            />
           </Grid>
         </div>
       )}

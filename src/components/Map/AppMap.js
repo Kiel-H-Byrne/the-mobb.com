@@ -59,14 +59,26 @@ const clusterStyles = [
 
 const libraries = ["visualization", "places", "geometry", "localContext"];
 
+const vizTest = (obj, ele) => {
+  if (Object.keys(obj).length === 0) {
+    return true;
+  }
+  if (
+    ele.categories &&
+    ele.categories.some((el) => obj.hasOwnProperty(el) && obj[el])
+  ) {
+    return false;
+  }
+};
+
 const AppMap = memo(
   ({ listings, categories, browserLocation, setMapInstance, mapInstance }) => {
     const [isDrawerOpen, setisDrawerOpen] = useState(false);
     const [isInfoWindowOpen, setisInfoWindowOpen] = useState(false);
     const [activeListing, setactiveListing] = useState(null);
-
-    const selected_categories = categories.map((el) => el.name);
-
+    const [selectedCategories, setSelectedCategories] = useState({});
+    // selectedCategories = selectedCategories.map((el) => el[name] === true);//array of names
+    // console.log(selectedCategories)
     const defaultProps = {
       center: GEOCENTER,
       zoom: 5, //mobb0
@@ -392,6 +404,7 @@ const AppMap = memo(
         ],
       },
     };
+
     let { center, zoom, options } = defaultProps;
     return (
       // Important! Always set the container height explicitly
@@ -415,7 +428,13 @@ const AppMap = memo(
           options={options}
         >
           {listings && (
-            <MapAutoComplete listings={listings} mapInstance={mapInstance} />
+            <MapAutoComplete
+              categories={categories}
+              listings={listings}
+              mapInstance={mapInstance}
+              selectedCategories={selectedCategories}
+              setSelectedCategories={setSelectedCategories}
+            />
           )}
           {listings && (
             <MarkerClusterer
@@ -426,14 +445,7 @@ const AppMap = memo(
             >
               {(clusterer) =>
                 Object.values(listings).map((listing) => {
-                  //return marker if element categories array includes value from selected_categories
-                  return (
-                    listing.categories
-                      ? listing.categories.some((el) =>
-                          selected_categories.includes(el)
-                        )
-                      : false
-                  ) ? (
+                  return vizTest(selectedCategories, listing) ? (
                     <MyMarker
                       key={`marker-${listing._id}`}
                       data={listing}

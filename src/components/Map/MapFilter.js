@@ -25,19 +25,16 @@ const MapFilter = ({ listings, categories }) => {
 
   const handleChange = (event) => {
     //update selected_categories array (push/pop?)
-    // let cat_name = event.target.value;
-
-    // let idx = selected_categories.findIndex(({ name }) => name === cat_name);
-    // console.log(cat_name);
-    // let newArray = [...selected_categories];
-    // console.log(newArray)
-    // if (idx === -1) {
-    //   newArray = [...newArray,]
-    // } else {
-    //   newArray.splice(idx, 1);
-    // }
-    // console.log(newArray);
-    setSelectedCategories(event.target.value);
+    let cat_name = event.target.value;
+    let idx = selectedCategories.findIndex(({ name }) => name === cat_name);
+    let newArray = [...selectedCategories];
+    if (idx === -1) {
+      newArray = [...newArray,]
+    } else {
+      newArray.splice(idx, 1);
+    }
+    setSelectedCategories(newArray);
+    console.log(newArray)
   };
   const handleFilterMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -65,13 +62,15 @@ const MapFilter = ({ listings, categories }) => {
       /*}
             </div>
           )}
-        > */}
+      </Select>
+      </FormControl> */}
       <IconButton
         aria-label="show 17 new notifications"
         color="inherit"
         onClick={handleFilterMenuOpen}
       >
         <LocationOffIcon />
+        <span>Filter</span>
       </IconButton>
       <Menu
         anchorEl={anchorEl}
@@ -85,13 +84,14 @@ const MapFilter = ({ listings, categories }) => {
       >
         {categories.map(({ name }) => (
           <MenuItem key={name} value={name}>
-            <Checkbox checked={selectedCategories.indexOf(name) > -1} onChange={handleChange}/>
+            <Checkbox
+              checked={selectedCategories.indexOf(name) > -1}
+              onChange={handleChange}
+            />
             <ListItemText primary={name} />
           </MenuItem>
         ))}
       </Menu>
-      {/* </Select>
-      </FormControl> */}
     </>
   );
 };

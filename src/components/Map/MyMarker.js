@@ -10,7 +10,7 @@ const MyMarker = React.memo(({
   setactiveListing,
 }) => {
   let loc;
-  const { location, _id } = data;
+  const { location, _id, categories } = data;
   location ? (loc = location.split(",")) : (loc = "50.60982,-1.34987");
   let locObj = { lat: parseFloat(loc[0]), lng: parseFloat(loc[1]) };
   let image = {

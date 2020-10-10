@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Avatar, makeStyles, fade, AppBar, Toolbar, IconButton } from "@material-ui/core";
-import MapFilter from "../Map/MapFilter";
 import AddLocationIcon from "@material-ui/icons/AddLocationTwoTone";
 /**
  * 
@@ -75,26 +74,24 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Nav = React.memo(({ listings, categories }) => {
+const Nav = React.memo(({ listings, categories, setVisibleMarkers }) => {
   const classes = useStyles();
   
   return (
     <AppBar position="static" className={"App-header"}>
       <Toolbar>
         <div className={classes.sectionDesktop}>
-            <IconButton aria-label="show 4 new mails" color="inherit">
-                <AddLocationIcon />
-            </IconButton>
-            <MapFilter listings={listings} categories={categories} />
-            
-            <IconButton
-              edge="end"
-              aria-label="account of current user"
-              color="inherit"
-            >
-              <Avatar />
-            </IconButton>
-          </div>
+          <IconButton aria-label="show 4 new mails" color="inherit">
+            <AddLocationIcon />
+          </IconButton>
+          <IconButton
+            edge="end"
+            aria-label="account of current user"
+            color="inherit"
+          >
+            <Avatar />
+          </IconButton>
+        </div>
       </Toolbar>
     </AppBar>
   );
