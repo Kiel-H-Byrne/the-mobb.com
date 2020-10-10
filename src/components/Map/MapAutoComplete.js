@@ -16,39 +16,38 @@ const useStyles = makeStyles((theme) => ({
   root: {
     position: "relative",
     zIndex: 1100,
-    margin: "6px 0",
-    padding: "1px 3px",
+    margin: ".5rem",
     display: "flex",
-    width: "23rem",
-    [theme.breakpoints.down("xs")]: {
-      width: "3rem",
-    },
+    maxWidth: "23rem",
+  },
+  flexItem: {
+    display: "flex",
   },
   input: {
     marginLeft: 8,
     flex: 1,
   },
   iconButton: {
-    padding: 10,
+    // padding: 10,
   },
   divider: {
     width: 1,
     height: 28,
-    margin: 4,
+    margin: 3,
+    verticalAlign: "",
   },
   hideDesktop: {
     flexShrink: 1,
-    [theme.breakpoints.up("xs")]: {
+    [theme.breakpoints.up("sm")]: {
       display: "none",
     },
   },
   hideMobile: {
-    display: "flex",
     // flexGrow: 1,
     [theme.breakpoints.down("xs")]: {
       display: "none",
     },
-  }
+  },
 }));
 
 const MapAutoComplete = ({ listings, mapInstance }) => {
@@ -58,13 +57,7 @@ const MapAutoComplete = ({ listings, mapInstance }) => {
   return (
     <Autocomplete>
       <Paper className={classes.root}>
-        <IconButton
-          className={`${classes.iconButton} ${classes.hideDesktop}`}
-          aria-label="Menu"
-        >
-          <MenuIcon />
-        </IconButton>
-        <div className={classes.hideMobile }>
+        <div className={classes.flexItem }>
           <InputBase
             className={classes.input}
             placeholder={`Search ${count} Listings...`}
