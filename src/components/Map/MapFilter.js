@@ -19,21 +19,21 @@ const useStyles = makeStyles({
 
 const MapFilter = ({ listings, categories }) => {
   const classes = useStyles();
-  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selected_categories, setselected_categories] = useState([]);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const isMenuOpen = Boolean(anchorEl);
 
   const handleChange = (event) => {
     //update selected_categories array (push/pop?)
     let cat_name = event.target.value;
-    let idx = selectedCategories.findIndex(({ name }) => name === cat_name);
-    let newArray = [...selectedCategories];
+    let idx = selected_categories.findIndex(({ name }) => name === cat_name);
+    let newArray = [...selected_categories];
     if (idx === -1) {
       newArray = [...newArray,]
     } else {
       newArray.splice(idx, 1);
     }
-    setSelectedCategories(newArray);
+    setselected_categories(newArray);
     console.log(newArray)
   };
   const handleFilterMenuOpen = (event) => {
@@ -49,7 +49,7 @@ const MapFilter = ({ listings, categories }) => {
         <Select
           id="demo-mutiple-checkbox"
           multiple
-          value={selectedCategories}
+          value={selected_categories}
           onChange={handleChange}
           input={<Input />}
           renderValue={(selected) => (
@@ -85,7 +85,7 @@ const MapFilter = ({ listings, categories }) => {
         {categories.map(({ name }) => (
           <MenuItem key={name} value={name}>
             <Checkbox
-              checked={selectedCategories.indexOf(name) > -1}
+              checked={selected_categories.indexOf(name) > -1}
               onChange={handleChange}
             />
             <ListItemText primary={name} />

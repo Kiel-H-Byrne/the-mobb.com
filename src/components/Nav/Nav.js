@@ -1,7 +1,7 @@
 import React from "react";
-import PropTypes from "prop-types";
 import { Avatar, makeStyles, fade, AppBar, Toolbar, IconButton } from "@material-ui/core";
 import AddLocationIcon from "@material-ui/icons/AddLocationTwoTone";
+import CategoryFilter from "../Map/CategoryFilter";
 /**
  * 
   background-color: #282c34;
@@ -74,9 +74,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Nav = React.memo(({ listings, categories, setVisibleMarkers }) => {
+const Nav = React.memo(() => {
   const classes = useStyles();
-  
   return (
     <AppBar position="static" className={"App-header"}>
       <Toolbar>
@@ -84,6 +83,7 @@ const Nav = React.memo(({ listings, categories, setVisibleMarkers }) => {
           <IconButton aria-label="show 4 new mails" color="inherit">
             <AddLocationIcon />
           </IconButton>
+          <CategoryFilter />
           <IconButton
             edge="end"
             aria-label="account of current user"
@@ -97,8 +97,5 @@ const Nav = React.memo(({ listings, categories, setVisibleMarkers }) => {
   );
 });
 
-Nav.propTypes = {
-  listings: PropTypes.array,
-};
 
 export default Nav;

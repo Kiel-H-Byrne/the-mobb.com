@@ -1,25 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext } from "react";
 import { Grid, LinearProgress } from "@material-ui/core";
 
-import { getCollection } from "./db/mlab";
 import AppMap from "./components/Map/AppMap";
 import Nav from "./components/Nav/Nav.js";
 import "./App.scss";
+import { AppContext, AppProvider } from "./components/AppProvider";
 
-const App = React.memo(() => {
-  const [mapInstance, setMapInstance] = useState(null);
-  const [listings, getListings] = useState([]);
-  const [categories, getCategories] = useState([]);
-  useEffect(() => {
-    async function fetchListings() {
-      getListings(await getCollection("listings"));
-    }
-    async function fetchCategories() {
-      getCategories(await getCollection("categories"));
-    }
-    fetchListings();
-    fetchCategories();
-  }, []);
+const App_ = React.memo(() => {
+  const [context, setContext] = useContext(AppContext);
+  const { listings } = context;
   return (
     <div className="App_wrapper">
       {!listings ? (
@@ -27,17 +16,8 @@ const App = React.memo(() => {
       ) : (
         <div>
           <Grid container>
-            <Nav
-              listings={listings}
-              categories={categories}
-              map={mapInstance}
-            />
-            <AppMap
-              listings={listings}
-              categories={categories}
-              setMapInstance={setMapInstance}
-              mapInstance={mapInstance}
-            />
+            <Nav />
+            {/* <AppMap listings={listings} categories={categories} /> */}
           </Grid>
         </div>
       )}
@@ -45,4 +25,11 @@ const App = React.memo(() => {
   );
 });
 
+const App = React.memo(() => {
+  return (
+    <AppProvider>
+      <App_ />
+    </AppProvider>
+  );
+});
 export default App;
