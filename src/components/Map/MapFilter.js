@@ -24,20 +24,18 @@ const MapFilter = ({ listings, categories }) => {
   const isMenuOpen = Boolean(anchorEl);
 
   const handleChange = (event) => {
-    //update selected_categories array (push/pop?)
-    // let cat_name = event.target.value;
-
-    // let idx = selected_categories.findIndex(({ name }) => name === cat_name);
+    //update selectedCategories array (push/pop?)
+    let cat_name = event.target.value;
+    let idx = selectedCategories.findIndex(({ name }) => name === cat_name);
     // console.log(cat_name);
-    // let newArray = [...selected_categories];
+    let newArray = [...selectedCategories];
+    if (idx === -1) {
+      newArray = [...newArray,]
+    } else {
+      newArray.splice(idx, 1);
+    }
+    setSelectedCategories(newArray);
     // console.log(newArray)
-    // if (idx === -1) {
-    //   newArray = [...newArray,]
-    // } else {
-    //   newArray.splice(idx, 1);
-    // }
-    // console.log(newArray);
-    setSelectedCategories(event.target.value);
   };
   const handleFilterMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);

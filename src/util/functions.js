@@ -48,7 +48,6 @@ const { $, GoogleMaps, google } = () => {
 // }
 
 
-
 // const toggleGroup = function (type) {
 //   for (let i = 0; i < MARKER_GROUPS[type].length; i++) {
 //     let marker = MARKER_GROUPS[type][i];

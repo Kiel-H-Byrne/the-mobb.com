@@ -3,10 +3,10 @@ import PropTypes from "prop-types";
 import { InfoWindow } from "@react-google-maps/api";
 import ListingImage from "../ListingImage";
 
-const ListingInfoWindow = React.memo(({ activeListing, position }) => {
-  let loc = position.split(",");
+const ListingInfoWindow = React.memo(({ activeListing }) => {
+  const { name, image, url, description, location } = activeListing;
+  let loc = location.split(",");
   let locObj = { lat: parseFloat(loc[0]), lng: parseFloat(loc[1]) };
-  const { name, image, url, description } = activeListing;
 
   return (
     <InfoWindow
@@ -26,7 +26,6 @@ const ListingInfoWindow = React.memo(({ activeListing, position }) => {
 
 ListingInfoWindow.propTypes = {
   activeListing: PropTypes.object,
-  position: PropTypes.string,
 };
 
 export default ListingInfoWindow;

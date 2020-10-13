@@ -11,6 +11,9 @@ import MenuIcon from "@material-ui/icons/Menu";
 import SearchIcon from "@material-ui/icons/Search";
 import DirectionsIcon from "@material-ui/icons/Directions";
 import MyLocationButton from "./MyLocationButton";
+import LocationOffIcon from "@material-ui/icons/LocationOffTwoTone";
+import CategoryFilter from "./CategoryFilter";
+import { memo } from "react";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -50,14 +53,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const MapAutoComplete = ({ listings, mapInstance }) => {
+const MapNav = memo(({ listings, mapInstance, categories, selectedCategories, setSelectedCategories }) => {
   const classes = useStyles();
   let count = listings.length;
 
   return (
     <Autocomplete>
       <Paper className={classes.root}>
-        <div className={classes.flexItem }>
+        <div className={classes.flexItem}>
           <InputBase
             className={classes.input}
             placeholder={`Search ${count} Listings...`}
@@ -70,9 +73,9 @@ const MapAutoComplete = ({ listings, mapInstance }) => {
           <IconButton
             color="inherit"
             className={classes.iconButton}
-            aria-label="Directions"
+            aria-label="Filter"
           >
-            <DirectionsIcon />
+            <CategoryFilter listings={listings} categories={categories} selectedCategories={selectedCategories} setSelectedCategories={setSelectedCategories}/>
           </IconButton>
           <Divider className={classes.divider} />
           <MyLocationButton listings={listings} mapInstance={mapInstance} />
@@ -80,6 +83,6 @@ const MapAutoComplete = ({ listings, mapInstance }) => {
       </Paper>
     </Autocomplete>
   );
-};
+});
 
-export default MapAutoComplete;
+export default MapNav;

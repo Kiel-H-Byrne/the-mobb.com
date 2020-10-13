@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { Avatar, makeStyles, fade, AppBar, Toolbar, IconButton } from "@material-ui/core";
-import MapFilter from "../Map/MapFilter";
 import AddLocationIcon from "@material-ui/icons/AddLocationTwoTone";
+// import MapFilter from "../Map/MapFilter";
+import CategoryFilter from "../Map/CategoryFilter";
 /**
  * 
   background-color: #282c34;
@@ -75,26 +76,25 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Nav = React.memo(({ listings, categories }) => {
+const Nav = React.memo(({listings, categories}) => {
   const classes = useStyles();
-  
   return (
     <AppBar position="static" className={"App-header"}>
       <Toolbar>
         <div className={classes.sectionDesktop}>
-            <IconButton aria-label="show 4 new mails" color="inherit">
-                <AddLocationIcon />
-            </IconButton>
-            <MapFilter listings={listings} categories={categories} />
-            
-            <IconButton
-              edge="end"
-              aria-label="account of current user"
-              color="inherit"
-            >
-              <Avatar />
-            </IconButton>
-          </div>
+          <IconButton aria-label="show 4 new mails" color="inherit">
+            <AddLocationIcon />
+          </IconButton>
+          {/* <CategoryFilter listings={listings} categories={categories} selectedCategories={selectedCategories} setSelectedCategories={setSelectedCategories}/> */}
+          {/* <MapFilter listings={listings} categories={categories} /> */}
+          <IconButton
+            edge="end"
+            aria-label="account of current user"
+            color="inherit"
+          >
+            <Avatar />
+          </IconButton>
+        </div>
       </Toolbar>
     </AppBar>
   );
