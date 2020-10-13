@@ -17,7 +17,7 @@ const App_ = React.memo(() => {
         <div>
           <Grid container>
             <Nav />
-            {/* <AppMap listings={listings} categories={categories} /> */}
+            <AppMap listings={listings} categories={categories} />
           </Grid>
         </div>
       )}
