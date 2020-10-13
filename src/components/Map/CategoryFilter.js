@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   MenuItem,
   Menu,
@@ -11,8 +11,7 @@ import { makeStyles } from "@material-ui/styles";
 import LocationOffIcon from "@material-ui/icons/LocationOffTwoTone";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-import { useContext } from "react";
-import { AppContext } from "../AppProvider";
+import { useGlobalState } from '../../state'
 
 const useStyles = makeStyles({
   root: {
@@ -22,19 +21,16 @@ const useStyles = makeStyles({
   badge: { float: "right" },
 });
 
-const CategoryFilter = React.memo(() => {
+const CategoryFilter = React.memo(({listings, categories}) => {
   const classes = useStyles();
-  const [context, setContext] = useContext(AppContext);
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [selected_categories, setSelectedCategories] = useGlobalState('selected_categories');
+  const [anchorEl, setAnchorEl] = useState(null);
   const isMenuOpen = Boolean(anchorEl);
-  const { listings, categories, selected_categories } = context;
+  
   const handleChange = (event) => {
-    setContext({
-      ...context,
-      selected_categories: {
-        ...context.selected_categories,
-        [event.target.name]: event.target.checked,
-      },
+    setSelectedCategories({
+      ...selected_categories,
+      [event.target.name]: event.target.checked,
     });
   };
   const handleFilterMenuOpen = (event) => {
@@ -65,7 +61,7 @@ const CategoryFilter = React.memo(() => {
         open={isMenuOpen}
         onClose={handleFilterMenuClose}
       >
-        {!categories ? (
+        {categories?.length === 0 ? (
           <LinearProgress />
         ) : (
           categories.map(({ name }) => (

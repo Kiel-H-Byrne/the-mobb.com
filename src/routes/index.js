@@ -1,4 +1,4 @@
-uimport React from "react";
+import React from "react";
 
 //Routes
 import { Route, Switch } from "react-router";
@@ -12,22 +12,21 @@ import Landing from "../components/pages/Landing";
 
 //Auth
 export const LANDING = "/";
-export const CHECKOUT = "/checkout";
-export const CREATE_EVENT = "/createEvent";
+export const CREATE_EVENT = "/createListing";
 export const DASHBOARD = "/dashboard";
-export const EVENT = "/event/:eventId";
-export const EVENTS = "/events";
+export const LISTING = "/listing/:listingId";
+export const LISTINGS = "/listings";
 export const PRIVACY = "/privacy";
 export const PROFILE = "/profile";
 
 //CodeSplit Components
 const Checkout = asyncComponent(() => import("../components/pages/Checkout"));
-const CreateEvent = asyncComponent(() =>
-  import("../components/pages/CreateEvent")
+const CreateListing = asyncComponent(() =>
+  import("../components/pages/CreateListing")
 );
 const Dashboard = asyncComponent(() => import("../components/pages/Dashboard"));
-const Event = asyncComponent(() => import("../components/pages/Event"));
-const Events = asyncComponent(() => import("../components/pages/Events"));
+const Listing = asyncComponent(() => import("../components/pages/listing"));
+const Listings = asyncComponent(() => import("../components/pages/listings"));
 const Privacy = asyncComponent(() => import("../components/pages/Privacy"));
 const Profile = asyncComponent(() => import("../components/pages/Profile"));
 
@@ -37,10 +36,10 @@ const routes = (
     <Navigation />
     <Switch>
       <Route exact path={CHECKOUT} component={Checkout} />
-      <Route exact path={CREATE_EVENT} component={CreateEvent} />
+      <Route exact path={CREATE_LISTING} component={CreateListing} />
       <Route exact path={DASHBOARD} component={Dashboard} />
-      <Route exact path={EVENT} component={Event} />
-      <Route exact path={EVENTS} component={Events} />
+      <Route exact path={LISTING} component={Listing} />
+      <Route exact path={LISTINGS} component={Listings} />
       <Route exact path={LANDING} component={Landing} />
       <Route exact path={PRIVACY} component={Privacy} />
       <Route exact path={PROFILE} component={Profile} />

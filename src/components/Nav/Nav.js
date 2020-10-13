@@ -74,7 +74,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Nav = React.memo(() => {
+const Nav = React.memo(({listings, categories}) => {
   const classes = useStyles();
   return (
     <AppBar position="static" className={"App-header"}>
@@ -83,7 +83,7 @@ const Nav = React.memo(() => {
           <IconButton aria-label="show 4 new mails" color="inherit">
             <AddLocationIcon />
           </IconButton>
-          <CategoryFilter />
+          <CategoryFilter listings={listings} categories={categories}/>
           <IconButton
             edge="end"
             aria-label="account of current user"

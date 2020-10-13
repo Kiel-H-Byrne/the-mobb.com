@@ -1,4 +1,4 @@
-import React, { useState, memo, useContext } from "react";
+import React, { memo } from "react";
 
 import {
   GoogleMap,
@@ -13,7 +13,7 @@ import MyMarker from "./MyMarker";
 import ListingInfoWindow from "./ListingInfoWindow";
 import MapNav from "./MapNav";
 import SideDrawer from "../SideDrawer/SideDrawer";
-import { AppContext } from "../AppProvider";
+import { useGlobalState } from "../../state";
 
 const libraries = ["visualization", "places", "geometry", "localContext"];
 
@@ -400,25 +400,14 @@ const vizTest = (categories, listing) => {
   }
 };
 
-const AppMap = React.memo(() => {
-  const [context, setContext] = useContext(AppContext);
+const AppMap = React.memo(({listings, categories}) => {
+  const [isInfoWindowOpen, setIsInfoWindowOpen] = useGlobalState('isInfoWindowOpen')
+  const [mapInstance, setMapInstance] = useGlobalState('mapInstance')
+  const [active_listing, setActiveListing] = useGlobalState('active_listing')
+  const [selected_categories, setSelectedCategories] = useGlobalState('active_listing')
   // selected_categories = selected_categories.map((el) => el[name] === true);//array of names
-  const handleDrawerClosed = (open) => {
-    setContext({
-      ...context,
-      isDrawerOpen: open,
-    });
-  };
-
-  const {
-    listings,
-    categories,
-    browserLocation,
-    activeListing,
-    isInfoWindowOpen,
-    isDrawerOpen,
-    selected_categories,
-  } = context;
+  
+  let browserLocation = void(0);
   let { center, zoom, options } = defaultProps;
 
   return (
@@ -434,10 +423,7 @@ const AppMap = React.memo(() => {
         <GoogleMap
           onLoad={(map) => {
             // const bounds = new window.google.maps.LatLngBounds();
-            setContext({
-              ...context,
-              mapInstance: map,
-            });
+            setMapInstance(map);
           }}
           id="GMap"
           mapContainerClassName="App-map"
@@ -460,24 +446,22 @@ const AppMap = React.memo(() => {
                       key={`marker-${listing._id}`}
                       data={listing}
                       clusterer={clusterer}
+                      setIsInfoWindowOpen={setIsInfoWindowOpen}
                     />
                   ) : null;
                 })
               }
             </MarkerClusterer>
           )}
-          {activeListing && isInfoWindowOpen && (
+          {active_listing && isInfoWindowOpen && (
             <ListingInfoWindow
-              position={activeListing.location}
-              activeListing={activeListing}
+              active_listing={active_listing}
             />
           )}
 
-          {activeListing && isDrawerOpen && (
+          {active_listing && (
             <SideDrawer
-              activeListing={activeListing}
-              handleDrawerClosed={handleDrawerClosed}
-              isDrawerOpen={isDrawerOpen}
+              active_listing={active_listing}
             />
           )}
 

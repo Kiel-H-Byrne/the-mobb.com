@@ -4,7 +4,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Drawer, Button, Grid, Typography } from "@material-ui/core";
 import DirectionsIcon from "@material-ui/icons/Directions";
 import ListingImage from "../ListingImage";
-import { AppContext } from "../AppProvider";
+import { useGlobalState } from "../../state";
 
 const useStyles = makeStyles({
   root: {
@@ -24,8 +24,9 @@ const useStyles = makeStyles({
   },
 });
 
-const SideDrawer = ({activeListing, handleDrawerClosed, isDrawerOpen}) => {
+const SideDrawer = ({active_listing}) => {
   const classes = useStyles();
+  const [isDrawerOpen, setIsDrawerOpen] = useGlobalState('isDrawerOpen')
   const toggleDrawer = (open) => (event) => {
     if (
       event.type === "keydown" &&
@@ -33,7 +34,7 @@ const SideDrawer = ({activeListing, handleDrawerClosed, isDrawerOpen}) => {
     ) {
       return;
     }
-    handleDrawerClosed(open)
+    setIsDrawerOpen(open)
     
   };
   const sideList = (
@@ -79,7 +80,7 @@ const SideDrawer = ({activeListing, handleDrawerClosed, isDrawerOpen}) => {
 
   return (
       <Drawer anchor="left" open={isDrawerOpen} onClose={toggleDrawer(false)}>
-        {sideList("left", activeListing)}
+        {sideList("left", active_listing)}
       </Drawer>
   );
 };

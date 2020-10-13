@@ -1,16 +1,18 @@
 import React from "react";
 
 import { Marker } from "@react-google-maps/api";
+import { useGlobalState } from "../../state";
 
 const MyMarker = React.memo(({
   data,
   clusterer,
-  setisDrawerOpen,
-  setisInfoWindowOpen,
-  setactiveListing,
+  setIsInfoWindowOpen,
 }) => {
+  const [isDrawerOpen, setIsDrawerOpen] = useGlobalState('isDrawerOpen')
+  const [active_listing, setActiveListing] = useGlobalState('active_listing')
+
   let loc;
-  const { location, _id, categories } = data;
+  const { location, _id } = data;
   location ? (loc = location.split(",")) : (loc = "50.60982,-1.34987");
   let locObj = { lat: parseFloat(loc[0]), lng: parseFloat(loc[1]) };
   let image = {
@@ -18,15 +20,17 @@ const MyMarker = React.memo(({
   };
 
   const handleMouseOverMarker = () => {
-    setactiveListing(data);
-    setisInfoWindowOpen(true);
+    setActiveListing(data);
+    setIsInfoWindowOpen(true);
   };
   const handleMouseOut = () => {
-    setisInfoWindowOpen(false)
+    setIsInfoWindowOpen(false)
   }
   const handleClickMarker = () => {
-    setactiveListing(data)
-    setisDrawerOpen(true);
+    if (!isDrawerOpen) {
+      setActiveListing(data);
+    setIsDrawerOpen(true);
+    } 
   };
   return (
     <Marker

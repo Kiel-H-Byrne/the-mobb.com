@@ -9,8 +9,6 @@ import IconButton from "@material-ui/core/IconButton";
 
 import SearchIcon from "@material-ui/icons/Search";
 import MyLocationButton from "./MyLocationButton";
-import CategoryFilter from "./CategoryFilter";
-import MapFilter from "./MapFilter";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -78,13 +76,6 @@ const MapNav = ({
             className={classes.iconButton}
             aria-label="Filter"
           >
-            {/* <MapFilter listings={listings} categories={categories} /> */}
-            <CategoryFilter
-              listings={listings}
-              categories={categories}
-              selected_categories={selected_categories}
-              setselected_categories={setselected_categories}
-            />
           </IconButton>
           <Divider className={classes.divider} />
           <MyLocationButton listings={listings} mapInstance={mapInstance} />
