@@ -70,13 +70,16 @@ const MapNav = memo(({ listings, mapInstance, categories, selectedCategories, se
             <SearchIcon />
           </IconButton>
           <Divider className={classes.divider} />
-          <IconButton
+
+          <CategoryFilter
+            listings={listings}
+            categories={categories}
+            selectedCategories={selectedCategories}
+            setSelectedCategories={setSelectedCategories}
             color="inherit"
             className={classes.iconButton}
             aria-label="Filter"
-          >
-            <CategoryFilter listings={listings} categories={categories} selectedCategories={selectedCategories} setSelectedCategories={setSelectedCategories}/>
-          </IconButton>
+          />
           <Divider className={classes.divider} />
           <MyLocationButton listings={listings} mapInstance={mapInstance} />
         </div>

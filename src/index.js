@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 
 import './index.css';
 import './components/wdyr'
+
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 ReactDOM.hydrate(

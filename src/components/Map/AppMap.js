@@ -13,6 +13,7 @@ import MyMarker from "./MyMarker";
 import ListingInfoWindow from "./ListingInfoWindow";
 import MapAutoComplete from "./MapAutoComplete";
 import SideDrawer from "../SideDrawer/SideDrawer";
+import { LinearProgress } from "@material-ui/core";
 
 const libraries = ["visualization", "places", "geometry", "localContext"];
 
@@ -428,7 +429,7 @@ const MemoizedCluster = memo(
 }
 )
 
-const AppMap = memo(
+const AppMap = 
   ({ listings, categories, browserLocation, setMapInstance, mapInstance }) => {
     const [isDrawerOpen, setisDrawerOpen] = useState(false);
     const [isInfoWindowOpen, setisInfoWindowOpen] = useState(false);
@@ -469,7 +470,7 @@ const AppMap = memo(
             setSelectedCategories={setSelectedCategories}
           />
         )}
-        {listings && (
+        
           <MemoizedCluster
             clusterStyles={clusterStyles}
             listings={listings}
@@ -478,14 +479,10 @@ const AppMap = memo(
             setisDrawerOpen={setisDrawerOpen}
             selectedCategories={selectedCategories}
           />
-        )}
-        {activeListing && isInfoWindowOpen && (
-          <ListingInfoWindow
-            position={activeListing.location}
-            activeListing={activeListing}
-          />
-        )}
-
+        <ListingInfoWindow
+          activeListing={activeListing}
+          isOpen={isInfoWindowOpen}
+        />
         {activeListing && isDrawerOpen && (
           <SideDrawer
             activeListing={activeListing}
@@ -498,6 +495,6 @@ const AppMap = memo(
       </GoogleMap>
     </LoadScript>
   );
-});
+};
 
 export default AppMap;
