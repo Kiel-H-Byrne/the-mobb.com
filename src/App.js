@@ -20,15 +20,16 @@ const App = React.memo(() => {
     fetchListings();
     fetchCategories();
   }, []);
+
   return (
     <div className="App_wrapper">
-      {!listings ? (
+      {!listings? (
         <LinearProgress />
       ) : (
         <div>
           <Grid container>
             <Nav listings={listings} categories={categories} map={mapInstance} />
-            <AppMap listings={listings} categories={categories} setMapInstance={setMapInstance} mapInstance={mapInstance} />
+            <AppMap listings={(listings)} categories={categories} setMapInstance={setMapInstance} mapInstance={mapInstance} />
           </Grid>
         </div>
       )}

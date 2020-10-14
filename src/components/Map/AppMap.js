@@ -13,7 +13,6 @@ import MyMarker from "./MyMarker";
 import ListingInfoWindow from "./ListingInfoWindow";
 import MapAutoComplete from "./MapAutoComplete";
 import SideDrawer from "../SideDrawer/SideDrawer";
-import { LinearProgress } from "@material-ui/core";
 
 const libraries = ["visualization", "places", "geometry", "localContext"];
 
@@ -403,9 +402,27 @@ const vizTest = (categories, listing) => {
   }
 };
 
-const MemoizedCluster = memo(
-({listings, clusterStyles, ...props}) => {
-  return (
+const AppMap = memo(({ listings, categories, setMapInstance }) => {
+  const [isDrawerOpen, setisDrawerOpen] = useState(false);
+  const [isInfoWindowOpen, setisInfoWindowOpen] = useState(false);
+  const [activeListing, setactiveListing] = useState(null);
+  const [selectedCategories, setSelectedCategories] = useState({});
+
+  // let browserLocation = void(0);
+  let { center, zoom, options } = defaultProps;
+
+  const onMarkerOver = () => {
+    setactiveListing(activeListing);
+    setisInfoWindowOpen(true);
+  };
+
+  const onMarkerOut = () => setisInfoWindowOpen(false);
+  const onMarkerClick = () => {
+    setactiveListing(activeListing);
+    setisDrawerOpen(true);
+  };
+
+  const MemoizedCluster = memo(() => (
     <MarkerClusterer
       styles={clusterStyles}
       // onClick={(event) =>{console.log(event.getMarkers())}}
@@ -414,31 +431,21 @@ const MemoizedCluster = memo(
     >
       {(clusterer) =>
         Object.values(listings).map((listing) => {
-          return vizTest(props.selectedCategories, listing) ? (
+          console.log(listing)
+          return vizTest(selectedCategories, listing) ? (
             <MyMarker
               key={`marker-${listing._id}`}
               data={listing}
               clusterer={clusterer}
-              {...props}
+              onMarkerOver={onMarkerOver}
+              onMarkerOut={onMarkerOut}
+              onMarkerClick={onMarkerClick}
             />
           ) : null;
         })
       }
     </MarkerClusterer>
-  );
-}
-)
-
-const AppMap = 
-  ({ listings, categories, browserLocation, setMapInstance, mapInstance }) => {
-    const [isDrawerOpen, setisDrawerOpen] = useState(false);
-    const [isInfoWindowOpen, setisInfoWindowOpen] = useState(false);
-    const [activeListing, setactiveListing] = useState(null);
-    const [selectedCategories, setSelectedCategories] = useState({});
-
-  // const selectedCategories = categories.map((el) => el.name);
-  // let browserLocation = void(0);
-  let { center, zoom, options } = defaultProps;
+  ));
 
   return (
     // Important! Always set the container height explicitly
@@ -457,33 +464,21 @@ const AppMap =
         }}
         id="GMap"
         mapContainerClassName="App-map"
-        center={browserLocation || center}
-        zoom={browserLocation ? 16 : zoom}
+        center={center}
+        zoom={zoom}
         options={options}
       >
-        {listings && (
-          <MapAutoComplete
-            categories={categories}
-            listings={listings}
-            mapInstance={mapInstance}
-            selectedCategories={selectedCategories}
-            setSelectedCategories={setSelectedCategories}
-          />
-        )}
-        
-          <MemoizedCluster
-            clusterStyles={clusterStyles}
-            listings={listings}
-            setisInfoWindowOpen={setisInfoWindowOpen}
-            setactiveListing={setactiveListing}
-            setisDrawerOpen={setisDrawerOpen}
-            selectedCategories={selectedCategories}
-          />
-        <ListingInfoWindow
-          activeListing={activeListing}
-          isOpen={isInfoWindowOpen}
+        <MapAutoComplete
+          categories={categories}
+          listings={listings}
+          selectedCategories={selectedCategories}
+          setSelectedCategories={setSelectedCategories}
         />
-        {activeListing && isDrawerOpen && (
+
+        <MemoizedCluster />
+
+        {activeListing && <ListingInfoWindow activeListing={activeListing} />}
+        {activeListing && (
           <SideDrawer
             activeListing={activeListing}
             isOpen={isDrawerOpen}
@@ -495,6 +490,6 @@ const AppMap =
       </GoogleMap>
     </LoadScript>
   );
-};
+});
 
 export default AppMap;

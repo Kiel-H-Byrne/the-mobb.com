@@ -21,7 +21,7 @@ const useStyles = makeStyles({
   badge: { float: "right" },
 });
 
-const CategoryFilter = React.memo(({listings, categories, selectedCategories, setSelectedCategories}) => {
+const CategoryFilter = React.memo(({listings, categories, selectedCategories, setSelectedCategories }) => {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
   const isMenuOpen = Boolean(anchorEl);
@@ -39,7 +39,7 @@ const CategoryFilter = React.memo(({listings, categories, selectedCategories, se
     setAnchorEl(null);
   };
   const catCount = (name) => {
-    return listings.filter((el) => el.categories?.includes(name)).length;
+    return Object.values(listings).filter((el) => el.categories?.includes(name)).length;
   };
   return (
     <div>
@@ -63,14 +63,14 @@ const CategoryFilter = React.memo(({listings, categories, selectedCategories, se
         {categories?.length === 0 ? (
           <LinearProgress />
         ) : (
-          categories.map(({ name }) => (
+          Object.values(categories).map(({ name }) => (
             <MenuItem key={name} value={name}>
               <FormGroup>
                 <FormControlLabel
                   control={
                     <Switch
                       checked={selectedCategories[name] || false}
-                      onChange={handleChange}
+                      // onChange={handleChange}
                       name={name}
                     />
                   }

@@ -5,9 +5,9 @@ import { Marker } from "@react-google-maps/api";
 const MyMarker = React.memo(({
   data,
   clusterer,
-  setisDrawerOpen,
-  setisInfoWindowOpen,
-  setactiveListing,
+  onMarkerOver,
+  onMarkerOut,
+  onMarkerClick,
 }) => {
   let loc;
   const { location, _id } = data;
@@ -17,17 +17,7 @@ const MyMarker = React.memo(({
     url: "img/map/orange_marker_sm.png",
   };
 
-  const handleMouseOverMarker = () => {
-    setactiveListing(data);
-    setisInfoWindowOpen(true);
-  };
-  const handleMouseOut = () => {
-    setisInfoWindowOpen(false)
-  }
-  const handleClickMarker = () => {
-    setactiveListing(data)
-    setisDrawerOpen(true);
-  };
+
   return (
     <Marker
       className="App-marker"
@@ -35,9 +25,9 @@ const MyMarker = React.memo(({
       position={locObj}
       clusterer={clusterer}
       icon={image}
-      onMouseOver={() => handleMouseOverMarker()}
-      onMouseOut={() => handleMouseOut()}
-      onClick={() => handleClickMarker()}
+      onMouseOver={onMarkerOver}
+      onMouseOut={onMarkerOut}
+      onClick={onMarkerClick}
     />
   );
 });

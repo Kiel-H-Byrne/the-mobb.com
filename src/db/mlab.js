@@ -8,5 +8,10 @@ export const getCollection = collection => {
 
   return fetch(dbOptions.url)
     .then((data) => data.json())
-    .then((results) =>  results);
+    .then((results) =>  {
+      // change [{}] into [{_id: {}}]
+      let obj = {}
+      results.map(el => (obj[el._id] = el))
+      return obj;
+    });
 };

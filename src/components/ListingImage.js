@@ -19,18 +19,23 @@ const ListingImage = ({ image, name, url }) => {
   const handleImageError = (e) => {
     // modify db to remove the image url for this listing _id
     //get opengraph image and save src instead
-    setogImage("https://www.wallies.com/filebin/images/loading_apple.gif")
+    setogImage("./img/loading.gif");
     let img = e;
     img.onerror = null;
-    !url? setogImage(DEFAULT_IMAGE) : getOG(url).then((data) => {setogImage(data); setImgError(false)});
+    !url
+      ? setogImage(DEFAULT_IMAGE)
+      : getOG(url).then((data) => {
+          setogImage(data);
+          setImgError(false);
+        });
   };
   return (
     <div className={classes.root}>
-              <img
-          src={!image ? DEFAULT_IMAGE : ogImage || (image && image.url)}
-          onError={(e) => handleImageError(e)}
-          alt={name}
-        />
+      <img
+        src={image?.url || ogImage || DEFAULT_IMAGE}
+        onError={handleImageError}
+        alt={name}
+      />
     </div>
   );
 };
