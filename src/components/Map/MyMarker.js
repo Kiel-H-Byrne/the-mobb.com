@@ -35,9 +35,9 @@ const MyMarker = React.memo(({
       position={locObj}
       clusterer={clusterer}
       icon={image}
-      onMouseOver={() => handleMouseOverMarker()}
-      onMouseOut={() => handleMouseOut()}
-      onClick={() => handleClickMarker()}
+      onMouseOver={handleMouseOverMarker}
+      onMouseOut={handleMouseOut}
+      onClick={handleClickMarker}
     />
   );
 });

@@ -34,7 +34,7 @@ const ListingImage = ({ image, name, url }) => {
 };
 
 ListingImage.propTypes = {
-  image: PropTypes.string,
+  image: PropTypes.object,
   name: PropTypes.string,
   url: PropTypes.string
 };
