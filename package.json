@@ -39,6 +39,7 @@
   "author": "Kiel H. Byrne",
   "license": "None",
   "devDependencies": {
+    "sass": "^1.27.0",
     "typescript": "^3.5.1"
   }
 }
