@@ -69,7 +69,7 @@ const MapFilter = ({ listings, categories }) => {
       <IconButton
         aria-label="show 17 new notifications"
         color="inherit"
-        onClick={handleFilterMenuOpen}
+        onClick={() => handleFilterMenuOpen()}
       >
         <LocationOffIcon />
       </IconButton>
@@ -81,7 +81,7 @@ const MapFilter = ({ listings, categories }) => {
         keepMounted
         transformOrigin={{ vertical: "top", horizontal: "right" }}
         open={isMenuOpen}
-        onClose={handleFilterMenuClose}
+        onClose={() => handleFilterMenuClose()}
       >
         {categories.map(({ name }) => (
           <MenuItem key={name} value={name}>
