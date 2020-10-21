@@ -9,10 +9,11 @@ import {
 
 import { GEOCENTER } from "../../util/functions";
 
-import MyMarker from "./MyMarker";
+import { Marker } from "@react-google-maps/api";
 import ListingInfoWindow from "./ListingInfoWindow";
 import MapAutoComplete from "./MapAutoComplete";
 import SideDrawer from "../SideDrawer/SideDrawer";
+import { useRef } from "react";
 
 const libraries = ["visualization", "places", "geometry", "localContext"];
 
@@ -404,23 +405,42 @@ const vizTest = (categories, listing) => {
 
 const AppMap = memo(({ listings, categories, setMapInstance }) => {
   const [isDrawerOpen, setisDrawerOpen] = useState(false);
-  const [isInfoWindowOpen, setisInfoWindowOpen] = useState(false);
   const [activeListing, setactiveListing] = useState(null);
-  const [selectedCategories, setSelectedCategories] = useState({});
+  const [selectedCategories, setSelectedCategories] = useState(new Set());
 
   // let browserLocation = void(0);
   let { center, zoom, options } = defaultProps;
+  let listingsArray = Object.values(listings);
 
-  const onMarkerOver = () => {
-    setactiveListing(activeListing);
-    setisInfoWindowOpen(true);
+  const onMarkerOver = (data) => {
+    setactiveListing(data);
   };
 
-  const onMarkerOut = () => setisInfoWindowOpen(false);
-  const onMarkerClick = () => {
-    setactiveListing(activeListing);
+  const onMarkerOut = () => {
+    setactiveListing(null);
+  };
+
+  const onMarkerClick = (data) => {
+    setactiveListing(data)
     setisDrawerOpen(true);
   };
+
+  // const renderClusterMarkers = (clusterer) => {
+  //   for (const listing of listingsArray) {
+  //     if (vizTest(selectedCategories, listing)) {
+  //       return (
+  //         <MyMarker
+  //           key={`marker-${"listing._id"}`}
+  //           data={"listing"}
+  //           clusterer={clusterer}
+  //           onMarkerOver={onMarkerOver}
+  //           onMarkerOut={onMarkerOut}
+  //           onMarkerClick={onMarkerClick}
+  //         />
+  //       );
+  //     }
+  //   }
+  // };
 
   const MemoizedCluster = memo(() => (
     <MarkerClusterer
@@ -430,23 +450,31 @@ const AppMap = memo(({ listings, categories, setMapInstance }) => {
       // minimumClusterSize={3}
     >
       {(clusterer) =>
-        Object.values(listings).map((listing) => {
-          console.log(listing)
-          return vizTest(selectedCategories, listing) ? (
-            <MyMarker
-              key={`marker-${listing._id}`}
-              data={listing}
-              clusterer={clusterer}
-              onMarkerOver={onMarkerOver}
-              onMarkerOut={onMarkerOut}
-              onMarkerClick={onMarkerClick}
-            />
-          ) : null;
+        listingsArray.map((el) => {
+          if (/* vizTest(selectedCategories, el)*/ true) {
+            const { location, _id } = el;
+            const loc = location ? location.split(",") : "50.60982,-1.34987";
+            const locObj = { lat: parseFloat(loc[0]), lng: parseFloat(loc[1]) };
+            const image = {
+              url: "img/map/orange_marker_sm.png",
+            };
+            return (
+              <Marker
+                className="App-marker"
+                key={_id}
+                position={locObj}
+                clusterer={clusterer}
+                icon={image}
+                onMouseOver={() => onMarkerOver(el)}
+                onMouseOut={() => onMarkerOut()}
+                onClick={() => onMarkerClick(el)}
+              />
+            );
+          }
         })
       }
     </MarkerClusterer>
   ));
-
   return (
     // Important! Always set the container height explicitly
     //set via app-map classname
@@ -477,7 +505,9 @@ const AppMap = memo(({ listings, categories, setMapInstance }) => {
 
         <MemoizedCluster />
 
-        {activeListing && <ListingInfoWindow activeListing={activeListing} />}
+        {activeListing && (
+          <ListingInfoWindow activeListing={activeListing} />
+        )}
         {activeListing && (
           <SideDrawer
             activeListing={activeListing}

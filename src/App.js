@@ -20,7 +20,7 @@ const App = React.memo(() => {
     fetchListings();
     fetchCategories();
   }, []);
-
+  console.log("not rerendering")
   return (
     <div className="App_wrapper">
       {!listings? (
@@ -29,7 +29,7 @@ const App = React.memo(() => {
         <div>
           <Grid container>
             <Nav listings={listings} categories={categories} map={mapInstance} />
-            <AppMap listings={(listings)} categories={categories} setMapInstance={setMapInstance} mapInstance={mapInstance} />
+            <AppMap listings={listings} categories={categories} setMapInstance={setMapInstance} mapInstance={mapInstance} />
           </Grid>
         </div>
       )}
