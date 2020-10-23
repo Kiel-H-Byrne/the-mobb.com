@@ -12,7 +12,6 @@ import LocationOffIcon from "@material-ui/icons/LocationOffTwoTone";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 
-
 const useStyles = makeStyles({
   root: {
     // width: "300px",
@@ -21,16 +20,24 @@ const useStyles = makeStyles({
   badge: { float: "right" },
 });
 
-const CategoryFilter = React.memo(({listings, categories, selectedCategories, setSelectedCategories }) => {
+const CategoryFilter = ({
+  listings,
+  categories,
+  selectedCategories,
+  setSelectedCategories,
+}) => {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
   const isMenuOpen = Boolean(anchorEl);
-  
   const handleChange = (event) => {
-    setSelectedCategories({
-      ...selectedCategories,
-      [event.target.name]: event.target.checked,
-    });
+    const newSet = new Set(selectedCategories);
+    if (selectedCategories.has(event.target.name)) {
+      newSet.delete(event.target.name);
+      setSelectedCategories(newSet);
+    } else {
+      newSet.add(event.target.name);
+      setSelectedCategories(newSet);
+    }
   };
   const handleFilterMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -39,14 +46,15 @@ const CategoryFilter = React.memo(({listings, categories, selectedCategories, se
     setAnchorEl(null);
   };
   const catCount = (name) => {
-    return Object.values(listings).filter((el) => el.categories?.includes(name)).length;
+    return Object.values(listings).filter((el) => el.categories?.includes(name))
+      .length;
   };
   return (
     <div>
       <IconButton
         aria-label="show 17 new notifications"
         color="inherit"
-        onClick={handleFilterMenuOpen}
+        onClick={(e) => handleFilterMenuOpen(e)}
       >
         <LocationOffIcon />
       </IconButton>
@@ -58,19 +66,19 @@ const CategoryFilter = React.memo(({listings, categories, selectedCategories, se
         keepMounted
         transformOrigin={{ vertical: "top", horizontal: "right" }}
         open={isMenuOpen}
-        onClose={handleFilterMenuClose}
+        onClose={() => handleFilterMenuClose()}
       >
         {categories?.length === 0 ? (
           <LinearProgress />
         ) : (
-          Object.values(categories).map(({ name }) => (
+          categories.map((name) => (
             <MenuItem key={name} value={name}>
               <FormGroup>
                 <FormControlLabel
                   control={
                     <Switch
-                      checked={selectedCategories[name] || false}
-                      // onChange={handleChange}
+                      checked={selectedCategories.has(name)}
+                      onChange={(e) => handleChange(e)}
                       name={name}
                     />
                   }
@@ -78,17 +86,17 @@ const CategoryFilter = React.memo(({listings, categories, selectedCategories, se
                 />
               </FormGroup>
               <Badge
-              color="primary"
-              badgeContent={catCount(name)}
-              max={999}
-              className={classes.badge}
-            />
+                color="primary"
+                badgeContent={catCount(name)}
+                max={999}
+                className={classes.badge}
+              />
             </MenuItem>
           ))
         )}
       </Menu>
     </div>
   );
-});
+};
 
 export default CategoryFilter;

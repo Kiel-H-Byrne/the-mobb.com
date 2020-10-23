@@ -9,6 +9,7 @@ import {
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import LocationOffIcon from "@material-ui/icons/LocationOffTwoTone";
+import { memo } from "react";
 
 const useStyles = makeStyles({
   root: {
@@ -17,12 +18,10 @@ const useStyles = makeStyles({
   },
 });
 
-const MapFilter = ({ listings, categories }) => {
+const MapFilter = memo(({ listings, categories, selectedCategories, setSelectedCategories }) => {
   const classes = useStyles();
-  const [selectedCategories, setSelectedCategories] = useState([]);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const isMenuOpen = Boolean(anchorEl);
-
   const handleChange = (event) => {
     //update selected_categories array (push/pop?)
     // let cat_name = event.target.value;
@@ -69,7 +68,7 @@ const MapFilter = ({ listings, categories }) => {
       <IconButton
         aria-label="show 17 new notifications"
         color="inherit"
-        onClick={() => handleFilterMenuOpen()}
+        onClick={(e) => handleFilterMenuOpen(e)}
       >
         <LocationOffIcon />
       </IconButton>
@@ -81,11 +80,11 @@ const MapFilter = ({ listings, categories }) => {
         keepMounted
         transformOrigin={{ vertical: "top", horizontal: "right" }}
         open={isMenuOpen}
-        onClose={() => handleFilterMenuClose()}
+        onClose={(e) => handleFilterMenuClose(e)}
       >
         {categories.map(({ name }) => (
           <MenuItem key={name} value={name}>
-            <Checkbox checked={selectedCategories.indexOf(name) > -1} onChange={handleChange}/>
+            <Checkbox checked={selectedCategories.indexOf(name) > -1} onChange={(e) => handleChange(e)}/>
             <ListItemText primary={name} />
           </MenuItem>
         ))}
@@ -94,7 +93,7 @@ const MapFilter = ({ listings, categories }) => {
       </FormControl> */}
     </>
   );
-};
+});
 
 MapFilter.propTypes = {
   listings: PropTypes.array,

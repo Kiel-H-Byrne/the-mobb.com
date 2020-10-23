@@ -9,26 +9,35 @@ import "./App.scss";
 const App = React.memo(() => {
   const [mapInstance, setMapInstance] = useState(null);
   const [listings, setListings] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState(null);
+  // const [selectedCategories, setSelectedCategories] = useState([])
   useEffect(() => {
     async function fetchListings() {
       setListings(await getCollection("listings"));
     }
     async function fetchCategories() {
-      setCategories(await getCollection("categories"));
+      let categories = await getCollection("categories")
+      categories = categories.map(el => el.name)
+      setCategories(categories);
     }
     fetchListings();
     fetchCategories();
   }, []);
   return (
     <div className="App_wrapper">
-      {!listings ? (
+      {!categories || !listings ? (
         <LinearProgress />
       ) : (
         <div>
           <Grid container>
-            <Nav listings={listings} categories={categories} map={mapInstance} />
-            <AppMap listings={listings} categories={categories} setMapInstance={setMapInstance} mapInstance={mapInstance} />
+            <Nav listings={listings} map={mapInstance} />
+
+            <AppMap
+              listings={listings}
+              categories={categories}
+              setMapInstance={setMapInstance}
+              mapInstance={mapInstance}
+            />
           </Grid>
         </div>
       )}

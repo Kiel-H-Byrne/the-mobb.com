@@ -10,6 +10,7 @@ import IconButton from "@material-ui/core/IconButton";
 import SearchIcon from "@material-ui/icons/Search";
 import DirectionsIcon from "@material-ui/icons/Directions";
 import MyLocationButton from "./MyLocationButton";
+import CategoryFilter from "./CategoryFilter";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -49,14 +50,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const MapAutoComplete = ({ listings, mapInstance }) => {
+const MapAutoComplete = ({ listings, categories, selectedCategories, mapInstance, setSelectedCategories }) => {
   const classes = useStyles();
   let count = listings.length;
 
   return (
     <Autocomplete>
       <Paper className={classes.root}>
-        <div className={classes.flexItem }>
+        <div className={classes.flexItem}>
           <InputBase
             className={classes.input}
             placeholder={`Search ${count} Listings...`}
@@ -73,6 +74,16 @@ const MapAutoComplete = ({ listings, mapInstance }) => {
           >
             <DirectionsIcon />
           </IconButton>
+          <Divider className={classes.divider} />
+          <CategoryFilter
+            listings={listings}
+            categories={categories}
+            selectedCategories={selectedCategories}
+            setSelectedCategories={setSelectedCategories}
+            color="inherit"
+            className={classes.iconButton}
+            aria-label="Filter"
+          />
           <Divider className={classes.divider} />
           <MyLocationButton listings={listings} mapInstance={mapInstance} />
         </div>

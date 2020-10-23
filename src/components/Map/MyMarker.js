@@ -8,9 +8,10 @@ const MyMarker = React.memo(({
   setisDrawerOpen,
   setisInfoWindowOpen,
   setactiveListing,
+  // selectedCategories
 }) => {
   let loc;
-  const { location, _id } = data;
+  const { location, _id} = data;
   location ? (loc = location.split(",")) : (loc = "50.60982,-1.34987");
   let locObj = { lat: parseFloat(loc[0]), lng: parseFloat(loc[1]) };
   let image = {
@@ -38,6 +39,7 @@ const MyMarker = React.memo(({
       onMouseOver={handleMouseOverMarker}
       onMouseOut={handleMouseOut}
       onClick={handleClickMarker}
+      // visible={categories.some((el) => selectedCategories.has(el))} //check for if category matches selected categories
     />
   );
 });

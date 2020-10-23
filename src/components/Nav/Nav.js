@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { Avatar, makeStyles, fade, AppBar, Toolbar, IconButton } from "@material-ui/core";
 import MapFilter from "../Map/MapFilter";
@@ -75,9 +75,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Nav = React.memo(({ listings, categories }) => {
+const Nav = React.memo(({ listings, categories, selectedCategories, setSelectedCategories }) => {
   const classes = useStyles();
-  
   return (
     <AppBar position="static" className={"App-header"}>
       <Toolbar>
@@ -85,7 +84,7 @@ const Nav = React.memo(({ listings, categories }) => {
             <IconButton aria-label="show 4 new mails" color="inherit">
                 <AddLocationIcon />
             </IconButton>
-            <MapFilter listings={listings} categories={categories} />
+            {/* <MapFilter listings={listings} categories={categories} selectedCategories={selectedCategories} setSelectedCategories={setSelectedCategories} /> */}
             
             <IconButton
               edge="end"
