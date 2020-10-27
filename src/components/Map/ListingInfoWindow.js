@@ -1,12 +1,13 @@
 import React from "react";
-import PropTypes from "prop-types";
 import { InfoWindow } from "@react-google-maps/api";
-import ListingImage from "../ListingImage";
+import CondensedCard from "./CondensedCard";
+import "./ListingInfoWindow.scss"
+import { LinearProgress } from "@material-ui/core";
 
-const ListingInfoWindow = React.memo(({ activeListing, position }) => {
-  let loc = position.split(",");
+const ListingInfoWindow = ({ activeListing }) => {
+  const { location } = activeListing;
+  let loc = location.split(",");
   let locObj = { lat: parseFloat(loc[0]), lng: parseFloat(loc[1]) };
-  const { name, image, url, description } = activeListing;
 
   return (
     <InfoWindow
@@ -15,18 +16,14 @@ const ListingInfoWindow = React.memo(({ activeListing, position }) => {
         pixelOffset: { height: -30, width: 0 },
       }}
     >
-      <div className="App-infowindow">
-        <h5>{name}</h5>
-        <ListingImage image={image} name={name} url={url}/>
-        {description}
-      </div>
+      {activeListing ? (
+        <div className="App-infowindow">
+          <CondensedCard activeListing={activeListing} />
+        </div>
+      ) : <LinearProgress/>}
     </InfoWindow>
   );
-});
-
-ListingInfoWindow.propTypes = {
-  activeListing: PropTypes.object,
-  position: PropTypes.string,
 };
 
-export default ListingInfoWindow;
+
+export default React.memo(ListingInfoWindow);

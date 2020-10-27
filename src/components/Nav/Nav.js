@@ -1,7 +1,12 @@
-import React, { useState } from "react";
-import PropTypes from "prop-types";
-import { Avatar, makeStyles, fade, AppBar, Toolbar, IconButton } from "@material-ui/core";
-import MapFilter from "../Map/MapFilter";
+import React from "react";
+import {
+  makeStyles,
+  fade,
+  AppBar,
+  Toolbar,
+  IconButton,
+} from "@material-ui/core";
+import MAvatar from "./Mavatar";
 import AddLocationIcon from "@material-ui/icons/AddLocationTwoTone";
 /**
  * 
@@ -67,7 +72,7 @@ const useStyles = makeStyles((theme) => ({
   },
   sectionDesktop: {
     position: "fixed",
-    padding: '0 .4rem',
+    padding: "0 .4rem",
     right: 0,
     [theme.breakpoints.up("md")]: {
       display: "flex",
@@ -75,32 +80,28 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Nav = React.memo(({ listings, categories, selectedCategories, setSelectedCategories }) => {
-  const classes = useStyles();
-  return (
-    <AppBar position="static" className={"App-header"}>
-      <Toolbar>
-        <div className={classes.sectionDesktop}>
+const Nav = React.memo(
+  ({ listings, categories, selectedCategories, setSelectedCategories }) => {
+    const classes = useStyles();
+    return (
+      <AppBar position="static" className={"App-header"}>
+        <Toolbar>
+          <div className={classes.sectionDesktop}>
             <IconButton aria-label="show 4 new mails" color="inherit">
-                <AddLocationIcon />
+              <AddLocationIcon />
             </IconButton>
-            {/* <MapFilter listings={listings} categories={categories} selectedCategories={selectedCategories} setSelectedCategories={setSelectedCategories} /> */}
-            
             <IconButton
               edge="end"
               aria-label="account of current user"
               color="inherit"
             >
-              <Avatar />
+              <MAvatar />
             </IconButton>
           </div>
-      </Toolbar>
-    </AppBar>
-  );
-});
-
-Nav.propTypes = {
-  listings: PropTypes.array,
-};
+        </Toolbar>
+      </AppBar>
+    );
+  }
+);
 
 export default Nav;

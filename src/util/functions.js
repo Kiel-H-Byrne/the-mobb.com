@@ -1,6 +1,8 @@
 /* eslint-disable no-unused-vars */
 import { GCache } from "./../db/cache.js";
-import "./../db/mlab.js";
+import { getCollection } from "./../db/mlab.js";
+
+import { useState, useEffect, useRef } from "react";
 
 //====== APP GLOBALS ======
 const clientMarker = null;
@@ -15,39 +17,44 @@ const { $, GoogleMaps, google } = () => {
   "null";
 };
 
+export const useFetchOG = (url) => {
+  const mCache = useRef(new Map());
+  const [status, setStatus] = useState("idle");
+  const [data, setData] = useState([]);
 
-// getOGS = function(url) {
-//   let options = {
-//     'url': url,
-//     'timeout': 4000
-//   };
-//   ogs(options, function (err, results) {
-//     if (err) {
-//       console.log('OGS Error:', err); // This is returns true or false. True if there was a error. The error it self is inside the results object.
-//       console.log('OGS Results:', results);
-//     } else {
-//       console.log('OGS Results:', results);
-//     }
-//   });
-// };
+  useEffect(() => {
+    let cancelRequest = false;
+    if (!url) return;
 
-// dlImage = async function(url) {
+    const fetchData = async () => {
+      setStatus("fetching");
 
-//   const options = {
-//     "url": url,
-//     "dest": '/public/img'
-//   };
+      if (mCache.current.has(url)) {
+        setData(mCache.current.get(url));
+        setStatus("FETCHED_CACHE");
+      } else {
+        try {
+          const data = await fetch(url)
+            .then((data) => data.json())
+            .then((results) => results);
+          console.log(data);
+          setData(data);
+          setStatus("FETCHED");
+        } catch (error) {
+          if (cancelRequest) return;
+          setStatus(`FETCH_ERROR: ${error}`);
+        }
+      }
+    };
 
-//   try {
-//     const { filename, image } = await download.image(options);
-//     console.log(filename) // => /path/to/dest/image.jpg;
-//   } catch (e) {
-//     throw e;
-//   }
+    fetchData();
+    return function cleanup() {
+      cancelRequest = true;
+    };
+  }, [url]);
 
-// }
-
-
+  return { status, data };
+};
 
 // const toggleGroup = function (type) {
 //   for (let i = 0; i < MARKER_GROUPS[type].length; i++) {
@@ -102,29 +109,28 @@ const { $, GoogleMaps, google } = () => {
 // };
 
 // export const placeMyMarker = (mapInstance, pos) => {
-  // CREATE MARKER IF IT DOESN'T ALREADY EXIST,
-  //SET MARKER POSITION
+// CREATE MARKER IF IT DOESN'T ALREADY EXIST,
+//SET MARKER POSITION
 
-  // google.maps.event.trigger(map, 'resize');
-  //would only not exist if the template reloaded and the browser didn't...(dev mode)
-    // const radius = 3;
-    
-    // clientRadius = new google.maps.Circle({
-    //   map: map.instance,
-    //   center: pos,
-    //   radius: (radius * 1609.34),
-    //   strokeColor: '#FF7733',
-    //   strokeOpacity: 0.2,
-    //   strokeWeight: 2,
-    //   fillColor: '#FFAA00',
-    //   fillOpacity: 0.10,
-    // });
+// google.maps.event.trigger(map, 'resize');
+//would only not exist if the template reloaded and the browser didn't...(dev mode)
+// const radius = 3;
 
-  // $(document).ready(function () {
-  //   $('[id="centerButton_button"]').removeClass("pulse");
-  // });
+// clientRadius = new google.maps.Circle({
+//   map: map.instance,
+//   center: pos,
+//   radius: (radius * 1609.34),
+//   strokeColor: '#FF7733',
+//   strokeOpacity: 0.2,
+//   strokeWeight: 2,
+//   fillColor: '#FFAA00',
+//   fillOpacity: 0.10,
+// });
+
+// $(document).ready(function () {
+//   $('[id="centerButton_button"]').removeClass("pulse");
+// });
 // };
-
 
 // const hideImg = function () {
 //   $(this).css({ display: "none" });
@@ -206,23 +212,7 @@ const { $, GoogleMaps, google } = () => {
 //   }
 // };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+export const mCache = new Map();
 
 export const getOG = async (url) => {
   // check(url, String);
@@ -237,71 +227,67 @@ export const getOG = async (url) => {
     // console.log(`***calling OPENGRAPH API method with URL ${param} and KEY ${Meteor.settings.public.keys.openGraph.key}`);
     let apiUrl = `https://opengraph.io/api/1.0/site/${param}?app_id=${process.env.REACT_APP_OG_KEY}`;
     // console.log("--OGP REQ URL--"+apiUrl);
-    const response = await fetch(apiUrl)
-      .then((response) => response.json())
-      .then((data) => data);
-    if (response.error) {
-      console.error(`OGP FAILED:::${response.error.message}`);
-      return "http://placeimg.com/89/50/arch/sepia";
-    }
-
-    const res = {};
-
-    const hiObj = response.htmlInferred;
-    let hgObj = response.hybridGraph.image ? response.hybridGraph : null;
-    let ogObj =
-      !response.openGraph.error && response.openGraph.image
-        ? response.openGraph
-        : null;
-
-    res.obj = hgObj || ogObj || hiObj;
-    // console.log(res.obj);
-
-    // img = (ogObj) ? ogObj.image.url : (hgObj) ? hiObj.image : (hiObj) ? hiObj.image_guess : console.log("no img");
-    let img = res.obj.image
-      ? res.obj.image || res.obj.image.url
-      : res.obj.image_guess
-      ? res.obj.image_guess
-      : res.obj.images[0];
-
-    // description = (ogObj) ? ogObj.description || ogObj.title : (hgObj) ? hgObj.description || hgObj.title : (hiObj) ? hiObj.description || hiObj.title : console.log("no descr");;
-    let description = res.obj.description || res.obj.title || null;
-    if (description && description.length > 200) {
-      description = description.substring(0, 200);
-    }
-
-    const status = response.requestInfo.responseCode;
-    // console.log(status);
-    if (img) {
-      // uri = encodeURIComponent(img);
-      // console.log(img);
-      // if (uri.includes('http://')) {
-      if (img.includes("http://")) {
-        img = img.replace("http://", "https://images.weserv.nl/?url=");
-        // console.log(img);
+    if (mCache.has(param)) {
+      console.log("from cache...." + param);
+      return mCache.get(param);
+    } else {
+      const response = await fetch(apiUrl)
+        .then((response) => response.json())
+        .then((data) => data);
+      if (response.error) {
+        console.error(`OGP FAILED:::${response.error.message}`);
+        return "http://placeimg.com/89/50/arch/sepia";
       }
-      // else if (img.includes('https://')) {
-      // else if (img.includes('https://')) {
-      //   uri = img.replace("https://", "https://images.weserv.nl/?url=ssl:");
-      //   console.log(uri);
-      // }
-      //this was causing schema to balk; had to add "if this.isInsert" to location autovalue.
-      //sibling fields were returning undefined in schemas during update process.
 
-      // Listings.update(
-      //   {
-      //     _id: id,
-      //   },
-      //   {
-      //     $set: {
-      //       "image.url": img,
-      //       description: description,
-      //     },
-      //   }
-      // );
+      const res = {};
 
-      console.log(img);
-      return img;
+      const hiObj = response.htmlInferred;
+      let hgObj = response.hybridGraph.image ? response.hybridGraph : null;
+      let ogObj =
+        !response.openGraph.error && response.openGraph.image
+          ? response.openGraph
+          : null;
+
+      res.obj = hgObj || ogObj || hiObj;
+      // console.log(res.obj);
+
+      // img = (ogObj) ? ogObj.image.url : (hgObj) ? hiObj.image : (hiObj) ? hiObj.image_guess : console.log("no img");
+      let img = res.obj.image
+        ? res.obj.image || res.obj.image.url
+        : res.obj.image_guess
+        ? res.obj.image_guess
+        : res.obj.images[0];
+
+      // description = (ogObj) ? ogObj.description || ogObj.title : (hgObj) ? hgObj.description || hgObj.title : (hiObj) ? hiObj.description || hiObj.title : console.log("no descr");;
+      let description = res.obj.description || res.obj.title || null;
+      if (description && description.length > 200) {
+        description = description.substring(0, 200);
+      }
+
+      // const status = response.requestInfo.responseCode;
+      // console.log(status);
+      if (img) {
+        if (img.includes("http://")) {
+          img = img.replace("http://", "https://images.weserv.nl/?url=");
+        }
+
+        //this was causing schema to balk; had to add "if this.isInsert" to location autovalue.
+        //sibling fields were returning undefined in schemas during update process.
+
+        // Listings.update(
+        //   {
+        //     _id: id,
+        //   },
+        //   {
+        //     $set: {
+        //       "image.url": img,
+        //       description: description,
+        //     },
+        //   }
+        // );
+        mCache.set(param, img);
+        return img;
+      }
     }
   }
 };

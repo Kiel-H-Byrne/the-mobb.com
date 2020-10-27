@@ -30,7 +30,7 @@ const ClosestCard = ({ closestListing }) => {
             <span>{address}</span>
           ) : (
             <span>
-              {city}, {state}{" "}
+              {city}, {state}
             </span>
           )}
         </p>
@@ -64,9 +64,7 @@ const ClosestCard = ({ closestListing }) => {
             )
           }
         >
-          <DirectionsIcon className="large material-icons">
-            directions
-          </DirectionsIcon>
+          <DirectionsIcon className="large material-icons" />
         </Button>
       </Card>
     </div>
