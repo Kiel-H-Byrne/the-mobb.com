@@ -6,15 +6,23 @@ interface Props {
 }
 
 const Mavatar = (props: Props) => {
-  const { loginWithRedirect, isAuthenticated, user, logout, error  } = useAuth0();
-  if (error)  console.error(error);
+  const { loginWithRedirect, isAuthenticated, user, logout, error, isLoading  } = useAuth0();
+  if (error) {
+    console.error(error);
+  }
+  if (isLoading) {
+    console.log("laoding");
+  }
+  if (isAuthenticated) {
+    console.log(user);
+  }
   return (
     <div>
       {
         /* {if logged in, profile foto else avatar } */
-        isAuthenticated ? (
+        !isLoading && isAuthenticated ? (
           <Avatar
-            src={`https://robohash.org/plase${user.name}`}
+            src={user.picture}
             alt={user.name}
           />
         ) : (
