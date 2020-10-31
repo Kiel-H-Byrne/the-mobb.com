@@ -390,7 +390,9 @@ const AppMap = memo(
     const [isDrawerOpen, setisDrawerOpen] = useState(false);
     const [isInfoWindowOpen, setisInfoWindowOpen] = useState(false);
     const [activeListing, setactiveListing] = useState(null);
-    const [selectedCategories, setSelectedCategories] = useState(new Set(categories));// can i use new set?
+    const [selectedCategories, setSelectedCategories] = useState(
+      new Set(categories)
+    ); // can i use new set?
 
     let { center, zoom, options } = defaultProps;
 
@@ -432,56 +434,50 @@ const AppMap = memo(
               // minimumClusterSize={3}
             >
               {(clusterer) =>
-                Object.values(listings).map(
-                  (listing) => {
-                    //return marker if element categories array includes value from selected_categories\\
+                Object.values(listings).map((listing) => {
+                  //return marker if element categories array includes value from selected_categories\\
 
-                    if (
-                      listing.categories &&
-                      listing.categories.some((el) =>
-                        selectedCategories.has(el)
-                      )  
-                      // && mapInstance.containsLocation(listings.location)
-                    ) {
-                      // if (listing.location) {
-                      //   const [lat, lng] = listing.location.split(",");
+                  if (
+                    listing.categories &&
+                    listing.categories.some((el) => selectedCategories.has(el))
+                    // && mapInstance.containsLocation(listings.location)
+                  ) {
+                    // if (listing.location) {
+                    //   const [lat, lng] = listing.location.split(",");
 
-                      //   let isInside = new window.google.maps.LatLngBounds().contains(
-                      //     { lat: +lat, lng: +lng }
-                      //   );
-                      //   // console.log(isInside);
-                      // }
-                      return (
-                        // return (
-                        //   listing.categories
-                        //     ? listing.categories.some((el) =>
-                        //         selected_categories.includes(el)
-                        //       )
-                        //     : false
-                        // ) ? (
+                    //   let isInside = new window.google.maps.LatLngBounds().contains(
+                    //     { lat: +lat, lng: +lng }
+                    //   );
+                    //   // console.log(isInside);
+                    // }
+                    return (
+                      // return (
+                      //   listing.categories
+                      //     ? listing.categories.some((el) =>
+                      //         selected_categories.includes(el)
+                      //       )
+                      //     : false
+                      // ) ? (
 
-                        <MyMarker
-                          key={`marker-${listing._id}`}
-                          data={listing}
-                          clusterer={clusterer}
-                          setactiveListing={setactiveListing}
-                          setisDrawerOpen={setisDrawerOpen}
-                          setisInfoWindowOpen={setisInfoWindowOpen}
-                          selectedCategories={selectedCategories}
-                        />
-                      );
-                    }
+                      <MyMarker
+                        key={`marker-${listing._id}`}
+                        data={listing}
+                        clusterer={clusterer}
+                        setactiveListing={setactiveListing}
+                        setisDrawerOpen={setisDrawerOpen}
+                        setisInfoWindowOpen={setisInfoWindowOpen}
+                        selectedCategories={selectedCategories}
+                      />
+                    );
+                  } else {
+                    return null
                   }
-                      
-                )
+                })
               }
             </MarkerClusterer>
           )}
           {activeListing && isInfoWindowOpen && (
-            <ListingInfoWindow
-              position={activeListing.location}
-              activeListing={activeListing}
-            />
+            <ListingInfoWindow activeListing={activeListing} />
           )}
 
           {activeListing && isDrawerOpen && (
