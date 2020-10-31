@@ -3,7 +3,7 @@ import { Grid, LinearProgress } from "@material-ui/core";
 
 import { getCollection } from "./db/mlab";
 import AppMap from "./components/Map/AppMap";
-import Nav from "./components/Nav/Nav.js";
+import Nav from "./components/Nav/Nav";
 import "./App.scss";
 
 const App = React.memo(() => {
