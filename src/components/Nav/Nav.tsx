@@ -1,4 +1,5 @@
 import React from "react";
+import { useAuth0 } from "@auth0/auth0-react";
 import {
   makeStyles,
   fade,
@@ -90,13 +91,15 @@ interface OwnProps {
 const Nav = React.memo(
   ({ listings, categories, selectedCategories, setSelectedCategories }: OwnProps) => {
     const classes = useStyles();
+    const { isAuthenticated } = useAuth0();
+
     return (
       <AppBar position="static" className={"App-header"}>
         <Toolbar>
           <div className={classes.sectionDesktop}>
-            <IconButton aria-label="show 4 new mails" color="inherit">
+            {isAuthenticated ? <IconButton aria-label="show 4 new mails" color="inherit">
               <AddLocationIcon />
-            </IconButton>
+            </IconButton> : null }
             <IconButton
               edge="end"
               aria-label="account of current user"

@@ -30,7 +30,7 @@ const Event = asyncComponent(() => import("../components/pages/Event"));
 const Events = asyncComponent(() => import("../components/pages/Events"));
 const Privacy = asyncComponent(() => import("../components/pages/Privacy"));
 const Profile = asyncComponent(() => import("../components/pages/Profile"));
-
+fsdf
 //Routes Object
 const routes = (
   <div>
