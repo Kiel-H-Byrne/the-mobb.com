@@ -1,5 +1,5 @@
 import React from "react";
-import { Avatar, Button, Menu, MenuItem } from "@material-ui/core";
+import { Avatar, Button, colors, Menu, MenuItem } from "@material-ui/core";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 
@@ -11,6 +11,7 @@ import {
   InfoTwoTone,
   ShareTwoTone,
 } from "@material-ui/icons";
+import { theme } from "../../style/myTheme";
 interface Props {}
 
 const useStyles = makeStyles({
@@ -19,6 +20,9 @@ const useStyles = makeStyles({
     justifyContent: "space-evenly"
   },
   image: { height: "1rem", display: "flex" },
+  menu: {
+    backgroundColor: colors.grey[700],
+  }
 });
 
 const Mavatar = (props: Props) => {
@@ -85,7 +89,7 @@ const Mavatar = (props: Props) => {
         open={Boolean(anchorEl)}
         onClose={handleClose}
       >
-        <MenuItem>
+        <MenuItem >
           <ListItemIcon>
             <ShareTwoTone />
           </ListItemIcon>

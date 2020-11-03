@@ -30,7 +30,7 @@ const App = React.memo(() => {
       ) : (
         <div>
           <Grid container>
-            <Nav listings={listings} map={mapInstance} />
+            <Nav listings={listings} map={mapInstance} className="" />
             <AppMap
               listings={listings}
               categories={categories}

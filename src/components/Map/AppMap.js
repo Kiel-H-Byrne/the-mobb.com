@@ -4,7 +4,6 @@ import {
   GoogleMap,
   LoadScript,
   MarkerClusterer,
-  // HeatmapLayer
 } from "@react-google-maps/api";
 
 import { GEOCENTER } from "../../util/functions";
