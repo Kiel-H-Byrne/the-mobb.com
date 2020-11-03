@@ -64,7 +64,7 @@ const Mavatar = (props: Props) => {
           !isLoading && isAuthenticated ? (
             <Avatar src={user.picture} alt={user.name} />
           ) : (
-            <Avatar alt={"LOGIN"} />
+            <img src="img/Logo_MOBB-banner.png" alt={"MOBB"} />
           )
         }
       </Button>
@@ -120,7 +120,7 @@ const Mavatar = (props: Props) => {
             </a>
           </ListItemText>
         </MenuItem>
-        <MenuItem
+        {/* <MenuItem
           onClick={() => (isAuthenticated ? logout() : loginWithPopup())}
         >
           <ListItemIcon>
@@ -128,6 +128,7 @@ const Mavatar = (props: Props) => {
           </ListItemIcon>
           <ListItemText primary={isAuthenticated ? "Sign Out" : "Sign In"} />
         </MenuItem>
+         */}
         <MenuItem>
           <ListItemIcon>
             <InfoTwoTone />

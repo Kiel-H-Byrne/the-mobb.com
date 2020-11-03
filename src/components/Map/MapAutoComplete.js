@@ -67,14 +67,6 @@ const MapAutoComplete = ({ listings, categories, selectedCategories, mapInstance
             <SearchIcon />
           </IconButton>
           <Divider className={classes.divider} />
-          <IconButton
-            color="inherit"
-            className={classes.iconButton}
-            aria-label="Directions"
-          >
-            <DirectionsIcon />
-          </IconButton>
-          <Divider className={classes.divider} />
           <CategoryFilter
             listings={listings}
             categories={categories}
