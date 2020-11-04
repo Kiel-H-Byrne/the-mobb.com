@@ -1,5 +1,4 @@
 import React from "react";
-import PropTypes from "prop-types";
 import { Card, Button } from "@material-ui/core";
 import DirectionsIcon from "@material-ui/icons/DirectionsTwoTone";
 import "./ClosestCard.scss";
@@ -69,10 +68,6 @@ const ClosestCard = ({ closestListing }) => {
       </Card>
     </div>
   );
-};
-
-ClosestCard.propTypes = {
-  closestListing: PropTypes.object,
 };
 
 export default ClosestCard;

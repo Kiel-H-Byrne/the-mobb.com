@@ -233,17 +233,13 @@ export const getOG = async (url: string) => {
 
       let res = hgObj || ogObj || hiObj;
 
-      let img = res.image
-        ? res.image || res.image.url
-        : res.image_guess
-        ? res.image_guess
-        : res.images[0];
+      let img = res.image || res.image.url || res.image_guess || res.images[0];
 
       // description = (ogObj) ? ogObj.description || ogObj.title : (hgObj) ? hgObj.description || hgObj.title : (hiObj) ? hiObj.description || hiObj.title : console.log("no descr");;
-      let description = res.description || res.title || null;
-      if (description && description.length > 200) {
-        description = description.substring(0, 200);
-      }
+      // let description = res.description || res.title || null;
+      // if (description && description.length > 200) {
+      //   description = description.substring(0, 200);
+      // }
 
       // const status = response.requestInfo.responseCode;
       // console.log(status);

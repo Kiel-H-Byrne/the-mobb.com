@@ -1,6 +1,5 @@
 import React from 'react'
 import Autosuggest, { defaultProps } from 'material-ui-autosuggest'
-import PropTypes from 'prop-types'
 import { withStyles } from 'material-ui/styles'
 
 // array of countries formatted like `{"label": "United States", "abbr": "US"}`

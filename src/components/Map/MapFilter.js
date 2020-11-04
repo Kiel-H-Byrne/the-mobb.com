@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import PropTypes from "prop-types";
+import React from "react";
 import {
   MenuItem,
   Checkbox,
@@ -80,7 +79,7 @@ const MapFilter = memo(({ listings, categories, selectedCategories, setSelectedC
         keepMounted
         transformOrigin={{ vertical: "top", horizontal: "right" }}
         open={isMenuOpen}
-        onClose={(e) => handleFilterMenuClose(e)}
+        onClose={() => handleFilterMenuClose()}
       >
         {categories.map(({ name }) => (
           <MenuItem key={name} value={name}>
@@ -94,10 +93,6 @@ const MapFilter = memo(({ listings, categories, selectedCategories, setSelectedC
     </>
   );
 });
-
-MapFilter.propTypes = {
-  listings: PropTypes.array,
-};
 
 export default MapFilter;
 

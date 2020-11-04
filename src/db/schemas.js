@@ -366,7 +366,7 @@ Schema.Listings = new SimpleSchema({
       if (this.field("address").value || this.field("street").value) {
         let address = this.field("address").value;
         let street = this.field("street").value;
-        let name = this.field("name").value;
+        // let name = this.field("name").value;
         let addressString;
         if (address) {
           addressString = address;

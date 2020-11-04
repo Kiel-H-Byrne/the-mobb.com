@@ -49,22 +49,17 @@ submitted: {$date: "2017-09-04T22:49:18.696Z"}
 url: "http://www.totallifechanges.com/6923871"
 _id: "3Nh99P2JxxCpBGm5v"
 */
-  const sideList = (
-    side,
-    { image, url, address, description, name, phone }
-  ) => (
+  const sideList = ({ image, url, address, description, name, phone }) => (
     <Grid
       container
       direction="column"
       alignContent="stretch"
       className={classes.root + " App_drawer"}
       role="presentation"
-      // onClick={toggleDrawer(side, false)}
-      // onKeyDown={toggleDrawer(side, false)}
     >
       <Grid item>
         <a href={url}>
-          <ListingImage image={image} name={name} url={url}/>
+          <ListingImage image={image} name={name} url={url} />
         </a>
       </Grid>
       <Grid item>
@@ -102,7 +97,6 @@ _id: "3Nh99P2JxxCpBGm5v"
 };
 
 /* 
-
 -image
 -details
 -socialmedia
