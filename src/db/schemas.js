@@ -12,7 +12,7 @@ Schema = {};
 //========================================================================================================================================
 Schema.User = new SimpleSchema({
     username: {
-        type: String,
+        type: string,
         // For accounts-password, either emails or username is required, but not both. It is OK to make this
         // optional here because the accounts-password package does its own validation.
         // Third-party login packages may not require either. Adjust this schema as necessary for your usage.
@@ -29,7 +29,7 @@ Schema.User = new SimpleSchema({
         type: Object
     },
     "emails.$.address": {
-        type: String,
+        type: string,
         regEx: SimpleSchema.RegEx.Email
     },
     "emails.$.verified": {
@@ -78,7 +78,7 @@ Schema.User = new SimpleSchema({
         optional: true
     },
     'roles.$': {
-        type: String
+        type: string
     },
     // In order to avoid an 'Exception in setInterval callback' from Meteor
     heartbeat: {
@@ -93,17 +93,17 @@ Schema.User = new SimpleSchema({
 
 Schema.Profile = new SimpleSchema({
   firstName: {
-      type: String,
+      type: string,
       label: 'First Name',
       optional: true
   },
   lastName: {
-      type: String,
+      type: string,
       label: 'Last Name',
       optional: true
   },
   email: {
-    type: String,
+    type: string,
     regEx: SimpleSchema.RegEx.Email,
     optional: true
   },
@@ -113,17 +113,17 @@ Schema.Profile = new SimpleSchema({
     label: 'Social Media'
   },
   'social.facebook': {
-    type: String,
+    type: string,
     optional: true,
     label: 'Facebook Handle'
   },
   'social.instagram': {
-    type: String,
+    type: string,
     optional: true,
     label: 'Instagram Handle'
   },
   'social.twitter': {
-    type: String,
+    type: string,
     optional: true,
     label: 'Twitter Handle'
   },
@@ -147,7 +147,7 @@ Schema.Profile = new SimpleSchema({
 
 Schema.Owner = new SimpleSchema({
   "owner.id": {
-    type: String,
+    type: string,
     optional: true,
     autoValue: function() {
       if (Meteor.userId()) {
@@ -156,26 +156,25 @@ Schema.Owner = new SimpleSchema({
     }
   },
   "owner.name": {
-    type: String,
+    type: string,
     label: "Owner's Name",
     optional: true
   },
   "owner.phone": {
-    type: String,
+    type: string,
     label: "Owner's Phone",
     optional: true
   },
   "owner.email": {
-    type: String,
+    type: string,
     label: "Owner's E-mail",
     optional: true
   }
 });
 
-
 Schema.Verifier = new SimpleSchema({
   "verifier.id": {
-    type: String,
+    type: string,
     optional: true,
     autoValue: function() {
       if (Meteor.userId()) {
@@ -184,7 +183,7 @@ Schema.Verifier = new SimpleSchema({
     }
   },
   "verifier.name": {
-    type: String,
+    type: string,
     optional: true
   },
   "verifier.date": {
@@ -196,21 +195,19 @@ Schema.Verifier = new SimpleSchema({
   }
 });
 
-
-
 Schema.Social = new SimpleSchema({
   facebook: {
-    type: String,
+    type: string,
     optional: true,
     label: 'Facebook Handle'
   },
     instagram: {
-    type: String,
+    type: string,
     optional: true,
     label: 'Instagram Handle'
   },
     twitter: {
-    type: String,
+    type: string,
     optional: true,
     label: 'Twitter Handle'
   }
@@ -224,10 +221,10 @@ Schema.Listings = new SimpleSchema({
   // If it's blank, the form won't submit and you'll get a red error message
   // 'type' is where you can set the expected data type for the 'title' key's value
   name: {
-    type: String
+    type: string
   },
   address: {
-    type: String,
+    type: string,
     // unique: true,
     optional: true,
     custom: function() {
@@ -262,7 +259,7 @@ Schema.Listings = new SimpleSchema({
     }
   },
   street: {
-    type: String,
+    type: string,
     max: 80,
     optional: true,
     // unique: true,
@@ -287,12 +284,12 @@ Schema.Listings = new SimpleSchema({
     }
   },
   city: {
-    type: String,
+    type: string,
     optional: true,
     max: 50
   },
   state: {
-    type: String,
+    type: string,
     allowedValues: ["AL","AK","AZ","AR","CA","CO","CT","DC","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],
     autoform: {
       afQuickField: {
@@ -302,24 +299,24 @@ Schema.Listings = new SimpleSchema({
     optional: true
   },
   zip: {
-    type: String,
+    type: string,
     regEx: SimpleSchema.RegEx.ZipCode,
     optional: true
   },
   country: {
-    type: String,
+    type: string,
     min: 2,
     max: 3,
     optional: true,
     defaultValue: 'US'
   },
   phone: {
-    type: String,
+    type: string,
     label: 'Phone Number',
     optional: true,
   },
   url: {
-    type: String,
+    type: string,
     label: 'Website',
     regEx: SimpleSchema.RegEx.Url,
     optional: true,
@@ -336,16 +333,16 @@ Schema.Listings = new SimpleSchema({
   },
   //IMPLICIT ARRAY
   "claims.$.ownerId": {
-    type: String,
+    type: string,
     optional: true
   },
   "claims.$.ownerName": {
-    type: String,
+    type: string,
     label: 'Name',
     optional: true
   },
   "claims.$.ownerPhone": {
-    type: String,
+    type: string,
     label: 'Phone Number',
     optional: true
   },
@@ -363,7 +360,7 @@ Schema.Listings = new SimpleSchema({
     }
   },
   location: {
-    type: String,
+    type: string,
     optional: true,
     autoValue: function () {
       if (this.field("address").value || this.field("street").value) {
@@ -436,7 +433,7 @@ Schema.Listings = new SimpleSchema({
     }
   },  
   description: {
-    type: String,
+    type: string,
     label: 'Description',
     optional: true,
     max: 2000,
@@ -458,7 +455,7 @@ Schema.Listings = new SimpleSchema({
   }),
   google_id: {
     label: 'Google ID',
-    type: String,
+    type: string,
     optional: true,
     autoValue: function () {
       if (this.field("location").value) {
@@ -477,14 +474,14 @@ Schema.Listings = new SimpleSchema({
   // },
   yelp_id: {
     label: 'Yelp ID',
-    type: String,
+    type: string,
     optional: true,
     // autoValue: function () {
       
     // }
   },
   email: {
-    type: String,
+    type: string,
     label: 'E-Mail',
     optional: true
   },

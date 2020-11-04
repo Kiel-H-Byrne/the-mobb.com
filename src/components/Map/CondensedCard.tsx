@@ -5,14 +5,19 @@ import CardActionArea from '@material-ui/core/CardActionArea';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import ListingImage from '../ListingImage';
+import { Listing } from '../../db/Types';
 
 interface Props {
-  activeListing: any
+  activeListing: Listing
 }
 const useStyles = makeStyles({
   root: {
-    maxWidth: 245,
+    maxWidth: '14rem',
   },
+  image: {
+    maxHeight: '14rem',
+    maxWidth: '3rem',
+  }
 });
 
 const CondensedCard = ({activeListing}:Props) => {
@@ -21,14 +26,20 @@ const CondensedCard = ({activeListing}:Props) => {
   return (
     <Card className={classes.root}>
       <CardActionArea>
-        <ListingImage image={image} name={name} url={url}/>
+        {image && (
+          <div className={classes.image}>
+            <ListingImage image={image} name={name} url={url} />
+          </div>
+        )}
         <CardContent>
           <Typography gutterBottom variant="h6" component="h3">
             {name}
           </Typography>
-          <Typography variant="body2" color="textSecondary" component="p">
-            {description}
-          </Typography>
+          {description && (
+            <Typography variant="body2" color="textSecondary" component="p">
+              {description}
+            </Typography>
+          )}
         </CardContent>
       </CardActionArea>
     </Card>

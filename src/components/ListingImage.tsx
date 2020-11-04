@@ -1,13 +1,16 @@
 import React, { useState } from "react";
 import { getOG } from "../util/functions";
 import { CardMedia } from "@material-ui/core";
+import { Listing } from '../db/Types';
+
+
 
 const DEFAULT_IMAGE = "http://placeimg.com/89/50/arch";
 
-const ListingImage = ({ image, name, url }) => {
-  const [ogImage, setogImage] = useState(null);
+const ListingImage = ({ image, name, url }: Pick<Listing, "image" | "name" | "url"> ) => {
+  const [ogImage, setogImage] = useState("");
 
-  const handleImageError = async (e) => {
+  const handleImageError = async (e: GlobalEventHandlers) => {
     // modify db to remove the image url for this listing _id
     //get opengraph image and save src instead
     let img = e;

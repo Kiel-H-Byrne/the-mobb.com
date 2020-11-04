@@ -72,34 +72,25 @@ const useStyles = makeStyles((theme) => ({
   // },
 }));
 
-interface OwnProps {
-  listings: object[];
-  categories: object[];
-  selectedCategories: object[];
-  setSelectedCategories: () => object[];
-}
 
-const Nav = React.memo(
-  ({
-  }: OwnProps) => {
-    const classes = useStyles();
-    const { isAuthenticated } = useAuth0();
+const Nav = () => {
+  const classes = useStyles();
+  const { isAuthenticated } = useAuth0();
 
-    return (
-      <AppBar position="static" className={classes.root}>
-        <Toolbar>
-          <div className={classes.sectionDesktop}>
-            {isAuthenticated ? (
-              <IconButton aria-label="Add A Listing" color="inherit">
-                <AddLocationIcon />
-              </IconButton>
-            ) : null}
-            <MAvatar />
-          </div>
-        </Toolbar>
-      </AppBar>
-    );
-  }
-);
+  return (
+    <AppBar position="static" className={classes.root}>
+      <Toolbar>
+        <div className={classes.sectionDesktop}>
+          {isAuthenticated ? (
+            <IconButton aria-label="Add A Listing" color="inherit">
+              <AddLocationIcon />
+            </IconButton>
+          ) : null}
+          <MAvatar />
+        </div>
+      </Toolbar>
+    </AppBar>
+  );
+};
 
 export default Nav;

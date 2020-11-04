@@ -1,37 +1,32 @@
 import React from "react";
-import { Avatar, Button, colors, Menu, MenuItem } from "@material-ui/core";
+import { Avatar, Button, Menu, MenuItem } from "@material-ui/core";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 
-import { makeStyles, withStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 
 import { useAuth0 } from "@auth0/auth0-react";
-import {
-  ExitToAppTwoTone,
-  InfoTwoTone,
-  ShareTwoTone,
-} from "@material-ui/icons";
+import { InfoTwoTone, ShareTwoTone } from "@material-ui/icons";
 import { theme } from "../../style/myTheme";
-interface Props {}
 
 const useStyles = makeStyles({
   root: {
     display: "flex",
-    justifyContent: "space-evenly"
+    justifyContent: "space-evenly",
   },
   image: { height: "1rem", display: "flex" },
   menu: {
-    backgroundColor: colors.grey[700],
-  }
+    backgroundColor: theme.palette.grey[700],
+  },
 });
 
-const Mavatar = (props: Props) => {
+const Mavatar = () => {
   const {
-    loginWithRedirect,
-    loginWithPopup,
+    // loginWithRedirect,
+    // loginWithPopup,
     isAuthenticated,
     user,
-    logout,
+    // logout,
     error,
     isLoading,
   } = useAuth0();
@@ -49,7 +44,7 @@ const Mavatar = (props: Props) => {
   if (error) {
     console.error(error);
   }
-  
+
   if (isAuthenticated) {
     console.log(user);
   }
@@ -89,7 +84,7 @@ const Mavatar = (props: Props) => {
         open={Boolean(anchorEl)}
         onClose={handleClose}
       >
-        <MenuItem >
+        <MenuItem>
           <ListItemIcon>
             <ShareTwoTone />
           </ListItemIcon>
@@ -102,7 +97,11 @@ const Mavatar = (props: Props) => {
               rel="noreferrer noopener"
               title="Share on Facebook"
             >
-              <img src="/img/fbook-share.png" alt="Share on Facebook" className={classes.image} />
+              <img
+                src="/img/fbook-share.png"
+                alt="Share on Facebook"
+                className={classes.image}
+              />
             </a>
             <a
               className="link-share"
@@ -111,7 +110,11 @@ const Mavatar = (props: Props) => {
               rel="noreferrer noopener"
               title="Share on LinkedIn"
             >
-              <img src="/img/linkedin-share.png" alt="Share on LinkedIn" className={classes.image} />
+              <img
+                src="/img/linkedin-share.png"
+                alt="Share on LinkedIn"
+                className={classes.image}
+              />
             </a>
             <a
               className="link-share"
@@ -120,7 +123,11 @@ const Mavatar = (props: Props) => {
               rel="noreferrer noopener"
               title="Share on Twitter"
             >
-              <img src="/img/twitter-share.png" alt="Share on Twitter" className={classes.image} />
+              <img
+                src="/img/twitter-share.png"
+                alt="Share on Twitter"
+                className={classes.image}
+              />
             </a>
           </ListItemText>
         </MenuItem>

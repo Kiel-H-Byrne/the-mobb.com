@@ -5,17 +5,19 @@ import { IconButton } from "@material-ui/core";
 import MyLocationIcon from "@material-ui/icons/MyLocationTwoTone";
 import { findClosestMarker, targetClient } from "./../../util/functions";
 import ClosestCard from "../ClosestCard/ClosestCard";
+import ClosestList from '../ClosestList';
+import { theme } from '../../style/myTheme'
 
 const useStyles = makeStyles({
   root: {},
   hasLocation: {
-    color: "#0abab5",
+    color: theme.palette.primary,
   }
 });
 
 const MyLocationButton = ({ listings, mapInstance }) => {
   const classes = useStyles();
-  const [myLocation, setMyLocation] = useState(null);
+  const [clientLocation, setClientLocation] = useState(null);
   const [closestListing, setClosestListing] = useState(null);
   const [geoWatchId, setGeoWatchId] = useState(null);
   const [clientMarker, setClientMarker] = useState(null);
@@ -29,7 +31,7 @@ const MyLocationButton = ({ listings, mapInstance }) => {
         window.navigator.geolocation.clearWatch(geoWatchId);
       }
     };
-  }, [geoWatchId, myLocation]);
+  }, [geoWatchId, clientLocation]);
   const handleClick = () => {
     //when clicked, find users location. keep finding every x minutes or as position changes. if position doesn't change after x minutes. turn off
     //zoom o position
@@ -61,26 +63,28 @@ const MyLocationButton = ({ listings, mapInstance }) => {
               clientMarker.setMap(mapInstance);
               clientMarker.setPosition(positionObject);
             }
-            setMyLocation(positionObject);
-            targetClient(mapInstance, (positionObject))
+            setClientLocation(positionObject);
+            targetClient(mapInstance, positionObject);
 
             if (!closestListing) {
               setClosestListing(findClosestMarker(listings, positionObject));
-            }
-            // IN order to change the marker background i need the marker. in the old app an array of markers were stored in redux state
-            if (oldMarker !== closestListing) {
-              // set old marker icon
-              //   url: "img/map/orange_marker_sm.png",
-              // console.log("change color of marker")
             } else {
-              // set closest marker icon
-              //   url: "img/map/red_marker_sm.png",
-              oldMarker = closestListing;
+              // IN order to change the marker background i need the marker. in the old app an array of markers were stored in redux state
+              if (oldMarker !== closestListing) {
+                // set old marker icon
+                //   url: "img/map/orange_marker_sm.png",
+                // console.log("change color of marker")
+                console.log("changing markers..." + closestListing);
+              } else {
+                // set closest marker icon
+                //   url: "img/map/red_marker_sm.png",
+                oldMarker = closestListing;
+              }
             }
           },
           (error) => {
-            console.warn(error)
-            // setMyLocation({
+            console.warn(error);
+            // setClientLocation({
             //   latitude: "err-latitude",
             //   longitude: "err-longitude"
             // });
@@ -88,27 +92,28 @@ const MyLocationButton = ({ listings, mapInstance }) => {
         );
         setGeoWatchId(watchId);
       } else {
-        setMyLocation({
+        setClientLocation({
           lat: null,
           lng: null,
         });
       }
     }
-    myLocation && targetClient(mapInstance, myLocation);
+    clientLocation && targetClient(mapInstance, clientLocation);
     !toggleDisplay ? setToggleDisplay(true) : setToggleDisplay(false);
   };
 
   return (
     <>
     <IconButton
-      color={myLocation ? "secondary" : "default"}
-      className={`${classes.root} ${myLocation && classes.hasLocation}` }
+      color={clientLocation ? "secondary" : "default"}
+      className={`${classes.root} ${clientLocation && classes.hasLocation}` }
       aria-label="My Location"
       onClick={handleClick}
     >
       <MyLocationIcon />
     </IconButton>
     {(closestListing && toggleDisplay) && <ClosestCard closestListing={closestListing}/>}
+    {(closestListing && toggleDisplay) && <ClosestList closestListing={closestListing}/>}
     </>
   );
 };
