@@ -269,6 +269,8 @@ export const getOG = async (url: string) => {
   }
 };
 
+
+
 export const targetClient = function (map: any, pos: any) {
   // SET CENTER,
   // ZOOM TO CERTAIN LEVEL
@@ -308,58 +310,6 @@ export const findClosestMarker = function (listings: Listing[], location: GLocat
   return closestMarker;
 };
 
-// --- unused ---
-
-// export const isHome = (ip) => {
-//   const home_octets = [
-//     "114",
-//     "117",
-//     "123",
-//     "126",
-//     "112",
-//     "124",
-//     "108",
-//     "101",
-//     "103",
-//     "111",
-//     "109",
-//     "126",
-//     "150",
-//   ];
-//   let base = ip.split(".")[0];
-//   let octet = ip.split(".")[1];
-//   if (base === "10" && home_octets.includes(octet)) {
-//     return true;
-//   }
-//   return false;
-// };
-
-// export function desc(a, b, orderBy) {
-//   if (b[orderBy] < a[orderBy]) {
-//     return -1;
-//   }
-//   if (b[orderBy] > a[orderBy]) {
-//     return 1;
-//   }
-//   return 0;
-// }
-
-// export function stableSort(array, cmp) {
-//   const stabilizedThis = array.map((el, index) => [el, index]);
-//   stabilizedThis.sort((a, b) => {
-//     const order = cmp(a[0], b[0]);
-//     if (order !== 0) return order;
-//     return a[1] - b[1];
-//   });
-//   return stabilizedThis.map((el) => el[0]);
-// }
-
-// export function getSorting(order, orderBy) {
-//   return order === "desc"
-//     ? (a, b) => desc(a, b, orderBy)
-//     : (a, b) => -desc(a, b, orderBy);
-// }
-
 // export function panToMarker(map, pos) {
 //   // SET CENTER,
 //   // ZOOM TO CERTAIN LEVEL
@@ -398,4 +348,19 @@ export const getDistance = (start: string,dest: string): string => {
     res = res.slice(0, 3);
   }
   return res;
+};
+
+export const getPlaceDetails = async (google_id) => {
+  //CONSUME ID, RETURN DETAILS OBJECT
+  const key = process.env.REACT_APP_GOOGLE_SERVER_KEY;
+  const apiUrl = `https://maps.googleapis.com/maps/api/place/details/json?placeid=${google_id}&key=${key}`;
+  // console.log("--GOOGLE PLACES: DETAILS SEARCH URL--" + apiUri);
+  const response = await fetch(apiUrl)
+    .then((response) => response.json())
+    .then((data) => data);
+  if (response.error) {
+    console.error(`OGP FAILED:::${response.error.message}`);
+  }
+  console.log(response);
+  return response;
 };

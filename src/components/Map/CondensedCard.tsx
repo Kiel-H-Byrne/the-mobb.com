@@ -13,6 +13,8 @@ interface Props {
 const useStyles = makeStyles({
   root: {
     maxWidth: '14rem',
+    padding: 0,
+    margin: 0
   },
   image: {
     maxHeight: '14rem',
@@ -32,7 +34,7 @@ const CondensedCard = ({activeListing}:Props) => {
           </div>
         )}
         <CardContent>
-          <Typography gutterBottom variant="h6" component="h3">
+          <Typography gutterBottom variant="subtitle2" component="h3">
             {name}
           </Typography>
           {description && (

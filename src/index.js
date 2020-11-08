@@ -11,11 +11,11 @@ import { theme } from "./style/myTheme";
 
 ReactDOM.hydrate(
   <BrowserRouter>
-    <Auth0ProviderWithHistory>
+    {/* <Auth0ProviderWithHistory> */}
       <ThemeProvider theme={theme}>
         <App />
       </ThemeProvider>
-    </Auth0ProviderWithHistory>
+    {/* </Auth0ProviderWithHistory> */}
   </BrowserRouter>,
 
   document.getElementById("root")
