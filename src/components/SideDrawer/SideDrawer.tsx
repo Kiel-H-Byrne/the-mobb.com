@@ -1,11 +1,12 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 import { makeStyles } from "@material-ui/core/styles";
 import { Drawer, Button, Grid, Typography } from "@material-ui/core";
 import DirectionsIcon from "@material-ui/icons/Directions";
 import ListingImage from "../ListingImage";
 import { Listing } from '../../db/Types';
-import { placesSearch } from '../../util/functions';
+import { getGDetails } from '../../util/functions';
+import { mCache } from '../../db/mlab';
 
 const useStyles = makeStyles({
   root: {
@@ -27,29 +28,39 @@ const useStyles = makeStyles({
 interface OwnProps {
   activeListing: Listing,
   isOpen: boolean,
-  setOpen: () => boolean
+  mapInstance: any,
+  setOpen: (prevOpen) => boolean
 }
-const SideDrawer = ({ activeListing, isOpen, setOpen }: OwnProps) => {
+const SideDrawer = ({ activeListing, isOpen, setOpen, mapInstance }: OwnProps) => {
   const classes = useStyles();
-
-  useEffect(() => {
-    if (!activeListing.google_id) {
+  const [thisPlace, setThisPlace] = useState(null)
+  const gid = activeListing.google_id;
+  useEffect( () => {
+    async function getPlace() {
+      setThisPlace(
+        mCache.has(gid)
+          ? mCache.get(gid)
+          : await getGDetails({ gid: gid, map: mapInstance })
+      );
+    } 
+    if (!gid) {
       //if no google_id, get one and update document.
-      placesSearch({name: activeListing.name, location: activeListing.location})
       //
     } else {
       //if has google id, get placeDetails and set as prop.
+      getPlace();
     }
   }, []);
 
-  const toggleDrawer = (open) => event => {
+  const toggleDrawer = (event) => {
+    
     if (
       event.type === "keydown" &&
       (event.key === "Tab" || event.key === "Shift")
     ) {
       return;
     }
-    setOpen(open);
+    setOpen((prevOpen) => !prevOpen);
   };
   /*
 address: "2729 Piatt St, Wichita, KS 67219"
@@ -65,7 +76,14 @@ submitted: {$date: "2017-09-04T22:49:18.696Z"}
 url: "http://www.totallifechanges.com/6923871"
 _id: "3Nh99P2JxxCpBGm5v"
 */
-  const sideList = ({ image, url, address, description, name, phone }) => (
+  const sideList = ({
+    image,
+    url,
+    address,
+    description,
+    name,
+    phone,
+  }: Partial<Listing>) => (
     <Grid
       container
       direction="column"
@@ -74,7 +92,7 @@ _id: "3Nh99P2JxxCpBGm5v"
       role="presentation"
     >
       <Grid item>
-        <a href={url}>
+        <a href={url} title="Listing Image">
           <ListingImage image={image} name={name} url={url} />
         </a>
       </Grid>
@@ -98,16 +116,23 @@ _id: "3Nh99P2JxxCpBGm5v"
           Get Directions
         </Button>
       </Grid>
+      <div>
+        { // @ts-ignore
+          thisPlace && thisPlace.photos ?  
+          // @ts-ignore
+            thisPlace.photos.map( photo => {
+              console.log(photo.getUrl())
+            })
+           : null
+        
+        }
+      </div>
     </Grid>
   );
 
     return (
-      <Drawer
-        anchor="left"
-        open={isOpen}
-        onClose={toggleDrawer(false)}
-      >
-        {sideList("left", activeListing)}
+      <Drawer anchor="left" open={isOpen} onClose={(e) => toggleDrawer(e)}>
+        {sideList(activeListing)}
       </Drawer>
     );
 };

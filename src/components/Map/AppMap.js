@@ -485,6 +485,7 @@ const AppMap = ({
             activeListing={activeListing}
             isOpen={isDrawerOpen}
             setOpen={setisDrawerOpen}
+            mapInstance={mapInstance}
           />
         )}
 
