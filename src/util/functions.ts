@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Listing, GLocation } from "../db/Types";
 import { mCache } from "../db/mlab";
 
@@ -453,19 +453,19 @@ export const placesSearch = async ({ name, location }) => {
   }
 
 
-  console.log("--GOOGLE PLACES: NEARBY SEARCH --");
-  // console.log("--GOOGLE PLACES: NEARBY SEARCH URL--"+apiUrl);
-  // console.log("still running");
-  if (response && response.results.length !== 0) {
-    console.log(response);
-    const result = response.results[0];
-    if (result.scope == "GOOGLE") {
-      console.log(name, result.place_id);
-      return result.place_id;
-    };
-  } else {
-    //NO RESULTS, offer to submit to google
-    console.log("NO GOOGLE_ID FOR " + name);
-    return false;
-  }
+  // console.log("--GOOGLE PLACES: NEARBY SEARCH --");
+  // // console.log("--GOOGLE PLACES: NEARBY SEARCH URL--"+apiUrl);
+  // // console.log("still running");
+  // if (response && response.results.length !== 0) {
+  //   console.log(response);
+  //   const result = response.results[0];
+  //   if (result.scope == "GOOGLE") {
+  //     console.log(name, result.place_id);
+  //     return result.place_id;
+  //   };
+  // } else {
+  //   //NO RESULTS, offer to submit to google
+  //   console.log("NO GOOGLE_ID FOR " + name);
+  //   return false;
+  // }
 };
