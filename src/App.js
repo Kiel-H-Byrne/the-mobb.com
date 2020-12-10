@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Grid, LinearProgress } from "@material-ui/core";
 
-import { getCollection } from "./db/mlab";
+import { fetchCollection } from "./db/mlab";
 import AppMap from "./components/Map/AppMap";
 import Nav from "./components/Nav/Nav";
 import "./App.scss";
@@ -13,10 +13,10 @@ const App = React.memo(() => {
   // const [selectedCategories, setSelectedCategories] = useState([])
   useEffect(() => {
     async function fetchListings() {
-      setListings(await getCollection("listings"));
+      setListings(await fetchCollection({collection: "listings", method: "GET"}));
     }
     async function fetchCategories() {
-      let categories = await getCollection("categories")
+      let categories = await fetchCollection({collection: "categories", method: "GET"})
       categories = categories.map(el => el.name)
       setCategories(categories);
     }
