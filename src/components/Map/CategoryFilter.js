@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   MenuItem,
   Menu,
@@ -32,8 +32,9 @@ const CategoryFilter = ({
   setSelectedCategories,
 }) => {
   const classes = useStyles();
-  const [anchorEl, setAnchorEl] = useState(null);
-  const isMenuOpen = Boolean(anchorEl);
+  const anchorRef = useRef(null);
+  const [open, setOpen] = useState(null);
+
   const handleChange = (event) => {
     const newSet = new Set(selectedCategories);
     if (selectedCategories.has(event.target.name)) {
@@ -44,35 +45,55 @@ const CategoryFilter = ({
       setSelectedCategories(newSet);
     }
   };
-  const handleFilterMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
+  const handleFilterMenuToggle = () => {
+    setOpen((prevOpen) => !prevOpen);
   };
-  const handleFilterMenuClose = () => {
-    setAnchorEl(null);
+  const handleFilterMenuClose = (event) => {
+    if (anchorRef.current && anchorRef.current.contains(event.target)) return;
+    setOpen(false)
   };
   const catCount = (name) => {
     return Object.values(listings).filter((el) => el.categories?.includes(name))
       .length;
   };
+
+  // const handleListKeyDown = (event) => {
+  //   if (event.key === "Tab") {
+  //     event.preventDefault();
+  //     setOpen(false);
+  //   }
+  // };
+
+  // return focus to the button when we transitioned from !open -> open
+  const prevOpen = React.useRef(open);
+  React.useEffect(() => {
+    if (prevOpen.current === true && open === false) {
+      anchorRef.current.focus();
+    }
+
+    prevOpen.current = open;
+  }, [open]);
+
+
   return (
     <>
       <IconButton
-        aria-label="show 17 new notifications"
+        ref={anchorRef}
+        aria-label="Filter by Category"
         color="inherit"
-        onClick={(e) => handleFilterMenuOpen(e)}
+        onClick={() => handleFilterMenuToggle()}
 
       >
         <LocationOffIcon />
       </IconButton>
       <Menu
-        anchorEl={anchorEl}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        anchorEl={anchorRef}
+        anchorPosition={{ vertical: "center", horizontal: "left" }}
         id={"map-filter-menu"}
         className={classes.root}
         keepMounted
-        transformOrigin={{ vertical: "top", horizontal: "right" }}
-        open={isMenuOpen}
-        onClose={() => handleFilterMenuClose()}
+        open={open}
+        onClose={(e) => handleFilterMenuClose(e)}
       >
         {categories?.length === 0 ? (
           <LinearProgress />

@@ -1,9 +1,8 @@
-
-import { useState, useEffect, useRef } from "react";
-import { Listing, GLocation} from "../db/Types"
+import { useState, useEffect } from "react";
+import { Listing, GLocation } from "../db/Types";
+import { mCache } from "../db/mlab";
 
 export const useFetchOG = (url: string) => {
-  const mCache = useRef(new Map());
   const [status, setStatus] = useState("idle");
   const [data, setData] = useState([]);
 
@@ -14,8 +13,47 @@ export const useFetchOG = (url: string) => {
     const fetchData = async () => {
       setStatus("fetching");
 
-      if (mCache.current.has(url)) {
-        setData(mCache.current.get(url));
+      if (mCache.has(url)) {
+        setData(mCache.get(url));
+        setStatus("FETCHED_CACHE");
+      } else {
+        try {
+          const data = await fetch(url)
+            .then((data) => data.json())
+            .then((results) => results);
+          console.log(data);
+          setData(data);
+          setStatus("FETCHED");
+        } catch (error) {
+          if (cancelRequest) return;
+          setStatus(`FETCH_ERROR: ${error}`);
+        }
+      }
+    };
+
+    fetchData();
+    return function cleanup() {
+      cancelRequest = true;
+    };
+  }, [url]);
+
+  return { status, data };
+};
+
+export const useFetchPlace = (url: string) => {
+  
+  const [status, setStatus] = useState("idle");
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    let cancelRequest = false;
+    if (!url) return;
+
+    const fetchData = async () => {
+      setStatus("fetching");
+
+      if (mCache.has(url)) {
+        setData(mCache.get(url));
         setStatus("FETCHED_CACHE");
       } else {
         try {
@@ -167,37 +205,27 @@ export const useFetchOG = (url: string) => {
 //     return false;
 //   }
 // };
+export const getGDetails = ({gid, map}) => {
+    console.log("Details Data from API...");
+    //   //get the response and stash it in GCache.
+    return new Promise<any>(function (resolve, reject) {
+      // @ts-ignore
+      const service = new window.google.maps.places.PlacesService(map);
+      const req = { placeId: gid };
+      const cbk = (place, status) => {
+        // @ts-ignore
+        if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+          mCache.set(gid, place);
+          resolve(place);
+          //inject with jquery into dom?
+        } else {
+          console.error(status);
+        }
+      };
+      service.getDetails(req, cbk);
+    });
+};
 
-// const getGDetails = function (gid) {
-//   if (GoogleMaps.loaded()) {
-//     console.log("Details Data from API...");
-//     //   //get the response and stash it in GCache.
-//     const map = GoogleMaps.maps.map;
-//     console.log(map);
-//     const service = new google.maps.places.PlacesService(map.instance);
-//     const req = {
-//       placeId: gid,
-//     };
-//     const cbk = function (res, stat) {
-//       if (stat === google.maps.places.PlacesServiceStatus.OK) {
-//         console.log(res);
-//         // ID_Cache.findOne({key: key}, {$set: {value: place_id}});
-//         // Meteor.call('setGCache', gid, res);
-//         // resolvedData.set('placeDetails', res);
-//         // Session.set('thisPlace', res);
-//         return res;
-//         //inject with jquery into dom?
-//       } else {
-//         console.log(stat);
-//       }
-//     };
-//     return service.getDetails(req, cbk);
-//   } else {
-//     console.log("no map loaded");
-//   }
-// };
-
-export const mCache = new Map();
 
 export const getOG = async (url: string) => {
   // check(url, String);
@@ -287,7 +315,10 @@ export const toPositionObj = (location: string | undefined) => {
   }
 };
 
-export const findClosestMarker = function (listings: Listing[], location: GLocation) {
+export const findClosestMarker = function (
+  listings: Listing[],
+  location: GLocation
+) {
   // marker {position: latlngObj, map: mapinstnace, icon: iconurl}
   let distances = [""];
   let closest = -1;
@@ -370,7 +401,7 @@ export const findClosestMarker = function (listings: Listing[], location: GLocat
 
 export const GEOCENTER = { lat: 39.8283, lng: -98.5795 };
 
-export const getDistance = (start: string,dest: string): string => {
+export const getDistance = (start: string, dest: string): string => {
   //Take destination, calculate distance from my location, convert to miles, return distance string.
   const latLng = dest.split(",");
 
@@ -398,4 +429,43 @@ export const getDistance = (start: string,dest: string): string => {
     res = res.slice(0, 3);
   }
   return res;
+};
+
+export const placesSearch = async ({ name, location }) => {
+  // SEARCHES FOR A GOOGLE PLACE_ID GIVEN NAME AND latLong (CAN ALSO USE ADDRESS, NAME, LOCATION)
+  // RETURNS GOOGLE ID
+
+  //requ'd: key, location, radius (meters),
+  // optional: keyword ()
+  const key = process.env.REACT_APP_GOOGLE_SERVER_KEY;
+  name = encodeURIComponent(name);
+  const apiUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location}&radius=100&keyword=${name}&key=${key}`;
+  let response;
+
+  try {
+    const response = await fetch(apiUrl)
+      .then((response) => response.json())
+      .then((data) => data);
+    console.log(response);
+  } catch (error) {
+    console.error(`--GOOGLE PLACES: FAILED:::${error.message}`);
+    console.error(error);
+  }
+
+
+  // console.log("--GOOGLE PLACES: NEARBY SEARCH --");
+  // // console.log("--GOOGLE PLACES: NEARBY SEARCH URL--"+apiUrl);
+  // // console.log("still running");
+  // if (response && response.results.length !== 0) {
+  //   console.log(response);
+  //   const result = response.results[0];
+  //   if (result.scope == "GOOGLE") {
+  //     console.log(name, result.place_id);
+  //     return result.place_id;
+  //   };
+  // } else {
+  //   //NO RESULTS, offer to submit to google
+  //   console.log("NO GOOGLE_ID FOR " + name);
+  //   return false;
+  // }
 };
