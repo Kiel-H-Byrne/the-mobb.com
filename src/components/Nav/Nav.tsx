@@ -73,7 +73,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-const Nav = () => {
+const Nav = ({listings, map, ...rest}) => {
   const classes = useStyles();
   const { isAuthenticated } = useAuth0();
 

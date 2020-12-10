@@ -1,6 +1,5 @@
-
 import { useState, useEffect, useRef } from "react";
-import { Listing, GLocation} from "../db/Types"
+import { Listing, GLocation } from "../db/Types";
 
 export const useFetchOG = (url: string) => {
   const mCache = useRef(new Map());
@@ -287,7 +286,10 @@ export const toPositionObj = (location: string | undefined) => {
   }
 };
 
-export const findClosestMarker = function (listings: Listing[], location: GLocation) {
+export const findClosestMarker = function (
+  listings: Listing[],
+  location: GLocation
+) {
   // marker {position: latlngObj, map: mapinstnace, icon: iconurl}
   let distances = [""];
   let closest = -1;
@@ -370,7 +372,7 @@ export const findClosestMarker = function (listings: Listing[], location: GLocat
 
 export const GEOCENTER = { lat: 39.8283, lng: -98.5795 };
 
-export const getDistance = (start: string,dest: string): string => {
+export const getDistance = (start: string, dest: string): string => {
   //Take destination, calculate distance from my location, convert to miles, return distance string.
   const latLng = dest.split(",");
 
@@ -398,4 +400,36 @@ export const getDistance = (start: string,dest: string): string => {
     res = res.slice(0, 3);
   }
   return res;
+};
+
+export const placesSearch = ({ name, location }) => {
+  // SEARCHES FOR A GOOGLE PLACE_ID GIVEN NAME AND latLong (CAN ALSO USE ADDRESS, NAME, LOCATION)
+  // RETURNS GOOGLE ID
+
+  //requ'd: key, location, radius (meters),
+  // optional: keyword ()
+  const key = process.env.REACT_APP_GOOGLE_SERVER_KEY;
+  name = encodeURIComponent(name);
+  const apiUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${loc}&radius=100&keyword=${name}&key=${key}`;
+  const response = await fetch(apiUrl)
+    .then((response) => response.json())
+    .then((data) => data);
+  if (response.error) {
+    console.error(`--GOOGLE PLACES: FAILED:::${response.error.message}`);
+  }
+  console.log("--GOOGLE PLACES: NEARBY SEARCH --");
+  // console.log("--GOOGLE PLACES: NEARBY SEARCH URL--"+apiUrl);
+  // console.log("still running");
+  if (response.results.length !== 0) {
+    console.log(response);
+    const result = response.results[0];
+    if (result.scope == "GOOGLE") {
+      console.log(name, result.place_id);
+      return result.place_id;
+    };
+  } else {
+    //NO RESULTS, offer to submit to google
+    console.log("NO GOOGLE_ID FOR " + name);
+    return false;
+  }
 };
