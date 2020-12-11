@@ -191,18 +191,20 @@ const LegacyDrawer = ({ activeListing }) => {
                   {address ? (
                     <>
                       <td>
-                        {// style="font-size:100%; margin-right:2px; "
+                        {
+                          // style="font-size:100%; margin-right:2px; "
                         }
-                          <PublicIcon />
+                        <PublicIcon />
                       </td>
                       <td>{address}</td>
                     </>
                   ) : (
                     <>
                       <td>
-                        {// style="font-size:100%; margin-right:2px; "
+                        {
+                          // style="font-size:100%; margin-right:2px; "
                         }
-                          <PublicIcon />
+                        <PublicIcon />
                       </td>
                       <td>
                         {street}, {city}, {state} {zip}{" "}
@@ -231,9 +233,10 @@ const LegacyDrawer = ({ activeListing }) => {
                 {phone && (
                   <tr>
                     <td>
-                      {// style="font-size:100%; margin-right:2px; "
+                      {
+                        // style="font-size:100%; margin-right:2px; "
                       }
-                        <CallIcon />
+                      <CallIcon />
                     </td>
                     <td>
                       <a
@@ -458,7 +461,8 @@ const LegacyDrawer = ({ activeListing }) => {
                 </li>
                 <li className="item_hours">
                   <span className="section-title">
-                    <WatchLaterIcon />Hours:{" "}
+                    <WatchLaterIcon />
+                    Hours:{" "}
                   </span>
                   {openHours() ? (
                     <span className="now_open">Open Now!</span>
@@ -481,7 +485,8 @@ const LegacyDrawer = ({ activeListing }) => {
                 </li>
                 <li className="item_photos">
                   <span className="section-title">
-                    <StarIcon />Photos
+                    <StarIcon />
+                    Photos
                   </span>
                   <br />
                   <div className="row photos_wrapper slider">
@@ -499,7 +504,8 @@ const LegacyDrawer = ({ activeListing }) => {
                 </li>
                 <li className="item_reviews">
                   <span className="section-title">
-                    <StarIcon />Reviews
+                    <StarIcon />
+                    Reviews
                   </span>
                   <br />
                   <ul className="collection">
@@ -552,7 +558,8 @@ const LegacyDrawer = ({ activeListing }) => {
                     target="_blank"
                     rel="noopener"
                   >
-                    <RateReviewIcon />Leave Your Review
+                    <RateReviewIcon />
+                    Leave Your Review
                   </a>
                 </li>
               </>
@@ -565,3 +572,22 @@ const LegacyDrawer = ({ activeListing }) => {
 };
 
 export default SideDrawer;
+
+/* <CarouselPhoto >
+  <div class="place_photo carousel-item" style="background-image: url({getImgUrl photo_reference})">
+    <img src="/img/transparent.png" alt=""/>
+  </div>
+</CarouselPhoto>
+
+<CarouselPhoto2 >
+  <a class="place_photo carousel-item" style="">
+    <img src="{this}" />
+  </a>
+</CarouselPhoto2>
+
+<SliderPhoto >
+  <li>
+        <img src="{getImgUrl photo_reference}" />
+
+  </li>  
+</SliderPhoto> */
