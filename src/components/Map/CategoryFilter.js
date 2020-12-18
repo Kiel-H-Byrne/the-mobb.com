@@ -33,7 +33,7 @@ const CategoryFilter = ({
 }) => {
   const classes = useStyles();
   const anchorRef = useRef(null);
-  const [open, setOpen] = useState(null);
+  const [open, setOpen] = useState(false);
 
   const handleChange = (event) => {
     const newSet = new Set(selectedCategories);
@@ -82,13 +82,14 @@ const CategoryFilter = ({
         aria-label="Filter by Category"
         color="inherit"
         onClick={() => handleFilterMenuToggle()}
-
+        className={"icon-button"}
       >
         <LocationOffIcon />
       </IconButton>
       <Menu
-        anchorEl={anchorRef}
-        anchorPosition={{ vertical: "center", horizontal: "left" }}
+        anchorEl={anchorRef.current}
+        anchorReference={"anchorEl"}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
         id={"map-filter-menu"}
         className={classes.root}
         keepMounted

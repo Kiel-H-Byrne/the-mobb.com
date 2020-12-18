@@ -440,7 +440,6 @@ export const placesSearch = async ({ name, location }) => {
   const key = process.env.REACT_APP_GOOGLE_SERVER_KEY;
   name = encodeURIComponent(name);
   const apiUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location}&radius=100&keyword=${name}&key=${key}`;
-  let response;
 
   try {
     const response = await fetch(apiUrl)
