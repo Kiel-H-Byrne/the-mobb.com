@@ -331,7 +331,7 @@ Schema.Listings = new SimpleSchema({
     //   };
     // }
   },
-  //IMPLICIT ARRAY
+  //IMPLICIT ARRAY (Claims should be new collection)
   "claims.$.ownerId": {
     type: string,
     optional: true
@@ -406,6 +406,7 @@ Schema.Listings = new SimpleSchema({
       }
     }
   },
+  //Verifiers should be another collection? Verifiers (userid, listingId,  )
   verifiers: {
     type: [String],
     optional: true

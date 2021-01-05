@@ -96,7 +96,7 @@ const CategoryFilter = ({
         open={open}
         onClose={(e) => handleFilterMenuClose(e)}
       >
-        {categories?.length === 0 ? (
+        {categories.length === 0 ? (
           <LinearProgress />
         ) : (
           categories.map((name) => (

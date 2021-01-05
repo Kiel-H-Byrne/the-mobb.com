@@ -4,7 +4,7 @@
 @import "../../style/variables";
 
 [id='side_drawer'] {
-  width: 16rem;  
+  max-width: 16rem;  
   
   button {
     margin: auto;
@@ -22,27 +22,20 @@
   }
 
 
-
-
-
-
-
-
-
 background-color: $rgba-primary-grey-4;
   height: 100%;
   overflow-x: hidden;
 
-  .divider:first-child, .card {
-    margin: 0 !important;
+  Divider, .card {
+    margin: 0;
   }
 
-  img {
+  .listing-image {
     width: 100%;
     transition: opacity 550ms ease-in-out;
   }
 
-  li {
+  div {
     line-height: 1.3rem;
 
     a {
@@ -108,7 +101,7 @@ background-color: $rgba-primary-grey-4;
         border-radius: 5px;
 
         &:hover {
-          // background-color: lighten($rgba-primary-grey-3, 10%);
+          background-color: lighten($rgba-primary-grey-3, 10%);
        
         }
 
@@ -183,7 +176,6 @@ background-color: $rgba-primary-grey-4;
       color: $rgba-secondary-2-2;
       font-size: .9rem;
       line-height: 0;
-      text-size-adjust: 0;
     }
   }
 
