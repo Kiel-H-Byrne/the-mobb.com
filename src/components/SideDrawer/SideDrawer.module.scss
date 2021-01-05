@@ -1,9 +1,9 @@
 
 
-@import "../../styles/colors";
-@import "../../styles/variables";
+@import "../../style/colors";
+@import "../../style/variables";
 
-[id='side_drawer'] {
+.root {
   max-width: 16rem;  
   
   button {
@@ -59,7 +59,7 @@ background-color: $rgba-primary-grey-4;
       }
 
       i {
-        @extend a.btn;
+        @extend a, .btn;
 
         padding-left: 2rem;
       }

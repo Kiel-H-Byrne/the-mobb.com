@@ -1,9 +1,9 @@
 
 
-@import "../../styles/colors";
-@import "../../styles/variables";
+@import "../src/style/colors";
+@import "../src/style/variables";
 
-[id='bottom_Row'] {
+.root {
   position: fixed;
   bottom: 0;
   width: 100%;
@@ -11,7 +11,7 @@
   overflow-y: hidden;
 }
 
-[id='card_closest'] {
+.card_closest {
   position: relative;
   margin: 1rem auto;
   padding: .3rem;
@@ -107,7 +107,7 @@
 
 @media #{$small-and-down} {
 
-  [id='bottom_Row'] {
+  .bottom_Row {
     // bottom: 45px;
     // right: -15px;
  

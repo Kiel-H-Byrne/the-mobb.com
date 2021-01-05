@@ -6,7 +6,7 @@ import MyLocationIcon from "@material-ui/icons/MyLocationTwoTone";
 import { findClosestMarker, targetClient } from "./../../util/functions";
 import ClosestCard from "../ClosestCard/ClosestCard";
 import ClosestList from '../ClosestList';
-import { theme } from '../../styles/myTheme'
+import { theme } from '../../style/myTheme'
 
 const useStyles = makeStyles({
   root: {},

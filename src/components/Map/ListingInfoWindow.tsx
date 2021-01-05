@@ -1,8 +1,8 @@
 import React from "react";
 import { InfoWindow } from "@react-google-maps/api";
 import CondensedCard from "./CondensedCard";
-import "./ListingInfoWindow.scss"
 import { LinearProgress } from "@material-ui/core";
+import style from "./ListingInfoWindow.module.scss"
 
 const ListingInfoWindow = ({ activeListing }) => {
   const { location } = activeListing;
@@ -18,7 +18,7 @@ const ListingInfoWindow = ({ activeListing }) => {
       }}
     >
       {activeListing ? (
-        <div className="App-infowindow">
+        <div className={style.root}>
           <CondensedCard activeListing={activeListing} />
         </div>
       ) : <LinearProgress/>}

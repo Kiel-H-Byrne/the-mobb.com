@@ -24,8 +24,8 @@ import FavoriteStar from "../FavoriteStar";
 import { Listing } from "../../db/Types";
 import { getGDetails } from "../../util/functions";
 import { mCache } from "../../db/mlab";
-import "./SideDrawer.scss";
 import { Alert } from "@material-ui/lab";
+import style from "./SideDrawer.module.scss";
 
 interface ISideDrawer {
   activeListing: Listing;
@@ -37,7 +37,7 @@ interface ISideDrawer {
 const SideGrid = ({activeListing}) => {
   const {url, name, image, description, phone, address} = activeListing;
   return (
-    <Grid container direction="column" id="side_drawer">
+    <Grid container direction="column" className={style.root}>
       <Grid item>
         <a
           href={url}

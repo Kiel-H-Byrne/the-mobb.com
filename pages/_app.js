@@ -1,5 +1,5 @@
 import { ThemeProvider } from "@material-ui/core";
-import { theme } from "../styles/myTheme";
+import { theme } from "../src/style/myTheme";
 // import * as serviceWorker from "../public/sw";
 
 function MyApp({ Component, pageProps }) {
