@@ -78,7 +78,7 @@ const MapAutoComplete = ({ listings, categories, selectedCategories, mapInstance
           <Divider className={classes.divider} />
           <CategoryFilter
             listings={listings}
-            categories={categories}
+            categories={categories || []}
             selectedCategories={selectedCategories}
             setSelectedCategories={setSelectedCategories}
             aria-label="Filter"

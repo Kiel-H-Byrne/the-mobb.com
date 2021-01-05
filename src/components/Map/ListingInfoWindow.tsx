@@ -14,6 +14,7 @@ const ListingInfoWindow = ({ activeListing }) => {
       position={locObj}
       options={{
         pixelOffset: { height: -30, width: 0 },
+        disableAutoPan: true
       }}
     >
       {activeListing ? (

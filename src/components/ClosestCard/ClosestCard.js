@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, Button } from "@material-ui/core";
 import DirectionsIcon from "@material-ui/icons/DirectionsTwoTone";
-import "./ClosestCard.scss";
+import "./ClosestCard.module.scss";
 
 const ClosestCard = ({ closestListing }) => {
   //onclick  set openlisting to this id.

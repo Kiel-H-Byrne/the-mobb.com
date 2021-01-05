@@ -7,7 +7,7 @@ import { makeStyles } from "@material-ui/core/styles";
 
 import { useAuth0 } from "@auth0/auth0-react";
 import { InfoTwoTone, ShareTwoTone } from "@material-ui/icons";
-import { theme } from "../../style/myTheme";
+import { theme } from "../../styles/myTheme";
 
 const useStyles = makeStyles({
   root: {
