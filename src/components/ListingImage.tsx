@@ -7,7 +7,7 @@ import { Listing } from '../db/Types';
 
 const DEFAULT_IMAGE = "http://placeimg.com/89/50/arch";
 
-const ListingImage = ({ image, name, url }: Partial<Listing> ) => {
+const ListingImage = ({ image, name, url }: Partial<Listing & Element>) => {
   const [ogImage, setogImage] = useState("");
 
   const handleImageError = async (e: GlobalEventHandlers) => {

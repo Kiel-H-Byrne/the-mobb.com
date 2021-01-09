@@ -1,46 +1,34 @@
 {
-  "name": "mobb",
-  "version": "0.0.1",
+  "name": "the-mobb2.com",
+  "version": "0.1.0",
   "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "next test"
+  },
   "dependencies": {
     "@auth0/auth0-react": "^1.1.0",
     "@material-ui/core": "^4.1.0",
     "@material-ui/icons": "^4.1.0",
+    "@material-ui/lab": "^4.0.0-alpha.57",
     "@react-google-maps/api": "^1.3.0",
     "date-fns": "^1.30.1",
     "dotenv": "^8.2.0",
     "history": "^4.9.0",
+    "next": "10.0.4",
+    "next-images": "^1.6.2",
     "node-sass": "^4.12.0",
     "now": "^16.4.4",
-    "react": "^16.8.4",
+    "react": "17.0.1",
     "react-devtools": "^3.6.1",
-    "react-dom": "^16.8.4",
-    "react-router": "^5.0.1",
-    "react-router-dom": "^5.2.0",
-    "react-scripts": "3.0.1"
+    "react-dom": "17.0.1",
+    "sass": "^1.32.0"
   },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not ie <= 11",
-    "not op_mini all"
-  ],
-  "description": "the Mobb",
-  "main": "index.js",
-  "repository": "https://github.com/tdotholla/MOBB.git",
-  "author": "Kiel H. Byrne",
-  "license": "None",
   "devDependencies": {
-    "sass": "^1.27.0",
-    "typescript": "^3.5.1"
+    "@types/node": "^14.14.19",
+    "@types/react": "^17.0.0",
+    "typescript": "^4.1.3"
   }
 }

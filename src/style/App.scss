@@ -1,0 +1,81 @@
+@import "./variables";
+@import "./mixins";
+@import "./frames";
+
+@include breakpoint(phablet) {
+  // $drawerWidth: 640px;
+}
+
+html,
+body {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+}
+
+.App {
+  text-align: center;
+  height: inherit;
+}
+
+.App_wrapper {
+  height: 100%;
+  width: 100%;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+.App-marker {
+  color: #61dafb;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  user-select: none;
+  transform: translate(-50%, -50%);
+}
+
+.App-drawer {
+  // @include breakpoint(desktop) {
+  //   $drawerWidth: 440px;
+  // }
+  @include breakpoint(mobileonly) {
+    width: 240px;
+  }
+  padding: 0 3px;
+  width: $drawerWidth;
+}
+
+
+.App-Autocomplete {
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  width: 240px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 3px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  font-size: 14px;
+  outline: none;
+  text-overflow: ellipses;
+  position: absolute;
+  margin: 3px;
+  left: 0;
+}
+.App-Centerbutton {
+  position: absolute;
+  bottom: 110px;
+  right: 0;
+  margin: 7px;
+}
+.App-fancytext {
+  transition: all 1s ease-in;
+  animation: fadeIn 2s ease-in;
+}

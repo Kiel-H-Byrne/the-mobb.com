@@ -8,7 +8,7 @@ import MyMarker from "./MyMarker";
 import ListingInfoWindow from "./ListingInfoWindow";
 import MapAutoComplete from "./MapAutoComplete";
 import SideDrawer from "../SideDrawer/SideDrawer";
-
+import style from "./AppMap.module.scss";
 const libraries = ["visualization", "places", "geometry", "localContext"];
 
 const clusterStyles = [
@@ -395,13 +395,11 @@ const AppMap = ({
   ); // can i use new set?
 
   let { center, zoom, options } = defaultProps;
-
   return (
-    // Important! Always set the container height explicitly
-    //set via app-map classname
+    // Important! Always set the container height explicitly via mapContainerClassName
     <LoadScript
       id="script-loader"
-      googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_KEY}
+      googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY}
       language="en"
       region="us"
       libraries={libraries}
@@ -412,7 +410,7 @@ const AppMap = ({
           setMapInstance(map);
         }}
         id="GMap"
-        mapContainerClassName="App-map"
+        mapContainerClassName={style.map}
         center={browserLocation || center}
         zoom={browserLocation ? 16 : zoom}
         options={options}
@@ -495,4 +493,4 @@ const AppMap = ({
   );
 };
 
-export default memo(AppMap);
+export default AppMap;

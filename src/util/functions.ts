@@ -238,7 +238,7 @@ export const getOG = async (url: string) => {
     let param = encodeURIComponent(url);
     // console.log(param);
     // console.log(`***calling OPENGRAPH API method with URL ${param} and KEY ${Meteor.settings.public.keys.openGraph.key}`);
-    let apiUrl = `https://opengraph.io/api/1.0/site/${param}?app_id=${process.env.REACT_APP_OG_KEY}`;
+    let apiUrl = `https://opengraph.io/api/1.0/site/${param}?app_id=${process.env.NEXT_PUBLIC_OG_KEY}`;
     // console.log("--OGP REQ URL--"+apiUrl);
     if (mCache.has(param)) {
       console.log("from cache...." + param);
@@ -437,7 +437,7 @@ export const placesSearch = async ({ name, location }) => {
 
   //requ'd: key, location, radius (meters),
   // optional: keyword ()
-  const key = process.env.REACT_APP_GOOGLE_SERVER_KEY;
+  const key = process.env.GOOGLE_SERVER_KEY;
   name = encodeURIComponent(name);
   const apiUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location}&radius=100&keyword=${name}&key=${key}`;
 

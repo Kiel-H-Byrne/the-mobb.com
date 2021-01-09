@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, Button } from "@material-ui/core";
 import DirectionsIcon from "@material-ui/icons/DirectionsTwoTone";
-import "./ClosestCard.scss";
+import style from "./ClosestCard.module.scss";
 
 const ClosestCard = ({ closestListing }) => {
   //onclick  set openlisting to this id.
@@ -20,9 +20,10 @@ const ClosestCard = ({ closestListing }) => {
   const divStyle = {
     background: `radial-gradient(circle at top left, rgba(22, 15, 77, 0.6), rgba(086,082,080, 0.6)), url(${image.url})`,
   };
+  
   return (
-    <div id="bottom_Row">
-      <Card id="card_closest" style={divStyle}>
+    <div className={style.root}>
+      <Card className={style.card_closest} style={divStyle}>
         <h6 className="card-title center-align">{name}</h6>
         <p className="center-align address">
           {address ? (
@@ -33,10 +34,9 @@ const ClosestCard = ({ closestListing }) => {
             </span>
           )}
         </p>
-        <div className="footer">
+        <div className={style.footer}>
           {url && (
             <a
-              className=""
               target="_blank"
               rel="noopener noreferrer"
               title="Website"
@@ -46,7 +46,7 @@ const ClosestCard = ({ closestListing }) => {
             </a>
           )}
           {phone && (
-            <a className="" href={`tel:+1${phone}`}>
+            <a href={`tel:+1${phone}`}>
               <i className="material-icons">phone</i>
             </a>
           )}

@@ -1,8 +1,7 @@
 {
   "build": {
     "env": {
-      "REACT_APP_GOOGLE_MAPS_KEY":"@react_app_google_maps_key",
-      "REACT_APP_MLAB_KEY":"@react_app_mlab_key"
+      "NEXT_PUBLIC_GOOGLE_MAPS_KEY":"@NEXT_PUBLIC_google_maps_key",
     }
   }
 }
