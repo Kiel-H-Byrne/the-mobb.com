@@ -28,7 +28,6 @@ const Home = React.memo(() => {
   return (
     <>
       <Head>
-        <head>
           <meta charSet="utf-8" />
           <title>MOBB</title>
 
@@ -122,7 +121,7 @@ const Home = React.memo(() => {
             rel="preload"
             href="https://fonts.googleapis.com/icon?family=Material+Icons"
             as="style"
-            onLoad="this.rel='stylesheet'"
+            onLoad={() => "this.rel='stylesheet'"}
           />
 
           <link
@@ -147,7 +146,6 @@ const Home = React.memo(() => {
         }`}
             </style>
           </noscript>
-        </head>
       </Head>
 
       <main className={style.main}>

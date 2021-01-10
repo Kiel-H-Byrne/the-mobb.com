@@ -1,4 +1,13 @@
-const LegacyDrawer = ({ activeListing }) => {
+import { Button, Divider, Fab, Grid, Snackbar } from "@material-ui/core";
+import { FingerprintTwoTone } from "@material-ui/icons";
+import { Alert } from "@material-ui/lab";
+import { useState } from "react";
+
+
+
+export const LegacyDrawer = ({ activeListing }) => {
+/*
+
   const {
     _id,
     image,
@@ -17,7 +26,6 @@ const LegacyDrawer = ({ activeListing }) => {
   } = activeListing;
 
   const [snackBarOpen, setSnackBarOpen] = useState(false);
-
   return (
     <>
       <Grid container  >
@@ -398,4 +406,5 @@ const LegacyDrawer = ({ activeListing }) => {
       </Grid>
     </>
   );
+  */
 };
