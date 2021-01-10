@@ -2,6 +2,7 @@ import { Fab, Grid, Typography } from "@material-ui/core";
 import { DirectionsTwoTone } from "@material-ui/icons";
 import { useEffect, useState } from "react";
 import { mCache } from "../../db/mlab";
+import { Listing } from "../../db/Types";
 import { getGDetails } from "../../util/functions";
 import ListingImage from "../ListingImage";
 

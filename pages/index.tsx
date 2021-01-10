@@ -78,42 +78,42 @@ const Home = React.memo(() => {
           <meta name="theme-color" content="#ed7e0e" />
           <meta
             name="msapplication-config"
-            content="%PUBLIC_URL%/browserconfig.xml"
+            content="/browserconfig.xml"
           />
           <meta name="msapplication-TileColor" content="#ed7e0e" />
           <meta
             name="msapplication-TileImage"
-            content="%PUBLIC_URL%/img/icons/mstile-144x144.png"
+            content="/img/icons/mstile-144x144.png"
           />
           <link
             rel="manifest"
             type="application/manifest+json"
-            href="%PUBLIC_URL%/app_manifest.json"
+            href="/app_manifest.json"
           />
           {/*  ICONS  */}
           <link
             rel="icon"
             type="image/png"
             sizes="32x32"
-            href="%PUBLIC_URL%/img/icons/favicon-32x32.png"
+            href="/img/icons/favicon-32x32.png"
           />
           <link
             rel="icon"
             type="image/png"
             sizes="16x16"
-            href="%PUBLIC_URL%/img/icons/favicon-16x16.png"
+            href="/img/icons/favicon-16x16.png"
           />
           <link
             rel="apple-touch-icon"
-            href="%PUBLIC_URL%/img/icons/apple-touch-icon-180x180.png"
+            href="/img/icons/apple-touch-icon-180x180.png"
           />
           <link
             rel="apple-touch-startup-image"
-            href="%PUBLIC_URL%/img/Logo_MOBB-2.jpg"
+            href="/img/Logo_MOBB-2.jpg"
           />
           <link
             rel="mask-icon"
-            href="%PUBLIC_URL%/img/icons/safari-pinned-tab.svg"
+            href="/img/icons/safari-pinned-tab.svg"
             color="#ed7e0e"
           />
           {/*  FONTS  */}

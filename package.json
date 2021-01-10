@@ -18,7 +18,6 @@
     "dotenv": "^8.2.0",
     "history": "^4.9.0",
     "next": "10.0.4",
-    "node-sass": "^4.12.0",
     "now": "^16.4.4",
     "react": "17.0.1",
     "react-devtools": "^3.6.1",
