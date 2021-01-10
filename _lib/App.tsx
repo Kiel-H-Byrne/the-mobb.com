@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Grid, LinearProgress } from "@material-ui/core";
 
-import { fetchAllCollection } from "./db/mlab";
+import { fetchAllCollection } from "../src/db/mlab";
 
-import AppMap from "./components/Map/AppMap";
-import Nav from "./components/Nav/Nav";
+import AppMap from "../src/components/Map/AppMap";
+import Nav from "../src/components/Nav/Nav";
 import "./App.scss";
 
 const App = React.memo(() => {

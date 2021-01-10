@@ -1,7 +1,7 @@
 const ATLAS_KEY = process.env.NEXT_PUBLIC_ATLAS_KEY;
 // const ROOT_URL = "https://api.mlab.com/api/1/databases/tkhb_mongodb"
 // const ROOT_URI = "https://mobb-db.herokuapp.com/api/1/databases/tkhb_mongodb"
-const ROOT_URI = "https://zw9bicu0l0.execute-api.us-east-1.amazonaws.com/dev";
+const ROOT_URI = "https://api.the-mobb.com";
 
 interface IFetchAllCollection {
   collection: string;
@@ -16,10 +16,9 @@ export const fetchAllCollection = ({
   const uri = `${ROOT_URI}/${collection}${suffix ? `&${suffix}` : ''}`;
   // console.log(uri)
   const fetchOptions = {
-    // headers: {`Access-Control-Allow-Origin`}
   }
   return fetch(uri, fetchOptions)
-    .then((result) => result.json())
+    .then((result) => console.log(result.json()))
     .then((response) => response)
     .catch((error) => console.error(error));
 };

@@ -1,9 +1,17 @@
+import { Fab, Grid, Typography } from "@material-ui/core";
+import { DirectionsTwoTone } from "@material-ui/icons";
+import { useEffect, useState } from "react";
+import { mCache } from "../../db/mlab";
+import { Listing } from "../../db/Types";
+import { getGDetails } from "../../util/functions";
+import ListingImage from "../ListingImage";
+
 interface ISideList {
   activeListing: Listing;
   mapInstance: any;
 }
 
-const SideList = ({activeListing, mapInstance}: ISideList) => {
+export const SideList = ({activeListing, mapInstance}: ISideList) => {
   const { image, url, address, description, name, phone } = activeListing;
   const [thisPlace, setThisPlace] = useState(null);
   const gid = activeListing.google_id;
@@ -48,7 +56,7 @@ const SideList = ({activeListing, mapInstance}: ISideList) => {
       </Grid>
       <Grid item>
         <Fab className="button_get-directions">
-          <DirectionsIcon />
+          <DirectionsTwoTone />
         </Fab>
       </Grid>
       <hr />
