@@ -2,6 +2,6 @@ node_modules
 build
 .cache
 .next
-.env*.local
+.env*
 
 # dist
