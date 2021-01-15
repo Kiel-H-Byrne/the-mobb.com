@@ -1,7 +1,2 @@
 {
-  "build": {
-    "env": {
-      "NEXT_PUBLIC_GOOGLE_MAPS_KEY":"@NEXT_PUBLIC_google_maps_key",
-    }
-  }
 }
