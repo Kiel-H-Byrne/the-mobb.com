@@ -395,12 +395,11 @@ const AppMap = ({
   ); // can i use new set?
 
   let { center, zoom, options } = defaultProps;
-  console.log(process.env)
   return (
     // Important! Always set the container height explicitly via mapContainerClassName
     <LoadScript
       id="script-loader"
-      googleMapsApiKey={process.env.GOOGLE_MAPS_KEY}
+      googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY}
       language="en"
       region="us"
       libraries={libraries}
