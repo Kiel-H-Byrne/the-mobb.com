@@ -18,7 +18,7 @@ export const fetchAllCollection = ({
   const fetchOptions = {
   }
   return fetch(uri, fetchOptions)
-    .then((result) => console.log(result.json()))
+    .then((result) => result.json())
     .then((response) => response)
     .catch((error) => console.error(error));
 };

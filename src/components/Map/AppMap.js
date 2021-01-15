@@ -399,7 +399,7 @@ const AppMap = ({
     // Important! Always set the container height explicitly via mapContainerClassName
     <LoadScript
       id="script-loader"
-      googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY}
+      googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_KEY}
       language="en"
       region="us"
       libraries={libraries}
