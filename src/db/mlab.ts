@@ -1,5 +1,4 @@
 const ATLAS_KEY = process.env.NEXT_PUBLIC_ATLAS_KEY;
-// const ROOT_URL = "https://api.mlab.com/api/1/databases/tkhb_mongodb"
 // const ROOT_URI = "https://mobb-db.herokuapp.com/api/1/databases/tkhb_mongodb"
 const ROOT_URI = "https://api.the-mobb.com";
 

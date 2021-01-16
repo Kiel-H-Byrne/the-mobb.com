@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import { Marker } from "@react-google-maps/api";
 
@@ -18,6 +18,9 @@ const MyMarker = React.memo(({
     url: "img/map/orange_marker_sm.png",
   };
 
+  useEffect(() => {
+    
+  }, [data])
   const handleMouseOverMarker = () => {
     setactiveListing(data);
     setisInfoWindowOpen(true);

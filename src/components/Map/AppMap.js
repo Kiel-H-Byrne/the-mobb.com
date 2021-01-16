@@ -380,7 +380,7 @@ const defaultProps = {
   },
 };
 
-const AppMap = ({
+const AppMap = memo(({
   listings,
   categories,
   browserLocation,
@@ -395,6 +395,8 @@ const AppMap = ({
   ); // can i use new set?
 
   let { center, zoom, options } = defaultProps;
+
+  console.log(process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY)
   return (
     // Important! Always set the container height explicitly via mapContainerClassName
     <LoadScript
@@ -491,6 +493,6 @@ const AppMap = ({
       </GoogleMap>
     </LoadScript>
   );
-};
+});
 
 export default AppMap;
