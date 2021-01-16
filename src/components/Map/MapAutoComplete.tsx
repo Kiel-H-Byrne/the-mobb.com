@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Dispatch, SetStateAction } from "react";
 import { Autocomplete } from "@react-google-maps/api";
 
 import { makeStyles } from "@material-ui/core/styles";
@@ -15,9 +15,9 @@ import { colors } from "@material-ui/core";
 interface OwnProps {
   listings: Object[];
   categories: Object[];
-  selectedCategories: Object[];
+  selectedCategories: Set<Object>;
   mapInstance: any;
-  setSelectedCategories: () => Object[];
+  setSelectedCategories: Dispatch<SetStateAction<Set<Object>>>;
 }
 
 const useStyles = makeStyles((theme) => ({

@@ -6,6 +6,7 @@ export interface Claim {
 }
 
 export interface Listing {
+  _id: any; //ObjectId type from mongoDB
   name: string;
   address: string;
   street?: string;

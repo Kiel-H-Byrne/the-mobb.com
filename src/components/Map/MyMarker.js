@@ -18,9 +18,6 @@ const MyMarker = React.memo(({
     url: "img/map/orange_marker_sm.png",
   };
 
-  useEffect(() => {
-    
-  }, [data])
   const handleMouseOverMarker = () => {
     setactiveListing(data);
     setisInfoWindowOpen(true);

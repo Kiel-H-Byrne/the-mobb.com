@@ -1,6 +1,7 @@
 import React, { useState, memo } from "react";
 
 import { GoogleMap, LoadScript, MarkerClusterer } from "@react-google-maps/api";
+import { Libraries } from "@react-google-maps/api/dist/utils/make-load-script-url";
 
 import { GEOCENTER } from "../../util/functions";
 
@@ -9,7 +10,8 @@ import ListingInfoWindow from "./ListingInfoWindow";
 import MapAutoComplete from "./MapAutoComplete";
 import SideDrawer from "../SideDrawer/SideDrawer";
 import style from "./AppMap.module.scss";
-const libraries = ["visualization", "places", "geometry", "localContext"];
+import { Listing } from "../../db/Types";
+const libraries: Libraries = [ "places", "visualization", "geometry", "localContext"];
 
 const clusterStyles = [
   {
@@ -380,13 +382,21 @@ const defaultProps = {
   },
 };
 
+interface IAppMap {
+  listings: any;
+  categories: any;
+  browserLocation: any;
+  setMapInstance: any;
+  mapInstance: any;
+}
+
 const AppMap = memo(({
   listings,
   categories,
   browserLocation,
   setMapInstance,
   mapInstance,
-}) => {
+}: IAppMap) => {
   const [isDrawerOpen, setisDrawerOpen] = useState(false);
   const [isInfoWindowOpen, setisInfoWindowOpen] = useState(false);
   const [activeListing, setactiveListing] = useState(null);
@@ -434,7 +444,7 @@ const AppMap = memo(({
             // minimumClusterSize={3}
           >
             {(clusterer) =>
-              Object.values(listings).map((listing) => {
+              Object.values(listings).map((listing: Listing) => {
                 //return marker if element categories array includes value from selected_categories\\
 
                 if (
@@ -461,6 +471,7 @@ const AppMap = memo(({
 
                     <MyMarker
                       key={`marker-${listing._id}`}
+                      //@ts-ignore
                       data={listing}
                       clusterer={clusterer}
                       setactiveListing={setactiveListing}

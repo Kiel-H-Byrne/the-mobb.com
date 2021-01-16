@@ -28,6 +28,7 @@ const Home = React.memo(() => {
   return (
     <>
       <Head>
+        <head>
           <meta charSet="utf-8" />
           <title>MOBB</title>
 
@@ -76,10 +77,7 @@ const Home = React.memo(() => {
 
           {/* Real-Favicon Generated FOR FACEBOOK PREVIEW  */}
           <meta name="theme-color" content="#ed7e0e" />
-          <meta
-            name="msapplication-config"
-            content="/browserconfig.xml"
-          />
+          <meta name="msapplication-config" content="/browserconfig.xml" />
           <meta name="msapplication-TileColor" content="#ed7e0e" />
           <meta
             name="msapplication-TileImage"
@@ -107,10 +105,7 @@ const Home = React.memo(() => {
             rel="apple-touch-icon"
             href="/img/icons/apple-touch-icon-180x180.png"
           />
-          <link
-            rel="apple-touch-startup-image"
-            href="/img/Logo_MOBB-2.jpg"
-          />
+          <link rel="apple-touch-startup-image" href="/img/Logo_MOBB-2.jpg" />
           <link
             rel="mask-icon"
             href="/img/icons/safari-pinned-tab.svg"
@@ -146,6 +141,7 @@ const Home = React.memo(() => {
         }`}
             </style>
           </noscript>
+        </head>
       </Head>
 
       <main className={style.main}>

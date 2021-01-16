@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import {
   Drawer,
   Button,
@@ -31,7 +31,7 @@ interface ISideDrawer {
   activeListing: Listing;
   isOpen: boolean;
   mapInstance: any;
-  setOpen: (prevOpen) => boolean;
+  setOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 const SideGrid = ({activeListing}) => {
