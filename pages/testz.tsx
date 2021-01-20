@@ -1,19 +1,26 @@
-import { Container, Typography, Form } from '@material-ui/core'
-import * as React from 'react'
+import * as React from "react";
+import { Container, Divider, Typography } from "@material-ui/core";
+import { Form } from "react-final-form";
+import { TextField } from "mui-rff";
+import AddListing from "../src/components/Forms/AddListing";
+import ClaimListing from "../src/components/Forms/ClaimListing";
+import VerifyListing from "../src/components/Forms/VerifyListing";
+import EditListing from "../src/components/Forms/EditListing";
 
-const testz = () => {
+const testz = ({ initialValues }) => {
   return (
     <Container>
-      <Typography variant={"h2"}> Forms tests</Typography>
-      <div>
-        <Form id="search-mobb"></Form>
-        <Form id="create-listing"></Form>
-        <Form id="update-listing"></Form>
-        <Form id="delete-listing"></Form>
-        <Form id=""></Form>
-      </div>
+      <Typography variant={"h1"}> Forms tests</Typography>
+
+      <AddListing listing={{}}/>
+      <Divider />
+      <ClaimListing />
+      <Divider />
+      <VerifyListing />
+      <Divider />
+      <EditListing />
     </Container>
   );
-}
+};
 
-export default testz
+export default testz;
