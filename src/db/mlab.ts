@@ -18,7 +18,6 @@ interface IFetchOptions {
 
 export const fetchAllCollection = ({
   collection,
-  suffix,
 }: IFetchAllCollection): Promise<any> => {
   const myHeaders = new Headers();
   myHeaders.append("x-api-key", ATLAS_GUEST_KEY);
@@ -28,7 +27,7 @@ export const fetchAllCollection = ({
     headers: myHeaders,
     redirect: "follow",
   };
-  const uri = `${ROOT_URI}/${collection}${suffix ? `&${suffix}` : ""}`;
+  const uri = `${ROOT_URI}/${collection}`;
 
   return fetch(uri, fetchOptions)
     .then((result) => result.json())

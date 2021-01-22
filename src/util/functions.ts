@@ -41,7 +41,6 @@ export const useFetchOG = (url: string) => {
 };
 
 export const useFetchPlace = (url: string) => {
-  
   const [status, setStatus] = useState("idle");
   const [data, setData] = useState([]);
 
@@ -151,7 +150,7 @@ export const useFetchPlace = (url: string) => {
 // });
 
 // $(document).ready(function () {
-//   $('[id="centerButton_button"]').removeClass("pulse");
+// $('[id="centerButton_button"]').removeClass("pulse");
 // });
 // };
 
@@ -205,27 +204,26 @@ export const useFetchPlace = (url: string) => {
 //     return false;
 //   }
 // };
-export const getGDetails = ({gid, map}) => {
-    console.log("Details Data from API...");
-    //   //get the response and stash it in GCache.
-    return new Promise<any>(function (resolve, reject) {
+export const getGDetails = ({ gid, map }) => {
+  console.log("Details Data from API...");
+  //   //get the response and stash it in GCache.
+  return new Promise<any>(function (resolve, reject) {
+    // @ts-ignore
+    const service = new window.google.maps.places.PlacesService(map);
+    const req = { placeId: gid };
+    const cbk = (place, status) => {
       // @ts-ignore
-      const service = new window.google.maps.places.PlacesService(map);
-      const req = { placeId: gid };
-      const cbk = (place, status) => {
-        // @ts-ignore
-        if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-          mCache.set(gid, place);
-          resolve(place);
-          //inject with jquery into dom?
-        } else {
-          console.error(status);
-        }
-      };
-      service.getDetails(req, cbk);
-    });
+      if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+        mCache.set(gid, place);
+        resolve(place);
+        //inject with jquery into dom?
+      } else {
+        console.error(status);
+      }
+    };
+    service.getDetails(req, cbk);
+  });
 };
-
 
 export const getOG = async (url: string) => {
   // check(url, String);
@@ -339,65 +337,162 @@ export const findClosestMarker = function (
   return closestMarker;
 };
 
-// --- unused ---
+export const fillInAddress = (autocomplete, componentForm, setFormData) => {
+  const place = autocomplete.getPlace();
+  const placeLoc = {
+    lat: place.geometry?.location.lat(),
+    lng: place.geometry?.location.lng(),
+  };
+  // Get each component of the address from the place details
+  // and fill the corresponding field on the form.
+  place.geometry ? componentForm["location"] : console.warn("No Geometry for " + place.name);
 
-// export const isHome = (ip) => {
-//   const home_octets = [
-//     "114",
-//     "117",
-//     "123",
-//     "126",
-//     "112",
-//     "124",
-//     "108",
-//     "101",
-//     "103",
-//     "111",
-//     "109",
-//     "126",
-//     "150",
-//   ];
-//   let base = ip.split(".")[0];
-//   let octet = ip.split(".")[1];
-//   if (base === "10" && home_octets.includes(octet)) {
-//     return true;
-//   }
-//   return false;
-// };
+  // let num;
+  // for (let i = 0; i < place.address_components.length; i++) {
 
-// export function desc(a, b, orderBy) {
-//   if (b[orderBy] < a[orderBy]) {
-//     return -1;
-//   }
-//   if (b[orderBy] > a[orderBy]) {
-//     return 1;
-//   }
-//   return 0;
-// }
+  //   let addressType = place.address_components[i].types[0];
+  //   if (componentForm[addressType]) {
+  //     let val = place.address_components[i][componentForm[addressType]];
+  //     if (addressType == 'street_number') {
+  //       componentForm['route'] = val;
+  //       num = val;
+  //     } else if (addressType == 'route') {
+  //       componentForm['route'] = `${componentForm['route']}  ${val}`;
+  //       if (num) {
+  //         componentForm['route'] = `${num}  ${val}`;
+  //       } else {
+  //         componentForm[addressType] = val;
+  //       }
+  //     } else if (addressType == 'sublocality_level_1') {
+  //         componentForm['locality'] = val;
+  //     } else {
+  //       componentForm[addressType] = val;
+  //     }
+  //     //
+  //   }
+  // }
+  // SET OTHER INPUT VALUES AUTOMATICALLY
+  if (place.formatted_address)
+    componentForm["formatted_address"] = place.formatted_address;
+  const types = place.types;
+  const preview_button = componentForm["button_website-preview"];
+  // console.log(types);
 
-// export function stableSort(array, cmp) {
-//   const stabilizedThis = array.map((el, index) => [el, index]);
-//   stabilizedThis.sort((a, b) => {
-//     const order = cmp(a[0], b[0]);
-//     if (order !== 0) return order;
-//     return a[1] - b[1];
-//   });
-//   return stabilizedThis.map((el) => el[0]);
-// }
+  if (
+    types.includes("route") ||
+    types.includes("street_address") ||
+    types.includes("premise")
+  ) {
+    console.log("don't fill");
+  } else {
+    componentForm["name"] = place.name;
+  }
 
-// export function getSorting(order, orderBy) {
-//   return order === "desc"
-//     ? (a, b) => desc(a, b, orderBy)
-//     : (a, b) => -desc(a, b, orderBy);
-// }
+  if (place.formatted_phone_number)
+    componentForm["formatted_phone_number"] = place.formatted_phone_number;
 
-// export function panToMarker(map, pos) {
-//   // SET CENTER,
-//   // ZOOM TO CERTAIN LEVEL
-//   console.log(pos);
-//   map.panTo(pos);
-//   map.setZoom(11);
-// }
+  // if (place.website) {
+  //   componentForm['website'] = place.website;
+  //   // preview_button.classList.remove("hide");
+  //   // preview_button.classList.add("rubberBand");
+  // } else {
+  //   //wipe away "https://" prefill
+  //   componentForm['website'] = '';
+  //   // if (preview_button) {
+  //   //   preview_button.classList.add("hide");
+  //   //   preview_button.classList.remove("rubberBand");
+  //   // }
+  // }
+  if (place.place_id) componentForm["place_id"] = place.place_id;
+
+  //PREFILL FORM WHEN THE TYPE IS restaurant, add category 'food & beverage'; etc...
+
+  if (
+    types.includes("bakery") ||
+    types.includes("food") ||
+    types.includes("restaurant") ||
+    types.includes("bar") ||
+    types.includes("cafe") ||
+    types.includes("grocery_or_supermarket") ||
+    types.includes("meal_delivery") ||
+    types.includes("meal_takeaway")
+  ) {
+    componentForm["categories"].push("Food & Beverage");
+  }
+  if (
+    types.includes("accounting") ||
+    types.includes("bank") ||
+    types.includes("dentist") ||
+    types.includes("doctor") ||
+    types.includes("electrician") ||
+    types.includes("funeral_home") ||
+    types.includes("insurance_agency") ||
+    types.includes("lawyer") ||
+    types.includes("painter") ||
+    types.includes("pharmacy") ||
+    types.includes("physiotherapist") ||
+    types.includes("plumber") ||
+    types.includes("real_estate_agency") ||
+    types.includes("veterinary_care")
+  ) {
+    componentForm["categories"].push("Professional Services");
+  }
+  if (
+    types.includes("amusement_park") ||
+    types.includes("art_gallery") ||
+    types.includes("book_store") ||
+    types.includes("casino") ||
+    types.includes("bowling_alley") ||
+    types.includes("zoo") ||
+    types.includes("stadium") ||
+    types.includes("park") ||
+    types.includes("night_club") ||
+    types.includes("museum") ||
+    types.includes("movie_theater") ||
+    types.includes("aquarium")
+  ) {
+    componentForm["categories"].push("Entertainment & Media");
+  }
+  if (
+    types.includes("beauty_salon") ||
+    types.includes("hair_care") ||
+    types.includes("spa")
+  ) {
+    componentForm["categories"].push("Beauty & Lifestyle");
+  }
+  if (
+    types.includes("clothing_store") ||
+    types.includes("shopping_mall") ||
+    types.includes("shoe_store") ||
+    types.includes("jewelry_store")
+  ) {
+    componentForm["categories"].push("Apparel & Accessories");
+  }
+  if (
+    types.includes("art_gallery") ||
+    types.includes("book_store") ||
+    types.includes("museum") ||
+    types.includes("school") ||
+    types.includes("university")
+  ) {
+    componentForm["categories"].push("Education & Child Care");
+  }
+  if (
+    types.includes("hospital") ||
+    types.includes("spa") ||
+    types.includes("physiotherapist") ||
+    types.includes("doctor") ||
+    types.includes("gym") ||
+    types.includes("veterinary_care") ||
+    types.includes("pharmacy") ||
+    types.includes("health")
+  ) {
+    componentForm["categories"].push("Health & Wellness");
+  }
+
+  console.log(componentForm);
+  setFormData(componentForm)
+};
 
 export const GEOCENTER = { lat: 39.8283, lng: -98.5795 };
 
@@ -451,6 +546,65 @@ export const placesSearch = async ({ name, location }) => {
     console.error(error);
   }
 
+  // --- unused ---
+
+  // export const isHome = (ip) => {
+  //   const home_octets = [
+  //     "114",
+  //     "117",
+  //     "123",
+  //     "126",
+  //     "112",
+  //     "124",
+  //     "108",
+  //     "101",
+  //     "103",
+  //     "111",
+  //     "109",
+  //     "126",
+  //     "150",
+  //   ];
+  //   let base = ip.split(".")[0];
+  //   let octet = ip.split(".")[1];
+  //   if (base === "10" && home_octets.includes(octet)) {
+  //     return true;
+  //   }
+  //   return false;
+  // };
+
+  // export function desc(a, b, orderBy) {
+  //   if (b[orderBy] < a[orderBy]) {
+  //     return -1;
+  //   }
+  //   if (b[orderBy] > a[orderBy]) {
+  //     return 1;
+  //   }
+  //   return 0;
+  // }
+
+  // export function stableSort(array, cmp) {
+  //   const stabilizedThis = array.map((el, index) => [el, index]);
+  //   stabilizedThis.sort((a, b) => {
+  //     const order = cmp(a[0], b[0]);
+  //     if (order !== 0) return order;
+  //     return a[1] - b[1];
+  //   });
+  //   return stabilizedThis.map((el) => el[0]);
+  // }
+
+  // export function getSorting(order, orderBy) {
+  //   return order === "desc"
+  //     ? (a, b) => desc(a, b, orderBy)
+  //     : (a, b) => -desc(a, b, orderBy);
+  // }
+
+  // export function panToMarker(map, pos) {
+  //   // SET CENTER,
+  //   // ZOOM TO CERTAIN LEVEL
+  //   console.log(pos);
+  //   map.panTo(pos);
+  //   map.setZoom(11);
+  // }
 
   // console.log("--GOOGLE PLACES: NEARBY SEARCH --");
   // // console.log("--GOOGLE PLACES: NEARBY SEARCH URL--"+apiUrl);

@@ -18,6 +18,14 @@ body {
   font-size: 16px;
 }
 
+.pac-container {
+  // background-color: $clr-grey;
+  //needs to be in front of modal which is at z-index: 1300
+  z-index: 1300;
+  width: 100%;
+  
+}
+
 .App {
   text-align: center;
   height: inherit;

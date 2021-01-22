@@ -6,13 +6,20 @@ import AddListing from "../src/components/Forms/AddListing";
 import ClaimListing from "../src/components/Forms/ClaimListing";
 import VerifyListing from "../src/components/Forms/VerifyListing";
 import EditListing from "../src/components/Forms/EditListing";
+import { GetStaticProps } from "next";
+import { fetchAllCollection } from "../src/db/mlab";
+import { Listing } from "../src/db/Types";
 
-const testz = ({ initialValues }) => {
+interface Props {
+  all_listings: Listing[]
+}
+
+const testz = ({ all_listings }: Props) => {
   return (
     <Container>
       <Typography variant={"h1"}> Forms tests</Typography>
 
-      <AddListing listing={{}}/>
+      <AddListing all_listings={all_listings}/>
       <Divider />
       <ClaimListing />
       <Divider />
@@ -22,5 +29,13 @@ const testz = ({ initialValues }) => {
     </Container>
   );
 };
+
+export const getStaticProps: GetStaticProps = async () => {
+  const all_listings = await fetchAllCollection({ collection: "listings" });
+  return {
+    props: { all_listings },
+  };
+};
+
 
 export default testz;
