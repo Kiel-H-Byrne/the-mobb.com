@@ -1,7 +1,6 @@
 import React, { useState, memo } from "react";
 
 import { GoogleMap, LoadScript, MarkerClusterer } from "@react-google-maps/api";
-import { Libraries } from "@react-google-maps/api/dist/utils/make-load-script-url";
 
 import { GEOCENTER } from "../../util/functions";
 
@@ -10,7 +9,7 @@ import ListingInfoWindow from "./ListingInfoWindow";
 import MapAutoComplete from "./MapAutoComplete";
 import SideDrawer from "../SideDrawer/SideDrawer";
 import style from "./AppMap.module.scss";
-import { Listing } from "../../db/Types";
+import { Listing, Libraries } from "../../db/Types";
 const libraries: Libraries = [ "places", "visualization", "geometry", "localContext"];
 
 const clusterStyles = [

@@ -37,6 +37,13 @@ const CategoryFilter = ({
 
   const handleChange = (event) => {
     const newSet = new Set(selectedCategories);
+    const name = event.target.name;
+    const size = catCount(event.target.name)
+    // if (size > 100 && mapZoom > large) {
+    //   //display some type of modal to zoom in
+    //   return
+    // }
+
     if (selectedCategories.has(event.target.name)) {
       newSet.delete(event.target.name);
       setSelectedCategories(newSet);

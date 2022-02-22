@@ -34,6 +34,7 @@ export interface Listing {
   creator: Date;
   submitted: Date;
 }
+export type Libraries = ("drawing" | "geometry" | "localContext" | "places" | "visualization")[];
 
 export interface GLocation { lat: string, lng: string }
 
