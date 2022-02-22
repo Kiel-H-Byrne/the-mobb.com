@@ -2,7 +2,7 @@ import React from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import {
   makeStyles,
-  fade,
+  alpha,
   AppBar,
   Toolbar,
   IconButton,
@@ -14,7 +14,7 @@ import AddLocationIcon from "@material-ui/icons/AddLocationTwoTone";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    backgroundColor: fade(colors.grey[700], 0.85),
+    backgroundColor: alpha(colors.grey[700], 0.85),
   },
   sectionDesktop: {
     position: "fixed",
