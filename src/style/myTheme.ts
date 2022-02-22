@@ -1,7 +1,7 @@
-import { colors } from "@material-ui/core";
-import { createTheme } from '@material-ui/core/styles'
+import { colors, adaptV4Theme } from "@mui/material";
+import { createTheme } from '@mui/material/styles'
 
-export const theme = createTheme({
+export const theme = createTheme(adaptV4Theme({
   palette: {
     primary: {
       main: colors.orange["A200"],
@@ -34,4 +34,4 @@ export const theme = createTheme({
       contrastText: colors.common.white,
     },
   },
-});
+}));

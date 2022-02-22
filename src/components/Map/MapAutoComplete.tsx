@@ -1,16 +1,16 @@
 import React, { Dispatch, SetStateAction } from "react";
 import { Autocomplete } from "@react-google-maps/api";
 
-import { makeStyles } from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
-import InputBase from "@material-ui/core/InputBase";
-import Divider from "@material-ui/core/Divider";
-import IconButton from "@material-ui/core/IconButton";
+import makeStyles from '@mui/styles/makeStyles';
+import Paper from "@mui/material/Paper";
+import InputBase from "@mui/material/InputBase";
+import Divider from "@mui/material/Divider";
+import IconButton from "@mui/material/IconButton";
 
-import SearchIcon from "@material-ui/icons/Search";
+import SearchIcon from "@mui/icons-material/Search";
 import MyLocationButton from "./MyLocationButton";
 import CategoryFilter from "./CategoryFilter";
-import { colors } from "@material-ui/core";
+import { colors } from "@mui/material";
 
 interface OwnProps {
   listings: Object[];
@@ -72,7 +72,7 @@ const MapAutoComplete = ({ listings, categories, selectedCategories, mapInstance
             placeholder={`Search ${count} Listings...`}
             inputProps={{ "aria-label": "Search The MOBB" }}
           />
-          <IconButton className={classes.iconButton} aria-label="Search">
+          <IconButton className={classes.iconButton} aria-label="Search" size="large">
             <SearchIcon />
           </IconButton>
           <Divider className={classes.divider} />

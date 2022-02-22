@@ -1,6 +1,6 @@
 import React from "react";
-import { Card, Button } from "@material-ui/core";
-import DirectionsIcon from "@material-ui/icons/DirectionsTwoTone";
+import { Card, Button } from "@mui/material";
+import DirectionsIcon from "@mui/icons-material/DirectionsTwoTone";
 import style from "./ClosestCard.module.scss";
 
 const ClosestCard = ({ closestListing }) => {

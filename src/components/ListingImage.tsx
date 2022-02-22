@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { getOG } from "../util/functions";
-import { CardMedia } from "@material-ui/core";
+import { CardMedia } from "@mui/material";
 import { Listing } from '../db/Types';
 
 

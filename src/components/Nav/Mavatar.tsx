@@ -1,12 +1,12 @@
 import React from "react";
-import { Avatar, Button, Menu, MenuItem } from "@material-ui/core";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import ListItemText from "@material-ui/core/ListItemText";
+import { Avatar, Button, Menu, MenuItem } from "@mui/material";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
 
-import { makeStyles } from "@material-ui/core/styles";
+import makeStyles from '@mui/styles/makeStyles';
 
 import { useAuth0 } from "@auth0/auth0-react";
-import { InfoTwoTone, ShareTwoTone } from "@material-ui/icons";
+import { InfoTwoTone, ShareTwoTone } from "@mui/icons-material";
 import { theme } from "../../style/myTheme";
 
 const useStyles = makeStyles({

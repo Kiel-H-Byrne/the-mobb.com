@@ -5,9 +5,9 @@ import {
   ListItemText,
   Menu,
   IconButton,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/styles";
-import LocationOffIcon from "@material-ui/icons/LocationOffTwoTone";
+} from "@mui/material";
+import { makeStyles } from "@mui/styles";
+import LocationOffIcon from "@mui/icons-material/LocationOffTwoTone";
 import { memo } from "react";
 
 const useStyles = makeStyles({
@@ -43,55 +43,53 @@ const MapFilter = memo(({ listings, categories, selectedCategories, setSelectedC
   const handleFilterMenuClose = () => {
     setAnchorEl(null);
   };
-  return (
-    <>
-      {/* <FormControl className={classes.root}>
-        <InputLabel id="demo-mutiple-checkbox-label">Category</InputLabel>
-        <Select
-          id="demo-mutiple-checkbox"
-          multiple
-          value={selectedCategories}
-          onChange={handleChange}
-          input={<Input />}
-          renderValue={(selected) => (
-            <div className={classes.chips}>
-              {`Selected: ${selected.length}`}
-              {*/
-      /* selected.map(value => (
-                <Chip key={value} label={value} className={classes.chip} />
-              )) */
-      /*}
-            </div>
-          )}
-        > */}
-      <IconButton
-        aria-label="show 17 new notifications"
-        color="inherit"
-        onClick={(e) => handleFilterMenuOpen(e)}
-      >
-        <LocationOffIcon />
-      </IconButton>
-      <Menu
-        anchorEl={anchorEl}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        id={"map-filter-menu"}
-        className={classes.root}
-        keepMounted
-        transformOrigin={{ vertical: "top", horizontal: "right" }}
-        open={isMenuOpen}
-        onClose={() => handleFilterMenuClose()}
-      >
-        {categories.map(({ name }) => (
-          <MenuItem key={name} value={name}>
-            <Checkbox checked={selectedCategories.indexOf(name) > -1} onChange={(e) => handleChange(e)}/>
-            <ListItemText primary={name} />
-          </MenuItem>
-        ))}
-      </Menu>
-      {/* </Select>
-      </FormControl> */}
-    </>
-  );
+  return <>
+    {/* <FormControl className={classes.root}>
+      <InputLabel id="demo-mutiple-checkbox-label">Category</InputLabel>
+      <Select
+        id="demo-mutiple-checkbox"
+        multiple
+        value={selectedCategories}
+        onChange={handleChange}
+        input={<Input />}
+        renderValue={(selected) => (
+          <div className={classes.chips}>
+            {`Selected: ${selected.length}`}
+            {*/
+    /* selected.map(value => (
+              <Chip key={value} label={value} className={classes.chip} />
+            )) */
+    /*}
+          </div>
+        )}
+      > */}
+    <IconButton
+      aria-label="show 17 new notifications"
+      color="inherit"
+      onClick={(e) => handleFilterMenuOpen(e)}
+      size="large">
+      <LocationOffIcon />
+    </IconButton>
+    <Menu
+      anchorEl={anchorEl}
+      anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      id={"map-filter-menu"}
+      className={classes.root}
+      keepMounted
+      transformOrigin={{ vertical: "top", horizontal: "right" }}
+      open={isMenuOpen}
+      onClose={() => handleFilterMenuClose()}
+    >
+      {categories.map(({ name }) => (
+        <MenuItem key={name} value={name}>
+          <Checkbox checked={selectedCategories.indexOf(name) > -1} onChange={(e) => handleChange(e)}/>
+          <ListItemText primary={name} />
+        </MenuItem>
+      ))}
+    </Menu>
+    {/* </Select>
+    </FormControl> */}
+  </>;
 });
 
 export default MapFilter;

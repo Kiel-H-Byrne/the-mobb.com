@@ -7,11 +7,11 @@ import {
   Badge,
   LinearProgress,
   colors,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/styles";
-import LocationOffIcon from "@material-ui/icons/LocationOffTwoTone";
-import FormGroup from "@material-ui/core/FormGroup";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
+} from "@mui/material";
+import { makeStyles } from "@mui/styles";
+import LocationOffIcon from "@mui/icons-material/LocationOffTwoTone";
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -75,58 +75,56 @@ const CategoryFilter = ({
   }, [open]);
 
 
-  return (
-    <>
-      <IconButton
-        ref={anchorRef}
-        aria-label="Filter by Category"
-        color="inherit"
-        onClick={() => handleFilterMenuToggle()}
-        className={"icon-button"}
-      >
-        <LocationOffIcon />
-      </IconButton>
-      <Menu
-        anchorEl={anchorRef.current}
-        anchorReference={"anchorEl"}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        id={"map-filter-menu"}
-        className={classes.root}
-        keepMounted
-        open={open}
-        onClose={(e) => handleFilterMenuClose(e)}
-      >
-        {categories.length === 0 ? (
-          <LinearProgress />
-        ) : (
-          categories.map((name) => (
-            <MenuItem key={name} value={name}>
-              <FormGroup>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      color="secondary"
-                      checked={selectedCategories.has(name)}
-                      onChange={(e) => handleChange(e)}
-                      name={name}
-                      className={classes.switch}
-                    />
-                  }
-                  label={name}
-                />
-              </FormGroup>
-              <Badge
-                badgeContent={catCount(name)}
-                max={999}
-                className={classes.badge}
-                color="secondary"
+  return <>
+    <IconButton
+      ref={anchorRef}
+      aria-label="Filter by Category"
+      color="inherit"
+      onClick={() => handleFilterMenuToggle()}
+      className={"icon-button"}
+      size="large">
+      <LocationOffIcon />
+    </IconButton>
+    <Menu
+      anchorEl={anchorRef.current}
+      anchorReference={"anchorEl"}
+      anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      id={"map-filter-menu"}
+      className={classes.root}
+      keepMounted
+      open={open}
+      onClose={(e) => handleFilterMenuClose(e)}
+    >
+      {categories.length === 0 ? (
+        <LinearProgress />
+      ) : (
+        categories.map((name) => (
+          <MenuItem key={name} value={name}>
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Switch
+                    color="secondary"
+                    checked={selectedCategories.has(name)}
+                    onChange={(e) => handleChange(e)}
+                    name={name}
+                    className={classes.switch}
+                  />
+                }
+                label={name}
               />
-            </MenuItem>
-          ))
-        )}
-      </Menu>
-    </>
-  );
+            </FormGroup>
+            <Badge
+              badgeContent={catCount(name)}
+              max={999}
+              className={classes.badge}
+              color="secondary"
+            />
+          </MenuItem>
+        ))
+      )}
+    </Menu>
+  </>;
 };
 
 export default CategoryFilter;

@@ -1,6 +1,6 @@
-import { Button, Divider, Fab, Grid, Snackbar } from "@material-ui/core";
-import { FingerprintTwoTone } from "@material-ui/icons";
-import { Alert } from "@material-ui/lab";
+import { Button, Divider, Fab, Grid, Snackbar } from "@mui/material";
+import { FingerprintTwoTone } from "@mui/icons-material";
+import { Alert } from '@mui/material';
 import { useState } from "react";
 
 

@@ -1,15 +1,9 @@
 import React from "react";
 import { useAuth0 } from "@auth0/auth0-react";
-import {
-  makeStyles,
-  alpha,
-  AppBar,
-  Toolbar,
-  IconButton,
-  colors,
-} from "@material-ui/core";
+import { alpha, AppBar, Toolbar, IconButton, colors } from "@mui/material";
+import makeStyles from '@mui/styles/makeStyles';
 import MAvatar from "./Mavatar";
-import AddLocationIcon from "@material-ui/icons/AddLocationTwoTone";
+import AddLocationIcon from "@mui/icons-material/AddLocationTwoTone";
 // import "./Nav.scss";
 
 const useStyles = makeStyles((theme) => ({
@@ -63,7 +57,7 @@ const useStyles = makeStyles((theme) => ({
   // inputInput: {
   //   padding: theme.spacing(1, 1, 1, 0),
   //   // vertical padding + font size from searchIcon
-  //   paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
+  //   paddingLeft: `calc(1em + ${theme.spacing(4)})`,
   //   transition: theme.transitions.create("width"),
   //   width: "100%",
   //   [theme.breakpoints.up("md")]: {
@@ -82,7 +76,7 @@ const Nav = ({listings, map, ...rest}) => {
       <Toolbar>
         <div className={classes.sectionDesktop}>
           {isAuthenticated ? (
-            <IconButton aria-label="Add A Listing" color="inherit">
+            <IconButton aria-label="Add A Listing" color="inherit" size="large">
               <AddLocationIcon />
             </IconButton>
           ) : null}

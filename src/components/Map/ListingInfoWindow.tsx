@@ -1,7 +1,7 @@
 import React from "react";
 import { InfoWindow } from "@react-google-maps/api";
 import CondensedCard from "./CondensedCard";
-import { LinearProgress } from "@material-ui/core";
+import { LinearProgress } from "@mui/material";
 import style from "./ListingInfoWindow.module.scss"
 
 const ListingInfoWindow = ({ activeListing }) => {

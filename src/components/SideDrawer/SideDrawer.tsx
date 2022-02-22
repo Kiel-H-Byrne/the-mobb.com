@@ -7,24 +7,24 @@ import {
   Fab,
   Divider,
   Snackbar,
-} from "@material-ui/core";
-import DirectionsIcon from "@material-ui/icons/DirectionsTwoTone";
-import CallIcon from "@material-ui/icons/CallTwoTone";
-import PublicIcon from "@material-ui/icons/PublicTwoTone";
-import LinkIcon from "@material-ui/icons/LinkTwoTone";
-import EditIcon from "@material-ui/icons/EditTwoTone";
-import FingerprintIcon from "@material-ui/icons/FingerprintTwoTone";
-import ShareIcon from "@material-ui/icons/ShareTwoTone";
-import VerifiedUserIcon from "@material-ui/icons/VerifiedUserTwoTone";
-import WatchLaterIcon from "@material-ui/icons/WatchLaterTwoTone";
-import StarIcon from "@material-ui/icons/StarTwoTone";
-import RateReviewIcon from "@material-ui/icons/RateReviewTwoTone";
+} from "@mui/material";
+import DirectionsIcon from "@mui/icons-material/DirectionsTwoTone";
+import CallIcon from "@mui/icons-material/CallTwoTone";
+import PublicIcon from "@mui/icons-material/PublicTwoTone";
+import LinkIcon from "@mui/icons-material/LinkTwoTone";
+import EditIcon from "@mui/icons-material/EditTwoTone";
+import FingerprintIcon from "@mui/icons-material/FingerprintTwoTone";
+import ShareIcon from "@mui/icons-material/ShareTwoTone";
+import VerifiedUserIcon from "@mui/icons-material/VerifiedUserTwoTone";
+import WatchLaterIcon from "@mui/icons-material/WatchLaterTwoTone";
+import StarIcon from "@mui/icons-material/StarTwoTone";
+import RateReviewIcon from "@mui/icons-material/RateReviewTwoTone";
 import ListingImage from "../ListingImage";
 import FavoriteStar from "../FavoriteStar";
 import { Listing } from "../../db/Types";
 import { getGDetails } from "../../util/functions";
 import { mCache } from "../../db/mlab";
-import { Alert } from "@material-ui/lab";
+import { Alert } from '@mui/material';
 import style from "./SideDrawer.module.scss";
 
 interface ISideDrawer {

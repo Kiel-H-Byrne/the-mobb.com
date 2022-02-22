@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 
-import { makeStyles } from "@material-ui/styles";
-import { IconButton } from "@material-ui/core";
-import MyLocationIcon from "@material-ui/icons/MyLocationTwoTone";
+import { makeStyles } from "@mui/styles";
+import { IconButton } from "@mui/material";
+import MyLocationIcon from "@mui/icons-material/MyLocationTwoTone";
 import { findClosestMarker, targetClient } from "./../../util/functions";
 import ClosestCard from "../ClosestCard/ClosestCard";
 import ClosestList from '../ClosestList';
@@ -102,20 +102,18 @@ const MyLocationButton = ({ listings, mapInstance }) => {
     !toggleDisplay ? setToggleDisplay(true) : setToggleDisplay(false);
   };
 
-  return (
-    <>
-    <IconButton
-      color={clientLocation ? "secondary" : "default"}
-      className={`${classes.root} ${clientLocation && classes.hasLocation}` }
-      aria-label="My Location"
-      onClick={handleClick}
-    >
-      <MyLocationIcon />
-    </IconButton>
-    {(closestListing && toggleDisplay) && <ClosestCard closestListing={closestListing}/>}
-    {(closestListing && toggleDisplay) && <ClosestList closestListing={closestListing}/>}
-    </>
-  );
+  return <>
+  <IconButton
+    color={clientLocation ? "secondary" : "default"}
+    className={`${classes.root} ${clientLocation && classes.hasLocation}` }
+    aria-label="My Location"
+    onClick={handleClick}
+    size="large">
+    <MyLocationIcon />
+  </IconButton>
+  {(closestListing && toggleDisplay) && <ClosestCard closestListing={closestListing}/>}
+  {(closestListing && toggleDisplay) && <ClosestList closestListing={closestListing}/>}
+  </>;
 };
 
 export default MyLocationButton;

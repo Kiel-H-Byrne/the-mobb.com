@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Head from "next/head";
-import { Grid, LinearProgress } from "@material-ui/core";
+import { Grid, LinearProgress } from "@mui/material";
 import Nav from "../src/components/Nav/Nav";
 import AppMap from "../src/components/Map/AppMap";
 import style from "../src/style/Home.module.scss";

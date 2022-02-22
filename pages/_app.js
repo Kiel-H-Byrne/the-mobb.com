@@ -1,12 +1,14 @@
-import { ThemeProvider } from "@material-ui/core";
+import { ThemeProvider, StyledEngineProvider } from "@mui/material";
 import { theme } from "../src/style/myTheme";
 // import * as serviceWorker from "../public/sw";
 
 function MyApp({ Component, pageProps }) {
   return (
-    <ThemeProvider theme={theme}>
-      <Component {...pageProps} />
-    </ThemeProvider>
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={theme}>
+        <Component {...pageProps} />
+      </ThemeProvider>
+    </StyledEngineProvider>
   );
 }
 // serviceWorker.register();
