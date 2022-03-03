@@ -63,13 +63,12 @@ const Mavatar = () => {
           !isLoading && isAuthenticated ? (
             <Avatar src={user.picture} alt={user.name} />
           ) : (
-            <img src="img/Logo_MOBB-banner.png" alt={"MOBB"} />
+            <img height="50rem" src="img/Logo_MOBB-banner.png" alt={"MOBB"} />
           )
         }
       </Button>
       <Menu
         elevation={0}
-        getContentAnchorEl={null}
         anchorOrigin={{
           vertical: "bottom",
           horizontal: "center",

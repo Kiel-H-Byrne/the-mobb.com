@@ -425,15 +425,13 @@ const AppMap = memo(({
         zoom={browserLocation ? 16 : zoom}
         options={options}
       >
-        {listings && (
-          <MapAutoComplete
-            listings={listings}
-            categories={categories}
-            mapInstance={mapInstance}
-            selectedCategories={selectedCategories}
-            setSelectedCategories={setSelectedCategories}
-          />
-        )}
+        <MapAutoComplete
+          listings={listings}
+          categories={categories}
+          mapInstance={mapInstance}
+          selectedCategories={selectedCategories}
+          setSelectedCategories={setSelectedCategories}
+        />
         {listings && (
           <MarkerClusterer
             styles={clusterStyles}
@@ -478,7 +476,7 @@ const AppMap = memo(({
                       selectedCategories={selectedCategories}
                     />
                   );
-                } 
+                }
               })
             }
           </MarkerClusterer>

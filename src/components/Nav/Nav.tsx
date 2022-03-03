@@ -11,12 +11,13 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: alpha(colors.grey[700], 0.85),
   },
   sectionDesktop: {
-    position: "fixed",
+    position: "absolute",
+    top: "0",
     padding: "0 .4rem",
     right: 0,
-    [theme.breakpoints.up("md")]: {
-      display: "flex",
-    },
+    // [theme.breakpoints.up("md")]: {
+    //   display: "flex",
+    // },
   },
   // logo: {
   //   marginRight: theme.spacing(2),
@@ -66,13 +67,12 @@ const useStyles = makeStyles((theme) => ({
   // },
 }));
 
-
-const Nav = ({listings, map, ...rest}) => {
+const Nav = ({ listings, map, ...rest }) => {
   const classes = useStyles();
   const { isAuthenticated } = useAuth0();
 
   return (
-    <AppBar position="static" className={classes.root}>
+    <AppBar className={classes.root}>
       <Toolbar>
         <div className={classes.sectionDesktop}>
           {isAuthenticated ? (
