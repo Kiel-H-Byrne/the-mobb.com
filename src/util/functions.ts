@@ -297,7 +297,7 @@ export const getOG = async (url: string) => {
   }
 };
 
-export const targetClient = function (map: any, pos: any) {
+export const targetClient = function (map: any, pos: GLocation) {
   // SET CENTER,
   // ZOOM TO CERTAIN LEVEL
   map.panTo(pos);

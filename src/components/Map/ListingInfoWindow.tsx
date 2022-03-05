@@ -14,14 +14,16 @@ const ListingInfoWindow = ({ activeListing }) => {
       position={locObj}
       options={{
         pixelOffset: { height: -30, width: 0 },
-        disableAutoPan: true
+        disableAutoPan: false,
       }}
     >
       {activeListing ? (
         <div className={style.root}>
           <CondensedCard activeListing={activeListing} />
         </div>
-      ) : <LinearProgress/>}
+      ) : (
+        <LinearProgress />
+      )}
     </InfoWindow>
   );
 };

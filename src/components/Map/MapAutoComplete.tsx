@@ -1,5 +1,11 @@
-import React, { Dispatch, SetStateAction, useState } from "react";
-import { Autocomplete } from "@react-google-maps/api";
+import React, {
+  Dispatch,
+  KeyboardEvent,
+  SetStateAction,
+  useRef,
+  useState,
+} from "react";
+import { Autocomplete, GoogleMapProps } from "@react-google-maps/api";
 
 import makeStyles from "@mui/styles/makeStyles";
 import Paper from "@mui/material/Paper";
@@ -11,14 +17,17 @@ import SearchIcon from "@mui/icons-material/Search";
 import MyLocationButton from "./MyLocationButton";
 import { Listing, Category } from "../../db/Types";
 import CategoryFilter from "./CategoryFilter";
-import { colors, Menu, MenuItem } from "@mui/material";
+import { colors, Input, Menu, MenuItem, MenuList } from "@mui/material";
+import { targetClient } from "../../util/functions";
 
 interface OwnProps {
   listings: Listing[];
   categories: Category[];
   selectedCategories: Set<Object>;
-  mapInstance: any;
-  setSelectedCategories: Dispatch<SetStateAction<Set<Object>>>;
+  mapInstance: GoogleMapProps;
+  setSelectedCategories: Dispatch<SetStateAction<Set<Category>>>;
+  setactiveListing: Dispatch<SetStateAction<Set<Listing>>>;
+  setisDrawerOpen: Dispatch<SetStateAction<Boolean>>;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -66,95 +75,98 @@ const MapAutoComplete = ({
   selectedCategories,
   mapInstance,
   setSelectedCategories,
+  setactiveListing,
+  setisDrawerOpen,
 }: OwnProps) => {
   const classes = useStyles();
   let count = listings?.length;
   const [active, setActive] = useState(0);
   const [filtered, setFiltered] = useState([]);
-  const [isShowing, setIsShowing] = useState(false);
   const [input, setInput] = useState("");
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
 
   const onChange = (e) => {
     const input = e.currentTarget.value;
-    const newFilteredSuggestions = listings.filter((listing) => {
-      listing.name.toLowerCase().indexOf(input.toLowerCase()) > -1;
-    });
+    const newFilteredSuggestions = listings.filter(
+      (listing) => listing.name.toLowerCase().indexOf(input.toLowerCase()) > -1
+    );
     setActive(0);
     setFiltered(newFilteredSuggestions);
-    setIsShowing(true);
     setInput(e.currentTarget.value);
   };
 
   const onClick = (e) => {
     setActive(0);
-    setFiltered([]);
-    setIsShowing(false);
+    // setFiltered([]);
     setInput(e.currentTarget.innerText);
+    setAnchorEl(!open);
+    //pan map to location and open sidebar
+    let location = filtered[active].location?.split(",");
+    let locationObj = location && {
+      lat: Number(location[0]),
+      lng: Number(location[1]),
+    };
+    console.log(locationObj);
+    location && targetClient(mapInstance, locationObj);
+    console.log(filtered[active].name);
+    setactiveListing(filtered[active]);
+    setisDrawerOpen(true);
   };
 
   const onKeyDown = (e) => {
-    if (e.keyCode === 13) {
+    if (e.key === "Enter") {
       console.log("hit enter key");
-      //enter key
       setActive(0);
-      setIsShowing(false);
       setInput(filtered[active]);
-    } else if (e.keyCode === 38) {
-      // up arrow
+    } else if (e.key === "ArrowUp") {
       return active === 0 ? null : setActive(active - 1);
-    } else if (e.keyCode === 40) {
-      // down arrow
+    } else if (e.key === "ArrowDown") {
       return active - 1 === filtered.length ? null : setActive(active + 1);
     }
   };
   const renderAutoCompleteMenu = () => {
-    if (isShowing && input) {
+    if (open && input) {
       if (filtered.length) {
         return (
-          <Menu className="autocomplete" open={isShowing}>
-            {filtered.map((suggestion, index) => {
+          <Menu
+            open={open}
+            style={{ maxHeight: "40%", overflowY: "scroll" }}
+            anchorEl={anchorEl}
+            disableAutoFocus={true}
+            autoFocus={false}
+            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+            onClick={anchorEl.focus()}
+          >
+            {filtered.map((listing, index) => {
               let className;
               if (index === active) {
-                className = "active";
+                // className = "active";
               }
+              // console.log(filtered[active].name);
               return (
                 <MenuItem
                   className={className}
-                  key={suggestion}
+                  key={listing.name + index}
                   onClick={onClick}
                 >
-                  {suggestion}
+                  {listing.name}
                 </MenuItem>
               );
             })}
           </Menu>
         );
-        /**
-         * 
-         *      <Menu
-        id="basic-menu"
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        MenuListProps={{
-          'aria-labelledby': 'basic-button',
-        }}
-      >
-        <MenuItem onClick={handleClose}>Profile</MenuItem>
-        <MenuItem onClick={handleClose}>My account</MenuItem>
-        <MenuItem onClick={handleClose}>Logout</MenuItem>
-      </Menu>
-
-
-         */
       } else {
+        anchorEl.focus();
         return (
           <Menu
-            className="no-autocomplete"
-            open={isShowing}
-            anchorPosition={{ top: 30, left: 0 }}
+            open={open}
+            anchorEl={anchorEl}
+            onClick={onClick}
+            disableAutoFocus={true}
+            autoFocus={false}
           >
-            <MenuItem>Not found</MenuItem>
+            <MenuItem>Not Found</MenuItem>
           </Menu>
         );
       }
@@ -162,11 +174,13 @@ const MapAutoComplete = ({
     return <></>;
   };
   return (
-    <Autocomplete>
+    <div>
       <Paper className={classes.root}>
         <div className={classes.flexItem}>
           <InputBase
-            className={classes.input}
+            // className={classes.input}
+            // ref={anchorRef}
+            onClick={(event) => setAnchorEl(event.currentTarget)}
             placeholder={`Search ${count ? count + " " : ""}Listings...`}
             inputProps={{ "aria-label": "Search The MOBB" }}
             onChange={onChange}
@@ -182,7 +196,7 @@ const MapAutoComplete = ({
             <SearchIcon />
           </IconButton>
           <Divider className={classes.divider} />
-          <CategoryFilter
+          {/* <CategoryFilter
             listings={listings}
             categories={categories || []}
             selectedCategories={selectedCategories}
@@ -190,12 +204,12 @@ const MapAutoComplete = ({
             aria-label="Filter"
             //@ts-ignore
             className={classes.iconButton}
-          />
+          /> */}
           <Divider className={classes.divider} />
           <MyLocationButton listings={listings} mapInstance={mapInstance} />
         </div>
       </Paper>
-    </Autocomplete>
+    </div>
   );
 };
 
