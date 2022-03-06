@@ -13,7 +13,7 @@ const ListingInfoWindow = ({ activeListing }) => {
     <InfoWindow
       position={locObj}
       options={{
-        pixelOffset: { height: -30, width: 0 },
+        pixelOffset: { height: -30, width: 0, equals: () => false },
         disableAutoPan: false,
       }}
     >

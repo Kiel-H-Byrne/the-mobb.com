@@ -7,7 +7,6 @@ import { GEOCENTER } from "../../util/functions";
 import MyMarker from "./MyMarker";
 import ListingInfoWindow from "./ListingInfoWindow";
 import MapAutoComplete from "./MapAutoComplete";
-import MyAutocomplete from "../MyAutocomplete";
 
 import SideDrawer from "../SideDrawer/SideDrawer";
 import style from "./AppMap.module.scss";

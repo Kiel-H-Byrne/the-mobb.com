@@ -1,11 +1,5 @@
-import React, {
-  Dispatch,
-  KeyboardEvent,
-  SetStateAction,
-  useRef,
-  useState,
-} from "react";
-import { Autocomplete, GoogleMapProps } from "@react-google-maps/api";
+import React, { Dispatch, SetStateAction, useState } from "react";
+import { GoogleMapProps } from "@react-google-maps/api";
 
 import makeStyles from "@mui/styles/makeStyles";
 import Paper from "@mui/material/Paper";
@@ -17,10 +11,9 @@ import SearchIcon from "@mui/icons-material/Search";
 import MyLocationButton from "./MyLocationButton";
 import { Listing, Category } from "../../db/Types";
 import CategoryFilter from "./CategoryFilter";
-import { Button, colors, Input, Menu, MenuItem, MenuList } from "@mui/material";
+import { Button, colors, Menu, MenuItem } from "@mui/material";
 import { targetClient } from "../../util/functions";
 import { AddLocation } from "@mui/icons-material";
-import { join } from "path";
 
 interface OwnProps {
   listings: Listing[];
@@ -49,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
     flex: 1,
   },
   iconButton: {
-    padding: theme.spacing(1),
+    padding: ".5rem",
   },
   divider: {
     width: 1,
@@ -150,9 +143,8 @@ const MapAutoComplete = ({
             {filtered.map((listing, index) => {
               let className;
               if (index === active) {
-                // className = "active";
+                className = "active";
               }
-              // console.log(filtered[active].name);
               return (
                 <MenuItem
                   className={className}
@@ -194,7 +186,6 @@ const MapAutoComplete = ({
         <div className={classes.flexItem}>
           <InputBase
             className={classes.input}
-            // ref={anchorRef}
             onClick={(event) => setAnchorEl(event.currentTarget)}
             placeholder={`Search ${count ? count + " " : ""}Listings...`}
             inputProps={{ "aria-label": "Search The MOBB" }}
@@ -218,7 +209,7 @@ const MapAutoComplete = ({
             <AddLocation />
           </IconButton>
           <Divider className={classes.divider} />
-          {/* <CategoryFilter
+          <CategoryFilter
             listings={listings}
             categories={categories || []}
             selectedCategories={selectedCategories}
@@ -226,7 +217,7 @@ const MapAutoComplete = ({
             aria-label="Filter"
             //@ts-ignore
             className={classes.iconButton}
-          /> */}
+          />
           <Divider className={classes.divider} />
           <MyLocationButton listings={listings} mapInstance={mapInstance} />
         </div>
