@@ -17,8 +17,10 @@ import SearchIcon from "@mui/icons-material/Search";
 import MyLocationButton from "./MyLocationButton";
 import { Listing, Category } from "../../db/Types";
 import CategoryFilter from "./CategoryFilter";
-import { colors, Input, Menu, MenuItem, MenuList } from "@mui/material";
+import { Button, colors, Input, Menu, MenuItem, MenuList } from "@mui/material";
 import { targetClient } from "../../util/functions";
+import { AddLocation } from "@mui/icons-material";
+import { join } from "path";
 
 interface OwnProps {
   listings: Listing[];
@@ -88,18 +90,25 @@ const MapAutoComplete = ({
 
   const onChange = (e) => {
     const input = e.currentTarget.value;
-    const newFilteredSuggestions = listings.filter(
-      (listing) => listing.name.toLowerCase().indexOf(input.toLowerCase()) > -1
-    );
+    const newFilteredSuggestions =
+      input.length > 2
+        ? listings.filter(
+            (listing) =>
+              listing.name.toLowerCase().indexOf(input.toLowerCase()) > -1
+          )
+        : [];
     setActive(0);
     setFiltered(newFilteredSuggestions);
     setInput(e.currentTarget.value);
   };
 
   const onClick = (e) => {
-    setActive(0);
-    // setFiltered([]);
-    setInput(e.currentTarget.innerText);
+    console.log(e.currentTarget.tabIndex);
+    //find the tabindex and pass it to setActive
+    let index = e.currentTarget.tabIndex;
+    setActive(index);
+    setFiltered([]);
+    setInput("");
     setAnchorEl(!open);
     //pan map to location and open sidebar
     let location = filtered[active].location?.split(",");
@@ -107,10 +116,9 @@ const MapAutoComplete = ({
       lat: Number(location[0]),
       lng: Number(location[1]),
     };
-    console.log(locationObj);
     location && targetClient(mapInstance, locationObj);
-    console.log(filtered[active].name);
-    setactiveListing(filtered[active]);
+    console.log(filtered[index].name);
+    setactiveListing(filtered[index]);
     setisDrawerOpen(true);
   };
 
@@ -125,13 +133,14 @@ const MapAutoComplete = ({
       return active - 1 === filtered.length ? null : setActive(active + 1);
     }
   };
+
   const renderAutoCompleteMenu = () => {
     if (open && input) {
       if (filtered.length) {
         return (
           <Menu
             open={open}
-            style={{ maxHeight: "40%", overflowY: "scroll" }}
+            style={{ maxHeight: "60%", maxWidth: "auto", overflowY: "scroll" }}
             anchorEl={anchorEl}
             disableAutoFocus={true}
             autoFocus={false}
@@ -147,8 +156,9 @@ const MapAutoComplete = ({
               return (
                 <MenuItem
                   className={className}
-                  key={listing.name + index}
+                  key={listing._id}
                   onClick={onClick}
+                  tabIndex={index}
                 >
                   {listing.name}
                 </MenuItem>
@@ -162,11 +172,16 @@ const MapAutoComplete = ({
           <Menu
             open={open}
             anchorEl={anchorEl}
-            onClick={onClick}
             disableAutoFocus={true}
             autoFocus={false}
           >
-            <MenuItem>Not Found</MenuItem>
+            {input.length > 2 ? (
+              <MenuItem onClick={(e) => e.preventDefault()}>
+                Not Found... <Button>Add One!</Button>)
+              </MenuItem>
+            ) : (
+              <MenuItem>{`Enter ${3 - input.length} more character`}</MenuItem>
+            )}
           </Menu>
         );
       }
@@ -178,7 +193,7 @@ const MapAutoComplete = ({
       <Paper className={classes.root}>
         <div className={classes.flexItem}>
           <InputBase
-            // className={classes.input}
+            className={classes.input}
             // ref={anchorRef}
             onClick={(event) => setAnchorEl(event.currentTarget)}
             placeholder={`Search ${count ? count + " " : ""}Listings...`}
@@ -194,6 +209,13 @@ const MapAutoComplete = ({
             size="large"
           >
             <SearchIcon />
+          </IconButton>
+          <IconButton
+            className={classes.iconButton}
+            aria-label="Add"
+            size="large"
+          >
+            <AddLocation />
           </IconButton>
           <Divider className={classes.divider} />
           {/* <CategoryFilter
