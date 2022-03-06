@@ -5,19 +5,28 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Autocomplete, GoogleMapProps } from "@react-google-maps/api";
+import { GoogleMapProps } from "@react-google-maps/api";
 
 import makeStyles from "@mui/styles/makeStyles";
 import Paper from "@mui/material/Paper";
 import InputBase from "@mui/material/InputBase";
 import Divider from "@mui/material/Divider";
+import Autocomplete from "@mui/material/Autocomplete";
 import IconButton from "@mui/material/IconButton";
 
 import SearchIcon from "@mui/icons-material/Search";
 import MyLocationButton from "./MyLocationButton";
 import { Listing, Category } from "../../db/Types";
 import CategoryFilter from "./CategoryFilter";
-import { Button, colors, Input, Menu, MenuItem, MenuList } from "@mui/material";
+import {
+  Button,
+  colors,
+  Input,
+  Menu,
+  MenuItem,
+  MenuList,
+  TextField,
+} from "@mui/material";
 import { targetClient } from "../../util/functions";
 import { AddLocation } from "@mui/icons-material";
 import { join } from "path";
@@ -37,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
     position: "relative",
     zIndex: 1100,
     margin: ".5rem",
-    display: "flex",
+    // display: "flex",
     maxWidth: "23rem",
     backgroundColor: colors.orange[100],
   },
@@ -45,11 +54,12 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
   },
   input: {
-    marginLeft: 8,
-    flex: 1,
+    // marginLeft: 8,
+    // flex: 1,
+    // sx={{ width: "50%", margin: "auto 0", flex: "flex-grow" }}
   },
   iconButton: {
-    padding: theme.spacing(1),
+    padding: "1rem",
   },
   divider: {
     width: 1,
@@ -103,23 +113,19 @@ const MapAutoComplete = ({
   };
 
   const onClick = (e) => {
-    console.log(e.currentTarget.tabIndex);
+    console.log(e);
     //find the tabindex and pass it to setActive
     let index = e.currentTarget.tabIndex;
-    setActive(index);
-    setFiltered([]);
-    setInput("");
-    setAnchorEl(!open);
     //pan map to location and open sidebar
-    let location = filtered[active].location?.split(",");
-    let locationObj = location && {
-      lat: Number(location[0]),
-      lng: Number(location[1]),
-    };
-    location && targetClient(mapInstance, locationObj);
-    console.log(filtered[index].name);
-    setactiveListing(filtered[index]);
-    setisDrawerOpen(true);
+    // let location = filtered[active].location?.split(",");
+    // let locationObj = location && {
+    //   lat: Number(location[0]),
+    //   lng: Number(location[1]),
+    // };
+    // location && targetClient(mapInstance, locationObj);
+    // console.log(filtered[index].name);
+    // setactiveListing(filtered[index]);
+    // setisDrawerOpen(true);
   };
 
   const onKeyDown = (e) => {
@@ -134,75 +140,32 @@ const MapAutoComplete = ({
     }
   };
 
-  const renderAutoCompleteMenu = () => {
-    if (open && input) {
-      if (filtered.length) {
-        return (
-          <Menu
-            open={open}
-            style={{ maxHeight: "60%", maxWidth: "auto", overflowY: "scroll" }}
-            anchorEl={anchorEl}
-            disableAutoFocus={true}
-            autoFocus={false}
-            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-            onClick={anchorEl.focus()}
-          >
-            {filtered.map((listing, index) => {
-              let className;
-              if (index === active) {
-                // className = "active";
-              }
-              // console.log(filtered[active].name);
-              return (
-                <MenuItem
-                  className={className}
-                  key={listing._id}
-                  onClick={onClick}
-                  tabIndex={index}
-                >
-                  {listing.name}
-                </MenuItem>
-              );
-            })}
-          </Menu>
-        );
-      } else {
-        anchorEl.focus();
-        return (
-          <Menu
-            open={open}
-            anchorEl={anchorEl}
-            disableAutoFocus={true}
-            autoFocus={false}
-          >
-            {input.length > 2 ? (
-              <MenuItem onClick={(e) => e.preventDefault()}>
-                Not Found... <Button>Add One!</Button>)
-              </MenuItem>
-            ) : (
-              <MenuItem>{`Enter ${3 - input.length} more character`}</MenuItem>
-            )}
-          </Menu>
-        );
-      }
-    }
-    return <></>;
-  };
+  const order = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
+
   return (
     <div>
       <Paper className={classes.root}>
         <div className={classes.flexItem}>
-          <InputBase
-            className={classes.input}
-            // ref={anchorRef}
-            onClick={(event) => setAnchorEl(event.currentTarget)}
-            placeholder={`Search ${count ? count + " " : ""}Listings...`}
-            inputProps={{ "aria-label": "Search The MOBB" }}
-            onChange={onChange}
-            onKeyDown={onKeyDown}
-            value={input}
+          <Autocomplete
+            freeSolo
+            disableClearable
+            options={listings.map((option) => option).sort(order)}
+            sx={{ width: "50%" }}
+            renderInput={(params) => (
+              <TextField
+                className={classes.input}
+                onClick={onClick}
+                {...params}
+                label="Search The MOBB"
+                placeholder={`Search ${count ? count + " " : ""}Listings...`}
+                InputProps={{
+                  ...params.InputProps,
+                  type: "search",
+                }}
+              />
+            )}
           />
-          {renderAutoCompleteMenu()}
+
           <IconButton
             className={classes.iconButton}
             aria-label="Search"
