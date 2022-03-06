@@ -177,7 +177,7 @@ const MapAutoComplete = ({
           >
             {input.length > 2 ? (
               <MenuItem onClick={(e) => e.preventDefault()}>
-                Not Found... <Button>Add One!</Button>)
+                Not Found... <Button>Add One!</Button>
               </MenuItem>
             ) : (
               <MenuItem>{`Enter ${3 - input.length} more character`}</MenuItem>
