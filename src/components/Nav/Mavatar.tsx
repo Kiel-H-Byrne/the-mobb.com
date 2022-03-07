@@ -2,11 +2,15 @@ import React from "react";
 import { Avatar, Button, Menu, MenuItem } from "@mui/material";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
+import { useSession, signOut, signIn } from "next-auth/react";
 
-import makeStyles from '@mui/styles/makeStyles';
+import makeStyles from "@mui/styles/makeStyles";
 
-import { useAuth0 } from "@auth0/auth0-react";
-import { InfoTwoTone, ShareTwoTone } from "@mui/icons-material";
+import {
+  ExitToAppTwoTone,
+  InfoTwoTone,
+  ShareTwoTone,
+} from "@mui/icons-material";
 import { theme } from "../../style/myTheme";
 
 const useStyles = makeStyles({
@@ -21,17 +25,9 @@ const useStyles = makeStyles({
 });
 
 const Mavatar = () => {
-  const {
-    // loginWithRedirect,
-    // loginWithPopup,
-    isAuthenticated,
-    user,
-    // logout,
-    error,
-    isLoading,
-  } = useAuth0();
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const { data: session, status } = useSession();
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -41,12 +37,10 @@ const Mavatar = () => {
     setAnchorEl(null);
   };
 
-  if (error) {
-    console.error(error);
-  }
-
-  if (isAuthenticated) {
-    console.log(user);
+  if (session) {
+    console.log(session.user);
+  } else {
+    console.log(status);
   }
 
   return (
@@ -60,8 +54,9 @@ const Mavatar = () => {
       >
         {
           /* {if logged in, profile foto else avatar } */
-          !isLoading && isAuthenticated ? (
-            <Avatar src={user.picture} alt={user.name} />
+
+          status == "loading" && session ? (
+            <Avatar src={session.user.picture} alt={session.user.name} />
           ) : (
             <img height="50rem" src="img/Logo_MOBB-banner.png" alt={"MOBB"} />
           )
@@ -130,15 +125,13 @@ const Mavatar = () => {
             </a>
           </ListItemText>
         </MenuItem>
-        {/* <MenuItem
-          onClick={() => (isAuthenticated ? logout() : loginWithPopup())}
-        >
+        <MenuItem onClick={() => (session ? signOut() : signIn())}>
           <ListItemIcon>
             <ExitToAppTwoTone />
           </ListItemIcon>
-          <ListItemText primary={isAuthenticated ? "Sign Out" : "Sign In"} />
+          <ListItemText primary={session ? "Sign Out" : "Sign In"} />
         </MenuItem>
-         */}
+
         <MenuItem>
           <ListItemIcon>
             <InfoTwoTone />
