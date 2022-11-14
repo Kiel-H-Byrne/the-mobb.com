@@ -1,26 +1,28 @@
-import React from "react";
+import * as React from "react"
 import {
   MenuItem,
   Checkbox,
   ListItemText,
   Menu,
   IconButton,
-} from "@mui/material";
-import { makeStyles } from "@mui/styles";
-import LocationOffIcon from "@mui/icons-material/LocationOffTwoTone";
-import { memo } from "react";
-
+} from "@mui/material"
+import { makeStyles } from "@mui/styles"
+import LocationOffIcon from "@mui/icons-material/LocationOffTwoTone"
 const useStyles = makeStyles({
   root: {
     // width: "300px",
     // margin: "1rem",
   },
-});
+})
 
-const MapFilter = memo(({ listings, categories, selectedCategories, setSelectedCategories }) => {
-  const classes = useStyles();
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const isMenuOpen = Boolean(anchorEl);
+const MapFilter = ({
+  categories,
+  selectedCategories,
+  setSelectedCategories,
+}) => {
+  const classes = useStyles()
+  const [anchorEl, setAnchorEl] = React.useState(null)
+  const isMenuOpen = Boolean(anchorEl)
   const handleChange = (event) => {
     //update selected_categories array (push/pop?)
     // let cat_name = event.target.value;
@@ -35,16 +37,17 @@ const MapFilter = memo(({ listings, categories, selectedCategories, setSelectedC
     //   newArray.splice(idx, 1);
     // }
     // console.log(newArray);
-    setSelectedCategories(event.target.value);
-  };
+    setSelectedCategories(event.target.value)
+  }
   const handleFilterMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
+    setAnchorEl(event.currentTarget)
+  }
   const handleFilterMenuClose = () => {
-    setAnchorEl(null);
-  };
-  return <>
-    {/* <FormControl className={classes.root}>
+    setAnchorEl(null)
+  }
+  return (
+    <>
+      {/* <FormControl className={classes.root}>
       <InputLabel id="demo-mutiple-checkbox-label">Category</InputLabel>
       <Select
         id="demo-mutiple-checkbox"
@@ -56,43 +59,48 @@ const MapFilter = memo(({ listings, categories, selectedCategories, setSelectedC
           <div className={classes.chips}>
             {`Selected: ${selected.length}`}
             {*/
-    /* selected.map(value => (
+      /* selected.map(value => (
               <Chip key={value} label={value} className={classes.chip} />
             )) */
-    /*}
+      /*}
           </div>
         )}
       > */}
-    <IconButton
-      aria-label="show 17 new notifications"
-      color="inherit"
-      onClick={(e) => handleFilterMenuOpen(e)}
-      size="large">
-      <LocationOffIcon />
-    </IconButton>
-    <Menu
-      anchorEl={anchorEl}
-      anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      id={"map-filter-menu"}
-      className={classes.root}
-      keepMounted
-      transformOrigin={{ vertical: "top", horizontal: "right" }}
-      open={isMenuOpen}
-      onClose={() => handleFilterMenuClose()}
-    >
-      {categories.map(({ name }) => (
-        <MenuItem key={name} value={name}>
-          <Checkbox checked={selectedCategories.indexOf(name) > -1} onChange={(e) => handleChange(e)}/>
-          <ListItemText primary={name} />
-        </MenuItem>
-      ))}
-    </Menu>
-    {/* </Select>
+      <IconButton
+        aria-label="show 17 new notifications"
+        color="inherit"
+        onClick={(e) => handleFilterMenuOpen(e)}
+        size="large"
+      >
+        <LocationOffIcon />
+      </IconButton>
+      <Menu
+        anchorEl={anchorEl}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        id={"map-filter-menu"}
+        className={classes.root}
+        keepMounted
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
+        open={isMenuOpen}
+        onClose={() => handleFilterMenuClose()}
+      >
+        {categories.map(({ name }) => (
+          <MenuItem key={name} value={name}>
+            <Checkbox
+              checked={selectedCategories.indexOf(name) > -1}
+              onChange={(e) => handleChange(e)}
+            />
+            <ListItemText primary={name} />
+          </MenuItem>
+        ))}
+      </Menu>
+      {/* </Select>
     </FormControl> */}
-  </>;
-});
+    </>
+  )
+}
 
-export default MapFilter;
+export default MapFilter
 
 /*
 UI = dropdown list

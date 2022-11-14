@@ -55,8 +55,8 @@ const Mavatar = () => {
         {
           /* {if logged in, profile foto else avatar } */
 
-          status == "loading" && session ? (
-            <Avatar src={session.user.picture} alt={session.user.name} />
+          session ? (
+            <Avatar src={session.user.image} alt={session.user.name} />
           ) : (
             <img height="50rem" src="img/Logo_MOBB-banner.png" alt={"MOBB"} />
           )
@@ -140,7 +140,7 @@ const Mavatar = () => {
         </MenuItem>
       </Menu>
     </div>
-  );
+  )
 };
 
 export default Mavatar;
