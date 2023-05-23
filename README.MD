@@ -1,10 +1,3 @@
-# The MOBB 
-The Map of Black Businesses (MOBB) is a tool to practice group economics. The application allows for consumers to immediately identify black owned businesses in their vicinity (or search another area on the map) with the goal of growing the community's economy.
----
-
-<img width="80%" src="https://github.com/Kiel-H-Byrne/the-mobb.com/assets/955269/99259907-11dc-446a-a6a8-455bc4787e9c)" />
-
----
 
 <!--- These are examples. See https://shields.io for others or to customize this set of shields. You might want to include dependencies, project status and license info here --->
 ![Github License](https://img.shields.io/github/license/kiel-h-byrne/the-mobb.com)
@@ -27,6 +20,15 @@ The Map of Black Businesses (MOBB) is a tool to practice group economics. The ap
 ![Github Manifest Version](https://img.shields.io/github/manifest-json/v/kiel-h-byrne/the-mobb.com)
 
 -->
+
+# The MOBB 
+The Map of Black Businesses (MOBB) is a tool to practice group economics. The application allows for consumers to immediately identify black owned businesses in their vicinity (or search another area on the map) with the goal of growing the community's economy.
+---
+
+<img width="80%" src="https://github.com/Kiel-H-Byrne/the-mobb.com/assets/955269/99259907-11dc-446a-a6a8-455bc4787e9c)" />
+
+---
+
 
 **_Visit [www.the-MOBB.com](https://www.the-MOBB.com)_**
 
