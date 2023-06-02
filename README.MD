@@ -47,6 +47,7 @@ Before you begin, ensure you have met the following requirements:
 - Google Firebase
 - Google Maps
 - Now Deployment
+- API (see [docs](docs.the-mobb.com))
 
 **_Documentation links can be found in [SUPPORT](SUPPORT.md)_**
 
