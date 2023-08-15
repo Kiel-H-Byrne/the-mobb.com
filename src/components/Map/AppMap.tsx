@@ -1,16 +1,16 @@
-import React, { useState, memo } from "react";
+import { memo, useState } from "react";
 
 import { GoogleMap, LoadScript, MarkerClusterer } from "@react-google-maps/api";
 
 import { GEOCENTER } from "../../util/functions";
 
-import MyMarker from "./MyMarker";
 import ListingInfoWindow from "./ListingInfoWindow";
 import MapAutoComplete from "./MapAutoComplete";
+import MyMarker from "./MyMarker";
 
+import { Libraries, Listing } from "../../db/Types";
 import SideDrawer from "../SideDrawer/SideDrawer";
 import style from "./AppMap.module.scss";
-import { Listing, Libraries } from "../../db/Types";
 const libraries: Libraries = [
   "places",
   "visualization",

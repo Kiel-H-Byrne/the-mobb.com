@@ -1,10 +1,6 @@
-import NextAuth from 'next-auth'
+import NextAuth from 'next-auth';
 //@ts-ignore
-import { Profile, Session } from 'next-auth/adapters';
-import GoogleProvider from 'next-auth/providers/google'
-import EmailProvider from 'next-auth/providers/email'
-import GithubProvider from 'next-auth/providers/github'
-import InstaProvider from 'next-auth/providers/instagram'
+import GoogleProvider from 'next-auth/providers/google';
 
 export default NextAuth({
     providers: [
@@ -16,10 +12,10 @@ export default NextAuth({
             //   "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
         }),
         // Sign in with passwordless email link
-        EmailProvider({
-            server: process.env.MAIL_SERVER,
-            from: '<no-reply@thehilmar.com>'
-        }),
+        // EmailProvider({
+        //     server: process.env.MAIL_SERVER,
+        //     from: '<no-reply@thehilmar.com>'
+        // }),
         // Providers.Facebook({})
         // Providers.Reddit({})
         // Providers.Twitter({})

@@ -1,7 +1,8 @@
-#The MOBB 
+#The MOBB
 The Map of Black Businesses (MOBB) is a tool to practice group economics. The application allows for consumers to immediately identify black owned businesses in their vicinity (or search another area on the map); with the goal of growing the community's economy.
 
 <!--- These are examples. See https://shields.io for others or to customize this set of shields. You might want to include dependencies, project status and license info here --->
+
 ![Github License](https://img.shields.io/github/license/tdotholla/mobb)
 ![Node Version](https://img.shields.io/node/v/canary)
 ![W3C Validation](https://img.shields.io/w3c-validation/default?targetUrl=https%3A%2F%2Fwww.the-mobb.com)
@@ -14,6 +15,7 @@ The Map of Black Businesses (MOBB) is a tool to practice group economics. The ap
 ![GitHub Issues](https://img.shields.io/github/issues-raw/tdotholla/mobb)
 ![GitHub contributors](https://img.shields.io/github/contributors/tdotholla/mobb)
 ![Github Last Commit](https://img.shields.io/github/last-commit/tdotholla/mobb)
+
 <!--
 
 ![Github Commit Activity](https://img.shields.io/github/commit-activity/m/tdotholla/mobb)
@@ -23,15 +25,15 @@ The Map of Black Businesses (MOBB) is a tool to practice group economics. The ap
 
 -->
 
-**_Visit [www.the-MOBB.com](https://www.the-MOBB.com)_**
+**_Visit [mobb.kielbyrne.com](https://mobb.kielbyrne.com)_**
 
 ## Prerequisites
 
 Before you begin, ensure you have met the following requirements:
-* You have installed the latest version of `node`, and `yarn`.
-* You have a `<Windows/Linux/Mac>` machine. (I have not tested on Linux, but should work fine)
-* You have read [SUPPORT.md](SUPPORT.md).
 
+- You have installed the latest version of `node`, and `yarn`.
+- You have a `<Windows/Linux/Mac>` machine. (I have not tested on Linux, but should work fine)
+- You have read [SUPPORT.md](SUPPORT.md).
 
 ## Architecture
 
@@ -57,11 +59,10 @@ First off, thank you for considering contributing to the MOBB. It’s people lik
 
 Thanks to the following people who have contributed to this project:
 
-* [@DevCollectiv](https://github.com/DevCollectiv) 📖💻🤔⚠️
-* [@tmanundercover](https://github.com/tmanundercover) 🐛💻🤔👀⚠️
-* [@tdblackston0](https://github.com/tdblackston0) 🐛🤔👀⚠️
-* [@ludakhris](https://github.com/ludakhris) 💬🐛💻🤔👀⚠️
-
+- [@DevCollectiv](https://github.com/DevCollectiv) 📖💻🤔⚠️
+- [@tmanundercover](https://github.com/tmanundercover) 🐛💻🤔👀⚠️
+- [@tdblackston0](https://github.com/tdblackston0) 🐛🤔👀⚠️
+- [@ludakhris](https://github.com/ludakhris) 💬🐛💻🤔👀⚠️
 
 ## Licenses
 
