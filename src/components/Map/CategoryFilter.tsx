@@ -11,7 +11,7 @@ import {
   colors,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import React, { useRef, useState } from "react";
+import React, { memo, useMemo, useRef, useState } from "react";
 import { Category, Listing } from "../../db/Types";
 
 const useStyles = makeStyles((theme) => ({
@@ -45,7 +45,8 @@ const CategoryFilter = ({
   const [open, setOpen] = useState(false);
 
   const handleChange = (event) => {
-    const newSet = new Set(selectedCategories);
+    console.log("we changing on reload??");
+    const catSet = selectedCategories;
     const catName = event.target.name;
     // const size = catCount(name);
     // if (size > 100 && mapZoom > large) {
@@ -54,11 +55,11 @@ const CategoryFilter = ({
     // }
 
     if (selectedCategories.has(catName)) {
-      newSet.delete(catName);
-      setSelectedCategories(newSet);
+      catSet.delete(catName);
+      setSelectedCategories(catSet);
     } else {
-      newSet.add(catName);
-      setSelectedCategories(newSet);
+      catSet.add(catName);
+      setSelectedCategories(catSet);
     }
   };
 
@@ -69,10 +70,14 @@ const CategoryFilter = ({
     if (anchorRef.current && anchorRef.current.contains(event.target)) return;
     setOpen(false);
   };
-  const catCount = (name) => {
-    return Object.values(listings).filter((el) => el.categories?.includes(name))
-      .length;
-  };
+  const catCount = useMemo(
+    () => (name: Category) => {
+      return Object.values(listings).filter((el) =>
+        el.categories?.includes(name)
+      ).length;
+    },
+    [listings]
+  );
 
   // const handleListKeyDown = (event) => {
   //   if (event.key === "Tab") {
@@ -90,6 +95,7 @@ const CategoryFilter = ({
 
     prevOpen.current = open;
   }, [open]);
+
   return (
     <>
       <IconButton
@@ -115,34 +121,37 @@ const CategoryFilter = ({
         {categories.length === 0 ? (
           <LinearProgress />
         ) : (
-          categories.map((name) => (
-            <MenuItem key={name} value={name}>
-              <FormGroup>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      color="secondary"
-                      checked={selectedCategories.has(name)}
-                      onChange={handleChange}
-                      name={name}
-                      className={classes.switch}
-                    />
-                  }
-                  label={name}
+          categories.map((name) => {
+            console.log(name, selectedCategories.has(name), selectedCategories);
+            return (
+              <MenuItem key={name} value={name}>
+                <FormGroup>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        color="secondary"
+                        checked={selectedCategories.has(name)}
+                        onChange={handleChange}
+                        name={name}
+                        className={classes.switch}
+                      />
+                    }
+                    label={name}
+                  />
+                </FormGroup>
+                <Badge
+                  badgeContent={catCount(name)}
+                  max={999}
+                  className={classes.badge}
+                  color="secondary"
                 />
-              </FormGroup>
-              <Badge
-                badgeContent={catCount(name)}
-                max={999}
-                className={classes.badge}
-                color="secondary"
-              />
-            </MenuItem>
-          ))
+              </MenuItem>
+            );
+          })
         )}
       </Menu>
     </>
   );
 };
 
-export default CategoryFilter;
+export default memo(CategoryFilter);
