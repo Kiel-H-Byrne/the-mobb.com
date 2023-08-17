@@ -1,16 +1,22 @@
-import React, { useState, memo } from "react";
+import { memo, useState } from "react";
 
 import { GoogleMap, LoadScript, MarkerClusterer } from "@react-google-maps/api";
 
 import { GEOCENTER } from "../../util/functions";
 
-import MyMarker from "./MyMarker";
 import ListingInfoWindow from "./ListingInfoWindow";
 import MapAutoComplete from "./MapAutoComplete";
+import MyMarker from "./MyMarker";
+
+import { Category, Libraries, Listing } from "../../db/Types";
 import SideDrawer from "../SideDrawer/SideDrawer";
 import style from "./AppMap.module.scss";
-import { Listing, Libraries } from "../../db/Types";
-const libraries: Libraries = [ "places", "visualization", "geometry", "localContext"];
+const libraries: Libraries = [
+  "places",
+  "visualization",
+  "geometry",
+  "localContext",
+];
 
 const clusterStyles = [
   {
@@ -382,122 +388,127 @@ const defaultProps = {
 };
 
 interface IAppMap {
-  listings: any;
-  categories: any;
+  listings: Listing[];
+  categories: Category[];
   browserLocation: any;
   setMapInstance: any;
   mapInstance: any;
 }
 
-const AppMap = memo(({
-  listings,
-  categories,
-  browserLocation,
-  setMapInstance,
-  mapInstance,
-}: IAppMap) => {
-  const [isDrawerOpen, setisDrawerOpen] = useState(false);
-  const [isInfoWindowOpen, setisInfoWindowOpen] = useState(false);
-  const [activeListing, setactiveListing] = useState(null);
-  const [selectedCategories, setSelectedCategories] = useState(
-    new Set(categories)
-  ); // can i use new set?
+const AppMap = memo(
+  ({
+    listings,
+    categories,
+    browserLocation,
+    setMapInstance,
+    mapInstance,
+  }: IAppMap) => {
+    const [isDrawerOpen, setisDrawerOpen] = useState(false);
+    const [isInfoWindowOpen, setisInfoWindowOpen] = useState(false);
+    const [activeListing, setactiveListing] = useState(null);
+    let categorySet = new Set(categories);
+    const [selectedCategories, setSelectedCategories] = useState(categorySet);
 
-  let { center, zoom, options } = defaultProps;
-
-  return (
-    // Important! Always set the container height explicitly via mapContainerClassName
-    <LoadScript
-      id="script-loader"
-      googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY}
-      language="en"
-      region="us"
-      libraries={libraries}
-    >
-      <GoogleMap
-        onLoad={(map) => {
-          // const bounds = new window.google.maps.LatLngBounds();
-          setMapInstance(map);
-        }}
-        id="GMap"
-        mapContainerClassName={style.map}
-        center={browserLocation || center}
-        zoom={browserLocation ? 16 : zoom}
-        options={options}
+    let { center, zoom, options } = defaultProps;
+    return (
+      // Important! Always set the container height explicitly via mapContainerClassName
+      <LoadScript
+        id="script-loader"
+        googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY}
+        language="en"
+        region="us"
+        libraries={libraries}
       >
-        <MapAutoComplete
-          listings={listings}
-          categories={categories}
-          mapInstance={mapInstance}
-          selectedCategories={selectedCategories}
-          setSelectedCategories={setSelectedCategories}
-        />
-        {listings && (
-          <MarkerClusterer
-            styles={clusterStyles}
-            // onClick={(event) =>{console.log(event.getMarkers())}}
-            gridSize={23}
-            // minimumClusterSize={3}
-          >
-            {(clusterer) =>
-              Object.values(listings).map((listing: Listing) => {
-                //return marker if element categories array includes value from selected_categories\\
-
-                if (
-                  listing.categories &&
-                  listing.categories.some((el) => selectedCategories.has(el))
-                  // && mapInstance.containsLocation(listings.location)
-                ) {
-                  // if (listing.location) {
-                  //   const [lat, lng] = listing.location.split(",");
-
-                  //   let isInside = new window.google.maps.LatLngBounds().contains(
-                  //     { lat: +lat, lng: +lng }
-                  //   );
-                  //   // console.log(isInside);
-                  // }
-                  return (
-                    // return (
-                    //   listing.categories
-                    //     ? listing.categories.some((el) =>
-                    //         selected_categories.includes(el)
-                    //       )
-                    //     : false
-                    // ) ? (
-
-                    <MyMarker
-                      key={`marker-${listing._id}`}
-                      //@ts-ignore
-                      data={listing}
-                      clusterer={clusterer}
-                      setactiveListing={setactiveListing}
-                      setisDrawerOpen={setisDrawerOpen}
-                      setisInfoWindowOpen={setisInfoWindowOpen}
-                      selectedCategories={selectedCategories}
-                    />
-                  );
-                }
-              })
-            }
-          </MarkerClusterer>
-        )}
-        {activeListing && isInfoWindowOpen && (
-          <ListingInfoWindow activeListing={activeListing} />
-        )}
-
-        {activeListing && isDrawerOpen && (
-          <SideDrawer
-            activeListing={activeListing}
-            isOpen={isDrawerOpen}
-            setOpen={setisDrawerOpen}
+        <GoogleMap
+          onLoad={(map) => {
+            // const bounds = new window.google.maps.LatLngBounds();
+            setMapInstance(map);
+          }}
+          id="GMap"
+          mapContainerClassName={style.map}
+          center={browserLocation || center}
+          zoom={browserLocation ? 16 : zoom}
+          options={options}
+        >
+          <MapAutoComplete
+            listings={listings}
+            categories={categories}
             mapInstance={mapInstance}
+            selectedCategories={selectedCategories}
+            setSelectedCategories={setSelectedCategories}
+            setactiveListing={setactiveListing}
+            setisDrawerOpen={setisDrawerOpen}
           />
-        )}
+          {listings && (
+            <MarkerClusterer
+              styles={clusterStyles}
+              // onClick={(event) =>{console.log(event.getMarkers())}}
+              gridSize={23}
+              // minimumClusterSize={3}
+            >
+              {(clusterer) =>
+                //* mongodb must have had indexed object instead of flat array
+                // Object.values(listings).
+                listings.map((listing: Listing) => {
+                  //return marker if element categories array includes value from selected_categories\\
+                  if (
+                    listing.categories &&
+                    listing.categories.some((el: Category) =>
+                      selectedCategories.has(el)
+                    )
+                    // && mapInstance.containsLocation(listings.location)
+                  ) {
+                    // if (listing.location) {
+                    //   const [lat, lng] = listing.location.split(",");
 
-        {/* <HeatmapLayer map={this.state.map && this.state.map} data={data.map(x => {x.location})} /> */}
-      </GoogleMap>
-    </LoadScript>
-  );
-});
+                    //   let isInside = new window.google.maps.LatLngBounds().contains(
+                    //     { lat: +lat, lng: +lng }
+                    //   );
+                    //   // console.log(isInside);
+                    // }
+                    return (
+                      // return (
+                      //   listing.categories
+                      //     ? listing.categories.some((el) =>
+                      //         selected_categories.includes(el)
+                      //       )
+                      //     : false
+                      // ) ? (
+
+                      <MyMarker
+                        key={`marker-${listing._id}`}
+                        //@ts-ignore
+                        data={listing}
+                        clusterer={clusterer}
+                        setactiveListing={setactiveListing}
+                        setisDrawerOpen={setisDrawerOpen}
+                        setisInfoWindowOpen={setisInfoWindowOpen}
+                        selectedCategories={selectedCategories}
+                      />
+                    );
+                  }
+                })
+              }
+            </MarkerClusterer>
+          )}
+          {activeListing && isInfoWindowOpen && (
+            <ListingInfoWindow activeListing={activeListing} />
+          )}
+
+          {activeListing && isDrawerOpen && (
+            <SideDrawer
+              activeListing={activeListing}
+              isOpen={isDrawerOpen}
+              setOpen={setisDrawerOpen}
+              mapInstance={mapInstance}
+            />
+          )}
+
+          {/* <HeatmapLayer map={this.state.map && this.state.map} data={data.map(x => {x.location})} /> */}
+        </GoogleMap>
+      </LoadScript>
+    );
+  }
+);
 
 export default AppMap;

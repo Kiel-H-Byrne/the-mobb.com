@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { memo } from "react";
 
 import { Marker } from "@react-google-maps/api";
 
@@ -15,7 +15,7 @@ const MyMarker = React.memo(({
   location ? (loc = location.split(",")) : (loc = "50.60982,-1.34987");
   let locObj = { lat: parseFloat(loc[0]), lng: parseFloat(loc[1]) };
   let image = {
-    url: "img/map/orange_marker_sm.png",
+    url: "/img/map/orange_marker_sm.png",
   };
 
   const handleMouseOverMarker = () => {
@@ -44,4 +44,4 @@ const MyMarker = React.memo(({
   );
 });
 
-export default MyMarker;
+export default memo(MyMarker);

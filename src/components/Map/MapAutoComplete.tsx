@@ -1,24 +1,28 @@
-import React, { Dispatch, SetStateAction, useState } from "react";
-import { Autocomplete } from "@react-google-maps/api";
+import { GoogleMapProps } from "@react-google-maps/api";
+import { Dispatch, SetStateAction, memo, useState } from "react";
 
-import makeStyles from "@mui/styles/makeStyles";
-import Paper from "@mui/material/Paper";
-import InputBase from "@mui/material/InputBase";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
+import InputBase from "@mui/material/InputBase";
+import Paper from "@mui/material/Paper";
+import makeStyles from "@mui/styles/makeStyles";
 
+import { AddLocation } from "@mui/icons-material";
 import SearchIcon from "@mui/icons-material/Search";
-import MyLocationButton from "./MyLocationButton";
-import { Listing, Category } from "../../db/Types";
+import { Button, Menu, MenuItem, colors } from "@mui/material";
+import { Category, Listing } from "../../db/Types";
+import { targetClient } from "../../util/functions";
 import CategoryFilter from "./CategoryFilter";
-import { colors, Menu, MenuItem } from "@mui/material";
+import MyLocationButton from "./MyLocationButton";
 
 interface OwnProps {
   listings: Listing[];
   categories: Category[];
-  selectedCategories: Set<Object>;
-  mapInstance: any;
-  setSelectedCategories: Dispatch<SetStateAction<Set<Object>>>;
+  selectedCategories: Set<Category>;
+  mapInstance: GoogleMapProps;
+  setSelectedCategories: Dispatch<SetStateAction<Set<Category>>>;
+  setactiveListing: Dispatch<SetStateAction<Set<Listing>>>;
+  setisDrawerOpen: Dispatch<SetStateAction<Boolean>>;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -38,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
     flex: 1,
   },
   iconButton: {
-    padding: theme.spacing(1),
+    padding: ".5rem",
   },
   divider: {
     width: 1,
@@ -66,53 +70,75 @@ const MapAutoComplete = ({
   selectedCategories,
   mapInstance,
   setSelectedCategories,
+  setactiveListing,
+  setisDrawerOpen,
 }: OwnProps) => {
   const classes = useStyles();
-  let count = listings?.length;
+  let count = listings?.length ?? 0;
   const [active, setActive] = useState(0);
   const [filtered, setFiltered] = useState([]);
-  const [isShowing, setIsShowing] = useState(false);
   const [input, setInput] = useState("");
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
 
   const onChange = (e) => {
     const input = e.currentTarget.value;
-    const newFilteredSuggestions = listings.filter((listing) => {
-      listing.name.toLowerCase().indexOf(input.toLowerCase()) > -1;
-    });
+    const newFilteredSuggestions =
+      input.length > 2
+        ? listings.filter(
+            (listing) =>
+              listing.name.toLowerCase().indexOf(input.toLowerCase()) > -1
+          )
+        : [];
     setActive(0);
     setFiltered(newFilteredSuggestions);
-    setIsShowing(true);
     setInput(e.currentTarget.value);
   };
 
   const onClick = (e) => {
-    setActive(0);
+    //find the tabindex and pass it to setActive
+    let index = e.currentTarget.tabIndex;
+    setActive(index);
     setFiltered([]);
-    setIsShowing(false);
-    setInput(e.currentTarget.innerText);
+    setInput("");
+    setAnchorEl(!open);
+    //pan map to location and open sidebar
+    let location = filtered[active].location?.split(",");
+    let locationObj = location && {
+      lat: Number(location[0]),
+      lng: Number(location[1]),
+    };
+    location && targetClient(mapInstance, locationObj);
+    setactiveListing(filtered[index]);
+    setisDrawerOpen(true);
   };
 
   const onKeyDown = (e) => {
-    if (e.keyCode === 13) {
+    if (e.key === "Enter") {
       console.log("hit enter key");
-      //enter key
       setActive(0);
-      setIsShowing(false);
       setInput(filtered[active]);
-    } else if (e.keyCode === 38) {
-      // up arrow
+    } else if (e.key === "ArrowUp") {
       return active === 0 ? null : setActive(active - 1);
-    } else if (e.keyCode === 40) {
-      // down arrow
+    } else if (e.key === "ArrowDown") {
       return active - 1 === filtered.length ? null : setActive(active + 1);
     }
   };
+
   const renderAutoCompleteMenu = () => {
-    if (isShowing && input) {
+    if (open && input) {
       if (filtered.length) {
         return (
-          <Menu className="autocomplete" open={isShowing}>
-            {filtered.map((suggestion, index) => {
+          <Menu
+            open={open}
+            style={{ maxHeight: "60%", maxWidth: "auto", overflowY: "scroll" }}
+            anchorEl={anchorEl}
+            disableAutoFocus={true}
+            autoFocus={false}
+            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+            onClick={anchorEl.focus()}
+          >
+            {filtered.map((listing, index) => {
               let className;
               if (index === active) {
                 className = "active";
@@ -120,41 +146,32 @@ const MapAutoComplete = ({
               return (
                 <MenuItem
                   className={className}
-                  key={suggestion}
+                  key={listing._id}
                   onClick={onClick}
+                  tabIndex={index}
                 >
-                  {suggestion}
+                  {listing.name}
                 </MenuItem>
               );
             })}
           </Menu>
         );
-        /**
-         * 
-         *      <Menu
-        id="basic-menu"
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        MenuListProps={{
-          'aria-labelledby': 'basic-button',
-        }}
-      >
-        <MenuItem onClick={handleClose}>Profile</MenuItem>
-        <MenuItem onClick={handleClose}>My account</MenuItem>
-        <MenuItem onClick={handleClose}>Logout</MenuItem>
-      </Menu>
-
-
-         */
       } else {
+        anchorEl.focus();
         return (
           <Menu
-            className="no-autocomplete"
-            open={isShowing}
-            anchorPosition={{ top: 30, left: 0 }}
+            open={open}
+            anchorEl={anchorEl}
+            disableAutoFocus={true}
+            autoFocus={false}
           >
-            <MenuItem>Not found</MenuItem>
+            {input.length > 2 ? (
+              <MenuItem onClick={(e) => e.preventDefault()}>
+                Not Found... <Button>Add One!</Button>
+              </MenuItem>
+            ) : (
+              <MenuItem>{`Enter ${3 - input.length} more character`}</MenuItem>
+            )}
           </Menu>
         );
       }
@@ -162,11 +179,12 @@ const MapAutoComplete = ({
     return <></>;
   };
   return (
-    <Autocomplete>
+    <div>
       <Paper className={classes.root}>
         <div className={classes.flexItem}>
           <InputBase
             className={classes.input}
+            onClick={(event) => setAnchorEl(event.currentTarget)}
             placeholder={`Search ${count ? count + " " : ""}Listings...`}
             inputProps={{ "aria-label": "Search The MOBB" }}
             onChange={onChange}
@@ -181,10 +199,17 @@ const MapAutoComplete = ({
           >
             <SearchIcon />
           </IconButton>
+          <IconButton
+            className={classes.iconButton}
+            aria-label="Add"
+            size="large"
+          >
+            <AddLocation />
+          </IconButton>
           <Divider className={classes.divider} />
           <CategoryFilter
             listings={listings}
-            categories={categories || []}
+            categories={categories}
             selectedCategories={selectedCategories}
             setSelectedCategories={setSelectedCategories}
             aria-label="Filter"
@@ -195,8 +220,8 @@ const MapAutoComplete = ({
           <MyLocationButton listings={listings} mapInstance={mapInstance} />
         </div>
       </Paper>
-    </Autocomplete>
+    </div>
   );
 };
 
-export default MapAutoComplete;
+export default memo(MapAutoComplete);

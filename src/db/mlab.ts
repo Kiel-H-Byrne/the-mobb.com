@@ -1,6 +1,6 @@
 const ATLAS_KEY = process.env.NEXT_PUBLIC_ATLAS_KEY;
-// const ROOT_URI = "https://mobb-db.herokuapp.com/api/1/databases/tkhb_mongodb"
-const ROOT_URI = "https://api.the-mobb.com";
+const ROOT_URI = "https://mobb-db.herokuapp.com/api/1/databases/tkhb_mongodb"
+// const ROOT_URI = "https://api.the-mobb.com";
 
 interface IFetchAllCollection {
   collection: string;
@@ -19,12 +19,12 @@ export const fetchAllCollection = ({
   return fetch(uri, fetchOptions)
     .then((result) => result.json())
     .then((response) => response)
-    .catch((error) => console.error(error));
+    .catch((error) => console.warn(error));
 };
 
 export const fetchOne = ({
   collection,
-  id, 
+  id,
   query,
 }: any): Promise<any> => {
   const uri = `${ROOT_URI}/${collection}/${id}${query && `&${query}`}`;
@@ -51,9 +51,9 @@ export const createListing = (data) => {
     .catch((error) => console.error(error));
 };
 
-export const updateListing = () => {};
+export const updateListing = () => { };
 
-export const removeListing = (params) => {};
+export const removeListing = (params) => { };
 
 export const mCache = new Map();
 

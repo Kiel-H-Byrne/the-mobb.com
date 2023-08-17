@@ -3,6 +3,7 @@ build
 .cache
 .next
 .env*
+.tsbuildinfo
 
 # dist
 .vercel

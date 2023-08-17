@@ -37,5 +37,5 @@ export interface Listing {
 export type Category = "a" | "b" | "c";
 export type Libraries = ("drawing" | "geometry" | "localContext" | "places" | "visualization")[];
 
-export interface GLocation { lat: string, lng: string }
+export interface GLocation { lat: number, lng: number }
 

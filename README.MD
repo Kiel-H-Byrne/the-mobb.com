@@ -1,5 +1,5 @@
-
 <!--- These are examples. See https://shields.io for others or to customize this set of shields. You might want to include dependencies, project status and license info here --->
+
 ![Github License](https://img.shields.io/github/license/kiel-h-byrne/the-mobb.com)
 ![Node Version](https://img.shields.io/node/v/canary)
 ![W3C Validation](https://img.shields.io/w3c-validation/default?targetUrl=https%3A%2F%2Fwww.the-mobb.com)
@@ -12,6 +12,7 @@
 ![GitHub Issues](https://img.shields.io/github/issues-raw/kiel-h-byrne/the-mobb.com)
 ![GitHub contributors](https://img.shields.io/github/contributors/kiel-h-byrne/the-mobb.com)
 ![Github Last Commit](https://img.shields.io/github/last-commit/kiel-h-byrne/the-mobb.com)
+
 <!--
 
 ![Github Commit Activity](https://img.shields.io/github/commit-activity/m/kiel-h-byrne/the-mobb.com)
@@ -21,24 +22,23 @@
 
 -->
 
-# The MOBB 
-The Map of Black Businesses (MOBB) is a tool to practice group economics. The application allows for consumers to immediately identify black owned businesses in their vicinity (or search another area on the map) with the goal of growing the community's economy.
----
+# The MOBB
+
+## The Map of Black Businesses (MOBB) is a tool to practice group economics. The application allows for consumers to immediately identify black owned businesses in their vicinity (or search another area on the map) with the goal of growing the community's economy.
 
 <img width="80%" src="https://github.com/Kiel-H-Byrne/the-mobb.com/assets/955269/99259907-11dc-446a-a6a8-455bc4787e9c)" />
 
 ---
-
 
 **_Visit [www.the-MOBB.com](https://www.the-MOBB.com)_**
 
 ## Prerequisites
 
 Before you begin, ensure you have met the following requirements:
-* You have installed the latest version of `node`, and `yarn`.
-* You have a `<Windows/Linux/Mac>` machine. (I have not tested on Linux, but should work fine)
-* You have read [SUPPORT.md](SUPPORT.md).
 
+- You have installed the latest version of `node`, and `yarn`.
+- You have a `<Windows/Linux/Mac>` machine. (I have not tested on Linux, but should work fine)
+- You have read [SUPPORT.md](SUPPORT.md).
 
 ## Architecture
 
@@ -47,7 +47,7 @@ Before you begin, ensure you have met the following requirements:
 - Google Firebase
 - Google Maps
 - Now Deployment
-- API (see [docs](https://docs.the-mobb.com))
+- API (see [docs](https://mobbDocs.kielbyrne.com))
 
 **_Documentation links can be found in [SUPPORT](SUPPORT.md)_**
 
@@ -65,11 +65,10 @@ First off, thank you for considering contributing to the MOBB. It’s people lik
 
 Thanks to the following people who have contributed to this project:
 
-* [@DevCollectiv](https://github.com/DevCollectiv) 📖💻🤔⚠️
-* [@tmanundercover](https://github.com/tmanundercover) 🐛💻🤔👀⚠️
-* [@tdblackston0](https://github.com/tdblackston0) 🐛🤔👀⚠️
-* [@ludakhris](https://github.com/ludakhris) 💬🐛💻🤔👀⚠️
-
+- [@DevCollectiv](https://github.com/DevCollectiv) 📖💻🤔⚠️
+- [@tmanundercover](https://github.com/tmanundercover) 🐛💻🤔👀⚠️
+- [@tdblackston0](https://github.com/tdblackston0) 🐛🤔👀⚠️
+- [@ludakhris](https://github.com/ludakhris) 💬🐛💻🤔👀⚠️
 
 ## Licenses
 
