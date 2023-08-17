@@ -1,24 +1,24 @@
-import React, { Dispatch, SetStateAction, useState } from "react";
 import { GoogleMapProps } from "@react-google-maps/api";
+import { Dispatch, SetStateAction, memo, useState } from "react";
 
-import makeStyles from "@mui/styles/makeStyles";
-import Paper from "@mui/material/Paper";
-import InputBase from "@mui/material/InputBase";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
+import InputBase from "@mui/material/InputBase";
+import Paper from "@mui/material/Paper";
+import makeStyles from "@mui/styles/makeStyles";
 
-import SearchIcon from "@mui/icons-material/Search";
-import MyLocationButton from "./MyLocationButton";
-import { Listing, Category } from "../../db/Types";
-import CategoryFilter from "./CategoryFilter";
-import { Button, colors, Menu, MenuItem } from "@mui/material";
-import { targetClient } from "../../util/functions";
 import { AddLocation } from "@mui/icons-material";
+import SearchIcon from "@mui/icons-material/Search";
+import { Button, Menu, MenuItem, colors } from "@mui/material";
+import { Category, Listing } from "../../db/Types";
+import { targetClient } from "../../util/functions";
+import CategoryFilter from "./CategoryFilter";
+import MyLocationButton from "./MyLocationButton";
 
 interface OwnProps {
   listings: Listing[];
   categories: Category[];
-  selectedCategories: Set<Object>;
+  selectedCategories: Set<Category>;
   mapInstance: GoogleMapProps;
   setSelectedCategories: Dispatch<SetStateAction<Set<Category>>>;
   setactiveListing: Dispatch<SetStateAction<Set<Listing>>>;
@@ -74,7 +74,7 @@ const MapAutoComplete = ({
   setisDrawerOpen,
 }: OwnProps) => {
   const classes = useStyles();
-  let count = listings?.length;
+  let count = listings?.length ?? 0;
   const [active, setActive] = useState(0);
   const [filtered, setFiltered] = useState([]);
   const [input, setInput] = useState("");
@@ -96,7 +96,6 @@ const MapAutoComplete = ({
   };
 
   const onClick = (e) => {
-    console.log(e.currentTarget.tabIndex);
     //find the tabindex and pass it to setActive
     let index = e.currentTarget.tabIndex;
     setActive(index);
@@ -110,7 +109,6 @@ const MapAutoComplete = ({
       lng: Number(location[1]),
     };
     location && targetClient(mapInstance, locationObj);
-    console.log(filtered[index].name);
     setactiveListing(filtered[index]);
     setisDrawerOpen(true);
   };
@@ -211,7 +209,7 @@ const MapAutoComplete = ({
           <Divider className={classes.divider} />
           <CategoryFilter
             listings={listings}
-            categories={categories || []}
+            categories={categories}
             selectedCategories={selectedCategories}
             setSelectedCategories={setSelectedCategories}
             aria-label="Filter"
@@ -226,4 +224,4 @@ const MapAutoComplete = ({
   );
 };
 
-export default MapAutoComplete;
+export default memo(MapAutoComplete);

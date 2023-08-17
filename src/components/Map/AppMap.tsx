@@ -1,16 +1,16 @@
-import React, { useState, memo } from "react";
+import { memo, useState } from "react";
 
 import { GoogleMap, LoadScript, MarkerClusterer } from "@react-google-maps/api";
 
 import { GEOCENTER } from "../../util/functions";
 
-import MyMarker from "./MyMarker";
 import ListingInfoWindow from "./ListingInfoWindow";
 import MapAutoComplete from "./MapAutoComplete";
+import MyMarker from "./MyMarker";
 
+import { Category, Libraries, Listing } from "../../db/Types";
 import SideDrawer from "../SideDrawer/SideDrawer";
 import style from "./AppMap.module.scss";
-import { Listing, Libraries } from "../../db/Types";
 const libraries: Libraries = [
   "places",
   "visualization",
@@ -388,8 +388,8 @@ const defaultProps = {
 };
 
 interface IAppMap {
-  listings: any;
-  categories: any;
+  listings: Listing[];
+  categories: Category[];
   browserLocation: any;
   setMapInstance: any;
   mapInstance: any;
@@ -406,12 +406,10 @@ const AppMap = memo(
     const [isDrawerOpen, setisDrawerOpen] = useState(false);
     const [isInfoWindowOpen, setisInfoWindowOpen] = useState(false);
     const [activeListing, setactiveListing] = useState(null);
-    const [selectedCategories, setSelectedCategories] = useState(
-      new Set(categories)
-    ); // can i use new set?
+    let categorySet = new Set(categories);
+    const [selectedCategories, setSelectedCategories] = useState(categorySet);
 
     let { center, zoom, options } = defaultProps;
-
     return (
       // Important! Always set the container height explicitly via mapContainerClassName
       <LoadScript
@@ -434,7 +432,7 @@ const AppMap = memo(
         >
           <MapAutoComplete
             listings={listings}
-            categories={categories}
+            categories={[...categories]}
             mapInstance={mapInstance}
             selectedCategories={selectedCategories}
             setSelectedCategories={setSelectedCategories}
@@ -449,12 +447,15 @@ const AppMap = memo(
               // minimumClusterSize={3}
             >
               {(clusterer) =>
-                Object.values(listings).map((listing: Listing) => {
+                //* mongodb must have had indexed object instead of flat array
+                // Object.values(listings).
+                listings.map((listing: Listing) => {
                   //return marker if element categories array includes value from selected_categories\\
-
                   if (
                     listing.categories &&
-                    listing.categories.some((el) => selectedCategories.has(el))
+                    listing.categories.some((el: Category) =>
+                      selectedCategories.has(el)
+                    )
                     // && mapInstance.containsLocation(listings.location)
                   ) {
                     // if (listing.location) {
