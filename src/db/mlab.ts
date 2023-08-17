@@ -19,7 +19,7 @@ export const fetchAllCollection = ({
   return fetch(uri, fetchOptions)
     .then((result) => result.json())
     .then((response) => response)
-    .catch((error) => console.error(error));
+    .catch((error) => console.warn(error));
 };
 
 export const fetchOne = ({

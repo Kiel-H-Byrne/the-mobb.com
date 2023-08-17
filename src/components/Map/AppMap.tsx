@@ -432,7 +432,7 @@ const AppMap = memo(
         >
           <MapAutoComplete
             listings={listings}
-            categories={[...categories]}
+            categories={categories}
             mapInstance={mapInstance}
             selectedCategories={selectedCategories}
             setSelectedCategories={setSelectedCategories}

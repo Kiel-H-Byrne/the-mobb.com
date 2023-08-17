@@ -45,22 +45,23 @@ const CategoryFilter = ({
   const [open, setOpen] = useState(false);
 
   const handleChange = (event) => {
-    const newSet = selectedCategories;
-    const name = event.target.name;
-    const size = catCount(event.target.name);
+    const newSet = new Set(selectedCategories);
+    const catName = event.target.name;
+    // const size = catCount(name);
     // if (size > 100 && mapZoom > large) {
     //   //display some type of modal to zoom in
     //   return
     // }
 
-    if (selectedCategories.has(event.target.name)) {
-      newSet.delete(event.target.name);
+    if (selectedCategories.has(catName)) {
+      newSet.delete(catName);
       setSelectedCategories(newSet);
     } else {
-      newSet.add(event.target.name);
+      newSet.add(catName);
       setSelectedCategories(newSet);
     }
   };
+
   const handleFilterMenuToggle = () => {
     setOpen((prevOpen) => !prevOpen);
   };
@@ -111,10 +112,10 @@ const CategoryFilter = ({
         open={open}
         onClose={(e) => handleFilterMenuClose(e)}
       >
-        {[...categories].length === 0 ? (
+        {categories.length === 0 ? (
           <LinearProgress />
         ) : (
-          [...categories].map((name) => (
+          categories.map((name) => (
             <MenuItem key={name} value={name}>
               <FormGroup>
                 <FormControlLabel
@@ -122,7 +123,7 @@ const CategoryFilter = ({
                     <Switch
                       color="secondary"
                       checked={selectedCategories.has(name)}
-                      onChange={(e) => handleChange(e)}
+                      onChange={handleChange}
                       name={name}
                       className={classes.switch}
                     />
