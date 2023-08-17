@@ -1,25 +1,29 @@
-import React, { useState, useEffect } from "react";
-import Head from "next/head";
 import { Grid, LinearProgress } from "@mui/material";
-import Nav from "../src/components/Nav/Nav";
+import Head from "next/head";
+import React, { useEffect, useState } from "react";
 import AppMap from "../src/components/Map/AppMap";
+import Nav from "../src/components/Nav/Nav";
 import style from "../src/style/Home.module.scss";
 
 import { fetchAllCollection } from "../src/db/mlab";
+import { SAMPLE_CATEGORIES, SAMPLE_LISTINGS } from "../src/db/SampleListings";
 
 const Home = React.memo(() => {
   const [mapInstance, setMapInstance] = useState(null);
-  const [listings, setListings] = useState([]);
+  const [listings, setListings] = useState(null);
   const [categories, setCategories] = useState(null);
-  // const [selectedCategories, setSelectedCategories] = useState([])
   useEffect(() => {
     async function fetchListings() {
-      setListings(await fetchAllCollection({ collection: "listings" }));
+      setListings(
+        (await fetchAllCollection({ collection: "listings" })) ??
+          SAMPLE_LISTINGS
+      );
     }
     async function fetchCategories() {
       let categories =
-        (await fetchAllCollection({ collection: "categories" })) || [];
-      categories = categories.map((el) => el.name);
+        (await fetchAllCollection({ collection: "categories" })) ??
+        SAMPLE_CATEGORIES;
+      // categories = categories.map((el) => el.name);
       setCategories(categories);
     }
     fetchListings();
@@ -145,7 +149,8 @@ const Home = React.memo(() => {
       </Head>
 
       <main className={style.main}>
-        {listings.length === 0 ? (
+        {!listings ? (
+          // || listings.length === 0
           <LinearProgress />
         ) : (
           <div>
