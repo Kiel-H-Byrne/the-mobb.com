@@ -149,8 +149,7 @@ const Home = React.memo(() => {
       </Head>
 
       <main className={style.main}>
-        {!listings ? (
-          // || listings.length === 0
+        {listings.length === 0 ? (
           <LinearProgress />
         ) : (
           <div>
