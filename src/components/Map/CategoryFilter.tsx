@@ -46,7 +46,8 @@ const CategoryFilter = ({
 
   const handleChange = (event) => {
     console.log("we changing on reload??");
-    const catSet = selectedCategories;
+    /** MUST create a new set. Sets in state don't change, the inner parameters change and react can't see that */
+    const newCategorySet = new Set(selectedCategories);
     const catName = event.target.name;
     // const size = catCount(name);
     // if (size > 100 && mapZoom > large) {
@@ -55,11 +56,11 @@ const CategoryFilter = ({
     // }
 
     if (selectedCategories.has(catName)) {
-      catSet.delete(catName);
-      setSelectedCategories(catSet);
+      newCategorySet.delete(catName);
+      setSelectedCategories(newCategorySet);
     } else {
-      catSet.add(catName);
-      setSelectedCategories(catSet);
+      newCategorySet.add(catName);
+      setSelectedCategories(newCategorySet);
     }
   };
 
@@ -122,7 +123,6 @@ const CategoryFilter = ({
           <LinearProgress />
         ) : (
           categories.map((name) => {
-            console.log(name, selectedCategories.has(name), selectedCategories);
             return (
               <MenuItem key={name} value={name}>
                 <FormGroup>

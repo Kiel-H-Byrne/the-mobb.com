@@ -406,8 +406,9 @@ const AppMap = memo(
     const [isDrawerOpen, setisDrawerOpen] = useState(false);
     const [isInfoWindowOpen, setisInfoWindowOpen] = useState(false);
     const [activeListing, setactiveListing] = useState(null);
-    let categorySet = new Set(categories);
-    const [selectedCategories, setSelectedCategories] = useState(categorySet);
+    const [selectedCategories, setSelectedCategories] = useState(
+      new Set(categories)
+    );
 
     let { center, zoom, options } = defaultProps;
     return (
