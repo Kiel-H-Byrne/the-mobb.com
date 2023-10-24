@@ -20,7 +20,7 @@
     "date-fns": "2",
     "dotenv": "16",
     "history": "5",
-    "next": "12",
+    "next": "13",
     "now": "^21.0.1",
     "react": "17.0.2",
     "react-devtools": "4",
