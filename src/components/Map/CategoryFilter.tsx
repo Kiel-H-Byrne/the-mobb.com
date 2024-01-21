@@ -1,3 +1,5 @@
+'use client'
+
 import LocationOffIcon from "@mui/icons-material/LocationOffTwoTone";
 import {
   Badge,
