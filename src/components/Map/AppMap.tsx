@@ -1,3 +1,5 @@
+'use client'
+
 import { memo, useState } from "react";
 
 import { GoogleMap, LoadScript, MarkerClusterer } from "@react-google-maps/api";
@@ -413,13 +415,14 @@ const AppMap = memo(
     let { center, zoom, options } = defaultProps;
     return (
       // Important! Always set the container height explicitly via mapContainerClassName
-      <LoadScript
-        id="script-loader"
-        googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY}
-        language="en"
-        region="us"
-        libraries={libraries}
-      >
+      <>
+        <LoadScript
+          id="script-loader"
+          googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY}
+          language="en"
+          region="us"
+          libraries={libraries}
+        />
         <GoogleMap
           onLoad={(map) => {
             // const bounds = new window.google.maps.LatLngBounds();
@@ -450,7 +453,7 @@ const AppMap = memo(
               {(clusterer) =>
                 //* mongodb must have had indexed object instead of flat array
                 // Object.values(listings).
-                listings.map((listing: Listing) => {
+                listings?.map((listing: Listing) => {
                   //return marker if element categories array includes value from selected_categories\\
                   if (
                     listing.categories &&
@@ -507,7 +510,7 @@ const AppMap = memo(
 
           {/* <HeatmapLayer map={this.state.map && this.state.map} data={data.map(x => {x.location})} /> */}
         </GoogleMap>
-      </LoadScript>
+      </>
     );
   }
 );

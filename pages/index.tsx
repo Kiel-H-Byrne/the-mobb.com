@@ -1,3 +1,5 @@
+'use client'
+
 import { Grid, LinearProgress } from "@mui/material";
 import Head from "next/head";
 import React, { useEffect, useState } from "react";
@@ -5,7 +7,7 @@ import AppMap from "../src/components/Map/AppMap";
 import Nav from "../src/components/Nav/Nav";
 import style from "../src/style/Home.module.scss";
 
-import { fetchAllCollection } from "../src/db/mlab";
+import { fetchAllCollection, fetchExternalCollection } from "../src/db/mlab";
 import { SAMPLE_CATEGORIES, SAMPLE_LISTINGS } from "../src/db/SampleListings";
 
 const Home = React.memo(() => {
@@ -14,10 +16,11 @@ const Home = React.memo(() => {
   const [categories, setCategories] = useState(null);
   useEffect(() => {
     async function fetchListings() {
-      setListings(
-        (await fetchAllCollection({ collection: "listings" })) ??
-          SAMPLE_LISTINGS
-      );
+      const allListings = await Promise.all([
+        await fetchAllCollection({ collection: "listings" }),
+        await fetchExternalCollection(),
+      ]);
+      setListings([...new Set(allListings.flat())] ?? SAMPLE_LISTINGS);
     }
     async function fetchCategories() {
       let categories =
