@@ -2,7 +2,7 @@
 const { MongoClient } = require("mongodb");
 
 async function setupIndex() {
-  const uri = process.env.MONGODB_URI; // Set this in your environment (e.g., .env.local)
+  const uri = process.env.DBOBB_MONGODB_URI; // Set this in your environment (e.g., .env.local)
   if (!uri) {
     console.error("CRITICAL: MONGODB_URI is not defined.");
     process.exit(1);
@@ -13,9 +13,9 @@ async function setupIndex() {
   try {
     await client.connect();
     // Using the database name 'tkhb_mongodb' as referenced in legacy mlab.ts
-    const db = client.db("tkhb_mongodb"); 
-    const listings = db.collection("listings");
-    
+    const db = client.db("vercel-db");
+    const listings = db.collection("mobb-listings");
+
     console.log("Creating 2dsphere index on 'coordinates' field...");
     const result = await listings.createIndex({ coordinates: "2dsphere" });
     console.log(`Success: ${result} index created.`);
