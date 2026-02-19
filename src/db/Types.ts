@@ -31,6 +31,10 @@ export interface Listing {
   email?: string;
   categories?: string[];
   social?: string;
+  coordinates?: {
+    type: "Point";
+    coordinates: [number, number]; // [longitude, latitude]
+  };
   creator: Date;
   submitted: Date;
 }
