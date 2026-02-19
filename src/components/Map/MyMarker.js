@@ -10,10 +10,21 @@ const MyMarker = React.memo(({
   setactiveListing,
   // selectedCategories
 }) => {
-  let loc;
-  const { location, _id} = data;
-  location ? (loc = location.split(",")) : (loc = "50.60982,-1.34987");
-  let locObj = { lat: parseFloat(loc[0]), lng: parseFloat(loc[1]) };
+  const { location, coordinates, _id } = data;
+  let locObj;
+
+  if (coordinates && coordinates.coordinates) {
+    locObj = {
+      lat: coordinates.coordinates[1],
+      lng: coordinates.coordinates[0],
+    };
+  } else if (location) {
+    const loc = location.split(",");
+    locObj = { lat: parseFloat(loc[0]), lng: parseFloat(loc[1]) };
+  } else {
+    locObj = { lat: 50.60982, lng: -1.34987 };
+  }
+
   let image = {
     url: "/img/map/orange_marker_sm.png",
   };

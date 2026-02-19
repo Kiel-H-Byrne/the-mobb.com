@@ -50,3 +50,18 @@ export async function fetchAllCategories(): Promise<string[]> {
   // Based on SAMPLE_CATEGORIES, it seems they are strings, but MongoDB documents usually have _id.
   return categories.map((cat: any) => cat.name || cat);
 }
+
+export async function searchBusinesses(query: string): Promise<Listing[]> {
+  const client = await clientPromise;
+  const db = client.db("vercel-db");
+  const collection = db.collection<Listing>("mobb-listings");
+
+  const listings = await collection
+    .find({
+      name: { $regex: query, $options: "i" },
+    })
+    .limit(10)
+    .toArray();
+
+  return JSON.parse(JSON.stringify(listings));
+}

@@ -5,7 +5,7 @@ import AppMap from "../src/components/Map/AppMap";
 import Nav from "../src/components/Nav/Nav";
 import style from "../src/style/Home.module.scss";
 
-import { fetchAllCollection } from "../src/db/mlab";
+import { fetchAllCategories, fetchAllListings } from "../app/actions/geo-search";
 import { SAMPLE_CATEGORIES, SAMPLE_LISTINGS } from "../src/db/SampleListings";
 
 const Home = React.memo(() => {
@@ -15,13 +15,13 @@ const Home = React.memo(() => {
   useEffect(() => {
     async function fetchListings() {
       setListings(
-        (await fetchAllCollection({ collection: "listings" })) ??
+        (await fetchAllListings()) ??
           SAMPLE_LISTINGS
       );
     }
     async function fetchCategories() {
       let categories =
-        (await fetchAllCollection({ collection: "categories" })) ??
+        (await fetchAllCategories()) ??
         SAMPLE_CATEGORIES;
       // categories = categories.map((el) => el.name);
       setCategories(categories);
@@ -157,6 +157,7 @@ const Home = React.memo(() => {
               <Nav listings={listings} map={mapInstance} />
               <AppMap
                 listings={listings}
+                setListings={setListings}
                 categories={categories}
                 setMapInstance={setMapInstance}
                 mapInstance={mapInstance}

@@ -10,6 +10,7 @@ import makeStyles from "@mui/styles/makeStyles";
 import { AddLocation } from "@mui/icons-material";
 import SearchIcon from "@mui/icons-material/Search";
 import { Button, Menu, MenuItem, colors } from "@mui/material";
+import { searchBusinesses } from "../../../app/actions/geo-search";
 import { Category, Listing } from "../../db/Types";
 import { targetClient } from "../../util/functions";
 import CategoryFilter from "./CategoryFilter";
@@ -81,18 +82,21 @@ const MapAutoComplete = ({
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
-  const onChange = (e) => {
+  const onChange = async (e) => {
     const input = e.currentTarget.value;
-    const newFilteredSuggestions =
-      input.length > 2
-        ? listings.filter(
-            (listing) =>
-              listing.name.toLowerCase().indexOf(input.toLowerCase()) > -1
-          )
-        : [];
+    setInput(input);
+    
+    if (input.length > 2) {
+      try {
+        const results = await searchBusinesses(input);
+        setFiltered(results);
+      } catch (error) {
+        console.error("Error searching businesses:", error);
+      }
+    } else {
+      setFiltered([]);
+    }
     setActive(0);
-    setFiltered(newFilteredSuggestions);
-    setInput(e.currentTarget.value);
   };
 
   const onClick = (e) => {
@@ -103,13 +107,24 @@ const MapAutoComplete = ({
     setInput("");
     setAnchorEl(!open);
     //pan map to location and open sidebar
-    let location = filtered[active].location?.split(",");
-    let locationObj = location && {
-      lat: Number(location[0]),
-      lng: Number(location[1]),
-    };
-    location && targetClient(mapInstance, locationObj);
-    setactiveListing(filtered[index]);
+    const listing = filtered[index];
+    let locationObj;
+
+    if (listing.coordinates && listing.coordinates.coordinates) {
+      locationObj = {
+        lat: listing.coordinates.coordinates[1],
+        lng: listing.coordinates.coordinates[0],
+      };
+    } else if (listing.location) {
+      const location = listing.location.split(",");
+      locationObj = {
+        lat: Number(location[0]),
+        lng: Number(location[1]),
+      };
+    }
+
+    locationObj && targetClient(mapInstance, locationObj);
+    setactiveListing(listing);
     setisDrawerOpen(true);
   };
 

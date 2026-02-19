@@ -8,6 +8,7 @@ import ListingInfoWindow from "./ListingInfoWindow";
 import MapAutoComplete from "./MapAutoComplete";
 import MyMarker from "./MyMarker";
 
+import { findBusinessesNearby } from "../../../app/actions/geo-search";
 import { Category, Libraries, Listing } from "../../db/Types";
 import SideDrawer from "../SideDrawer/SideDrawer";
 import style from "./AppMap.module.scss";
@@ -389,6 +390,7 @@ const defaultProps = {
 
 interface IAppMap {
   listings: Listing[];
+  setListings: (listings: Listing[]) => void;
   categories: Category[];
   browserLocation: any;
   setMapInstance: any;
@@ -398,6 +400,7 @@ interface IAppMap {
 const AppMap = memo(
   ({
     listings,
+    setListings,
     categories,
     browserLocation,
     setMapInstance,
@@ -407,8 +410,28 @@ const AppMap = memo(
     const [isInfoWindowOpen, setisInfoWindowOpen] = useState(false);
     const [activeListing, setactiveListing] = useState(null);
     const [selectedCategories, setSelectedCategories] = useState(
-      new Set(categories)
+      new Set(categories || [])
     );
+
+    const handleIdle = async () => {
+      if (mapInstance) {
+        const center = mapInstance.getCenter();
+        const lat = center.lat();
+        const lng = center.lng();
+        // Calculate radius based on zoom or use a default
+        const zoom = mapInstance.getZoom();
+        const radius = Math.max(5000, 10 ** (15 - zoom)); // Rough estimation
+
+        try {
+          const nearby = await findBusinessesNearby(lat, lng, radius);
+          if (nearby && nearby.length > 0) {
+            setListings(nearby);
+          }
+        } catch (error) {
+          console.error("Error fetching nearby businesses:", error);
+        }
+      }
+    };
 
     let { center, zoom, options } = defaultProps;
     return (
@@ -425,6 +448,7 @@ const AppMap = memo(
             // const bounds = new window.google.maps.LatLngBounds();
             setMapInstance(map);
           }}
+          onIdle={handleIdle}
           id="GMap"
           mapContainerClassName={style.map}
           center={browserLocation || center}
