@@ -11,7 +11,8 @@ import MyMarker from "./MyMarker";
 import { findBusinessesNearby } from "../../../app/actions/geo-search";
 import { Category, Libraries, Listing } from "../../db/Types";
 import SideDrawer from "../SideDrawer/SideDrawer";
-import style from "./AppMap.module.scss";
+import { css } from "../../../styled-system/css";
+
 const libraries: Libraries = [
   "places",
   "visualization",
@@ -408,8 +409,8 @@ const AppMap = memo(
   }: IAppMap) => {
     const [isDrawerOpen, setisDrawerOpen] = useState(false);
     const [isInfoWindowOpen, setisInfoWindowOpen] = useState(false);
-    const [activeListing, setactiveListing] = useState(null);
-    const [selectedCategories, setSelectedCategories] = useState(
+    const [activeListing, setactiveListing] = useState<Listing | null>(null);
+    const [selectedCategories, setSelectedCategories] = useState<Set<Category>>(
       new Set(categories || [])
     );
 
@@ -436,9 +437,10 @@ const AppMap = memo(
     let { center, zoom, options } = defaultProps;
     return (
       // Important! Always set the container height explicitly via mapContainerClassName
+      //@ts-ignore
       <LoadScript
         id="script-loader"
-        googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY}
+        googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY as string}
         language="en"
         region="us"
         libraries={libraries}
@@ -450,7 +452,14 @@ const AppMap = memo(
           }}
           onIdle={handleIdle}
           id="GMap"
-          mapContainerClassName={style.map}
+          mapContainerClassName={css({
+            width: "100%",
+            height: "100%",
+            position: "absolute",
+            overflow: "hidden",
+            top: "0",
+            left: "0",
+          })}
           center={browserLocation || center}
           zoom={browserLocation ? 16 : zoom}
           options={options}
@@ -508,7 +517,6 @@ const AppMap = memo(
                         setactiveListing={setactiveListing}
                         setisDrawerOpen={setisDrawerOpen}
                         setisInfoWindowOpen={setisInfoWindowOpen}
-                        selectedCategories={selectedCategories}
                       />
                     );
                   }

@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { findBusinessesNearby } from './geo-search';
 
 // Mock the mongodb module
-vi.mock('@/db/mongodb', () => {
+vi.mock('../../src/db/mongodb', () => {
   return {
     default: Promise.resolve({
       db: vi.fn().mockReturnValue({

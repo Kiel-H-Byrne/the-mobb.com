@@ -1,17 +1,24 @@
 import React, { memo } from "react";
-
 import { Marker } from "@react-google-maps/api";
+import { Listing } from "../../db/Types";
 
-const MyMarker = React.memo(({
+interface MyMarkerProps {
+  data: Listing;
+  clusterer?: any;
+  setisDrawerOpen: (open: boolean) => void;
+  setisInfoWindowOpen: (open: boolean) => void;
+  setactiveListing: (listing: Listing) => void;
+}
+
+const MyMarker = ({
   data,
   clusterer,
   setisDrawerOpen,
   setisInfoWindowOpen,
   setactiveListing,
-  // selectedCategories
-}) => {
+}: MyMarkerProps) => {
   const { location, coordinates, _id } = data;
-  let locObj;
+  let locObj: { lat: number; lng: number };
 
   if (coordinates && coordinates.coordinates) {
     locObj = {
@@ -25,7 +32,7 @@ const MyMarker = React.memo(({
     locObj = { lat: 50.60982, lng: -1.34987 };
   }
 
-  let image = {
+  const image = {
     url: "/img/map/orange_marker_sm.png",
   };
 
@@ -34,15 +41,15 @@ const MyMarker = React.memo(({
     setisInfoWindowOpen(true);
   };
   const handleMouseOut = () => {
-    setisInfoWindowOpen(false)
-  }
+    setisInfoWindowOpen(false);
+  };
   const handleClickMarker = () => {
-    setactiveListing(data)
+    setactiveListing(data);
     setisDrawerOpen(true);
   };
+
   return (
     <Marker
-      className="App-marker"
       key={_id}
       position={locObj}
       clusterer={clusterer}
@@ -50,9 +57,8 @@ const MyMarker = React.memo(({
       onMouseOver={handleMouseOverMarker}
       onMouseOut={handleMouseOut}
       onClick={handleClickMarker}
-      // visible={categories.some((el) => selectedCategories.has(el))} //check for if category matches selected categories
     />
   );
-});
+};
 
 export default memo(MyMarker);

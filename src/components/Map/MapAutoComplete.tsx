@@ -1,20 +1,14 @@
 import { GoogleMapProps } from "@react-google-maps/api";
 import { Dispatch, SetStateAction, memo, useState } from "react";
-
-import Divider from "@mui/material/Divider";
-import IconButton from "@mui/material/IconButton";
-import InputBase from "@mui/material/InputBase";
-import Paper from "@mui/material/Paper";
-import makeStyles from "@mui/styles/makeStyles";
-
 import { AddLocation } from "@mui/icons-material";
 import SearchIcon from "@mui/icons-material/Search";
-import { Button, Menu, MenuItem, colors } from "@mui/material";
+import { Menu } from "@ark-ui/react/menu";
 import { searchBusinesses } from "../../../app/actions/geo-search";
 import { Category, Listing } from "../../db/Types";
 import { targetClient } from "../../util/functions";
 import CategoryFilter from "./CategoryFilter";
 import MyLocationButton from "./MyLocationButton";
+import { css } from "../../../styled-system/css";
 
 interface OwnProps {
   listings: Listing[];
@@ -22,48 +16,9 @@ interface OwnProps {
   selectedCategories: Set<Category>;
   mapInstance: GoogleMapProps;
   setSelectedCategories: Dispatch<SetStateAction<Set<Category>>>;
-  setactiveListing: Dispatch<SetStateAction<Set<Listing>>>;
-  setisDrawerOpen: Dispatch<SetStateAction<Boolean>>;
+  setactiveListing: Dispatch<SetStateAction<any>>;
+  setisDrawerOpen: Dispatch<SetStateAction<boolean>>;
 }
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    position: "relative",
-    zIndex: 1100,
-    margin: ".5rem",
-    display: "flex",
-    maxWidth: "23rem",
-    backgroundColor: colors.orange[100],
-  },
-  flexItem: {
-    display: "flex",
-  },
-  input: {
-    marginLeft: 8,
-    flex: 1,
-  },
-  iconButton: {
-    padding: ".5rem",
-  },
-  divider: {
-    width: 1,
-    height: 28,
-    margin: 3,
-    verticalAlign: "",
-  },
-  // hideDesktop: {
-  //   flexShrink: 1,
-  //   [theme.breakpoints.up("sm")]: {
-  //     display: "none",
-  //   },
-  // },
-  // hideMobile: {
-  //   // flexGrow: 1,
-  //   [theme.breakpoints.down("xs")]: {
-  //     display: "none",
-  //   },
-  // },
-}));
 
 const MapAutoComplete = ({
   listings,
@@ -74,15 +29,13 @@ const MapAutoComplete = ({
   setactiveListing,
   setisDrawerOpen,
 }: OwnProps) => {
-  const classes = useStyles();
   let count = listings?.length ?? 0;
   const [active, setActive] = useState(0);
-  const [filtered, setFiltered] = useState([]);
+  const [filtered, setFiltered] = useState<Listing[]>([]);
   const [input, setInput] = useState("");
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const onChange = async (e) => {
+  const onChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.currentTarget.value;
     setInput(input);
     
@@ -90,26 +43,25 @@ const MapAutoComplete = ({
       try {
         const results = await searchBusinesses(input);
         setFiltered(results);
+        setIsMenuOpen(true);
       } catch (error) {
         console.error("Error searching businesses:", error);
       }
     } else {
       setFiltered([]);
+      setIsMenuOpen(false);
     }
     setActive(0);
   };
 
-  const onClick = (e) => {
-    //find the tabindex and pass it to setActive
-    let index = e.currentTarget.tabIndex;
+  const handleSelect = (index: number) => {
+    const listing = filtered[index];
     setActive(index);
     setFiltered([]);
     setInput("");
-    setAnchorEl(!open);
-    //pan map to location and open sidebar
-    const listing = filtered[index];
-    let locationObj;
+    setIsMenuOpen(false);
 
+    let locationObj;
     if (listing.coordinates && listing.coordinates.coordinates) {
       locationObj = {
         lat: listing.coordinates.coordinates[1],
@@ -128,113 +80,95 @@ const MapAutoComplete = ({
     setisDrawerOpen(true);
   };
 
-  const onKeyDown = (e) => {
-    if (e.key === "Enter") {
-      console.log("hit enter key");
-      setActive(0);
-      setInput(filtered[active]);
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && filtered.length > 0) {
+      handleSelect(active);
     } else if (e.key === "ArrowUp") {
-      return active === 0 ? null : setActive(active - 1);
+      setActive((prev) => (prev === 0 ? filtered.length - 1 : prev - 1));
     } else if (e.key === "ArrowDown") {
-      return active - 1 === filtered.length ? null : setActive(active + 1);
+      setActive((prev) => (prev === filtered.length - 1 ? 0 : prev + 1));
     }
   };
 
-  const renderAutoCompleteMenu = () => {
-    if (open && input) {
-      if (filtered.length) {
-        return (
-          <Menu
-            open={open}
-            style={{ maxHeight: "60%", maxWidth: "auto", overflowY: "scroll" }}
-            anchorEl={anchorEl}
-            disableAutoFocus={true}
-            autoFocus={false}
-            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-            onClick={anchorEl.focus()}
-          >
-            {filtered.map((listing, index) => {
-              let className;
-              if (index === active) {
-                className = "active";
-              }
-              return (
-                <MenuItem
-                  className={className}
-                  key={listing._id}
-                  onClick={onClick}
-                  tabIndex={index}
-                >
-                  {listing.name}
-                </MenuItem>
-              );
-            })}
-          </Menu>
-        );
-      } else {
-        anchorEl.focus();
-        return (
-          <Menu
-            open={open}
-            anchorEl={anchorEl}
-            disableAutoFocus={true}
-            autoFocus={false}
-          >
-            {input.length > 2 ? (
-              <MenuItem onClick={(e) => e.preventDefault()}>
-                Not Found... <Button>Add One!</Button>
-              </MenuItem>
-            ) : (
-              <MenuItem>{`Enter ${3 - input.length} more character`}</MenuItem>
-            )}
-          </Menu>
-        );
-      }
-    }
-    return <></>;
-  };
   return (
-    <div>
-      <Paper className={classes.root}>
-        <div className={classes.flexItem}>
-          <InputBase
-            className={classes.input}
-            onClick={(event) => setAnchorEl(event.currentTarget)}
-            placeholder={`Search ${count ? count + " " : ""}Listings...`}
-            inputProps={{ "aria-label": "Search The MOBB" }}
-            onChange={onChange}
-            onKeyDown={onKeyDown}
-            value={input}
-          />
-          {renderAutoCompleteMenu()}
-          <IconButton
-            className={classes.iconButton}
-            aria-label="Search"
-            size="large"
-          >
-            <SearchIcon />
-          </IconButton>
-          <IconButton
-            className={classes.iconButton}
-            aria-label="Add"
-            size="large"
-          >
-            <AddLocation />
-          </IconButton>
-          <Divider className={classes.divider} />
-          <CategoryFilter
-            listings={listings}
-            categories={categories}
-            selectedCategories={selectedCategories}
-            setSelectedCategories={setSelectedCategories}
-            aria-label="Filter"
-            //@ts-ignore
-            className={classes.iconButton}
-          />
-          <Divider className={classes.divider} />
-          <MyLocationButton listings={listings} mapInstance={mapInstance} />
+    <div className={css({
+      position: "relative",
+      zIndex: 1100,
+      margin: "2",
+      display: "flex",
+      maxWidth: "23rem",
+      backgroundColor: "rgba(255, 230, 200, 1)", // colors.orange[100]
+      borderRadius: "md",
+      boxShadow: "md",
+      padding: "1",
+      alignItems: "center",
+    })}>
+      <input
+        className={css({
+          marginLeft: "2",
+          flex: "1",
+          background: "transparent",
+          border: "none",
+          outline: "none",
+          padding: "2",
+          fontSize: "sm",
+        })}
+        placeholder={`Search ${count ? count + " " : ""}Listings...`}
+        aria-label="Search The MOBB"
+        onChange={onChange}
+        onKeyDown={onKeyDown}
+        value={input}
+      />
+      {isMenuOpen && (
+        <div className={css({
+          position: "absolute",
+          top: "100%",
+          left: "0",
+          width: "100%",
+          backgroundColor: "white",
+          boxShadow: "lg",
+          borderRadius: "md",
+          marginTop: "1",
+          maxHeight: "300px",
+          overflowY: "auto",
+        })}>
+          {filtered.length > 0 ? (
+            filtered.map((listing, index) => (
+              <div
+                key={listing._id}
+                onClick={() => handleSelect(index)}
+                className={css({
+                  padding: "2",
+                  cursor: "pointer",
+                  backgroundColor: index === active ? "rgba(251, 176, 59, 0.2)" : "transparent",
+                  _hover: { backgroundColor: "rgba(251, 176, 59, 0.1)" },
+                })}
+              >
+                {listing.name}
+              </div>
+            ))
+          ) : (
+             <div className={css({ padding: "2", fontSize: "xs", color: "gray.500" })}>
+               {input.length > 2 ? "Not Found..." : `Enter ${3 - input.length} more character`}
+             </div>
+          )}
         </div>
-      </Paper>
+      )}
+      <button className={css({ padding: "2", background: "transparent", border: "none", cursor: "pointer", color: "brand.grey" })}>
+        <SearchIcon />
+      </button>
+      <button className={css({ padding: "2", background: "transparent", border: "none", cursor: "pointer", color: "brand.grey" })}>
+        <AddLocation />
+      </button>
+      <div className={css({ width: "1px", height: "7", backgroundColor: "gray.300", margin: "1" })} />
+      <CategoryFilter
+        listings={listings}
+        categories={categories}
+        selectedCategories={selectedCategories}
+        setSelectedCategories={setSelectedCategories}
+      />
+      <div className={css({ width: "1px", height: "7", backgroundColor: "gray.300", margin: "1" })} />
+      <MyLocationButton listings={listings} mapInstance={mapInstance} />
     </div>
   );
 };

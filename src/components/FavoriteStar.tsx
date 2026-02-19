@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Favorite, FavoriteBorder } from "@mui/icons-material";
-import { Snackbar } from "@mui/material";
-import { Alert } from '@mui/material';
+import { css } from "../../styled-system/css";
 
 interface Props {
   _id: string;
@@ -15,39 +14,25 @@ const usersUpdate = (uuid, query) => {};
 
 const FavoriteStar = (props: Props) => {
   const { _id } = props;
-  const [open, setOpen] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+
   const handleClick = () => {
-    //clicking on star.. add/remove or alert
-    let docId = _id;
-    let userId = 1; /* Auth.userId() */
-    if (inFavorites("id")) {
-      //remove from favs
+    let userId = 1;
+    if (inFavorites(_id)) {
       usersUpdate(userId, {
-        $pull: { "profile.favorites": docId },
+        $pull: { "profile.favorites": _id },
       });
     } else {
-      // add to favorites
-      // AUTH_USER.profile.favorites.push(id);
       usersUpdate(userId, {
-        $addToSet: { "profile.favorites": docId }, //is this mongoose or mongo?
+        $addToSet: { "profile.favorites": _id },
       });
     }
-    setOpen(true);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
   };
 
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setOpen(false);
-  };
-  const inFavorites = (id) => {
+  const inFavorites = (id: string) => {
     if (MOCK_AUTH_USER) {
-      let favArray = MOCK_AUTH_USER.profile.favorites;
-      // console.log(favArray);
-      // let inArray = !_.isEmpty(_.where(favArray, id));
-      // return inArray;
       return true;
     } else {
       return false;
@@ -55,21 +40,33 @@ const FavoriteStar = (props: Props) => {
   };
 
   return (
-    // @ts-ignore
-    <div handleClick={handleClick}>
+    <div
+      onClick={handleClick}
+      className={css({ cursor: "pointer", display: "inline-flex", position: "relative" })}
+    >
       {inFavorites(_id) ? (
-        <Favorite id={_id} className={"remove_favorites"} />
+        <Favorite className={css({ color: "brand.orange" })} />
       ) : (
-        <FavoriteBorder className={"add_favorites"} />
+        <FavoriteBorder className={css({ color: "brand.grey" })} />
       )}
-      <Snackbar open={open} autoHideDuration={3000}>
-        <Alert
-          severity="info" //@ts-ignore
-          handleClose={handleClose}
-        >
+      {showToast && (
+        <div className={css({
+          position: "fixed",
+          bottom: "4",
+          left: "50%",
+          transform: "translateX(-50%)",
+          backgroundColor: "brand.grey",
+          color: "white",
+          paddingX: "4",
+          paddingY: "2",
+          borderRadius: "md",
+          boxShadow: "lg",
+          zIndex: "2000",
+          fontSize: "sm",
+        })}>
           Log In Before Adding Favorites
-        </Alert>
-      </Snackbar>
+        </div>
+      )}
     </div>
   );
 };

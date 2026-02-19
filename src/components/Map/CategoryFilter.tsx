@@ -1,31 +1,9 @@
+import React, { memo, useMemo, useState } from "react";
 import LocationOffIcon from "@mui/icons-material/LocationOffTwoTone";
-import {
-  Badge,
-  FormControlLabel,
-  FormGroup,
-  IconButton,
-  LinearProgress,
-  Menu,
-  MenuItem,
-  Switch,
-  colors,
-} from "@mui/material";
-import { makeStyles } from "@mui/styles";
-import React, { memo, useMemo, useRef, useState } from "react";
+import { Menu } from "@ark-ui/react/menu";
+import { Switch } from "@ark-ui/react/switch";
 import { Category, Listing } from "../../db/Types";
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    // width: "300px",
-    // margin: "1rem",
-  },
-  badge: {
-    float: "right",
-    marginLeft: "1em",
-    backgroundColor: colors.teal["A200"],
-  },
-  switch: {},
-}));
+import { css } from "../../../styled-system/css";
 
 type CategoryFilterType = {
   listings: Listing[];
@@ -40,117 +18,128 @@ const CategoryFilter = ({
   selectedCategories,
   setSelectedCategories,
 }: CategoryFilterType) => {
-  const classes = useStyles();
-  const anchorRef = useRef(null);
-  const [open, setOpen] = useState(false);
-
-  const handleChange = (event) => {
-    console.log("we changing on reload??");
-    /** MUST create a new set. Sets in state don't change, the inner parameters change and react can't see that */
+  const handleChange = (name: Category) => {
     const newCategorySet = new Set(selectedCategories);
-    const catName = event.target.name;
-    // const size = catCount(name);
-    // if (size > 100 && mapZoom > large) {
-    //   //display some type of modal to zoom in
-    //   return
-    // }
-
-    if (selectedCategories.has(catName)) {
-      newCategorySet.delete(catName);
-      setSelectedCategories(newCategorySet);
+    if (selectedCategories.has(name)) {
+      newCategorySet.delete(name);
     } else {
-      newCategorySet.add(catName);
-      setSelectedCategories(newCategorySet);
+      newCategorySet.add(name);
     }
+    setSelectedCategories(newCategorySet);
   };
 
-  const handleFilterMenuToggle = () => {
-    setOpen((prevOpen) => !prevOpen);
-  };
-  const handleFilterMenuClose = (event) => {
-    if (anchorRef.current && anchorRef.current.contains(event.target)) return;
-    setOpen(false);
-  };
   const catCount = useMemo(
     () => (name: Category) => {
-      return Object.values(listings).filter((el) =>
+      return (listings || []).filter((el) =>
         el.categories?.includes(name)
       ).length;
     },
     [listings]
   );
 
-  // const handleListKeyDown = (event) => {
-  //   if (event.key === "Tab") {
-  //     event.preventDefault();
-  //     setOpen(false);
-  //   }
-  // };
-
-  // return focus to the button when we transitioned from !open -> open
-  const prevOpen = React.useRef(open);
-  React.useEffect(() => {
-    if (prevOpen.current === true && open === false) {
-      anchorRef.current.focus();
-    }
-
-    prevOpen.current = open;
-  }, [open]);
-
   return (
-    <>
-      <IconButton
-        ref={anchorRef}
-        aria-label="Filter by Category"
-        color="inherit"
-        onClick={() => handleFilterMenuToggle()}
-        className={"icon-button"}
-        size="large"
+    <Menu.Root>
+      <Menu.Trigger
+        className={css({
+          background: "transparent",
+          border: "none",
+          padding: "2",
+          cursor: "pointer",
+          color: "brand.grey",
+          borderRadius: "full",
+          _hover: { backgroundColor: "rgba(0,0,0,0.05)" },
+        })}
       >
         <LocationOffIcon />
-      </IconButton>
-      <Menu
-        anchorEl={anchorRef.current}
-        anchorReference={"anchorEl"}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        id={"map-filter-menu"}
-        className={classes.root}
-        keepMounted
-        open={open}
-        onClose={(e) => handleFilterMenuClose(e)}
-      >
-        {categories.length === 0 ? (
-          <LinearProgress />
-        ) : (
-          categories.map((name) => {
-            return (
-              <MenuItem key={name} value={name}>
-                <FormGroup>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        color="secondary"
-                        checked={selectedCategories.has(name)}
-                        onChange={handleChange}
-                        name={name}
-                        className={classes.switch}
+      </Menu.Trigger>
+      <Menu.Positioner>
+        <Menu.Content
+          className={css({
+            backgroundColor: "white",
+            boxShadow: "lg",
+            borderRadius: "md",
+            padding: "2",
+            maxHeight: "300px",
+            overflowY: "auto",
+            zIndex: "1200",
+            minWidth: "200px",
+          })}
+        >
+          {categories.length === 0 ? (
+            <div className={css({ padding: "4", textAlign: "center" })}>
+              Loading...
+            </div>
+          ) : (
+            categories.map((name) => {
+              const isChecked = selectedCategories.has(name);
+              return (
+                <div
+                  key={name}
+                  className={css({
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "2",
+                    gap: "4",
+                  })}
+                >
+                  <Switch.Root
+                    checked={isChecked}
+                    onCheckedChange={() => handleChange(name)}
+                    className={css({
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "2",
+                    })}
+                  >
+                    <Switch.Control
+                      className={css({
+                        width: "10",
+                        height: "6",
+                        backgroundColor: isChecked ? "brand.orange" : "gray.200",
+                        borderRadius: "full",
+                        position: "relative",
+                        transition: "background-color 0.2s",
+                        cursor: "pointer",
+                      })}
+                    >
+                      <Switch.Thumb
+                        className={css({
+                          width: "4",
+                          height: "4",
+                          backgroundColor: "white",
+                          borderRadius: "full",
+                          position: "absolute",
+                          top: "1",
+                          left: isChecked ? "5" : "1",
+                          transition: "left 0.2s",
+                        })}
                       />
-                    }
-                    label={name}
-                  />
-                </FormGroup>
-                <Badge
-                  badgeContent={catCount(name)}
-                  max={999}
-                  className={classes.badge}
-                  color="secondary"
-                />
-              </MenuItem>
-            );
-          })
-        )}
-      </Menu>
-    </>
+                    </Switch.Control>
+                    <Switch.Label className={css({ fontSize: "sm", cursor: "pointer" })}>
+                      {name}
+                    </Switch.Label>
+                  </Switch.Root>
+                  <span
+                    className={css({
+                      fontSize: "xs",
+                      backgroundColor: "brand.orange",
+                      color: "white",
+                      padding: "1",
+                      borderRadius: "md",
+                      minWidth: "1.5rem",
+                      textAlign: "center",
+                    })}
+                  >
+                    {catCount(name)}
+                  </span>
+                </div>
+              );
+            })
+          )}
+        </Menu.Content>
+      </Menu.Positioner>
+    </Menu.Root>
   );
 };
 

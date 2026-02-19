@@ -1,8 +1,8 @@
 "use client";
 
-import { Button, Input } from "@mui/material";
 import { useState } from "react";
 import { scanBusinessUrl } from "../app/actions/scanBusiness";
+import { css } from "../styled-system/css";
 
 export default function BusinessScanner() {
   const [url, setUrl] = useState("");
@@ -22,22 +22,54 @@ export default function BusinessScanner() {
   };
 
   return (
-    <div className="p-6 border rounded-lg shadow-sm bg-white max-w-md mx-auto mt-10">
-      <h2 className="text-xl font-bold mb-4">AI Business Curator</h2>
+    <div className={css({
+      padding: "6",
+      border: "1px solid",
+      borderColor: "gray.200",
+      borderRadius: "lg",
+      boxShadow: "sm",
+      backgroundColor: "white",
+      maxWidth: "md",
+      marginX: "auto",
+      marginTop: "10",
+    })}>
+      <h2 className={css({ fontSize: "xl", fontWeight: "bold", marginBottom: "4" })}>AI Business Curator</h2>
 
-      <div className="flex gap-2">
-        <Input
+      <div className={css({ display: "flex", gap: "2" })}>
+        <input
+          className={css({
+            flex: "1",
+            padding: "2",
+            border: "1px solid",
+            borderColor: "gray.300",
+            borderRadius: "md",
+            outline: "none",
+            _focus: { borderColor: "brand.orange" },
+          })}
           placeholder="Paste business URL..."
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
-        <Button onClick={handleScan} disabled={loading}>
+        <button
+          className={css({
+            paddingX: "4",
+            paddingY: "2",
+            backgroundColor: "brand.orange",
+            color: "white",
+            borderRadius: "md",
+            cursor: "pointer",
+            _disabled: { opacity: "0.5", cursor: "not-allowed" },
+            border: "none",
+          })}
+          onClick={handleScan}
+          disabled={loading}
+        >
           {loading ? "Scanning..." : "Scan"}
-        </Button>
+        </button>
       </div>
 
       {result && (
-        <div className="mt-6 space-y-2 bg-gray-50 p-4 rounded text-sm">
+        <div className={css({ marginTop: "6", gap: "2", backgroundColor: "gray.50", padding: "4", borderRadius: "md", fontSize: "sm", display: "flex", flexDirection: "column" })}>
           <p>
             <strong>Name:</strong> {result.name}
           </p>
@@ -47,11 +79,11 @@ export default function BusinessScanner() {
           <p>
             <strong>Status:</strong>
             <span
-              className={
-                result.isBlackOwnedDetected
-                  ? "text-green-600 font-bold ml-1"
-                  : "text-amber-600 font-bold ml-1"
-              }
+              className={css({
+                color: result.isBlackOwnedDetected ? "green.600" : "amber.600",
+                fontWeight: "bold",
+                marginLeft: "1",
+              })}
             >
               {result.isBlackOwnedDetected
                 ? "Verified Indicator Found"
@@ -62,10 +94,22 @@ export default function BusinessScanner() {
             <strong>Confidence:</strong> {result.confidenceScore}%
           </p>
 
-          {/* Action to Save to DB would go here */}
-          <Button className="w-full mt-2" variant="outlined">
+          <button
+            className={css({
+              width: "100%",
+              marginTop: "2",
+              padding: "2",
+              border: "1px solid",
+              borderColor: "brand.orange",
+              color: "brand.orange",
+              borderRadius: "md",
+              background: "transparent",
+              cursor: "pointer",
+              _hover: { backgroundColor: "rgba(251, 176, 59, 0.05)" },
+            })}
+          >
             Add to Directory
-          </Button>
+          </button>
         </div>
       )}
     </div>

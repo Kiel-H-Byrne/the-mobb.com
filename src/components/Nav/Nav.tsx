@@ -1,89 +1,64 @@
 import React from "react";
 import { useAuth0 } from "@auth0/auth0-react";
-import { alpha, AppBar, Toolbar, IconButton, colors } from "@mui/material";
-import makeStyles from '@mui/styles/makeStyles';
 import MAvatar from "./Mavatar";
 import AddLocationIcon from "@mui/icons-material/AddLocationTwoTone";
-// import "./Nav.scss";
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    backgroundColor: alpha(colors.grey[700], 0.85),
-  },
-  sectionDesktop: {
-    position: "absolute",
-    top: "0",
-    padding: "0 .4rem",
-    right: 0,
-    // [theme.breakpoints.up("md")]: {
-    //   display: "flex",
-    // },
-  },
-  // logo: {
-  //   marginRight: theme.spacing(2),
-  // },
-  // title: {
-  //   display: "none",
-  //   [theme.breakpoints.up("sm")]: {
-  //     display: "block",
-  //   },
-  // },
-  // search: {
-  //   position: "relative",
-  //   borderRadius: theme.shape.borderRadius,
-  //   backgroundColor: fade(colors.orange[200], 0.15),
-  //   "&:hover": {
-  //     backgroundColor: fade(theme.palette.common.white, 0.25),
-  //   },
-  //   marginRight: theme.spacing(2),
-  //   marginLeft: 0,
-  //   width: "100%",
-  //   [theme.breakpoints.up("sm")]: {
-  //     marginLeft: theme.spacing(3),
-  //     width: "auto",
-  //   },
-  // },
-  // searchIcon: {
-  //   padding: theme.spacing(0, 2),
-  //   height: "100%",
-  //   position: "absolute",
-  //   pointerEvents: "none",
-  //   display: "flex",
-  //   alignItems: "center",
-  //   justifyContent: "center",
-  // },
-  // inputRoot: {
-  //   color: "inherit",
-  // },
-  // inputInput: {
-  //   padding: theme.spacing(1, 1, 1, 0),
-  //   // vertical padding + font size from searchIcon
-  //   paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-  //   transition: theme.transitions.create("width"),
-  //   width: "100%",
-  //   [theme.breakpoints.up("md")]: {
-  //     width: "20ch",
-  //   },
-  // },
-}));
+import { css } from "../../../styled-system/css";
 
 const Nav = ({ listings, map, ...rest }) => {
-  const classes = useStyles();
   const { isAuthenticated } = useAuth0();
 
   return (
-    <AppBar className={classes.root}>
-      <Toolbar>
-        <div className={classes.sectionDesktop}>
+    <header
+      className={css({
+        backgroundColor: "rgba(68, 68, 68, 0.85)",
+        position: "fixed",
+        top: 0,
+        width: "100%",
+        zIndex: 1100,
+        height: "64px",
+        display: "flex",
+        alignItems: "center",
+        padding: "0 16px",
+        boxShadow: "0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12)",
+      })}
+    >
+      <div
+        className={css({
+          display: "flex",
+          justifyContent: "flex-end",
+          alignItems: "center",
+          width: "100%",
+        })}
+      >
+        <div
+          className={css({
+            display: "flex",
+            alignItems: "center",
+            gap: "2",
+          })}
+        >
           {isAuthenticated ? (
-            <IconButton aria-label="Add A Listing" color="inherit" size="large">
+            <button
+              aria-label="Add A Listing"
+              className={css({
+                background: "transparent",
+                border: "none",
+                color: "white",
+                cursor: "pointer",
+                padding: "8px",
+                borderRadius: "full",
+                _hover: {
+                  backgroundColor: "rgba(255, 255, 255, 0.1)",
+                },
+              })}
+            >
               <AddLocationIcon />
-            </IconButton>
+            </button>
           ) : null}
           <MAvatar />
         </div>
-      </Toolbar>
-    </AppBar>
+      </div>
+    </header>
   );
 };
 

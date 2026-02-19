@@ -1,31 +1,10 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
-import {
-  Drawer,
-  Button,
-  Grid,
-  Typography,
-  Fab,
-  Divider,
-  Snackbar,
-} from "@mui/material";
+import React, { Dispatch, SetStateAction } from "react";
+import { Dialog } from "@ark-ui/react/dialog";
+import { Portal } from "@ark-ui/react/portal";
 import DirectionsIcon from "@mui/icons-material/DirectionsTwoTone";
-import CallIcon from "@mui/icons-material/CallTwoTone";
-import PublicIcon from "@mui/icons-material/PublicTwoTone";
-import LinkIcon from "@mui/icons-material/LinkTwoTone";
-import EditIcon from "@mui/icons-material/EditTwoTone";
-import FingerprintIcon from "@mui/icons-material/FingerprintTwoTone";
-import ShareIcon from "@mui/icons-material/ShareTwoTone";
-import VerifiedUserIcon from "@mui/icons-material/VerifiedUserTwoTone";
-import WatchLaterIcon from "@mui/icons-material/WatchLaterTwoTone";
-import StarIcon from "@mui/icons-material/StarTwoTone";
-import RateReviewIcon from "@mui/icons-material/RateReviewTwoTone";
 import ListingImage from "../ListingImage";
-import FavoriteStar from "../FavoriteStar";
 import { Listing } from "../../db/Types";
-import { getGDetails } from "../../util/functions";
-import { mCache } from "../../db/mlab";
-import { Alert } from '@mui/material';
-import style from "./SideDrawer.module.scss";
+import { css } from "../../../styled-system/css";
 
 interface ISideDrawer {
   activeListing: Listing;
@@ -34,11 +13,45 @@ interface ISideDrawer {
   setOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-const SideGrid = ({activeListing}) => {
-  const {url, name, image, description, phone, address} = activeListing;
+const SideGrid = ({ activeListing }: { activeListing: Listing }) => {
+  const { url, name, image, description, phone, address } = activeListing;
+
+  const rootStyle = css({
+    maxWidth: "16rem",
+    backgroundColor: "rgba(60, 57, 55, 1)", // $rgba-primary-grey-4
+    height: "100%",
+    overflowX: "hidden",
+    display: "flex",
+    flexDirection: "column",
+    color: "white",
+  });
+
+  const sectionStyle = css({
+    padding: "4",
+    borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+  });
+
+  const titleStyle = css({
+    fontSize: "xl",
+    fontWeight: "bold",
+    margin: "0",
+  });
+
+  const overlineStyle = css({
+    fontSize: "xs",
+    textTransform: "uppercase",
+    opacity: "0.7",
+  });
+
+  const addressStyle = css({
+    fontStyle: "normal",
+    fontSize: "sm",
+    marginTop: "2",
+  });
+
   return (
-    <Grid container direction="column" className={style.root}>
-      <Grid item>
+    <div className={rootStyle}>
+      <div>
         <a
           href={url}
           title="Listing Image"
@@ -49,36 +62,50 @@ const SideGrid = ({activeListing}) => {
             image={image}
             name={name}
             url={url}
-            className="listing-image"
+            className={css({ width: "100%" })}
           />
         </a>
-      </Grid>
-      <Divider />
-      <Grid item>
-        <article className="card-title">
-          <Typography variant="h3">{name}</Typography>
-          <Typography variant="overline">{description}</Typography>
-          <address className="card-content">
-            <a href={`tel:${phone}`}>{phone}</a>
-            <Typography variant="body1">{address}</Typography>
+      </div>
+      <div className={sectionStyle}>
+        <article>
+          <h3 className={titleStyle}>{name}</h3>
+          <p className={overlineStyle}>{description}</p>
+          <address className={addressStyle}>
+            <a
+              href={`tel:${phone}`}
+              className={css({ color: "brand.orange", textDecoration: "none" })}
+            >
+              {phone}
+            </a>
+            <p>{address}</p>
           </address>
         </article>
-        <div>Hours if</div>
-        <Fab color="primary" className="button_get-directions">
+        <div className={css({ marginTop: "4" })}>Hours if</div>
+        <button
+          className={css({
+            backgroundColor: "brand.orange",
+            color: "white",
+            border: "none",
+            borderRadius: "full",
+            padding: "2",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginTop: "4",
+            boxShadow: "md",
+          })}
+        >
           <DirectionsIcon />
-        </Fab>
-      </Grid>
-      <Divider />
-      <Grid item className="inline-list actionBar">
-      MoBB Actions      </Grid>
-      <Divider />
-      <Grid item>MoBB Actions</Grid>
-      <Divider />
-      <Grid item>Photos if</Grid>
-      <Grid item>Reviews if</Grid>
-    </Grid>
+        </button>
+      </div>
+      <div className={sectionStyle}>MoBB Actions</div>
+      <div className={sectionStyle}>MoBB Actions</div>
+      <div className={sectionStyle}>Photos if</div>
+      <div className={sectionStyle}>Reviews if</div>
+    </div>
   );
-}
+};
 
 const SideDrawer = ({
   activeListing,
@@ -86,42 +113,39 @@ const SideDrawer = ({
   setOpen,
   mapInstance,
 }: ISideDrawer) => {
-  
-
-  const toggleDrawer = (event) => {
-    if (
-      event.type === "keydown" &&
-      (event.key === "Tab" || event.key === "Shift")
-    ) {
-      return;
-    }
-    setOpen((prevOpen) => !prevOpen);
-  };
-  /*
-address: "2729 Piatt St, Wichita, KS 67219"
-categories: ["Health & Wellness"]
-country: "US"
-creator: "THQMGTjrvtYww8MvA"
-description: "Want to help others make Total Life Changes?"
-image: {url: "https://shop.totallifechanges.com/Content/images/Logos/footerlogo.png"}
-location: "37.7332579,-97.3121848"
-name: "Independent Total Life Changes Distributor"
-phone: "3163904404"
-submitted: {$date: "2017-09-04T22:49:18.696Z"}
-url: "http://www.totallifechanges.com/6923871"
-_id: "3Nh99P2JxxCpBGm5v"
-*/
-
   return (
-    <Drawer
-      anchor="left"
-      open={isOpen}
-      onClose={(e) => toggleDrawer(e)}
-    >
-      {/* <SideList activeListing={activeListing} mapInstance={mapInstance} /> */}
-      {/* <LegacyDrawer activeListing={activeListing} /> */}
-      <SideGrid activeListing={activeListing} />
-    </Drawer>
+    <Dialog.Root open={isOpen} onOpenChange={(e) => setOpen(e.open)}>
+      <Portal>
+        <Dialog.Backdrop
+          className={css({
+            position: "fixed",
+            inset: "0",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            zIndex: "1200",
+          })}
+        />
+        <Dialog.Positioner
+          className={css({
+            position: "fixed",
+            left: "0",
+            top: "0",
+            bottom: "0",
+            zIndex: "1300",
+            width: "16rem",
+          })}
+        >
+          <Dialog.Content
+            className={css({
+              height: "100%",
+              width: "100%",
+              backgroundColor: "white",
+            })}
+          >
+            <SideGrid activeListing={activeListing} />
+          </Dialog.Content>
+        </Dialog.Positioner>
+      </Portal>
+    </Dialog.Root>
   );
 };
 
@@ -131,24 +155,4 @@ const verifyUI = () => {};
 const authUser = () => true;
 const isOwner = () => false;
 
-
 export default SideDrawer;
-
-/* <CarouselPhoto >
-  <div class="place_photo carousel-item" style="background-image: url({getImgUrl photo_reference})">
-    <img alt="image" src="/img/transparent.png" alt=""/>
-  </div>
-</CarouselPhoto>
-
-<CarouselPhoto2 >
-  <a class="place_photo carousel-item" style="">
-    <img alt="image" src="{this}" />
-  </a>
-</CarouselPhoto2>
-
-<SliderPhoto >
-  <li>
-        <img alt="image" src="{getImgUrl photo_reference}" />
-
-  </li>  
-</SliderPhoto> */

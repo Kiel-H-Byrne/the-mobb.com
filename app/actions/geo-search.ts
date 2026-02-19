@@ -1,8 +1,8 @@
 // app/actions/geo-search.ts
 "use server";
 
-import clientPromise from "@/db/mongodb";
-import { Listing } from "@/db/Types";
+import clientPromise from "../../src/db/mongodb";
+import { Listing } from "../../src/db/Types";
 
 export async function findBusinessesNearby(
   lat: number,
