@@ -1,13 +1,12 @@
 "use client";
 
-import Head from "next/head";
 import React, { useEffect, useState } from "react";
 import AppMap from "../src/components/Map/AppMap";
 import Nav from "../src/components/Nav/Nav";
 import { css } from "../styled-system/css";
 
-import { fetchAllCategories, fetchAllListings } from "./actions/geo-search";
 import { SAMPLE_CATEGORIES, SAMPLE_LISTINGS } from "../src/db/SampleListings";
+import { fetchAllCategories, fetchAllListings } from "./actions/geo-search";
 
 import { Category, Listing } from "../src/db/Types";
 
@@ -15,27 +14,30 @@ const Home = React.memo(() => {
   const [mapInstance, setMapInstance] = useState<any>(null);
   const [listings, setListings] = useState<Listing[] | null>(null);
   const [categories, setCategories] = useState<Category[] | null>(null);
+  console.log('listings', listings);
   useEffect(() => {
     async function fetchListings() {
-      setListings(
-        (await fetchAllListings()) ??
-          SAMPLE_LISTINGS
-      );
+      let listings = await fetchAllListings();
+      if (!listings || listings.length === 0) {
+        listings = SAMPLE_LISTINGS;
+      }
+      setListings(listings);
     }
     async function fetchCategories() {
-      let categories =
-        (await fetchAllCategories()) ??
-        SAMPLE_CATEGORIES;
-      // categories = categories.map((el) => el.name);
+      let categories = await fetchAllCategories();
+      if (!categories || categories.length === 0) {
+        categories = SAMPLE_CATEGORIES;
+      }
       setCategories(categories);
     }
     fetchListings();
     fetchCategories();
   }, []);
+  console.log(listings);
   return (
     <>
       <main className={css({ height: "100vh", width: "100vw" })}>
-        {!listings || listings.length === 0 ? (
+        {!listings ? (
           <div className={css({
             width: "100%",
             height: "4px",

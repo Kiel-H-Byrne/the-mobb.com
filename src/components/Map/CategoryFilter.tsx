@@ -1,9 +1,9 @@
-import React, { memo, useMemo, useState } from "react";
-import LocationOffIcon from "@mui/icons-material/LocationOffTwoTone";
 import { Menu } from "@ark-ui/react/menu";
 import { Switch } from "@ark-ui/react/switch";
-import { Category, Listing } from "../../db/Types";
+import LocationOffIcon from "@mui/icons-material/LocationOffTwoTone";
+import { memo, useMemo } from "react";
 import { css } from "../../../styled-system/css";
+import { Category, Listing } from "../../db/Types";
 
 type CategoryFilterType = {
   listings: Listing[];
@@ -65,7 +65,7 @@ const CategoryFilter = ({
             minWidth: "200px",
           })}
         >
-          {categories.length === 0 ? (
+          {!categories.length ? (
             <div className={css({ padding: "4", textAlign: "center" })}>
               Loading...
             </div>

@@ -1,7 +1,7 @@
+import { InfoWindow } from "@vis.gl/react-google-maps";
 import React from "react";
-import { InfoWindow } from "@react-google-maps/api";
-import CondensedCard from "./CondensedCard";
 import { css } from "../../../styled-system/css";
+import CondensedCard from "./CondensedCard";
 
 const ListingInfoWindow = ({ activeListing }) => {
   const { location } = activeListing;
@@ -9,13 +9,9 @@ const ListingInfoWindow = ({ activeListing }) => {
   let locObj = { lat: parseFloat(loc[0]), lng: parseFloat(loc[1]) };
 
   return (
-    //@ts-ignore
     <InfoWindow
       position={locObj}
-      options={{
-        pixelOffset: { height: -30, width: 0, equals: () => false } as any,
-        disableAutoPan: false,
-      }}
+      pixelOffset={[0, -30]}
     >
       {activeListing ? (
         <div className={css({

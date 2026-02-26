@@ -1,5 +1,5 @@
-import React, { memo } from "react";
-import { Marker } from "@react-google-maps/api";
+import { Marker } from "@vis.gl/react-google-maps";
+import { memo, useEffect, useState } from "react";
 import { Listing } from "../../db/Types";
 
 interface MyMarkerProps {
@@ -20,7 +20,7 @@ const MyMarker = ({
   const { location, coordinates, _id } = data;
   let locObj: { lat: number; lng: number };
 
-  if (coordinates && coordinates.coordinates) {
+  if (coordinates && coordinates.coordinates && coordinates.coordinates.length > 1) {
     locObj = {
       lat: coordinates.coordinates[1],
       lng: coordinates.coordinates[0],
@@ -32,9 +32,16 @@ const MyMarker = ({
     locObj = { lat: 50.60982, lng: -1.34987 };
   }
 
-  const image = {
-    url: "/img/map/orange_marker_sm.png",
-  };
+  const [marker, setMarker] = useState<any>(null);
+
+  useEffect(() => {
+    if (!marker || !clusterer) return;
+    
+    clusterer.addMarker(marker);
+    return () => {
+      clusterer.removeMarker(marker);
+    };
+  }, [marker, clusterer]);
 
   const handleMouseOverMarker = () => {
     setactiveListing(data);
@@ -50,13 +57,12 @@ const MyMarker = ({
 
   return (
     <Marker
-      key={_id}
+      ref={setMarker}
       position={locObj}
-      clusterer={clusterer}
-      icon={image}
       onMouseOver={handleMouseOverMarker}
       onMouseOut={handleMouseOut}
       onClick={handleClickMarker}
+      icon={{ url: "/img/map/orange_marker_sm.png" }}
     />
   );
 };

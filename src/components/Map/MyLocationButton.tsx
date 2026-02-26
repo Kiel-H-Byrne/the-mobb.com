@@ -1,5 +1,5 @@
 import MyLocationIcon from "@mui/icons-material/MyLocationTwoTone";
-import { Marker } from "@react-google-maps/api";
+
 import { useEffect, useState } from "react";
 import { css } from "../../../styled-system/css";
 import ClosestCard from "../ClosestCard/ClosestCard";
@@ -7,10 +7,10 @@ import ClosestList from "../ClosestList";
 import { findClosestMarker, targetClient } from "./../../util/functions";
 
 const MyLocationButton = ({ listings, mapInstance }) => {
-  const [clientLocation, setClientLocation] = useState(null);
-  const [closestListing, setClosestListing] = useState(null);
-  const [geoWatchId, setGeoWatchId] = useState(null);
-  const [clientMarker, setClientMarker] = useState<Marker | null>(null);
+  const [clientLocation, setClientLocation] = useState<{lat: number, lng: number} | null>(null);
+  const [closestListing, setClosestListing] = useState<any | null>(null);
+  const [geoWatchId, setGeoWatchId] = useState<number | null>(null);
+  const [clientMarker, setClientMarker] = useState<any | null>(null);
   const [toggleDisplay, setToggleDisplay] = useState(false);
 
   useEffect(() => {

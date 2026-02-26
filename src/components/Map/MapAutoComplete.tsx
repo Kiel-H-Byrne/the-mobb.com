@@ -1,20 +1,19 @@
-import { GoogleMapProps } from "@react-google-maps/api";
-import { Dispatch, SetStateAction, memo, useState } from "react";
+
 import { AddLocation } from "@mui/icons-material";
 import SearchIcon from "@mui/icons-material/Search";
-import { Menu } from "@ark-ui/react/menu";
+import { Dispatch, SetStateAction, memo, useState } from "react";
 import { searchBusinesses } from "../../../app/actions/geo-search";
+import { css } from "../../../styled-system/css";
 import { Category, Listing } from "../../db/Types";
 import { targetClient } from "../../util/functions";
 import CategoryFilter from "./CategoryFilter";
 import MyLocationButton from "./MyLocationButton";
-import { css } from "../../../styled-system/css";
 
 interface OwnProps {
   listings: Listing[];
   categories: Category[];
   selectedCategories: Set<Category>;
-  mapInstance: GoogleMapProps;
+  mapInstance: any;
   setSelectedCategories: Dispatch<SetStateAction<Set<Category>>>;
   setactiveListing: Dispatch<SetStateAction<any>>;
   setisDrawerOpen: Dispatch<SetStateAction<boolean>>;
