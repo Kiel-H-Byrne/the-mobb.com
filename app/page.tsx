@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import AppMap from "../src/components/Map/AppMap";
-import Nav from "../src/components/Nav/Nav";
 import { css } from "../styled-system/css";
 
 import { SAMPLE_CATEGORIES, SAMPLE_LISTINGS } from "../src/db/SampleListings";
@@ -37,7 +36,7 @@ const Home = React.memo(() => {
   return (
     <>
       <main className={css({ height: "100vh", width: "100vw" })}>
-        {!listings ? (
+        {!listings || !categories ? (
           <div className={css({
             width: "100%",
             height: "4px",
@@ -55,33 +54,15 @@ const Home = React.memo(() => {
              })} />
           </div>
         ) : (
-          <div className={css({ height: "100%", width: "100%" })}>
-            <div
-              className={css({
-                display: "flex",
-                flexDirection: "column",
-                height: "100%",
-                width: "100%",
-              })}
-            >
-              <Nav listings={listings} map={mapInstance} />
-              <div
-                className={css({
-                  flex: "1",
-                  position: "relative",
-                  width: "100%",
-                })}
-              >
-                <AppMap
-                  listings={listings}
-                  setListings={setListings}
-                  categories={categories || []}
-                  setMapInstance={setMapInstance}
-                  mapInstance={mapInstance}
-                  browserLocation={null}
-                />
-              </div>
-            </div>
+          <div className={css({ height: "100%", width: "100%", position: "relative" })}>
+            <AppMap
+              listings={listings}
+              setListings={setListings}
+              categories={categories || []}
+              setMapInstance={setMapInstance}
+              mapInstance={mapInstance}
+              browserLocation={null}
+            />
           </div>
         )}
       </main>

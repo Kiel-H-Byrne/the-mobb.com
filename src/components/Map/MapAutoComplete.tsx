@@ -92,13 +92,16 @@ const MapAutoComplete = ({
   return (
     <div className={css({
       position: "relative",
-      zIndex: 1100,
-      margin: "2",
+      zIndex: 1200,
+      margin: "4",
       display: "flex",
       maxWidth: "23rem",
-      backgroundColor: "rgba(255, 230, 200, 1)", // colors.orange[100]
-      borderRadius: "md",
-      boxShadow: "md",
+      backgroundColor: "rgba(255, 255, 255, 0.85)", // Light frosted glass
+      backdropFilter: "blur(12px)",
+      WebkitBackdropFilter: "blur(12px)",
+      borderRadius: "xl",
+      boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12)",
+      border: "1px solid rgba(255, 255, 255, 0.2)",
       padding: "1",
       alignItems: "center",
     })}>

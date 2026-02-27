@@ -1,6 +1,6 @@
 import { Box, Card, CardContent, List, ListItem, ListItemIcon, ListItemText, Stack, Typography } from "@mui/material";
 import { purple, red } from "@mui/material/colors";
-import { DiResponsive } from "react-icons/di";
+import { DiResponsive, DiVisualstudio } from "react-icons/di";
 import { GiShield, GiSittingDog } from "react-icons/gi";
 import {
   SiEslint,
@@ -22,9 +22,8 @@ import {
   SiSwr,
   SiTypescript,
   SiVercel,
-  SiVisualstudio,
   SiVitest,
-  SiZod,
+  SiZod
 } from "react-icons/si";
 
 const heading = "PHORM Technology Stack";
@@ -68,7 +67,7 @@ const toolingTech = [
     "Identifying and reporting on patterns in JavaScript",
     <GiSittingDog />,
   ],
-  ["Visual Studio Code", "A code editor for web development", <SiVisualstudio />],
+  ["Visual Studio Code", "A code editor for web development", <DiVisualstudio />],
   [
     "Prettier",
     "An opinionated code formatter enforcing consistencies",

@@ -1,4 +1,3 @@
-import React from "react";
 import { Menu } from "@ark-ui/react/menu";
 import { useAuth0 } from "@auth0/auth0-react";
 import { InfoTwoTone, ShareTwoTone } from "@mui/icons-material";
@@ -68,8 +67,8 @@ const Mavatar = () => {
       >
         {!isLoading && isAuthenticated ? (
           <img
-            src={user.picture}
-            alt={user.name}
+            src={user?.picture}
+            alt={user?.name}
             className={menuStyles.avatar}
           />
         ) : (
@@ -78,7 +77,7 @@ const Mavatar = () => {
       </Menu.Trigger>
       <Menu.Positioner>
         <Menu.Content className={menuStyles.content}>
-          <Menu.Item id="share" className={menuStyles.item}>
+          <Menu.Item value="share" className={menuStyles.item}>
             <ShareTwoTone style={{ marginRight: "8px" }} />
             <div className={menuStyles.shareRow}>
               <a
@@ -119,7 +118,7 @@ const Mavatar = () => {
               </a>
             </div>
           </Menu.Item>
-          <Menu.Item id="about" className={menuStyles.item}>
+          <Menu.Item value="about" className={menuStyles.item}>
             <InfoTwoTone style={{ marginRight: "8px" }} />
             <span>About</span>
           </Menu.Item>

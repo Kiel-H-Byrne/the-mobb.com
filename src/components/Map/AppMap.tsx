@@ -1,11 +1,14 @@
+import { useAuth0 } from "@auth0/auth0-react";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
-import { APIProvider, Map, useMap } from "@vis.gl/react-google-maps";
+import AddLocationIcon from "@mui/icons-material/AddLocationTwoTone";
+import { APIProvider, Map, MapControl, useMap } from "@vis.gl/react-google-maps";
 import { memo, useEffect, useState } from "react";
 
 import { findBusinessesNearby } from "../../../app/actions/geo-search";
 import { css } from "../../../styled-system/css";
 import { Category, Libraries, Listing } from "../../db/Types";
 import { GEOCENTER } from "../../util/functions";
+import MAvatar from "../Nav/Mavatar";
 import SideDrawer from "../SideDrawer/SideDrawer";
 import ListingInfoWindow from "./ListingInfoWindow";
 import MapAutoComplete from "./MapAutoComplete";
@@ -175,6 +178,7 @@ const MapContent = memo(({
 }: any) => {
   const map = useMap("GMap");
   const [clusterer, setClusterer] = useState<MarkerClusterer>();
+  const { isAuthenticated } = useAuth0();
 
   useEffect(() => {
     if (!map) return;
@@ -184,20 +188,55 @@ const MapContent = memo(({
 
   return (
     <>
-      <MapAutoComplete
-        listings={listings}
-        categories={categories}
-        mapInstance={mapInstance || map}
-        selectedCategories={selectedCategories}
-        setSelectedCategories={setSelectedCategories}
-        setactiveListing={setactiveListing}
-        setisDrawerOpen={setisDrawerOpen}
-      />
+      <MapControl position={3}> {/* TOP_RIGHT */}
+        <div
+          className={css({
+            display: "flex",
+            alignItems: "center",
+            gap: "2",
+            margin: "2",
+            marginRight: "4",
+            padding: "2",
+            backgroundColor: "rgba(255, 230, 200, 1)",
+            borderRadius: "full",
+            boxShadow: "md",
+          })}
+        >
+          {isAuthenticated ? (
+             <button
+              aria-label="Add A Listing"
+               className={css({
+                 background: "transparent",
+                 border: "none",
+                 color: "brand.grey",
+                 cursor: "pointer",
+                 padding: "2",
+                 borderRadius: "full",
+                 _hover: { backgroundColor: "rgba(0,0,0,0.05)" },
+               })}
+             >
+               <AddLocationIcon />
+             </button>
+           ) : null}
+           <MAvatar />
+        </div>
+      </MapControl>
+      <MapControl position={2}>
+        <MapAutoComplete
+          listings={listings}
+          categories={categories}
+          mapInstance={mapInstance || map}
+          selectedCategories={selectedCategories}
+          setSelectedCategories={setSelectedCategories}
+          setactiveListing={setactiveListing}
+          setisDrawerOpen={setisDrawerOpen}
+        />
+      </MapControl>
       {listings && listings.map((listing: Listing) => {
-        if (
-          listing.categories &&
-          listing.categories.some((el: Category) => selectedCategories.has(el))
-        ) {
+        const hasMatch = listing.categories && listing.categories.some((el: Category) => selectedCategories.has(el));
+        const noCategories = !listing.categories || listing.categories.length === 0;
+
+        if (hasMatch || noCategories) {
           return (
             <MyMarker
               key={`marker-${listing._id}`}

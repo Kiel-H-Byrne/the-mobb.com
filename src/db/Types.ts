@@ -17,12 +17,12 @@ export interface Listing {
   phone?: string;
   url?: string;
   claims: Claim[];
-  claimsCount?: Number;
+  claimsCount?: number;
   location?: string;
-  verifiers?: [String];
-  verifierCount?: Number;
-  deverifiers?: [String];
-  deverifierCount?: Number;
+  verifiers?: string[];
+  verifierCount?: number;
+  deverifiers?: string[];
+  deverifierCount?: number;
   description?: string;
   image?: { url: string };
   google_id?: string;
@@ -35,11 +35,11 @@ export interface Listing {
     type: "Point";
     coordinates: [number, number]; // [longitude, latitude]
   };
-  creator: Date;
-  submitted: Date;
+  creator: Date | string;
+  submitted: Date | string;
 }
 export type Category = string;
-export type Libraries = ("drawing" | "geometry" | "localContext" | "places" | "visualization")[];
+export type Libraries = ("drawing" | "geometry" | "places" | "visualization")[];
 
 export interface GLocation { lat: number, lng: number }
 
