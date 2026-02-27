@@ -4,10 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "panda codegen && next build",
     "start": "next start",
     "test": "vitest",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "prepare": "panda codegen"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.34",
