@@ -91,7 +91,7 @@ export default function BusinessScanner() {
             </span>
           </p>
           <p>
-            <strong>Confidence:</strong> {result.confidenceScore}%
+            <strong>Confidence:</strong> {result.confidenceScore*100}%
           </p>
 
           <button

@@ -13,7 +13,6 @@ const Home = React.memo(() => {
   const [mapInstance, setMapInstance] = useState<any>(null);
   const [listings, setListings] = useState<Listing[] | null>(null);
   const [categories, setCategories] = useState<Category[] | null>(null);
-  console.log('listings', listings);
   useEffect(() => {
     async function fetchListings() {
       let listings = await fetchAllListings();

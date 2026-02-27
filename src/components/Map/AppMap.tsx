@@ -235,21 +235,20 @@ const MapContent = memo(({
       {listings && listings.map((listing: Listing) => {
         const hasMatch = listing.categories && listing.categories.some((el: Category) => selectedCategories.has(el));
         const noCategories = !listing.categories || listing.categories.length === 0;
+        const isVisible = hasMatch || noCategories;
 
-        if (hasMatch || noCategories) {
-          return (
-            <MyMarker
-              key={`marker-${listing._id}`}
-              //@ts-ignore
-              data={listing}
-              clusterer={clusterer}
-              setactiveListing={setactiveListing}
-              setisDrawerOpen={setisDrawerOpen}
-              setisInfoWindowOpen={setisInfoWindowOpen}
-            />
-          );
-        }
-        return null;
+        return (
+          <MyMarker
+            key={`marker-${listing._id}`}
+            //@ts-ignore
+            data={listing}
+            clusterer={clusterer}
+            setactiveListing={setactiveListing}
+            setisDrawerOpen={setisDrawerOpen}
+            setisInfoWindowOpen={setisInfoWindowOpen}
+            visible={isVisible}
+          />
+        );
       })}
       {activeListing && isInfoWindowOpen && (
         <ListingInfoWindow activeListing={activeListing} />

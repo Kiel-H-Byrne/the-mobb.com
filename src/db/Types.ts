@@ -43,3 +43,24 @@ export type Libraries = ("drawing" | "geometry" | "places" | "visualization")[];
 
 export interface GLocation { lat: number, lng: number }
 
+export interface PendingListing {
+  _id?: any;
+  name: string;
+  category: string;
+  address?: string;
+  website?: string;
+  description?: string;
+  isBlackOwned?: boolean;
+  source: "MANUAL" | "AI_SCAN";
+  status: "PENDING_REVIEW" | "APPROVED" | "REJECTED";
+  createdAt: Date;
+}
+
+export interface User {
+  _id?: any;
+  email: string;
+  password?: string;
+  role: "ADMIN" | "USER";
+  name?: string;
+}
+

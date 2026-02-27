@@ -6,6 +6,7 @@ import { searchBusinesses } from "../../../app/actions/geo-search";
 import { css } from "../../../styled-system/css";
 import { Category, Listing } from "../../db/Types";
 import { targetClient } from "../../util/functions";
+import AddListingDrawer from "./AddListingDrawer";
 import CategoryFilter from "./CategoryFilter";
 import MyLocationButton from "./MyLocationButton";
 
@@ -33,6 +34,7 @@ const MapAutoComplete = ({
   const [filtered, setFiltered] = useState<Listing[]>([]);
   const [input, setInput] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAddListingOpen, setIsAddListingOpen] = useState(false);
 
   const onChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.currentTarget.value;
@@ -90,88 +92,98 @@ const MapAutoComplete = ({
   };
 
   return (
-    <div className={css({
-      position: "relative",
-      zIndex: 1200,
-      margin: "4",
-      display: "flex",
-      maxWidth: "23rem",
-      backgroundColor: "rgba(255, 255, 255, 0.85)", // Light frosted glass
-      backdropFilter: "blur(12px)",
-      WebkitBackdropFilter: "blur(12px)",
-      borderRadius: "xl",
-      boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12)",
-      border: "1px solid rgba(255, 255, 255, 0.2)",
-      padding: "1",
-      alignItems: "center",
-    })}>
-      <input
-        className={css({
-          marginLeft: "2",
-          flex: "1",
-          background: "transparent",
-          border: "none",
-          outline: "none",
-          padding: "2",
-          fontSize: "sm",
-        })}
-        placeholder={`Search ${count ? count + " " : ""}Listings...`}
-        aria-label="Search The MOBB"
-        onChange={onChange}
-        onKeyDown={onKeyDown}
-        value={input}
+    <>
+      <div className={css({
+        position: "relative",
+        zIndex: 1200,
+        margin: "4",
+        display: "flex",
+        maxWidth: "23rem",
+        backgroundColor: "rgba(255, 255, 255, 0.85)", // Light frosted glass
+        backdropFilter: "blur(12px)",
+        borderRadius: "xl",
+        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12)",
+        border: "1px solid rgba(255, 255, 255, 0.2)",
+        padding: "1",
+        alignItems: "center",
+      })}>
+        <input
+          className={css({
+            marginLeft: "2",
+            flex: "1",
+            background: "transparent",
+            border: "none",
+            outline: "none",
+            padding: "2",
+            fontSize: "sm",
+          })}
+          placeholder={`Search ${count ? count + " " : ""}Listings...`}
+          aria-label="Search The MOBB"
+          onChange={onChange}
+          onKeyDown={onKeyDown}
+          value={input}
+        />
+        {isMenuOpen && (
+          <div className={css({
+            position: "absolute",
+            top: "100%",
+            left: "0",
+            width: "100%",
+            backgroundColor: "white",
+            boxShadow: "lg",
+            borderRadius: "md",
+            marginTop: "1",
+            maxHeight: "300px",
+            overflowY: "auto",
+          })}>
+            {filtered.length > 0 ? (
+              filtered.map((listing, index) => (
+                <div
+                  key={listing._id}
+                  onClick={() => handleSelect(index)}
+                  className={css({
+                    padding: "2",
+                    cursor: "pointer",
+                    backgroundColor: index === active ? "rgba(251, 176, 59, 0.2)" : "transparent",
+                    _hover: { backgroundColor: "rgba(251, 176, 59, 0.1)" },
+                  })}
+                >
+                  {listing.name}
+                </div>
+              ))
+            ) : (
+               <div className={css({ padding: "2", fontSize: "xs", color: "gray.500" })}>
+                 {input.length > 2 ? "Not Found..." : `Enter ${3 - input.length} more character`}
+               </div>
+            )}
+          </div>
+        )}
+        <button className={css({ padding: "2", background: "transparent", border: "none", cursor: "pointer", color: "brand.grey" })}>
+          <SearchIcon />
+        </button>
+        <button 
+          className={css({ padding: "2", background: "transparent", border: "none", cursor: "pointer", color: "brand.grey" })}
+          onClick={() => setIsAddListingOpen(true)}
+          aria-label="Add A Listing"
+        >
+          <AddLocation />
+        </button>
+        <div className={css({ width: "1px", height: "7", backgroundColor: "gray.300", margin: "1" })} />
+        <CategoryFilter
+          listings={listings}
+          categories={categories}
+          selectedCategories={selectedCategories}
+          setSelectedCategories={setSelectedCategories}
+        />
+        <div className={css({ width: "1px", height: "7", backgroundColor: "gray.300", margin: "1" })} />
+        <MyLocationButton listings={listings} mapInstance={mapInstance} />
+      </div>
+
+      <AddListingDrawer 
+        isOpen={isAddListingOpen} 
+        setOpen={setIsAddListingOpen} 
       />
-      {isMenuOpen && (
-        <div className={css({
-          position: "absolute",
-          top: "100%",
-          left: "0",
-          width: "100%",
-          backgroundColor: "white",
-          boxShadow: "lg",
-          borderRadius: "md",
-          marginTop: "1",
-          maxHeight: "300px",
-          overflowY: "auto",
-        })}>
-          {filtered.length > 0 ? (
-            filtered.map((listing, index) => (
-              <div
-                key={listing._id}
-                onClick={() => handleSelect(index)}
-                className={css({
-                  padding: "2",
-                  cursor: "pointer",
-                  backgroundColor: index === active ? "rgba(251, 176, 59, 0.2)" : "transparent",
-                  _hover: { backgroundColor: "rgba(251, 176, 59, 0.1)" },
-                })}
-              >
-                {listing.name}
-              </div>
-            ))
-          ) : (
-             <div className={css({ padding: "2", fontSize: "xs", color: "gray.500" })}>
-               {input.length > 2 ? "Not Found..." : `Enter ${3 - input.length} more character`}
-             </div>
-          )}
-        </div>
-      )}
-      <button className={css({ padding: "2", background: "transparent", border: "none", cursor: "pointer", color: "brand.grey" })}>
-        <SearchIcon />
-      </button>
-      <button className={css({ padding: "2", background: "transparent", border: "none", cursor: "pointer", color: "brand.grey" })}>
-        <AddLocation />
-      </button>
-      <div className={css({ width: "1px", height: "7", backgroundColor: "gray.300", margin: "1" })} />
-      <CategoryFilter
-        listings={listings}
-        categories={categories}
-        selectedCategories={selectedCategories}
-        setSelectedCategories={setSelectedCategories}
-      />
-      <div className={css({ width: "1px", height: "7", backgroundColor: "gray.300", margin: "1" })} />
-      <MyLocationButton listings={listings} mapInstance={mapInstance} />
-    </div>
+    </>
   );
 };
 
