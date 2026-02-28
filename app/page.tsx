@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
 import AppMap from "@/components/Map/AppMap";
 import { css } from "@styled/css";
+import React, { useEffect, useState } from "react";
 
 import { SAMPLE_CATEGORIES, SAMPLE_LISTINGS } from "@/db/SampleListings";
 import { fetchAllCategories, fetchAllListings } from "./actions/geo-search";
@@ -31,7 +31,7 @@ const Home = React.memo(() => {
     fetchListings();
     fetchCategories();
   }, []);
-  console.log(listings);
+
   return (
     <>
       <main className={css({ height: "100vh", width: "100vw" })}>

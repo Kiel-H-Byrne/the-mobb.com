@@ -1,12 +1,11 @@
+import { scanBusinessUrl } from "@app/actions/scanBusiness";
+import { submitListing } from "@app/actions/submitListing";
 import { Dialog } from "@ark-ui/react/dialog";
 import { Portal } from "@ark-ui/react/portal";
 import { Tabs } from "@ark-ui/react/tabs";
 import CloseIcon from "@mui/icons-material/CloseTwoTone";
-import { useMapsLibrary } from "@vis.gl/react-google-maps";
-import { Dispatch, SetStateAction, memo, useEffect, useRef, useState } from "react";
-import { scanBusinessUrl } from "@app/actions/scanBusiness";
-import { submitListing } from "@app/actions/submitListing";
 import { css } from "@styled/css";
+import { Dispatch, SetStateAction, memo, useEffect, useRef, useState } from "react";
 
 interface IAddListingDrawer {
   isOpen: boolean;
@@ -33,32 +32,51 @@ const AddListingDrawer = ({ isOpen, setOpen }: IAddListingDrawer) => {
   });
 
   // Autocomplete ref
-  const placesLibrary = useMapsLibrary("places");
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [autocomplete, setAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [autocomplete, setAutocomplete] = useState<google.maps.places.PlaceAutocompleteElement | null>(null);
 
   useEffect(() => {
-    if (!placesLibrary || !inputRef.current) return;
-    const options = {
-      fields: ["formatted_address", "geometry", "name"],
-    };
-    setAutocomplete(new placesLibrary.Autocomplete(inputRef.current, options));
-  }, [placesLibrary, inputRef]);
+    if (!window.google || !window.google.maps || !window.google.maps.places || !containerRef.current) return;
+    
+    // Create the PlaceAutocompleteElement
+    // @ts-ignore
+    const element = new window.google.maps.places.PlaceAutocompleteElement({});
+    // Request specific fields
+    // @ts-ignore
+    element.fields = ["formatted_address", "geometry", "name"];
+    
+    // Append to container
+    containerRef.current.innerHTML = ''; // prevent duplicates
+    containerRef.current.appendChild(element);
+    
+    setAutocomplete(element);
+  }, [containerRef]);
 
   useEffect(() => {
     if (!autocomplete) return;
-    const listener = autocomplete.addListener("place_changed", () => {
-      const place = autocomplete.getPlace();
-      if (place && place.formatted_address) {
+
+    const handlePlaceSelect = async (e: any) => {
+      const place = e.place;
+      // Fetch fields before accessing them
+      await place.fetchFields({ fields: ['formattedAddress', 'location'] });
+      
+      if (place && place.formattedAddress) {
         setManualData(prev => ({ 
           ...prev, 
-          address: place.formatted_address as string,
-          lat: place.geometry?.location?.lat(),
-          lng: place.geometry?.location?.lng(),
+          address: place.formattedAddress as string,
+          lat: place.location?.lat(),
+          lng: place.location?.lng(),
         }));
       }
-    });
-    return () => google.maps.event.removeListener(listener);
+    };
+
+    autocomplete.addEventListener("gmp-placeselect", handlePlaceSelect);
+
+    return () => {
+      if (autocomplete) {
+        autocomplete.removeEventListener("gmp-placeselect", handlePlaceSelect);
+      }
+    };
   }, [autocomplete]);
 
 
@@ -361,7 +379,22 @@ const AddListingDrawer = ({ isOpen, setOpen }: IAddListingDrawer) => {
                     </label>
                     <label className={css({ display: "flex", flexDirection: "column", gap: "1", fontSize: "sm", fontWeight: "500" })}>
                       Address *
-                      <input ref={inputRef} value={manualData.address} onChange={e => setManualData({...manualData, address: e.target.value})} required type="text" placeholder="Start typing address..." className={css({ padding: "2", borderRadius: "md", border: "1px solid", borderColor: "gray.300", outline: "none", _focus: { borderColor: "brand.orange" }})} />
+                      {/* The PlaceAutocompleteElement is mounted inside this container */}
+                      <div ref={containerRef} className={css({ 
+                        "& > gmp-place-autocomplete": {
+                          width: "100%",
+                        },
+                        "& > gmp-place-autocomplete::part(input)": {
+                          width: "100%",
+                          padding: "8px", 
+                          borderRadius: "6px", 
+                          border: "1px solid", 
+                          borderColor: "gray.300", 
+                          outline: "none", 
+                          fontFamily: "inherit",
+                          fontSize: "14px",
+                        }
+                      })} />
                     </label>
                     <label className={css({ display: "flex", flexDirection: "column", gap: "1", fontSize: "sm", fontWeight: "500" })}>
                       Website

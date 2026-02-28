@@ -1,6 +1,6 @@
-import { Marker } from "@vis.gl/react-google-maps";
-import { memo, useEffect, useState } from "react";
 import { Listing } from "@/db/Types";
+import { AdvancedMarker } from "@vis.gl/react-google-maps";
+import { memo, useEffect, useState } from "react";
 
 interface MyMarkerProps {
   data: Listing;
@@ -65,14 +65,15 @@ const MyMarker = ({
   };
 
   return (
-    <Marker
+    <AdvancedMarker
       ref={setMarker}
       position={locObj}
-      onMouseOver={handleMouseOverMarker}
-      onMouseOut={handleMouseOut}
       onClick={handleClickMarker}
-      icon={{ url: "/img/map/orange_marker_sm.png" }}
-    />
+      onMouseEnter={handleMouseOverMarker}
+      onMouseLeave={handleMouseOut}
+    >
+      <img src="/img/map/orange_marker_sm.png" alt="Marker" width={32} height={32} />
+    </AdvancedMarker>
   );
 };
 

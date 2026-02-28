@@ -1,10 +1,10 @@
 import MyLocationIcon from "@mui/icons-material/MyLocationTwoTone";
 
-import { useEffect, useState } from "react";
-import { css } from "@styled/css";
 import ClosestCard from "@/components/ClosestCard/ClosestCard";
 import ClosestList from "@/components/ClosestList";
 import { findClosestMarker, targetClient } from "@/util/functions";
+import { css } from "@styled/css";
+import { useEffect, useState } from "react";
 
 const MyLocationButton = ({ listings, mapInstance }) => {
   const [clientLocation, setClientLocation] = useState<{lat: number, lng: number} | null>(null);
@@ -33,16 +33,19 @@ const MyLocationButton = ({ listings, mapInstance }) => {
             };
 
             if (!clientMarker) {
-              let marker = new window.google.maps.Marker({
-                position: new window.google.maps.LatLng(positionObject),
+              const iconImg = document.createElement("img");
+              iconImg.src = "img/map/orange_dot_sm_2.png";
+              
+              let marker = new window.google.maps.marker.AdvancedMarkerElement({
+                position: positionObject,
                 map: mapInstance,
-                icon: { url: "img/map/orange_dot_sm_2.png" },
+                content: iconImg,
                 title: "My Location",
               });
               setClientMarker(marker);
             } else {
-              clientMarker.setMap(mapInstance);
-              clientMarker.setPosition(positionObject);
+              clientMarker.map = mapInstance;
+              clientMarker.position = positionObject;
             }
             setClientLocation(positionObject);
             targetClient(mapInstance, positionObject);

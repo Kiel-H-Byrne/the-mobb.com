@@ -39,7 +39,7 @@ export interface Listing {
   submitted: Date | string;
 }
 export type Category = string;
-export type Libraries = ("drawing" | "geometry" | "places" | "visualization")[];
+export type Libraries = ("drawing" | "geometry" | "places" | "visualization" | "marker")[];
 
 export interface GLocation { lat: number, lng: number }
 
