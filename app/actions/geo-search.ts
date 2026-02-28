@@ -11,30 +11,35 @@ export async function findBusinessesNearby(
 ): Promise<Listing[]> {
   const client = await clientPromise;
   const db = client.db("vercel-db");
-  const collection = db.collection<Listing>("mobb-listings");
+  const collection = db.collection<Listing>("listings");
 
-  // MongoDB 2dsphere $near operator
-  const businesses = await collection
-    .find({
-      coordinates: {
-        $near: {
-          $geometry: {
-            type: "Point",
-            coordinates: [lng, lat], // [longitude, latitude]
+  try {
+    // MongoDB 2dsphere $near operator
+    const businesses = await collection
+      .find({
+        coordinates: {
+          $near: {
+            $geometry: {
+              type: "Point",
+              coordinates: [lng, lat], // [longitude, latitude]
+            },
+            $maxDistance: radiusMeters,
           },
-          $maxDistance: radiusMeters,
         },
-      },
-    })
-    .toArray();
+      })
+      .toArray();
 
-  return JSON.parse(JSON.stringify(businesses)); // Serializing for Server Action response
+    return JSON.parse(JSON.stringify(businesses)); // Serializing for Server Action response
+  } catch (error) {
+    console.error("Geosearch query error:", error);
+    return []; // Return empty array on failure so UI handles it gracefully
+  }
 }
 
 export async function fetchAllListings(): Promise<Listing[]> {
   const client = await clientPromise;
   const db = client.db("vercel-db");
-  const collection = db.collection<Listing>("mobb-listings");
+  const collection = db.collection<Listing>("listings");
 
   const listings = await collection.find({}).toArray();
   return JSON.parse(JSON.stringify(listings));
@@ -54,7 +59,7 @@ export async function fetchAllCategories(): Promise<string[]> {
 export async function searchBusinesses(query: string): Promise<Listing[]> {
   const client = await clientPromise;
   const db = client.db("vercel-db");
-  const collection = db.collection<Listing>("mobb-listings");
+  const collection = db.collection<Listing>("listings");
 
   const listings = await collection
     .find({

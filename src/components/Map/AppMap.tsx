@@ -66,7 +66,7 @@ const MapContent = memo(({
 }: any) => {
   const map = useMap("GMap");
   const [clusterer, setClusterer] = useState<MarkerClusterer>();
-  const { isAuthenticated } = useAuth0();
+  const { isAuthenticated, loginWithRedirect } = useAuth0();
 
   useEffect(() => {
     if (!map) return;
@@ -120,6 +120,52 @@ const MapContent = memo(({
           setisDrawerOpen={setisDrawerOpen}
         />
       </MapControl>
+      {listings && listings.length === 0 && (
+        <div
+          className={css({
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            backgroundColor: "rgba(255, 255, 255, 0.8)",
+            backdropFilter: "blur(12px)",
+            padding: "8",
+            borderRadius: "2xl",
+            boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+            textAlign: "center",
+            maxWidth: "350px",
+            zIndex: 10,
+            border: "1px solid rgba(255, 255, 255, 0.3)",
+          })}
+        >
+          <div className={css({ mb: "4", color: "brand.orange" })}>
+            <AddLocationIcon sx={{ fontSize: 48 }} />
+          </div>
+          <h2 className={css({ fontSize: "2xl", fontWeight: "bold", mb: 2, color: "gray.800" })}>
+            No Businesses Found Here
+          </h2>
+          <p className={css({ color: "gray.600", mb: 6, fontSize: "sm", lineHeight: "relaxed" })}>
+            We couldn't find any Black-owned businesses in this immediate area. Help us grow the MOBB by adding one, or search another area!
+          </p>
+          <button
+            onClick={() => isAuthenticated ? setisDrawerOpen(true) : loginWithRedirect()}
+            className={css({
+              backgroundColor: "brand.orange",
+              color: "white",
+              fontWeight: "600",
+              padding: "3 6",
+              borderRadius: "full",
+              cursor: "pointer",
+              transition: "all 0.2s",
+              _hover: { transform: "translateY(-1px)", boxShadow: "md" },
+              _active: { transform: "translateY(0)" },
+            })}
+          >
+            {isAuthenticated ? "Add a Business" : "Sign in to Add"}
+          </button>
+        </div>
+      )}
+
       {listings && listings.map((listing: Listing) => {
         const hasMatch = listing.categories && listing.categories.some((el: Category) => selectedCategories.has(el));
         const noCategories = !listing.categories || listing.categories.length === 0;

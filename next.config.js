@@ -12,5 +12,6 @@ module.exports = {
     SERP_API_KEY: process.env.SERP_API_KEY,
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+    NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: process.env.NEXT_SERVER_ACTIONS_ENCRYPTION_KEY,
   },
 };
