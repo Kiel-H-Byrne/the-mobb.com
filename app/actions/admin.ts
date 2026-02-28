@@ -2,7 +2,7 @@
 
 import { ObjectId } from "mongodb";
 import { revalidatePath } from "next/cache";
-import clientPromise from "../../src/db/mongodb";
+import clientPromise, { DB_NAME } from "../../src/db/mongodb";
 
 // Temporary Simple Auth Mock
 import { cookies } from "next/headers";
@@ -36,7 +36,7 @@ export async function getPendingListings() {
 
     try {
         const client = await clientPromise;
-        const db = client.db("test");
+        const db = client.db(DB_NAME);
         const listings = await db.collection("pending_listings").find({ status: "PENDING_REVIEW" }).sort({ createdAt: -1 }).toArray();
 
         // Convert ObjectId to string for Client Components
@@ -57,7 +57,31 @@ export async function approveListing(id: string, finalizedData: any) {
 
     try {
         const client = await clientPromise;
-        const db = client.db("test");
+        const db = client.db(DB_NAME);
+
+        // Fetch Google Geocoding before inserting
+        let finalLat = finalizedData.lat;
+        let finalLng = finalizedData.lng;
+
+        if (!finalLat || !finalLng) {
+            const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
+            if (apiKey && finalizedData.address) {
+                try {
+                    const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(finalizedData.address)}&key=${apiKey}`;
+                    const geocodeRes = await fetch(geocodeUrl);
+                    const geocodeData = await geocodeRes.json();
+
+                    if (geocodeData.status === "OK" && geocodeData.results.length > 0) {
+                        finalLat = geocodeData.results[0].geometry.location.lat;
+                        finalLng = geocodeData.results[0].geometry.location.lng;
+                    } else {
+                        console.warn("Geocoding could not locate address:", geocodeData);
+                    }
+                } catch (geocodeErr) {
+                    console.error("Geocoding fetch error:", geocodeErr);
+                }
+            }
+        }
 
         // 1. Move to "listings" colletion. Ensure Coordinates are 2dsphere!
         const newListing = {
@@ -73,13 +97,12 @@ export async function approveListing(id: string, finalizedData: any) {
         };
 
         // Note: To use $near, the coordinates MUST be [lng, lat] format precisely
-        if (finalizedData.lat && finalizedData.lng) {
+        if (finalLat && finalLng) {
             (newListing as any).coordinates = {
                 type: "Point",
-                coordinates: [Number(finalizedData.lng), Number(finalizedData.lat)]
+                coordinates: [Number(finalLng), Number(finalLat)]
             };
             (newListing as any).type = "Point";
-            // Temporary backward compatible schema mapping for existing Mobb
         }
 
         await db.collection("listings").insertOne(newListing);
@@ -105,7 +128,7 @@ export async function rejectListing(id: string) {
 
     try {
         const client = await clientPromise;
-        const db = client.db("test");
+        const db = client.db(DB_NAME);
 
         await db.collection("pending_listings").updateOne(
             { _id: new ObjectId(id) },
