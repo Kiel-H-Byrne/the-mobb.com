@@ -125,6 +125,8 @@ const MapContent = memo(({
         const noCategories = !listing.categories || listing.categories.length === 0;
         const isVisible = hasMatch || noCategories;
 
+        if (!isVisible) return null;
+
         return (
           <MyMarker
             key={`marker-${listing._id}`}
@@ -134,7 +136,6 @@ const MapContent = memo(({
             setactiveListing={setactiveListing}
             setisDrawerOpen={setisDrawerOpen}
             setisInfoWindowOpen={setisInfoWindowOpen}
-            visible={isVisible}
           />
         );
       })}
