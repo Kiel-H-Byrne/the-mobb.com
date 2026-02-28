@@ -1,7 +1,7 @@
 import React from 'react';
-import ListingImage from '../ListingImage';
-import { Listing } from '../../db/Types';
-import { css } from '../../../styled-system/css';
+import ListingImage from "@/components/ListingImage";
+import { Listing } from "@/db/Types";
+import { css } from "@styled/css";
 
 interface Props {
   activeListing: Listing

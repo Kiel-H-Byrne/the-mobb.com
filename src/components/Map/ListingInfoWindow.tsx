@@ -1,6 +1,6 @@
 import { InfoWindow } from "@vis.gl/react-google-maps";
 import React from "react";
-import { css } from "../../../styled-system/css";
+import { css } from "@styled/css";
 import CondensedCard from "./CondensedCard";
 
 const ListingInfoWindow = ({ activeListing }) => {

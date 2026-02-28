@@ -1,7 +1,7 @@
 import { Menu } from "@ark-ui/react/menu";
 import { useAuth0 } from "@auth0/auth0-react";
 import { InfoTwoTone, ShareTwoTone } from "@mui/icons-material";
-import { css } from "../../../styled-system/css";
+import { css } from "@styled/css";
 
 const menuStyles = {
   content: css({

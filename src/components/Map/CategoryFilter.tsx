@@ -2,8 +2,8 @@ import { Menu } from "@ark-ui/react/menu";
 import { Switch } from "@ark-ui/react/switch";
 import LocationOffIcon from "@mui/icons-material/LocationOffTwoTone";
 import { memo, useMemo } from "react";
-import { css } from "../../../styled-system/css";
-import { Category, Listing } from "../../db/Types";
+import { css } from "@styled/css";
+import { Category, Listing } from "@/db/Types";
 
 type CategoryFilterType = {
   listings: Listing[];

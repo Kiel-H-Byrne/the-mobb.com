@@ -1,5 +1,17 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@app/*": [
+        "./app/*"
+      ],
+      "@styled/*": [
+        "./styled-system/*"
+      ]
+    },
     "target": "ESNext",
     "lib": [
       "dom",

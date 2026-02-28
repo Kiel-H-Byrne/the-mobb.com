@@ -1,29 +1,31 @@
+"use client";
+
 import { Box, Card, CardContent, List, ListItem, ListItemIcon, ListItemText, Stack, Typography } from "@mui/material";
 import { purple, red } from "@mui/material/colors";
 import { DiResponsive, DiVisualstudio } from "react-icons/di";
 import { GiShield, GiSittingDog } from "react-icons/gi";
 import {
-  SiEslint,
-  SiFirebase,
-  SiFramer,
-  SiGit,
-  SiGithub,
-  SiGooglemaps,
-  SiJest,
-  SiMaterialdesign,
-  SiNextdotjs,
-  SiNodedotjs,
-  SiPrettier,
-  SiPwa,
-  SiReact,
-  SiServerless,
-  SiSketch,
-  SiStyledcomponents,
-  SiSwr,
-  SiTypescript,
-  SiVercel,
-  SiVitest,
-  SiZod
+    SiEslint,
+    SiFirebase,
+    SiFramer,
+    SiGit,
+    SiGithub,
+    SiGooglemaps,
+    SiJest,
+    SiMaterialdesign,
+    SiNextdotjs,
+    SiNodedotjs,
+    SiPrettier,
+    SiPwa,
+    SiReact,
+    SiServerless,
+    SiSketch,
+    SiStyledcomponents,
+    SiSwr,
+    SiTypescript,
+    SiVercel,
+    SiVitest,
+    SiZod
 } from "react-icons/si";
 
 const heading = "PHORM Technology Stack";

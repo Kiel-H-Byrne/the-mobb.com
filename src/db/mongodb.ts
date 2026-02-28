@@ -1,11 +1,11 @@
 // src/db/mongodb.ts
 import { MongoClient } from 'mongodb';
 
-if (!process.env.MONGODB_URI) {
-  throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
+if (!process.env.DBOBB_MONGODB_URI) {
+  throw new Error('Invalid/Missing environment variable: "DBOBB_MONGODB_URI"');
 }
 
-const uri = process.env.MONGODB_URI;
+const uri = process.env.DBOBB_MONGODB_URI;
 const options = {};
 
 let client: MongoClient;
@@ -32,3 +32,4 @@ if (process.env.NODE_ENV === 'development') {
 // Export a module-scoped MongoClient promise. By doing this in a
 // separate module, the client can be shared across functions.
 export default clientPromise;
+export const DB_NAME = process.env.MONGODB_DB_NAME || "vercel-db";

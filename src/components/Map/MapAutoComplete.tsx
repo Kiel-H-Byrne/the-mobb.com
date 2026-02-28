@@ -2,10 +2,10 @@
 import { AddLocation } from "@mui/icons-material";
 import SearchIcon from "@mui/icons-material/Search";
 import { Dispatch, SetStateAction, memo, useState } from "react";
-import { searchBusinesses } from "../../../app/actions/geo-search";
-import { css } from "../../../styled-system/css";
-import { Category, Listing } from "../../db/Types";
-import { targetClient } from "../../util/functions";
+import { searchBusinesses } from "@app/actions/geo-search";
+import { css } from "@styled/css";
+import { Category, Listing } from "@/db/Types";
+import { targetClient } from "@/util/functions";
 import AddListingDrawer from "./AddListingDrawer";
 import CategoryFilter from "./CategoryFilter";
 import MyLocationButton from "./MyLocationButton";

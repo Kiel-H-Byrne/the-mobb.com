@@ -11,11 +11,12 @@
     "prepare": "panda codegen"
   },
   "dependencies": {
-    "@ai-sdk/openai": "^3.0.34",
+    "@ai-sdk/google": "^3.0.33",
     "@ark-ui/react": "^5.32.0",
     "@auth0/auth0-react": "^2.15.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@google/genai": "^1.43.0",
     "@googlemaps/markerclusterer": "^2.6.2",
     "@mui/icons-material": "^7.3.8",
     "@mui/lab": "^7.0.1-beta.22",
