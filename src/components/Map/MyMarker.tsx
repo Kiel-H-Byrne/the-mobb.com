@@ -8,7 +8,6 @@ interface MyMarkerProps {
   setisDrawerOpen: (open: boolean) => void;
   setisInfoWindowOpen: (open: boolean) => void;
   setactiveListing: (listing: Listing) => void;
-  visible: boolean;
 }
 
 const MyMarker = ({
@@ -17,7 +16,6 @@ const MyMarker = ({
   setisDrawerOpen,
   setisInfoWindowOpen,
   setactiveListing,
-  visible,
 }: MyMarkerProps) => {
   const { location, coordinates, _id } = data;
   let locObj: { lat: number; lng: number };
@@ -38,19 +36,13 @@ const MyMarker = ({
 
   useEffect(() => {
     if (!marker || !clusterer) return;
-    
-    if (visible) {
-      clusterer.addMarker(marker);
-    } else {
-      clusterer.removeMarker(marker);
-    }
-    
+
+    clusterer.addMarker(marker);
+
     return () => {
       clusterer.removeMarker(marker);
     };
-  }, [marker, clusterer, visible]);
-
-  if (!visible) return null;
+  }, [marker, clusterer]);
 
   const handleMouseOverMarker = () => {
     setactiveListing(data);
