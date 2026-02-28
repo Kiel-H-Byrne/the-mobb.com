@@ -7,7 +7,7 @@ import { css } from "@styled/css";
 import { useEffect, useState } from "react";
 
 const MyLocationButton = ({ listings, mapInstance }) => {
-  const [clientLocation, setClientLocation] = useState<{lat: number, lng: number} | null>(null);
+  const [clientLocation, setClientLocation] = useState<{ lat: number, lng: number } | null>(null);
   const [closestListing, setClosestListing] = useState<any | null>(null);
   const [geoWatchId, setGeoWatchId] = useState<number | null>(null);
   const [clientMarker, setClientMarker] = useState<any | null>(null);
@@ -35,7 +35,7 @@ const MyLocationButton = ({ listings, mapInstance }) => {
             if (!clientMarker) {
               const iconImg = document.createElement("img");
               iconImg.src = "img/map/orange_dot_sm_2.png";
-              
+
               let marker = new window.google.maps.marker.AdvancedMarkerElement({
                 position: positionObject,
                 map: mapInstance,

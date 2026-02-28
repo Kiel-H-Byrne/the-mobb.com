@@ -1,9 +1,9 @@
+import { Category, Listing } from "@/db/Types";
 import { Menu } from "@ark-ui/react/menu";
 import { Switch } from "@ark-ui/react/switch";
 import LocationOffIcon from "@mui/icons-material/LocationOffTwoTone";
-import { memo, useMemo } from "react";
 import { css } from "@styled/css";
-import { Category, Listing } from "@/db/Types";
+import { memo, useMemo } from "react";
 
 type CategoryFilterType = {
   listings: Listing[];
@@ -119,6 +119,7 @@ const CategoryFilter = ({
                     <Switch.Label className={css({ fontSize: "sm", cursor: "pointer" })}>
                       {name}
                     </Switch.Label>
+                    <Switch.HiddenInput />
                   </Switch.Root>
                   <span
                     className={css({
