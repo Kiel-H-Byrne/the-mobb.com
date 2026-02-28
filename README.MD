@@ -23,10 +23,10 @@ The Map of Black Businesses (MOBB) is a digital infrastructure for economic equi
 
 The MOBB has evolved into a modern, map-first, AI-curated platform.
 
-*   **Framework:** Next.js 14+ (App Router)
+*   **Framework:** Next.js 16+ (App Router)
 *   **Language:** TypeScript (Strict mode)
 *   **Database:** MongoDB Atlas (utilizing `2dsphere` indexes for `$near` geospatial queries)
-*   **Styling:** Tailwind CSS + Material-UI + Panda CSS
+*   **Styling:** Panda CSS
 *   **Mapping:** `@vis.gl/react-google-maps` for a seamless map-first user interface
 *   **AI Integration:** Vercel AI SDK (`@ai-sdk/google`) for automated data extraction
 
@@ -59,13 +59,16 @@ MONGODB_DB_NAME="vercel-db"
 
 # Google Maps (For Client UI and Server Geocoding)
 NEXT_PUBLIC_GOOGLE_MAPS_KEY="your_google_maps_api_key"
+NEXT_PUBLIC_MAP_ID="your_google_map_id"
 
 # AI & Scraping
 GEMINI_API_KEY="your_gemini_api_key"
+OPENAI_API_KEY="your_openai_api_key"
 SERP_API_KEY="your_serp_api_key"
 
 # Admin Auth (Simple mock auth for current MVP)
 ADMIN_PASSWORD="your_secure_password"
+NEXT_SERVER_ACTIONS_ENCRYPTION_KEY="your_base64_encryption_key"
 ```
 
 ### Database Setup
