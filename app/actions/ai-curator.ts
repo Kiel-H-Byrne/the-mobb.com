@@ -1,11 +1,15 @@
 // app/actions/ai-curator.ts
 "use server";
 
-import { openai } from "@ai-sdk/openai";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateObject } from "ai";
 import { z } from "zod";
-import clientPromise from "../../src/db/mongodb";
+import clientPromise, { DB_NAME } from "../../src/db/mongodb";
 import { PendingListing } from "../../src/db/Types";
+
+const google = createGoogleGenerativeAI({
+  apiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+});
 
 // Define the schema for a single business entity
 const BusinessEntitySchema = z.object({
@@ -34,7 +38,7 @@ export async function extractBusinessData(url: string) {
 
   // 2. AI Extraction
   const { object } = await generateObject({
-    model: openai("gpt-4o"),
+    model: google("gemini-2.5-flash"),
     schema: ExtractionSchema,
     system: `
       You are an expert Data Curator for the MOBB (Map of Black Businesses) App.
@@ -50,7 +54,7 @@ export async function extractBusinessData(url: string) {
 
   // 3. Save to Database
   const client = await clientPromise;
-  const db = client.db("vercel-db");
+  const db = client.db(DB_NAME);
   const pendingCollection = db.collection<PendingListing>("pending_listings");
 
   const pendingListings: PendingListing[] = object.businesses.map((biz: any) => ({
