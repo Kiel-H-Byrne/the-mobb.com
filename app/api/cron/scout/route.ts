@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { extractBusinessData } from '../../../../app/actions/ai-curator';
-import clientPromise, { DB_NAME } from '../../../../src/db/mongodb';
+import { extractBusinessData } from "@app/actions/ai-curator";
+import clientPromise, { DB_NAME } from "@/db/mongodb";
 
 // Vercel Cron will send this header if configured
 const CRON_SECRET = process.env.CRON_SECRET;

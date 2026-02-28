@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import clientPromise from "../../src/db/mongodb";
+import clientPromise from "@/db/mongodb";
 
 // We mirror the Listing shape somewhat, but as a pending submission
 const SubmitSchema = z.object({

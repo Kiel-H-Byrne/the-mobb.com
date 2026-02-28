@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { getOG } from "../util/functions";
-import { Listing } from '../db/Types';
-import { css } from "../../styled-system/css";
+import { getOG } from "@/util/functions";
+import { Listing } from "@/db/Types";
+import { css } from "@styled/css";
 
 const DEFAULT_IMAGE = "http://placeimg.com/89/50/arch";
 

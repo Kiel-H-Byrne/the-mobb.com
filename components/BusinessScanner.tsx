@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { scanBusinessUrl } from "../app/actions/scanBusiness";
-import { css } from "../styled-system/css";
+import { scanBusinessUrl } from "@app/actions/scanBusiness";
+import { css } from "@styled/css";
 
 export default function BusinessScanner() {
   const [url, setUrl] = useState("");

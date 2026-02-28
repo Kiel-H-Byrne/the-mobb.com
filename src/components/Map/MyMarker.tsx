@@ -1,6 +1,6 @@
 import { Marker } from "@vis.gl/react-google-maps";
 import { memo, useEffect, useState } from "react";
-import { Listing } from "../../db/Types";
+import { Listing } from "@/db/Types";
 
 interface MyMarkerProps {
   data: Listing;

@@ -1,4 +1,4 @@
-import "../src/style/index.css";
+import "@/style/index.css";
 
 export const metadata = {
   title: "MOBB",

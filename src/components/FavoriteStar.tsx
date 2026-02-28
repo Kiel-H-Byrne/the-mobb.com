@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Favorite, FavoriteBorder } from "@mui/icons-material";
-import { css } from "../../styled-system/css";
+import { css } from "@styled/css";
 
 interface Props {
   _id: string;

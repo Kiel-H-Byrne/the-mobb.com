@@ -2,9 +2,9 @@ import React, { Dispatch, SetStateAction } from "react";
 import { Dialog } from "@ark-ui/react/dialog";
 import { Portal } from "@ark-ui/react/portal";
 import DirectionsIcon from "@mui/icons-material/DirectionsTwoTone";
-import ListingImage from "../ListingImage";
-import { Listing } from "../../db/Types";
-import { css } from "../../../styled-system/css";
+import ListingImage from "@/components/ListingImage";
+import { Listing } from "@/db/Types";
+import { css } from "@styled/css";
 
 interface ISideDrawer {
   activeListing: Listing;

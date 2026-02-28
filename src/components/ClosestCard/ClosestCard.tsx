@@ -5,7 +5,7 @@ import {
   PhoneTwoTone,
   LinkTwoTone,
 } from "@mui/icons-material";
-import { css } from "../../../styled-system/css";
+import { css } from "@styled/css";
 
 const ClosestCard = ({ closestListing }) => {
   const { address, city, state, url, phone, name, location, image } =

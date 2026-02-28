@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { css } from "../../../styled-system/css";
-import { approveListing, getPendingListings, loginAdmin, logoutAdmin, rejectListing } from "../../actions/admin";
+import { css } from "@styled/css";
+import { approveListing, getPendingListings, loginAdmin, logoutAdmin, rejectListing } from "@app/actions/admin";
 
 export default function AdminReviewsPage() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);

@@ -2,7 +2,7 @@
 
 import { ObjectId } from "mongodb";
 import { revalidatePath } from "next/cache";
-import clientPromise, { DB_NAME } from "../../src/db/mongodb";
+import clientPromise, { DB_NAME } from "@/db/mongodb";
 
 // Temporary Simple Auth Mock
 import { cookies } from "next/headers";

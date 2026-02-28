@@ -4,9 +4,9 @@ import { Tabs } from "@ark-ui/react/tabs";
 import CloseIcon from "@mui/icons-material/CloseTwoTone";
 import { useMapsLibrary } from "@vis.gl/react-google-maps";
 import { Dispatch, SetStateAction, memo, useEffect, useRef, useState } from "react";
-import { scanBusinessUrl } from "../../../app/actions/scanBusiness";
-import { submitListing } from "../../../app/actions/submitListing";
-import { css } from "../../../styled-system/css";
+import { scanBusinessUrl } from "@app/actions/scanBusiness";
+import { submitListing } from "@app/actions/submitListing";
+import { css } from "@styled/css";
 
 interface IAddListingDrawer {
   isOpen: boolean;

@@ -4,8 +4,8 @@
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateObject } from "ai";
 import { z } from "zod";
-import clientPromise, { DB_NAME } from "../../src/db/mongodb";
-import { PendingListing } from "../../src/db/Types";
+import clientPromise, { DB_NAME } from "@/db/mongodb";
+import { PendingListing } from "@/db/Types";
 
 const google = createGoogleGenerativeAI({
   apiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY,

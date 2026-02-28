@@ -1,10 +1,10 @@
 import MyLocationIcon from "@mui/icons-material/MyLocationTwoTone";
 
 import { useEffect, useState } from "react";
-import { css } from "../../../styled-system/css";
-import ClosestCard from "../ClosestCard/ClosestCard";
-import ClosestList from "../ClosestList";
-import { findClosestMarker, targetClient } from "./../../util/functions";
+import { css } from "@styled/css";
+import ClosestCard from "@/components/ClosestCard/ClosestCard";
+import ClosestList from "@/components/ClosestList";
+import { findClosestMarker, targetClient } from "@/util/functions";
 
 const MyLocationButton = ({ listings, mapInstance }) => {
   const [clientLocation, setClientLocation] = useState<{lat: number, lng: number} | null>(null);

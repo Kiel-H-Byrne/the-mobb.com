@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { GLocation, Listing } from "../db/Types";
+import { GLocation, Listing } from "@/db/Types";
 import { mCache } from "./cache";
 
 export const useFetchOG = (url: string) => {

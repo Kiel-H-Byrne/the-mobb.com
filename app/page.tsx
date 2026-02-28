@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import AppMap from "../src/components/Map/AppMap";
-import { css } from "../styled-system/css";
+import AppMap from "@/components/Map/AppMap";
+import { css } from "@styled/css";
 
-import { SAMPLE_CATEGORIES, SAMPLE_LISTINGS } from "../src/db/SampleListings";
+import { SAMPLE_CATEGORIES, SAMPLE_LISTINGS } from "@/db/SampleListings";
 import { fetchAllCategories, fetchAllListings } from "./actions/geo-search";
 
-import { Category, Listing } from "../src/db/Types";
+import { Category, Listing } from "@/db/Types";
 
 const Home = React.memo(() => {
   const [mapInstance, setMapInstance] = useState<any>(null);
