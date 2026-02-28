@@ -38,119 +38,6 @@ const defaultProps = {
     scrollwheel: true,
     maxZoom: 18,
     minZoom: 4,
-    styles: [
-      {
-        featureType: "administrative",
-        elementType: "labels.text.fill",
-        stylers: [{ color: "#C3BBAE" }],
-      },
-      {
-        featureType: "administrative",
-        elementType: "labels.text.stroke",
-        stylers: [{ color: "#565250" }],
-      },
-      {
-        featureType: "administrative.country",
-        elementType: "labels.text.stroke",
-        stylers: [{ color: "#5C5A6F" }],
-      },
-      {
-        featureType: "administrative.locality",
-        elementType: "labels.text.fill",
-        stylers: [{ color: "#FFFAF3" }],
-      },
-      {
-        featureType: "administrative.locality",
-        elementType: "labels.text.stroke",
-        stylers: [{ color: "#696969" }],
-      },
-      {
-        featureType: "administrative.neighborhood",
-        elementType: "labels.text.stroke",
-        stylers: [{ color: "#696969" }],
-      },
-      {
-        featureType: "landscape",
-        elementType: "all",
-        stylers: [{ color: "#FBB03B" }, { weight: 2 }],
-      },
-      {
-        featureType: "landscape",
-        elementType: "geometry.fill",
-        stylers: [{ color: "#565250" }, { visibility: "on" }],
-      },
-      {
-        featureType: "poi.park",
-        elementType: "geometry.fill",
-        stylers: [
-          { hue: "#003300" },
-          { saturation: -80 },
-          { lightness: -5 },
-          { gamma: 0.3 },
-          { visibility: "simplified" },
-        ],
-      },
-      {
-        featureType: "poi",
-        elementType: "all",
-        stylers: [{ visibility: "on" }],
-      },
-      {
-        featureType: "poi.business",
-        elementType: "geometry",
-        stylers: [{ saturation: -10 }, { visibility: "on" }],
-      },
-      {
-        featureType: "poi.business",
-        elementType: "labels",
-        stylers: [{ visibility: "off" }],
-      },
-      {
-        featureType: "road",
-        elementType: "all",
-        stylers: [{ saturation: -60 }, { lightness: -45 }],
-      },
-      {
-        featureType: "road",
-        elementType: "labels.text.fill",
-        stylers: [{ color: "#FBB03B" }],
-      },
-      {
-        featureType: "road",
-        elementType: "labels.text.stroke",
-        stylers: [{ weight: 4 }, { color: "#484848" }],
-      },
-      {
-        featureType: "road",
-        elementType: "labels.icon",
-        stylers: [{ visibility: "off" }],
-      },
-      {
-        featureType: "road.highway",
-        elementType: "all",
-        stylers: [{ visibility: "simplified" }, { color: "#323232" }],
-      },
-      {
-        featureType: "road.highway",
-        elementType: "labels",
-        stylers: [{ visibility: "off" }],
-      },
-      {
-        featureType: "road.arterial",
-        elementType: "labels.icon",
-        stylers: [{ visibility: "off" }],
-      },
-      {
-        featureType: "transit",
-        elementType: "all",
-        stylers: [{ visibility: "off" }],
-      },
-      {
-        featureType: "water",
-        elementType: "all",
-        stylers: [{ color: "#ffffff" }, { visibility: "on" }],
-      },
-    ],
   },
 };
 
@@ -204,22 +91,22 @@ const MapContent = memo(({
           })}
         >
           {isAuthenticated ? (
-             <button
+            <button
               aria-label="Add A Listing"
-               className={css({
-                 background: "transparent",
-                 border: "none",
-                 color: "brand.grey",
-                 cursor: "pointer",
-                 padding: "2",
-                 borderRadius: "full",
-                 _hover: { backgroundColor: "rgba(0,0,0,0.05)" },
-               })}
-             >
-               <AddLocationIcon />
-             </button>
-           ) : null}
-           <MAvatar />
+              className={css({
+                background: "transparent",
+                border: "none",
+                color: "brand.grey",
+                cursor: "pointer",
+                padding: "2",
+                borderRadius: "full",
+                _hover: { backgroundColor: "rgba(0,0,0,0.05)" },
+              })}
+            >
+              <AddLocationIcon />
+            </button>
+          ) : null}
+          <MAvatar />
         </div>
       </MapControl>
       <MapControl position={2}>
@@ -327,7 +214,6 @@ const AppMap = memo(
           zoomControl={options.zoomControl}
           gestureHandling={options.gestureHandling}
           colorScheme={"DARK"}
-          styles={options.styles}
           onIdle={handleIdle}
         >
           <MapContent
