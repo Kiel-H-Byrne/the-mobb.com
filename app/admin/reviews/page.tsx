@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import AddListingDrawer from "@/components/Map/AddListingDrawer";
+import { approveListing, getPendingListings, loginAdmin, logoutAdmin, rejectListing, updatePendingListing } from "@app/actions/admin";
 import { css } from "@styled/css";
-import { approveListing, getPendingListings, loginAdmin, logoutAdmin, rejectListing } from "@app/actions/admin";
+import { APIProvider } from "@vis.gl/react-google-maps";
+import { useEffect, useState } from "react";
 
 export default function AdminReviewsPage() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
@@ -11,6 +13,8 @@ export default function AdminReviewsPage() {
 
   const [listings, setListings] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false);
+  const [editingListing, setEditingListing] = useState<any>(null);
 
   useEffect(() => {
     async function init() {
@@ -40,14 +44,6 @@ export default function AdminReviewsPage() {
   };
 
   const handleApprove = async (l: any) => {
-    // Make sure we have lat/lng if we need it
-    if (!l.lat || !l.lng) {
-      const confirmApprove = window.confirm(
-        "Warning: This listing does not have exact coordinates saved yet! The Map may not display it properly until you edit it manually via the Database or Geocoder. Proceed anyway?"
-      );
-      if (!confirmApprove) return;
-    }
-
     setIsLoading(true);
     const res = await approveListing(l._id, l);
     if (res.success) {
@@ -69,8 +65,26 @@ export default function AdminReviewsPage() {
     setIsLoading(false);
   };
 
-  if (isLoggedIn === null) return <div className={css({ p: "10" })}>Loading...</div>;
+  const handleEditSave = async (updatedData: any) => {
+    if (!editingListing) return;
+    setIsLoading(true);
+    const res = await updatePendingListing(editingListing._id, updatedData);
+    if (res.success) {
+      // Update local state
+      setListings((prev) => prev.map((item) => {
+        if (item._id === editingListing._id) {
+          return { ...item, ...updatedData };
+        }
+        return item;
+      }));
+    } else {
+      alert("Error updating listing");
+      throw new Error("Update failed"); // Propagate to drawer to show error
+    }
+    setIsLoading(false);
+  };
 
+  if (isLoggedIn === null) return <div className={css({ p: "10" })}>Loading...</div>;
   if (!isLoggedIn) {
     return (
       <div className={css({ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", bg: "gray.50" })}>
@@ -124,13 +138,13 @@ export default function AdminReviewsPage() {
                   )}
                 </div>
                 <p className={css({ fontSize: "sm", color: "gray.600", mb: "1" })}><strong>Address:</strong> {l.address || "None"}</p>
-                <p className={css({ fontSize: "sm", color: "gray.600", mb: "1" })}><strong>Coordinates:</strong> {l.lat && l.lng ? `${l.lat}, ${l.lng}` : <span className={css({color: "red.500"})}>Missing coordinates (Location Search Error)</span>}</p>
-                <p className={css({ fontSize: "sm", color: "gray.600", mb: "1" })}><strong>Website:</strong> {l.website ? <a href={l.website} target="_blank" className={css({color:"blue.500"})}>{l.website}</a> : "None"}</p>
+                <p className={css({ fontSize: "sm", color: "gray.600", mb: "1" })}><strong>Website:</strong> {l.website ? <a href={l.website} target="_blank" className={css({ color: "blue.500" })}>{l.website}</a> : "None"}</p>
+                <p className={css({ fontSize: "sm", color: "gray.600", mb: "1" })}><strong>Submitted:</strong> {l.createdAt ? new Date(l.createdAt).toLocaleString() : "Unknown"} | <strong>IP Address:</strong> {l.ipAddress || "Unknown"}</p>
                 {l.description && (
                   <p className={css({ fontSize: "sm", color: "gray.700", mt: "2", p: "2", bg: "gray.50", borderRadius: "md" })}>{l.description}</p>
                 )}
               </div>
-              
+
               <div className={css({ display: "flex", flexDirection: "column", gap: "2", minWidth: "120px" })}>
                 <button
                   disabled={isLoading}
@@ -138,6 +152,16 @@ export default function AdminReviewsPage() {
                   className={css({ bg: "brand.orange", color: "white", p: "2", borderRadius: "md", fontWeight: "bold", cursor: "pointer", _hover: { bg: "orange.600" }, opacity: isLoading ? 0.7 : 1 })}
                 >
                   Approve
+                </button>
+                <button
+                  disabled={isLoading}
+                  onClick={() => {
+                    setEditingListing(l);
+                    setIsEditDrawerOpen(true);
+                  }}
+                  className={css({ bg: "blue.500", color: "white", p: "2", borderRadius: "md", fontWeight: "bold", cursor: "pointer", _hover: { bg: "blue.600" }, opacity: isLoading ? 0.7 : 1 })}
+                >
+                  Edit
                 </button>
                 <button
                   disabled={isLoading}
@@ -151,6 +175,20 @@ export default function AdminReviewsPage() {
           ))
         )}
       </div>
+
+      <APIProvider
+        apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY as string}
+        //@ts-ignore
+        libraries={["places", "geometry", "marker", "visualization"]}
+      >
+        <AddListingDrawer
+          isOpen={isEditDrawerOpen}
+          setOpen={setIsEditDrawerOpen}
+          mode="edit"
+          initialData={editingListing}
+          onSubmitEdit={handleEditSave}
+        />
+      </APIProvider>
     </div>
   );
 }

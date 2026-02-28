@@ -5,14 +5,18 @@ import { Portal } from "@ark-ui/react/portal";
 import { Tabs } from "@ark-ui/react/tabs";
 import CloseIcon from "@mui/icons-material/CloseTwoTone";
 import { css } from "@styled/css";
+import { useMapsLibrary } from "@vis.gl/react-google-maps";
 import { Dispatch, SetStateAction, memo, useEffect, useRef, useState } from "react";
 
 interface IAddListingDrawer {
   isOpen: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
+  mode?: "add" | "edit";
+  initialData?: any;
+  onSubmitEdit?: (data: any) => Promise<void>;
 }
 
-const AddListingDrawer = ({ isOpen, setOpen }: IAddListingDrawer) => {
+const AddListingDrawer = ({ isOpen, setOpen, mode = "add", initialData, onSubmitEdit }: IAddListingDrawer) => {
   const [url, setUrl] = useState("");
   const [isScanning, setIsScanning] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,34 +27,52 @@ const AddListingDrawer = ({ isOpen, setOpen }: IAddListingDrawer) => {
   const [manualData, setManualData] = useState<{
     name: string; category: string; address: string; website: string; description: string; isBlackOwned: boolean; lat?: number; lng?: number;
   }>({
-    name: "",
-    category: "",
-    address: "",
-    website: "",
-    description: "",
-    isBlackOwned: false
+    name: initialData?.name || "",
+    category: initialData?.category || "",
+    address: initialData?.address || "",
+    website: initialData?.website || "",
+    description: initialData?.description || "",
+    isBlackOwned: initialData?.isBlackOwned || false,
+    lat: initialData?.lat || undefined,
+    lng: initialData?.lng || undefined
   });
+
+  useEffect(() => {
+    if (mode === "edit" && initialData) {
+      setManualData({
+        name: initialData.name || "",
+        category: initialData.category || "",
+        address: initialData.address || "",
+        website: initialData.website || "",
+        description: initialData.description || "",
+        isBlackOwned: initialData.isBlackOwned || false,
+        lat: initialData.lat || undefined,
+        lng: initialData.lng || undefined
+      });
+    }
+  }, [mode, initialData, isOpen]);
 
   // Autocomplete ref
   const containerRef = useRef<HTMLDivElement>(null);
   const [autocomplete, setAutocomplete] = useState<google.maps.places.PlaceAutocompleteElement | null>(null);
+  const placesLib = useMapsLibrary("places");
 
   useEffect(() => {
-    if (!window.google || !window.google.maps || !window.google.maps.places || !containerRef.current) return;
-    
+    if (!placesLib || !containerRef.current) return;
+
     // Create the PlaceAutocompleteElement
     // @ts-ignore
     const element = new window.google.maps.places.PlaceAutocompleteElement({});
     // Request specific fields
     // @ts-ignore
-    element.fields = ["formatted_address", "geometry", "name"];
-    
+    element.fields = ["formatted_address", "geometry", "name", "website"];
+
     // Append to container
     containerRef.current.innerHTML = ''; // prevent duplicates
     containerRef.current.appendChild(element);
-    
+
     setAutocomplete(element);
-  }, [containerRef]);
+  }, [placesLib, containerRef]);
 
   useEffect(() => {
     if (!autocomplete) return;
@@ -58,14 +80,16 @@ const AddListingDrawer = ({ isOpen, setOpen }: IAddListingDrawer) => {
     const handlePlaceSelect = async (e: any) => {
       const place = e.place;
       // Fetch fields before accessing them
-      await place.fetchFields({ fields: ['formattedAddress', 'location'] });
-      
-      if (place && place.formattedAddress) {
-        setManualData(prev => ({ 
-          ...prev, 
-          address: place.formattedAddress as string,
+      await place.fetchFields({ fields: ['formattedAddress', 'location', 'website', 'displayName'] });
+
+      if (place) {
+        setManualData(prev => ({
+          ...prev,
+          name: place.displayName || prev.name,
+          address: place.formattedAddress as string || prev.address,
           lat: place.location?.lat(),
           lng: place.location?.lng(),
+          website: place.websiteURI || prev.website,
         }));
       }
     };
@@ -83,11 +107,11 @@ const AddListingDrawer = ({ isOpen, setOpen }: IAddListingDrawer) => {
   const handleScan = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!url) return;
-    
+
     setIsScanning(true);
     setError("");
     setResult(null);
-    
+
     try {
       const res = await scanBusinessUrl(url);
       if (res.success && res.data) {
@@ -122,7 +146,7 @@ const AddListingDrawer = ({ isOpen, setOpen }: IAddListingDrawer) => {
       } else {
         setError(res.error || "Submission failed.");
       }
-    } catch(e) {
+    } catch (e) {
       console.error(e);
       setError("An unexpected error occurred during submission.");
     } finally {
@@ -134,6 +158,21 @@ const AddListingDrawer = ({ isOpen, setOpen }: IAddListingDrawer) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError("");
+
+    if (mode === "edit" && onSubmitEdit) {
+      try {
+        await onSubmitEdit(manualData);
+        alert("Listing updated successfully!");
+        handleClose();
+      } catch (e: any) {
+        console.error(e);
+        setError(e.message || "An error occurred while updating.");
+      } finally {
+        setIsSubmitting(false);
+      }
+      return;
+    }
+
     try {
       const res = await submitListing({
         ...manualData,
@@ -145,7 +184,7 @@ const AddListingDrawer = ({ isOpen, setOpen }: IAddListingDrawer) => {
       } else {
         setError(res.error || "Submission failed.");
       }
-    } catch(e) {
+    } catch (e) {
       console.error(e);
       setError("An unexpected error occurred during submission.");
     } finally {
@@ -160,7 +199,7 @@ const AddListingDrawer = ({ isOpen, setOpen }: IAddListingDrawer) => {
     setResult(null);
     setError("");
     setManualData({
-      name: "", category: "", address: "", website: "", description: "", isBlackOwned: false
+      name: "", category: "", address: "", website: "", description: "", isBlackOwned: false, lat: undefined, lng: undefined
     });
   };
 
@@ -211,7 +250,7 @@ const AddListingDrawer = ({ isOpen, setOpen }: IAddListingDrawer) => {
               backgroundColor: "gray.50",
             })}>
               <h2 className={css({ fontSize: "xl", fontWeight: "bold", color: "brand.grey" })}>
-                Add a Listing
+                {mode === "edit" ? "Edit Listing" : "Add a Listing"}
               </h2>
               <button
                 onClick={handleClose}
@@ -227,38 +266,40 @@ const AddListingDrawer = ({ isOpen, setOpen }: IAddListingDrawer) => {
               </button>
             </div>
 
-            {/* Body */}
+            {/* Body */}ong as
             <div className={css({ padding: "6", flex: "1", overflowY: "auto" })}>
-              <Tabs.Root defaultValue="scan">
-                <Tabs.List className={css({
-                  display: "flex",
-                  borderBottom: "1px solid",
-                  borderColor: "gray.200",
-                  marginBottom: "4"
-                })}>
-                  <Tabs.Trigger value="scan" className={css({
-                    padding: "2 4",
-                    cursor: "pointer",
-                    background: "none",
-                    border: "none",
-                    borderBottom: "2px solid transparent",
-                    color: "gray.500",
-                    _selected: { color: "brand.orange", borderColor: "brand.orange", fontWeight: "bold" },
+              <Tabs.Root value={mode === "edit" ? "manual" : undefined} defaultValue="scan">
+                {mode === "add" && (
+                  <Tabs.List className={css({
+                    display: "flex",
+                    borderBottom: "1px solid",
+                    borderColor: "gray.200",
+                    marginBottom: "4"
                   })}>
-                    AI Scan URL
-                  </Tabs.Trigger>
-                  <Tabs.Trigger value="manual" className={css({
-                    padding: "2 4",
-                    cursor: "pointer",
-                    background: "none",
-                    border: "none",
-                    borderBottom: "2px solid transparent",
-                    color: "gray.500",
-                    _selected: { color: "brand.orange", borderColor: "brand.orange", fontWeight: "bold" },
-                  })}>
-                    Manual Entry
-                  </Tabs.Trigger>
-                </Tabs.List>
+                    <Tabs.Trigger value="scan" className={css({
+                      padding: "2 4",
+                      cursor: "pointer",
+                      background: "none",
+                      border: "none",
+                      borderBottom: "2px solid transparent",
+                      color: "gray.500",
+                      _selected: { color: "brand.orange", borderColor: "brand.orange", fontWeight: "bold" },
+                    })}>
+                      AI Scan URL
+                    </Tabs.Trigger>
+                    <Tabs.Trigger value="manual" className={css({
+                      padding: "2 4",
+                      cursor: "pointer",
+                      background: "none",
+                      border: "none",
+                      borderBottom: "2px solid transparent",
+                      color: "gray.500",
+                      _selected: { color: "brand.orange", borderColor: "brand.orange", fontWeight: "bold" },
+                    })}>
+                      Manual Entry
+                    </Tabs.Trigger>
+                  </Tabs.List>
+                )}
 
                 <Tabs.Content value="scan">
                   <p className={css({ fontSize: "sm", color: "gray.600", marginBottom: "6" })}>
@@ -284,7 +325,7 @@ const AddListingDrawer = ({ isOpen, setOpen }: IAddListingDrawer) => {
                         })}
                       />
                     </label>
-                    
+
                     <button
                       type="submit"
                       disabled={isScanning || !url}
@@ -331,12 +372,12 @@ const AddListingDrawer = ({ isOpen, setOpen }: IAddListingDrawer) => {
                         <div><strong>Name:</strong> {result.name}</div>
                         <div><strong>Category:</strong> {result.category}</div>
                         {result.address && <div><strong>Address:</strong> {result.address}</div>}
-                        <div><strong>Black Owned?:</strong> {result.isBlackOwnedDetected ? "Yes" : "No"} (Confidence: {result.confidenceScore*100}%)</div>
+                        <div><strong>Black Owned?:</strong> {result.isBlackOwnedDetected ? "Yes" : "No"} (Confidence: {result.confidenceScore * 100}%)</div>
                         <div className={css({ color: "gray.600", fontSize: "xs", marginTop: "2" })}>
                           {result.description}
                         </div>
                       </div>
-                      
+
                       <button
                         className={css({
                           width: "100%",
@@ -364,11 +405,11 @@ const AddListingDrawer = ({ isOpen, setOpen }: IAddListingDrawer) => {
                   <form onSubmit={handleManualSubmit} className={css({ display: "flex", flexDirection: "column", gap: "4" })}>
                     <label className={css({ display: "flex", flexDirection: "column", gap: "1", fontSize: "sm", fontWeight: "500" })}>
                       Business Name *
-                      <input value={manualData.name} onChange={e => setManualData({...manualData, name: e.target.value})} required type="text" className={css({ padding: "2", borderRadius: "md", border: "1px solid", borderColor: "gray.300", outline: "none", _focus: { borderColor: "brand.orange" }})} />
+                      <input value={manualData.name} onChange={e => setManualData({ ...manualData, name: e.target.value })} required type="text" className={css({ padding: "2", borderRadius: "md", border: "1px solid", borderColor: "gray.300", outline: "none", _focus: { borderColor: "brand.orange" } })} />
                     </label>
                     <label className={css({ display: "flex", flexDirection: "column", gap: "1", fontSize: "sm", fontWeight: "500" })}>
                       Category *
-                      <select value={manualData.category} onChange={e => setManualData({...manualData, category: e.target.value})} required className={css({ padding: "2", borderRadius: "md", border: "1px solid", borderColor: "gray.300", outline: "none", _focus: { borderColor: "brand.orange" }})}>
+                      <select value={manualData.category} onChange={e => setManualData({ ...manualData, category: e.target.value })} required className={css({ padding: "2", borderRadius: "md", border: "1px solid", borderColor: "gray.300", outline: "none", _focus: { borderColor: "brand.orange" } })}>
                         <option value="">Select a category</option>
                         <option value="Restaurant">Restaurant</option>
                         <option value="Retail">Retail</option>
@@ -380,17 +421,17 @@ const AddListingDrawer = ({ isOpen, setOpen }: IAddListingDrawer) => {
                     <label className={css({ display: "flex", flexDirection: "column", gap: "1", fontSize: "sm", fontWeight: "500" })}>
                       Address *
                       {/* The PlaceAutocompleteElement is mounted inside this container */}
-                      <div ref={containerRef} className={css({ 
+                      <div ref={containerRef} className={css({
                         "& > gmp-place-autocomplete": {
                           width: "100%",
                         },
                         "& > gmp-place-autocomplete::part(input)": {
                           width: "100%",
-                          padding: "8px", 
-                          borderRadius: "6px", 
-                          border: "1px solid", 
-                          borderColor: "gray.300", 
-                          outline: "none", 
+                          padding: "8px",
+                          borderRadius: "6px",
+                          border: "1px solid",
+                          borderColor: "gray.300",
+                          outline: "none",
                           fontFamily: "inherit",
                           fontSize: "14px",
                         }
@@ -398,14 +439,14 @@ const AddListingDrawer = ({ isOpen, setOpen }: IAddListingDrawer) => {
                     </label>
                     <label className={css({ display: "flex", flexDirection: "column", gap: "1", fontSize: "sm", fontWeight: "500" })}>
                       Website
-                      <input value={manualData.website} onChange={e => setManualData({...manualData, website: e.target.value})} type="url" className={css({ padding: "2", borderRadius: "md", border: "1px solid", borderColor: "gray.300", outline: "none", _focus: { borderColor: "brand.orange" }})} />
+                      <input value={manualData.website} onChange={e => setManualData({ ...manualData, website: e.target.value })} type="url" className={css({ padding: "2", borderRadius: "md", border: "1px solid", borderColor: "gray.300", outline: "none", _focus: { borderColor: "brand.orange" } })} />
                     </label>
                     <label className={css({ display: "flex", flexDirection: "column", gap: "1", fontSize: "sm", fontWeight: "500" })}>
                       Description
-                      <textarea value={manualData.description} onChange={e => setManualData({...manualData, description: e.target.value})} rows={3} className={css({ padding: "2", borderRadius: "md", border: "1px solid", borderColor: "gray.300", outline: "none", _focus: { borderColor: "brand.orange" }})}></textarea>
+                      <textarea value={manualData.description} onChange={e => setManualData({ ...manualData, description: e.target.value })} rows={3} className={css({ padding: "2", borderRadius: "md", border: "1px solid", borderColor: "gray.300", outline: "none", _focus: { borderColor: "brand.orange" } })}></textarea>
                     </label>
                     <label className={css({ display: "flex", alignItems: "center", gap: "2", fontSize: "sm", fontWeight: "500", marginTop: "2" })}>
-                      <input checked={manualData.isBlackOwned} onChange={e => setManualData({...manualData, isBlackOwned: e.target.checked})} type="checkbox" className={css({ width: "4", height: "4", accentColor: "brand.orange" })} />
+                      <input checked={manualData.isBlackOwned} onChange={e => setManualData({ ...manualData, isBlackOwned: e.target.checked })} type="checkbox" className={css({ width: "4", height: "4", accentColor: "brand.orange" })} />
                       Is this Black-Owned?
                     </label>
 
@@ -416,24 +457,24 @@ const AddListingDrawer = ({ isOpen, setOpen }: IAddListingDrawer) => {
                     )}
 
                     <button
-                        disabled={isSubmitting}
-                        type="submit"
-                        className={css({
-                          width: "100%",
-                          backgroundColor: "brand.grey",
-                          color: "white",
-                          padding: "3",
-                          borderRadius: "full",
-                          fontWeight: "bold",
-                          cursor: isSubmitting ? "wait" : "pointer",
-                          border: "none",
-                          opacity: isSubmitting ? 0.7 : 1,
-                          marginTop: "4",
-                          _hover: { backgroundColor: "#2d2a28" },
-                        })}
-                      >
-                        {isSubmitting ? "Submitting..." : "Submit for Review"}
-                      </button>
+                      disabled={isSubmitting}
+                      type="submit"
+                      className={css({
+                        width: "100%",
+                        backgroundColor: "brand.grey",
+                        color: "white",
+                        padding: "3",
+                        borderRadius: "full",
+                        fontWeight: "bold",
+                        cursor: isSubmitting ? "wait" : "pointer",
+                        border: "none",
+                        opacity: isSubmitting ? 0.7 : 1,
+                        marginTop: "4",
+                        _hover: { backgroundColor: "#2d2a28" },
+                      })}
+                    >
+                      {isSubmitting ? (mode === "edit" ? "Saving..." : "Submitting...") : (mode === "edit" ? "Save Changes" : "Submit for Review")}
+                    </button>
                   </form>
                 </Tabs.Content>
               </Tabs.Root>

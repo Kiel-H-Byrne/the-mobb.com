@@ -1,8 +1,8 @@
 "use server";
 
+import clientPromise, { DB_NAME } from "@/db/mongodb";
 import { ObjectId } from "mongodb";
 import { revalidatePath } from "next/cache";
-import clientPromise, { DB_NAME } from "@/db/mongodb";
 
 // Temporary Simple Auth Mock
 import { cookies } from "next/headers";
@@ -83,10 +83,22 @@ export async function approveListing(id: string, finalizedData: any) {
             }
         }
 
-        // 1. Move to "listings" colletion. Ensure Coordinates are 2dsphere!
+        const safeAddress = finalizedData.address || "Unknown Address";
+
+        // 0. Duplicate Check
+        const existingDuplicate = await db.collection("listings").findOne({
+            name: finalizedData.name,
+            address: safeAddress
+        });
+
+        if (existingDuplicate) {
+            return { success: false, error: "Duplicate listing found: A business with this Exact Name and Address already exists." };
+        }
+
+        // 1. Move to "listings" collection. Ensure Coordinates are 2dsphere!
         const newListing = {
             name: finalizedData.name,
-            address: finalizedData.address || "Unknown Address",
+            address: safeAddress,
             city: finalizedData.city || "",
             categories: [finalizedData.category],
             url: finalizedData.website,
@@ -140,5 +152,34 @@ export async function rejectListing(id: string) {
     } catch (error) {
         console.error(error);
         return { success: false, error: "Rejection failed." };
+    }
+}
+
+export async function updatePendingListing(id: string, updatedData: any) {
+    if (!(await checkAdmin())) return { success: false, error: "Unauthorized" };
+
+    try {
+        const client = await clientPromise;
+        const db = client.db(DB_NAME);
+
+        // Remove _id from updatedData if present to avoid updating immutable field
+        const { _id, ...safeData } = updatedData;
+
+        // Ensure lat/lng are formatted properly
+        if (safeData.lat && safeData.lng) {
+            safeData.lat = Number(safeData.lat);
+            safeData.lng = Number(safeData.lng);
+        }
+
+        await db.collection("pending_listings").updateOne(
+            { _id: new ObjectId(id) },
+            { $set: safeData }
+        );
+
+        revalidatePath("/admin/reviews");
+        return { success: true };
+    } catch (error) {
+        console.error(error);
+        return { success: false, error: "Update failed." };
     }
 }

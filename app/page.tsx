@@ -4,7 +4,7 @@ import AppMap from "@/components/Map/AppMap";
 import { css } from "@styled/css";
 import React, { useEffect, useState } from "react";
 
-import { SAMPLE_CATEGORIES, SAMPLE_LISTINGS } from "@/db/SampleListings";
+import { SAMPLE_CATEGORIES } from "@/db/SampleListings";
 import { fetchAllCategories, fetchAllListings } from "./actions/geo-search";
 
 import { Category, Listing } from "@/db/Types";
@@ -15,11 +15,8 @@ const Home = React.memo(() => {
   const [categories, setCategories] = useState<Category[] | null>(null);
   useEffect(() => {
     async function fetchListings() {
-      let listings = await fetchAllListings();
-      if (!listings || listings.length === 0) {
-        listings = SAMPLE_LISTINGS;
-      }
-      setListings(listings);
+      let fetchedListings = await fetchAllListings();
+      setListings(fetchedListings || []);
     }
     async function fetchCategories() {
       let categories = await fetchAllCategories();
@@ -43,14 +40,14 @@ const Home = React.memo(() => {
             position: "relative",
             overflow: "hidden",
           })}>
-             <div className={css({
-               position: "absolute",
-               height: "100%",
-               backgroundColor: "brand.orange",
-               width: "30%",
-               left: "-30%",
-               animation: "linearProgress 2s infinite linear",
-             })} />
+            <div className={css({
+              position: "absolute",
+              height: "100%",
+              backgroundColor: "brand.orange",
+              width: "30%",
+              left: "-30%",
+              animation: "linearProgress 2s infinite linear",
+            })} />
           </div>
         ) : (
           <div className={css({ height: "100%", width: "100%", position: "relative" })}>

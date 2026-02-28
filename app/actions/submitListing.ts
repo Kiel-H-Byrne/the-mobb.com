@@ -1,7 +1,8 @@
 "use server";
 
-import { z } from "zod";
 import clientPromise from "@/db/mongodb";
+import { headers } from "next/headers";
+import { z } from "zod";
 
 // We mirror the Listing shape somewhat, but as a pending submission
 const SubmitSchema = z.object({
@@ -21,11 +22,15 @@ export async function submitListing(formData: any) {
         const client = await clientPromise;
         const db = client.db("vercel-db");
 
+        const headersList = await headers();
+        const ipAddress = headersList.get("x-forwarded-for") || headersList.get("x-real-ip") || "Unknown IP";
+
         const pendingCollection = db.collection("pending_listings");
         await pendingCollection.insertOne({
             ...data,
             status: "PENDING_REVIEW",
             createdAt: new Date(),
+            ipAddress,
         });
 
         console.log("Saved to PENDING_REVIEW queue:", data);
