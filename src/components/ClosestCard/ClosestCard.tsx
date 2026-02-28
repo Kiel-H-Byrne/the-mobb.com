@@ -1,29 +1,48 @@
 import React from "react";
-import { Card, Button, Icon, IconButton } from "@mui/material";
 import DirectionsIcon from "@mui/icons-material/DirectionsTwoTone";
-import style from "./ClosestCard.module.scss";
 import {
   InfoOutlined,
-  DirectionsTwoTone,
   PhoneTwoTone,
   LinkTwoTone,
 } from "@mui/icons-material";
+import { css } from "../../../styled-system/css";
 
 const ClosestCard = ({ closestListing }) => {
-  //onclick  set openlisting to this id.
-  //pan to location of listing on map
-  //onClick of button, open directions to this listing.
   const { address, city, state, url, phone, name, location, image } =
     closestListing;
+  
   const divStyle = {
-    background: `radial-gradient(circle at top left, rgba(22, 15, 77, 0.6), rgba(086,082,080, 0.6)), url(${image.url})`,
+    background: `radial-gradient(circle at top left, rgba(22, 15, 77, 0.6), rgba(86, 82, 80, 0.6)), url(${image.url})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
   };
 
   return (
-    <div className={style.root}>
-      <Card className={style.card_closest} style={divStyle}>
-        <h6 className="card-title center-align">{name}</h6>
-        <p className="center-align address">
+    <div className={css({
+      position: "fixed",
+      bottom: "20",
+      left: "50%",
+      transform: "translateX(-50%)",
+      width: "90%",
+      maxWidth: "400px",
+      zIndex: "1000",
+    })}>
+      <div 
+        className={css({
+          borderRadius: "lg",
+          overflow: "hidden",
+          color: "white",
+          boxShadow: "xl",
+          padding: "4",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          textAlign: "center",
+        })}
+        style={divStyle}
+      >
+        <h6 className={css({ fontSize: "lg", fontWeight: "bold", margin: "0" })}>{name}</h6>
+        <p className={css({ fontSize: "sm", marginY: "2" })}>
           {address ? (
             <span>{address}</span>
           ) : (
@@ -32,42 +51,48 @@ const ClosestCard = ({ closestListing }) => {
             </span>
           )}
         </p>
-        <div className={style.footer}>
+        <div className={css({ display: "flex", gap: "2", marginTop: "2" })}>
           {url && (
             <a
               target="_blank"
               rel="noopener noreferrer"
               title="Website"
               href={url}
+              className={css({ color: "white" })}
             >
-              <IconButton>
-                <LinkTwoTone />
-              </IconButton>
+              <LinkTwoTone />
             </a>
           )}
           {phone && (
-            <a href={`tel:+1${phone}`}>
-              <IconButton>
-                <PhoneTwoTone />
-              </IconButton>
+            <a href={`tel:+1${phone}`} className={css({ color: "white" })}>
+              <PhoneTwoTone />
             </a>
           )}
-          <IconButton>
+          <div className={css({ cursor: "pointer" })}>
             <InfoOutlined />
-          </IconButton>
+          </div>
         </div>
-        <IconButton
-          size="large"
-          color="primary"
+        <button
+          className={css({
+            marginTop: "4",
+            backgroundColor: "brand.orange",
+            color: "white",
+            border: "none",
+            borderRadius: "full",
+            padding: "3",
+            cursor: "pointer",
+            boxShadow: "md",
+            _hover: { backgroundColor: "brand.orangeDark" },
+          })}
           onClick={() =>
             window.open(
               `https://www.google.com/maps/dir/Current+Location/${location}`
             )
           }
         >
-          <DirectionsIcon className="large material-icons" />
-        </IconButton>
-      </Card>
+          <DirectionsIcon />
+        </button>
+      </div>
     </div>
   );
 };

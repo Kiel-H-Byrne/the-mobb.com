@@ -1,48 +1,56 @@
 import React from 'react';
-import makeStyles from '@mui/styles/makeStyles';
-import Card from '@mui/material/Card';
-import CardActionArea from '@mui/material/CardActionArea';
-import CardContent from '@mui/material/CardContent';
-import Typography from '@mui/material/Typography';
 import ListingImage from '../ListingImage';
 import { Listing } from '../../db/Types';
+import { css } from '../../../styled-system/css';
 
 interface Props {
   activeListing: Listing
 }
-const useStyles = makeStyles({
-  root: {
-    maxWidth: '14rem',
-  },
-  image: {
-    maxHeight: '14rem',
-    maxWidth: '3rem',
-  }
-});
 
 const CondensedCard = ({activeListing}:Props) => {
-  const classes = useStyles();
   const {name, image, url, description} = activeListing;
   return (
-    <Card className={classes.root}>
-      <CardActionArea>
-        {image && (
-          <div className={classes.image}>
-            <ListingImage image={image} name={name} url={url} />
-          </div>
+    <div className={css({
+      maxWidth: '14rem',
+      backgroundColor: 'white',
+      borderRadius: 'md',
+      boxShadow: 'sm',
+      overflow: 'hidden',
+      cursor: 'pointer',
+      transition: 'box-shadow 0.2s',
+      _hover: {
+        boxShadow: 'md',
+      }
+    })}>
+      {image && (
+        <div className={css({
+          maxHeight: '14rem',
+          width: '100%',
+          overflow: 'hidden',
+        })}>
+          <ListingImage image={image} name={name} url={url} />
+        </div>
+      )}
+      <div className={css({ padding: '3' })}>
+        <h3 className={css({
+          fontSize: 'md',
+          fontWeight: 'bold',
+          marginBottom: '1',
+          color: 'black',
+        })}>
+          {name}
+        </h3>
+        {description && (
+          <p className={css({
+            fontSize: 'xs',
+            color: 'gray.600',
+            lineHeight: 'tight',
+          })}>
+            {description}
+          </p>
         )}
-        <CardContent>
-          <Typography gutterBottom variant="h6" component="h3">
-            {name}
-          </Typography>
-          {description && (
-            <Typography variant="body2" color="textSecondary" component="p">
-              {description}
-            </Typography>
-          )}
-        </CardContent>
-      </CardActionArea>
-    </Card>
+      </div>
+    </div>
   );
 };
-export default CondensedCard
+export default CondensedCard;

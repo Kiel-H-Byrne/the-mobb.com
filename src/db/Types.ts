@@ -17,12 +17,12 @@ export interface Listing {
   phone?: string;
   url?: string;
   claims: Claim[];
-  claimsCount?: Number;
+  claimsCount?: number;
   location?: string;
-  verifiers?: [String];
-  verifierCount?: Number;
-  deverifiers?: [String];
-  deverifierCount?: Number;
+  verifiers?: string[];
+  verifierCount?: number;
+  deverifiers?: string[];
+  deverifierCount?: number;
   description?: string;
   image?: { url: string };
   google_id?: string;
@@ -31,11 +31,36 @@ export interface Listing {
   email?: string;
   categories?: string[];
   social?: string;
-  creator: Date;
-  submitted: Date;
+  coordinates?: {
+    type: "Point";
+    coordinates: [number, number]; // [longitude, latitude]
+  };
+  creator: Date | string;
+  submitted: Date | string;
 }
-export type Category = "a" | "b" | "c";
-export type Libraries = ("drawing" | "geometry" | "localContext" | "places" | "visualization")[];
+export type Category = string;
+export type Libraries = ("drawing" | "geometry" | "places" | "visualization")[];
 
 export interface GLocation { lat: number, lng: number }
+
+export interface PendingListing {
+  _id?: any;
+  name: string;
+  category: string;
+  address?: string;
+  website?: string;
+  description?: string;
+  isBlackOwned?: boolean;
+  source: "MANUAL" | "AI_SCAN";
+  status: "PENDING_REVIEW" | "APPROVED" | "REJECTED";
+  createdAt: Date;
+}
+
+export interface User {
+  _id?: any;
+  email: string;
+  password?: string;
+  role: "ADMIN" | "USER";
+  name?: string;
+}
 
