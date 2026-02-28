@@ -4,17 +4,18 @@ import AddLocationIcon from "@mui/icons-material/AddLocationTwoTone";
 import { APIProvider, Map, MapControl, useMap } from "@vis.gl/react-google-maps";
 import { memo, useEffect, useState } from "react";
 
-import { findBusinessesNearby } from "@app/actions/geo-search";
-import { css } from "@styled/css";
-import { Category, Libraries, Listing } from "@/db/Types";
-import { GEOCENTER } from "@/util/functions";
 import MAvatar from "@/components/Nav/Mavatar";
 import SideDrawer from "@/components/SideDrawer/SideDrawer";
+import { Category, Libraries, Listing } from "@/db/Types";
+import { GEOCENTER } from "@/util/functions";
+import { findBusinessesNearby } from "@app/actions/geo-search";
+import { css } from "@styled/css";
 import ListingInfoWindow from "./ListingInfoWindow";
 import MapAutoComplete from "./MapAutoComplete";
 import MyMarker from "./MyMarker";
 
 const libraries: Libraries = [
+  "marker",
   "places",
   "visualization",
   "geometry",
@@ -311,7 +312,7 @@ const AppMap = memo(
       >
         <Map
           id="GMap"
-          // mapId={process.env.NEXT_PUBLIC_MAP_ID || "DEMO_MAP_ID"}
+          mapId={process.env.NEXT_PUBLIC_MAP_ID || "DEMO_MAP_ID"}
           className={css({
             width: "100%",
             height: "100%",

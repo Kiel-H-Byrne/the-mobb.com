@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.33",
+    "@ai-sdk/openai": "^3.0.36",
     "@ark-ui/react": "^5.32.0",
     "@auth0/auth0-react": "^2.15.0",
     "@emotion/react": "^11.14.0",
