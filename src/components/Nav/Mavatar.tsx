@@ -1,7 +1,8 @@
+import { Avatar, AvatarImage } from "@/components/ui/Avatar";
 import { Menu } from "@ark-ui/react/menu";
 import { useAuth0 } from "@auth0/auth0-react";
-import { InfoTwoTone, ShareTwoTone } from "@mui/icons-material";
 import { css } from "@styled/css";
+import { MdInfoOutline, MdShare } from "react-icons/md";
 
 const menuStyles = {
   content: css({
@@ -66,19 +67,19 @@ const Mavatar = () => {
         })}
       >
         {!isLoading && isAuthenticated ? (
-          <img
-            src={user?.picture}
-            alt={user?.name}
-            className={menuStyles.avatar}
-          />
+          <Avatar size="lg">
+            <AvatarImage src={user?.picture} alt={user?.name} />
+          </Avatar>
         ) : (
-          <img height="50px" src="img/Logo_MOBB-banner.png" alt={"MOBB"} />
+          <Avatar size="lg">
+            <AvatarImage src="img/Logo_MOBB-banner.png" alt="MOBB" />
+          </Avatar>
         )}
       </Menu.Trigger>
       <Menu.Positioner>
         <Menu.Content className={menuStyles.content}>
           <Menu.Item value="share" className={menuStyles.item}>
-            <ShareTwoTone style={{ marginRight: "8px" }} />
+            <MdShare style={{ marginRight: "8px" }} size={20} />
             <div className={menuStyles.shareRow}>
               <a
                 href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2FMOBB%2Ekielbyrne%2Ecom&amp;title=Locate%2C+Promote%2C+%26+Support+a+Business+Owned+By+Us%2E"
@@ -119,7 +120,7 @@ const Mavatar = () => {
             </div>
           </Menu.Item>
           <Menu.Item value="about" className={menuStyles.item}>
-            <InfoTwoTone style={{ marginRight: "8px" }} />
+            <MdInfoOutline style={{ marginRight: "8px" }} size={20} />
             <span>About</span>
           </Menu.Item>
         </Menu.Content>

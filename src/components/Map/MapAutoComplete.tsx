@@ -1,11 +1,11 @@
 
-import { AddLocation } from "@mui/icons-material";
-import SearchIcon from "@mui/icons-material/Search";
-import { Dispatch, SetStateAction, memo, useState } from "react";
-import { searchBusinesses } from "@app/actions/geo-search";
-import { css } from "@styled/css";
+import { Button } from "@/components/ui/Button";
 import { Category, Listing } from "@/db/Types";
 import { targetClient } from "@/util/functions";
+import { searchBusinesses } from "@app/actions/geo-search";
+import { css } from "@styled/css";
+import { Dispatch, SetStateAction, memo, useState } from "react";
+import { MdAddLocation, MdSearch } from "react-icons/md";
 import AddListingDrawer from "./AddListingDrawer";
 import CategoryFilter from "./CategoryFilter";
 import MyLocationButton from "./MyLocationButton";
@@ -39,7 +39,7 @@ const MapAutoComplete = ({
   const onChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.currentTarget.value;
     setInput(input);
-    
+
     if (input.length > 2) {
       try {
         const results = await searchBusinesses(input);
@@ -152,22 +152,24 @@ const MapAutoComplete = ({
                 </div>
               ))
             ) : (
-               <div className={css({ padding: "2", fontSize: "xs", color: "gray.500" })}>
-                 {input.length > 2 ? "Not Found..." : `Enter ${3 - input.length} more character`}
-               </div>
+              <div className={css({ padding: "2", fontSize: "xs", color: "gray.500" })}>
+                {input.length > 2 ? "Not Found..." : `Enter ${3 - input.length} more character`}
+              </div>
             )}
           </div>
         )}
-        <button className={css({ padding: "2", background: "transparent", border: "none", cursor: "pointer", color: "brand.grey" })}>
-          <SearchIcon />
-        </button>
-        <button 
-          className={css({ padding: "2", background: "transparent", border: "none", cursor: "pointer", color: "brand.grey" })}
+        <Button variant="ghost" size="icon" className={css({ color: "brand.grey" })}>
+          <MdSearch size={22} />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className={css({ color: "brand.grey" })}
           onClick={() => setIsAddListingOpen(true)}
           aria-label="Add A Listing"
         >
-          <AddLocation />
-        </button>
+          <MdAddLocation size={24} />
+        </Button>
         <div className={css({ width: "1px", height: "7", backgroundColor: "gray.300", margin: "1" })} />
         <CategoryFilter
           listings={listings}
@@ -179,9 +181,9 @@ const MapAutoComplete = ({
         <MyLocationButton listings={listings} mapInstance={mapInstance} />
       </div>
 
-      <AddListingDrawer 
-        isOpen={isAddListingOpen} 
-        setOpen={setIsAddListingOpen} 
+      <AddListingDrawer
+        isOpen={isAddListingOpen}
+        setOpen={setIsAddListingOpen}
       />
     </>
   );

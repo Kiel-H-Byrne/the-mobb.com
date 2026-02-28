@@ -1,31 +1,30 @@
 "use client";
 
-import { Box, Card, CardContent, List, ListItem, ListItemIcon, ListItemText, Stack, Typography } from "@mui/material";
-import { purple, red } from "@mui/material/colors";
+import { css } from "@styled/css";
 import { DiResponsive, DiVisualstudio } from "react-icons/di";
 import { GiShield, GiSittingDog } from "react-icons/gi";
 import {
-    SiEslint,
-    SiFirebase,
-    SiFramer,
-    SiGit,
-    SiGithub,
-    SiGooglemaps,
-    SiJest,
-    SiMaterialdesign,
-    SiNextdotjs,
-    SiNodedotjs,
-    SiPrettier,
-    SiPwa,
-    SiReact,
-    SiServerless,
-    SiSketch,
-    SiStyledcomponents,
-    SiSwr,
-    SiTypescript,
-    SiVercel,
-    SiVitest,
-    SiZod
+  SiEslint,
+  SiFirebase,
+  SiFramer,
+  SiGit,
+  SiGithub,
+  SiGooglemaps,
+  SiJest,
+  SiMaterialdesign,
+  SiNextdotjs,
+  SiNodedotjs,
+  SiPrettier,
+  SiPwa,
+  SiReact,
+  SiServerless,
+  SiSketch,
+  SiStyledcomponents,
+  SiSwr,
+  SiTypescript,
+  SiVercel,
+  SiVitest,
+  SiZod
 } from "react-icons/si";
 
 const heading = "PHORM Technology Stack";
@@ -115,36 +114,31 @@ const methodologiesTech = [
 ];
 
 export default function TechPage() {
-  const bg_fg_color = "red";
-  const urlEncodedColor = encodeURIComponent(bg_fg_color);
-  const patternOpacity = 0.2;
-
   return (
-    <Stack
-      style={{
-        padding: "3em",
-        // backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='199' viewBox='0 0 100 199'%3E%3Cg fill='${urlEncodedColor}' fill-opacity='${patternOpacity}'%3E%3Cpath d='M0 199V0h1v1.99L100 199h-1.12L1 4.22V199H0zM100 2h-.12l-1-2H100v2z'%3E%3C/path%3E%3C/g%3E%3C/svg%3E")`,
-      }}
-    >
-      <Typography variant="h1">{heading} </Typography>
-      <Box maxWidth="3xl" p={3}>
-        <Typography variant="body1">
+    <div className={css({
+      padding: "3em",
+      display: "flex",
+      flexDirection: "column",
+      gap: "6",
+    })}>
+      <h1 className={css({ fontSize: "4xl", fontWeight: "bold", fontFamily: "heading" })}>
+        {heading}
+      </h1>
+      <div className={css({ maxWidth: "3xl", padding: "3" })}>
+        <p className={css({ fontSize: "lg", color: "text.muted" })}>
           This page outlines the technology stack, infrastructure, tooling and
           techniques used in implementing this website.
           <br />
-        </Typography>
-      </Box>
-      <Stack spacing={6}>
+        </p>
+      </div>
+      <div className={css({ display: "flex", flexDirection: "column", gap: "6" })}>
         <Section title="Frontend Technologies" techs={frontendTechs} />
         <Section title="Backend Technologies" techs={backendTechs} />
-        <Section
-          title="Infrastructure Technologies"
-          techs={infrastructureTech}
-        />
+        <Section title="Infrastructure Technologies" techs={infrastructureTech} />
         <Section title="Tooling" techs={toolingTech} />
         <Section title="Methodologies" techs={methodologiesTech} />
-      </Stack>
-    </Stack>
+      </div>
+    </div>
   );
 }
 
@@ -155,45 +149,30 @@ export function Section({
   title: string;
   techs: (string | any)[][];
 }) {
-  const color_purple = purple
-  const color_red = red
-  const bg_color = purple[50];
-  const bg_fg_color = purple[200];
-  const urlEncodedColor = encodeURIComponent(bg_fg_color);
-  const patternOpacity = 0.2;
-
   return (
-    <Card
-      // width="full"
-      // padding={8}
-      // boxShadow={"md"}
-      // backgroundPosition={"-1.5em 2.5em"}
-      // borderRadius={2}
-      color={bg_color}
-      style={
-        {
-          // backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='199' viewBox='0 0 100 199'%3E%3Cg fill='${urlEncodedColor}' fill-opacity='${patternOpacity}'%3E%3Cpath d='M0 199V0h1v1.99L100 199h-1.12L1 4.22V199H0zM100 2h-.12l-1-2H100v2z'%3E%3C/path%3E%3C/g%3E%3C/svg%3E")`,
-        }
-      }
-    >
-      <CardContent>
-
-      <Typography variant="h4" >{title}</Typography>
+    <div className={css({
+      backgroundColor: "brand.orangeLight",
+      borderRadius: "xl",
+      padding: "6",
+      boxShadow: "sm",
+    })}>
+      <h2 className={css({ fontSize: "2xl", fontWeight: "bold", marginBottom: "4", color: "brand.orangeDark" })}>
+        {title}
+      </h2>
       <TechList techs={techs} />
-      </CardContent>
-    </Card>
+    </div>
   );
 }
 
-export function TechList({ techs }: { techs: ( string | any)[][] }) {
+export function TechList({ techs }: { techs: (string | any)[][] }) {
   return (
-    <List>
+    <ul className={css({ listStyleType: "none", padding: "0", margin: "0", display: "flex", flexDirection: "column", gap: "2" })}>
       {techs.map((tech, i) => (
-        <ListItem key={i}>
-          <ListItemIcon>{tech[2]} </ListItemIcon>
-          <ListItemText><strong>{tech[0]}</strong> - {tech[1]}</ListItemText>
-        </ListItem>
+        <li key={i} className={css({ display: "flex", alignItems: "center", gap: "3" })}>
+          <span className={css({ color: "brand.orangeDark", fontSize: "xl" })}>{tech[2]}</span>
+          <span><strong className={css({ color: "brand.black", fontWeight: "600" })}>{tech[0]}</strong> - {tech[1]}</span>
+        </li>
       ))}
-    </List>
+    </ul>
   );
 }

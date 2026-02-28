@@ -1,8 +1,8 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
-import AddLocationIcon from "@mui/icons-material/AddLocationTwoTone";
 import { APIProvider, Map, MapControl, useMap } from "@vis.gl/react-google-maps";
 import { memo, useEffect, useState } from "react";
+import { MdAddLocation } from "react-icons/md";
 
 import MAvatar from "@/components/Nav/Mavatar";
 import SideDrawer from "@/components/SideDrawer/SideDrawer";
@@ -103,7 +103,7 @@ const MapContent = memo(({
                 _hover: { backgroundColor: "rgba(0,0,0,0.05)" },
               })}
             >
-              <AddLocationIcon />
+              <MdAddLocation size={32} />
             </button>
           ) : null}
           <MAvatar />
@@ -138,8 +138,8 @@ const MapContent = memo(({
             border: "1px solid rgba(255, 255, 255, 0.3)",
           })}
         >
-          <div className={css({ mb: "4", color: "brand.orange" })}>
-            <AddLocationIcon sx={{ fontSize: 48 }} />
+          <div className={css({ mb: "4", color: "brand.orange", display: "flex", justifyContent: "center" })}>
+            <MdAddLocation size={48} />
           </div>
           <h2 className={css({ fontSize: "2xl", fontWeight: "bold", mb: 2, color: "gray.800" })}>
             No Businesses Found Here

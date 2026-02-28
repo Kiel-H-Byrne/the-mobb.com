@@ -1,16 +1,10 @@
-import React from "react";
-import DirectionsIcon from "@mui/icons-material/DirectionsTwoTone";
-import {
-  InfoOutlined,
-  PhoneTwoTone,
-  LinkTwoTone,
-} from "@mui/icons-material";
 import { css } from "@styled/css";
+import { MdDirections, MdInfoOutline, MdLink, MdPhone } from "react-icons/md";
 
 const ClosestCard = ({ closestListing }) => {
   const { address, city, state, url, phone, name, location, image } =
     closestListing;
-  
+
   const divStyle = {
     background: `radial-gradient(circle at top left, rgba(22, 15, 77, 0.6), rgba(86, 82, 80, 0.6)), url(${image.url})`,
     backgroundSize: 'cover',
@@ -27,7 +21,7 @@ const ClosestCard = ({ closestListing }) => {
       maxWidth: "400px",
       zIndex: "1000",
     })}>
-      <div 
+      <div
         className={css({
           borderRadius: "lg",
           overflow: "hidden",
@@ -60,16 +54,16 @@ const ClosestCard = ({ closestListing }) => {
               href={url}
               className={css({ color: "white" })}
             >
-              <LinkTwoTone />
+              <MdLink size={24} />
             </a>
           )}
           {phone && (
             <a href={`tel:+1${phone}`} className={css({ color: "white" })}>
-              <PhoneTwoTone />
+              <MdPhone size={24} />
             </a>
           )}
           <div className={css({ cursor: "pointer" })}>
-            <InfoOutlined />
+            <MdInfoOutline size={24} />
           </div>
         </div>
         <button
@@ -90,7 +84,7 @@ const ClosestCard = ({ closestListing }) => {
             )
           }
         >
-          <DirectionsIcon />
+          <MdDirections size={24} />
         </button>
       </div>
     </div>

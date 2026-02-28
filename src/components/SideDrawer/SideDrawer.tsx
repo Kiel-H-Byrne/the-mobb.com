@@ -1,10 +1,16 @@
-import React, { Dispatch, SetStateAction } from "react";
-import { Dialog } from "@ark-ui/react/dialog";
-import { Portal } from "@ark-ui/react/portal";
-import DirectionsIcon from "@mui/icons-material/DirectionsTwoTone";
 import ListingImage from "@/components/ListingImage";
+import { Button } from "@/components/ui/Button";
+import {
+  Drawer,
+  DrawerBackdrop,
+  DrawerBody,
+  DrawerContent,
+  DrawerPositioner
+} from "@/components/ui/Drawer";
 import { Listing } from "@/db/Types";
 import { css } from "@styled/css";
+import { Dispatch, SetStateAction } from "react";
+import { MdDirections } from "react-icons/md";
 
 interface ISideDrawer {
   activeListing: Listing;
@@ -81,23 +87,9 @@ const SideGrid = ({ activeListing }: { activeListing: Listing }) => {
           </address>
         </article>
         <div className={css({ marginTop: "4" })}>Hours if</div>
-        <button
-          className={css({
-            backgroundColor: "brand.orange",
-            color: "white",
-            border: "none",
-            borderRadius: "full",
-            padding: "2",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            marginTop: "4",
-            boxShadow: "md",
-          })}
-        >
-          <DirectionsIcon />
-        </button>
+        <Button size="lg" variant="solid" className={css({ marginTop: "4" })}>
+          <MdDirections size={24} />
+        </Button>
       </div>
       <div className={sectionStyle}>MoBB Actions</div>
       <div className={sectionStyle}>MoBB Actions</div>
@@ -114,44 +106,22 @@ const SideDrawer = ({
   mapInstance,
 }: ISideDrawer) => {
   return (
-    <Dialog.Root open={isOpen} onOpenChange={(e) => setOpen(e.open)}>
-      <Portal>
-        <Dialog.Backdrop
-          className={css({
-            position: "fixed",
-            inset: "0",
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-            zIndex: "1200",
-          })}
-        />
-        <Dialog.Positioner
-          className={css({
-            position: "fixed",
-            left: "0",
-            top: "0",
-            bottom: "0",
-            zIndex: "1300",
-            width: "16rem",
-          })}
-        >
-          <Dialog.Content
-            className={css({
-              height: "100%",
-              width: "100%",
-              backgroundColor: "white",
-            })}
-          >
+    <Drawer open={isOpen} onOpenChange={(e) => setOpen(e.open)}>
+      <DrawerBackdrop />
+      <DrawerPositioner>
+        <DrawerContent className={css({ p: "0", maxWidth: "16rem", w: "full" })}>
+          <DrawerBody className={css({ p: "0" })}>
             <SideGrid activeListing={activeListing} />
-          </Dialog.Content>
-        </Dialog.Positioner>
-      </Portal>
-    </Dialog.Root>
+          </DrawerBody>
+        </DrawerContent>
+      </DrawerPositioner>
+    </Drawer>
   );
 };
 
-const sliderPhoto = (photo) => {};
+const sliderPhoto = (photo) => { };
 const openHours = () => true;
-const verifyUI = () => {};
+const verifyUI = () => { };
 const authUser = () => true;
 const isOwner = () => false;
 
