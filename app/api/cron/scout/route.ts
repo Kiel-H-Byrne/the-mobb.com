@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
-import { extractBusinessData } from "@app/actions/ai-curator";
 import clientPromise, { DB_NAME } from "@/db/mongodb";
+import { extractBusinessData } from "@app/actions/ai-curator";
+import { NextResponse } from 'next/server';
 
 // Vercel Cron will send this header if configured
 const CRON_SECRET = process.env.CRON_SECRET;
@@ -38,7 +38,7 @@ export async function GET(request: Request) {
             .map((r: any) => r.link)
             .slice(0, 5); // Limit to top 5 hits per cron execution
 
-        const results = [];
+        const results = [] as { url: string, status: string, error?: string }[];
 
         // Process each URL
         for (const url of urlsToScan) {

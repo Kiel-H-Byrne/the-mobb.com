@@ -1,6 +1,6 @@
+import clientPromise from '@/db/mongodb';
+import { extractBusinessData } from '@app/actions/ai-curator';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { extractBusinessData } from '../../../app/actions/ai-curator';
-import clientPromise from '../../../src/db/mongodb';
 
 // Mock the AI SDK
 vi.mock('ai', () => ({

@@ -1,10 +1,11 @@
+import clientPromise from '@/db/mongodb';
+import { approveListing, getPendingListings, rejectListing } from '@app/actions/admin';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { approveListing, getPendingListings, rejectListing } from '../../../app/actions/admin';
-import clientPromise from '../../../src/db/mongodb';
 
 describe('Admin Server Actions', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY = 'fake-api-key';
     });
 
     describe('getPendingListings', () => {
