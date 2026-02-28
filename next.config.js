@@ -7,7 +7,7 @@ const path = require("path");
 module.exports = {
   env: {
     NEXT_PUBLIC_GOOGLE_MAPS_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY,
-    DBOBB_MONGODB_URI: process.env.MONGODB_URI,
+    DBOBB_MONGODB_URI: process.env.DBOBB_MONGODB_URI,
     SERP_API_KEY: process.env.SERP_API_KEY,
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
   },

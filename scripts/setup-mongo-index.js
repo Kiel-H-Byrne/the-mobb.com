@@ -4,7 +4,7 @@ const { MongoClient } = require("mongodb");
 async function setupIndex() {
   const uri = process.env.DBOBB_MONGODB_URI; // Set this in your environment (e.g., .env.local)
   if (!uri) {
-    console.error("CRITICAL: MONGODB_URI is not defined.");
+    console.error("CRITICAL: DBOBB_MONGODB_URI is not defined.");
     process.exit(1);
   }
 
