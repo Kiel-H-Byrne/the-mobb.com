@@ -19,7 +19,7 @@ export async function submitListing(formData: any) {
         const data = SubmitSchema.parse(formData);
 
         const client = await clientPromise;
-        const db = client.db("test"); // Assuming "test" or whatever the default DB is. We can use client.db() which uses the default DB from the connection string.
+        const db = client.db("vercel-db");
 
         const pendingCollection = db.collection("pending_listings");
         await pendingCollection.insertOne({

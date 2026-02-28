@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { Listing, GLocation } from "../db/Types";
-import { mCache } from "../db/mlab";
+import { useEffect, useState } from "react";
+import { GLocation, Listing } from "../db/Types";
+import { mCache } from "./cache";
 
 export const useFetchOG = (url: string) => {
   const [status, setStatus] = useState("idle");
@@ -41,7 +41,7 @@ export const useFetchOG = (url: string) => {
 };
 
 export const useFetchPlace = (url: string) => {
-  
+
   const [status, setStatus] = useState("idle");
   const [data, setData] = useState([]);
 
@@ -205,25 +205,25 @@ export const useFetchPlace = (url: string) => {
 //     return false;
 //   }
 // };
-export const getGDetails = ({gid, map}) => {
-    console.log("Details Data from API...");
-    //   //get the response and stash it in GCache.
-    return new Promise<any>(function (resolve, reject) {
+export const getGDetails = ({ gid, map }) => {
+  console.log("Details Data from API...");
+  //   //get the response and stash it in GCache.
+  return new Promise<any>(function (resolve, reject) {
+    // @ts-ignore
+    const service = new window.google.maps.places.PlacesService(map);
+    const req = { placeId: gid };
+    const cbk = (place, status) => {
       // @ts-ignore
-      const service = new window.google.maps.places.PlacesService(map);
-      const req = { placeId: gid };
-      const cbk = (place, status) => {
-        // @ts-ignore
-        if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-          mCache.set(gid, place);
-          resolve(place);
-          //inject with jquery into dom?
-        } else {
-          console.error(status);
-        }
-      };
-      service.getDetails(req, cbk);
-    });
+      if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+        mCache.set(gid, place);
+        resolve(place);
+        //inject with jquery into dom?
+      } else {
+        console.error(status);
+      }
+    };
+    service.getDetails(req, cbk);
+  });
 };
 
 

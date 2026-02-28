@@ -4,13 +4,15 @@
 import { openai } from "@ai-sdk/openai";
 import { generateObject } from "ai";
 import { z } from "zod";
+import clientPromise from "../../src/db/mongodb";
+import { PendingListing } from "../../src/db/Types";
 
 // Define the schema for a single business entity
 const BusinessEntitySchema = z.object({
   name: z.string(),
   description: z.string().optional(),
   category: z.string().optional(),
-  address: z.string().describe("Full physical address if available"),
+  address: z.string().optional().describe("Full physical address if available"),
   website: z.string().url().optional(),
   socialHandle: z.string().optional(),
   isBlackOwned: z.boolean().describe("Confidence based on text indicators"),
@@ -46,5 +48,26 @@ export async function extractBusinessData(url: string) {
     prompt: `Analyze this HTML content: ${content}`,
   });
 
-  return { success: true, data: object };
+  // 3. Save to Database
+  const client = await clientPromise;
+  const db = client.db("vercel-db");
+  const pendingCollection = db.collection<PendingListing>("pending_listings");
+
+  const pendingListings: PendingListing[] = object.businesses.map((biz: any) => ({
+    name: biz.name,
+    category: biz.category || "Uncategorized",
+    address: biz.address,
+    website: biz.website,
+    description: biz.description,
+    isBlackOwned: biz.isBlackOwned,
+    source: "AI_SCAN",
+    status: "PENDING_REVIEW",
+    createdAt: new Date(),
+  }));
+
+  if (pendingListings.length > 0) {
+    await pendingCollection.insertMany(pendingListings);
+  }
+
+  return { success: true, count: pendingListings.length, sourceType: object.sourceType, data: object };
 }
