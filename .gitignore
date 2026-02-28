@@ -4,6 +4,7 @@ build
 .next
 .env*
 .tsbuildinfo
+next-env.d.ts
 
 # dist
 .vercel
