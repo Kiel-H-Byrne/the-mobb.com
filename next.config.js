@@ -11,6 +11,6 @@ module.exports = {
     DBOBB_MONGODB_URI: process.env.DBOBB_MONGODB_URI,
     SERP_API_KEY: process.env.SERP_API_KEY,
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
-    NEXT_PUBLIC_OPENAI_API_KEY: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
   },
 };
