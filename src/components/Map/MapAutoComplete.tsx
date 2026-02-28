@@ -6,7 +6,6 @@ import { searchBusinesses } from "@app/actions/geo-search";
 import { css } from "@styled/css";
 import { Dispatch, SetStateAction, memo, useState } from "react";
 import { MdAddLocation, MdSearch } from "react-icons/md";
-import AddListingDrawer from "./AddListingDrawer";
 import CategoryFilter from "./CategoryFilter";
 import MyLocationButton from "./MyLocationButton";
 
@@ -18,6 +17,7 @@ interface OwnProps {
   setSelectedCategories: Dispatch<SetStateAction<Set<Category>>>;
   setactiveListing: Dispatch<SetStateAction<any>>;
   setisDrawerOpen: Dispatch<SetStateAction<boolean>>;
+  setIsAddListingOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 const MapAutoComplete = ({
@@ -28,13 +28,13 @@ const MapAutoComplete = ({
   setSelectedCategories,
   setactiveListing,
   setisDrawerOpen,
+  setIsAddListingOpen,
 }: OwnProps) => {
   let count = listings?.length ?? 0;
   const [active, setActive] = useState(0);
   const [filtered, setFiltered] = useState<Listing[]>([]);
   const [input, setInput] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isAddListingOpen, setIsAddListingOpen] = useState(false);
 
   const onChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.currentTarget.value;
@@ -180,11 +180,6 @@ const MapAutoComplete = ({
         <div className={css({ width: "1px", height: "7", backgroundColor: "gray.300", margin: "1" })} />
         <MyLocationButton listings={listings} mapInstance={mapInstance} />
       </div>
-
-      <AddListingDrawer
-        isOpen={isAddListingOpen}
-        setOpen={setIsAddListingOpen}
-      />
     </>
   );
 };

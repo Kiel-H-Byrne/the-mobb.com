@@ -10,6 +10,7 @@ import { Category, Libraries, Listing } from "@/db/Types";
 import { GEOCENTER } from "@/util/functions";
 import { findBusinessesNearby } from "@app/actions/geo-search";
 import { css } from "@styled/css";
+import AddListingDrawer from "./AddListingDrawer";
 import ListingInfoWindow from "./ListingInfoWindow";
 import MapAutoComplete from "./MapAutoComplete";
 import MyMarker from "./MyMarker";
@@ -67,6 +68,7 @@ const MapContent = memo(({
   const map = useMap("GMap");
   const [clusterer, setClusterer] = useState<MarkerClusterer>();
   const { isAuthenticated, loginWithRedirect } = useAuth0();
+  const [isAddListingOpen, setIsAddListingOpen] = useState(false);
 
   useEffect(() => {
     if (!map) return;
@@ -118,6 +120,7 @@ const MapContent = memo(({
           setSelectedCategories={setSelectedCategories}
           setactiveListing={setactiveListing}
           setisDrawerOpen={setisDrawerOpen}
+          setIsAddListingOpen={setIsAddListingOpen}
         />
       </MapControl>
       {listings && listings.length === 0 && (
@@ -148,7 +151,8 @@ const MapContent = memo(({
             We couldn't find any Black-owned businesses in this immediate area. Help us grow the MOBB by adding one, or search another area!
           </p>
           <button
-            onClick={() => isAuthenticated ? setisDrawerOpen(true) : loginWithRedirect()}
+            // onClick={() => isAuthenticated ? setIsAddListingOpen(true) : loginWithRedirect()}
+            onClick={() => setIsAddListingOpen(true)}
             className={css({
               backgroundColor: "brand.orange",
               color: "white",
@@ -161,7 +165,8 @@ const MapContent = memo(({
               _active: { transform: "translateY(0)" },
             })}
           >
-            {isAuthenticated ? "Add a Business" : "Sign in to Add"}
+            {/* {isAuthenticated ? "Add a Business" : "Sign in to Add"} */}
+            Add a Business
           </button>
         </div>
       )}
@@ -196,6 +201,10 @@ const MapContent = memo(({
           mapInstance={mapInstance || map}
         />
       )}
+      <AddListingDrawer
+        isOpen={isAddListingOpen}
+        setOpen={setIsAddListingOpen}
+      />
     </>
   );
 });
@@ -276,7 +285,7 @@ const AppMap = memo(
             setisInfoWindowOpen={setisInfoWindowOpen}
             mapInstance={mapInstance}
             setMapInstance={setMapInstance}
-          />
+          />cat
         </Map>
       </APIProvider>
     );
