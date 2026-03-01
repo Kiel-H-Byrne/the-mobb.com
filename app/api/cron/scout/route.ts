@@ -27,7 +27,7 @@ export async function GET(request: Request) {
 
         const client = await clientPromise;
         const db = client.db(DB_NAME);
-        const pendingCollection = db.collection('pending_listings');
+        const scannedUrlsCollection = db.collection('scanned_urls');
 
         // Query SerpApi
         const query = "Black owned businesses restaurants near me"; // Can be randomized or rotated
@@ -45,31 +45,42 @@ export async function GET(request: Request) {
 
         console.log(`CRON: Found ${searchData.organic_results.length} organic results.`);
 
-        const urlsToScan: string[] = searchData.organic_results
-            .map((r: any) => r.link)
-            .slice(0, 5); // Limit to top 5 hits per cron execution
+        // Filter out URLs we have already scanned in previous cron runs
+        const allSerpUrls: string[] = searchData.organic_results.map((r: any) => r.link);
+        const alreadyScannedDocs = await scannedUrlsCollection.find({ url: { $in: allSerpUrls } }).toArray();
+        const alreadyScannedUrls = new Set(alreadyScannedDocs.map(doc => doc.url));
 
-        console.log(`CRON: Selected ${urlsToScan.length} URLs to process.`, urlsToScan);
+        const urlsToScan = allSerpUrls.filter(url => !alreadyScannedUrls.has(url)).slice(0, 5);
+
+        console.log(`CRON: Selected ${urlsToScan.length} NEW URLs to process.`, urlsToScan);
 
         const results = [] as { url: string, status: string, error?: string }[];
 
         // Process each URL
         for (const url of urlsToScan) {
-            // Very basic skip if we already scanned this url (needs a `url` field tracking in pending)
-            const existing = await pendingCollection.findOne({ website: url });
-            if (existing) {
-                console.log(`CRON: Skipping URL (already exists): ${url}`);
-                results.push({ url, status: "skipped_exists" });
-                continue;
-            }
-
             console.log(`CRON: Extracting business data from URL: ${url}`);
             try {
                 const extractRes = await extractBusinessData(url);
                 console.log(`CRON: Successfully extracted data for URL: ${url}`);
+
+                // Mark as scanned so we don't process it tomorrow
+                await scannedUrlsCollection.updateOne(
+                    { url },
+                    { $set: { url, lastScanned: new Date(), status: "success" } },
+                    { upsert: true }
+                );
+
                 results.push({ url, status: "processed", ...extractRes });
             } catch (err: any) {
                 console.error(`CRON: Failed to extract data for URL: ${url}. Error:`, err.message);
+
+                // still mark it as scanned but with error status, so we don't infinitely retry broken links
+                await scannedUrlsCollection.updateOne(
+                    { url },
+                    { $set: { url, lastScanned: new Date(), status: "error", error: err.message } },
+                    { upsert: true }
+                );
+
                 results.push({ url, status: "error", error: err.message });
             }
         }

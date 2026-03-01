@@ -1,24 +1,24 @@
 // app/actions/ai-curator.ts
 "use server";
 
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { generateObject } from "ai";
-import { z } from "zod";
 import clientPromise, { DB_NAME } from "@/db/mongodb";
 import { PendingListing } from "@/db/Types";
+import { createOpenAI } from "@ai-sdk/openai";
+import { generateObject } from "ai";
+import { z } from "zod";
 
-const google = createGoogleGenerativeAI({
-  apiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+const openai = createOpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 // Define the schema for a single business entity
 const BusinessEntitySchema = z.object({
   name: z.string(),
-  description: z.string().optional(),
-  category: z.string().optional(),
-  address: z.string().optional().describe("Full physical address if available"),
-  website: z.string().url().optional(),
-  socialHandle: z.string().optional(),
+  description: z.string().nullable().describe("Description of the business"),
+  category: z.string().nullable().describe("Category of the business"),
+  address: z.string().nullable().describe("Full physical address if available"),
+  website: z.string().nullable().describe("Website URL if available"),
+  socialHandle: z.string().nullable().describe("Social media handle if available"),
   isBlackOwned: z.boolean().describe("Confidence based on text indicators"),
 });
 
@@ -38,7 +38,7 @@ export async function extractBusinessData(url: string) {
 
   // 2. AI Extraction
   const { object } = await generateObject({
-    model: google("gemini-2.5-flash"),
+    model: openai("gpt-4o"),
     schema: ExtractionSchema,
     system: `
       You are an expert Data Curator for the MOBB (Map of Black Businesses) App.
@@ -57,21 +57,32 @@ export async function extractBusinessData(url: string) {
   const db = client.db(DB_NAME);
   const pendingCollection = db.collection<PendingListing>("pending_listings");
 
-  const pendingListings: PendingListing[] = object.businesses.map((biz: any) => ({
-    name: biz.name,
-    category: biz.category || "Uncategorized",
-    address: biz.address,
-    website: biz.website,
-    description: biz.description,
-    isBlackOwned: biz.isBlackOwned,
-    source: "AI_SCAN",
-    status: "PENDING_REVIEW",
-    createdAt: new Date(),
-  }));
+  const newListings: PendingListing[] = [];
 
-  if (pendingListings.length > 0) {
-    await pendingCollection.insertMany(pendingListings);
+  for (const biz of object.businesses) {
+    // Basic deduplication: Check if a pending listing with this name already exists
+    const existing = await pendingCollection.findOne({ name: biz.name });
+
+    if (!existing) {
+      newListings.push({
+        name: biz.name,
+        category: biz.category || "Uncategorized",
+        address: biz.address || "",
+        website: biz.website || "",
+        description: biz.description || "",
+        isBlackOwned: biz.isBlackOwned,
+        source: "AI_SCAN",
+        status: "PENDING_REVIEW",
+        createdAt: new Date(),
+      });
+    } else {
+      console.log(`AI Curator: Skipping duplicate business "${biz.name}"`);
+    }
   }
 
-  return { success: true, count: pendingListings.length, sourceType: object.sourceType, data: object };
+  if (newListings.length > 0) {
+    await pendingCollection.insertMany(newListings);
+  }
+
+  return { success: true, count: newListings.length, sourceType: object.sourceType, data: object };
 }
