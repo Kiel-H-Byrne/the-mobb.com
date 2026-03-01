@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/Button";
 import { Drawer, DrawerBackdrop, DrawerBody, DrawerContent, DrawerHeader, DrawerPositioner } from "@/components/ui/Drawer";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
+import { toaster } from "@/components/ui/Toast";
 import { scanBusinessUrl } from "@app/actions/scanBusiness";
 import { submitListing } from "@app/actions/submitListing";
 import { Tabs } from "@ark-ui/react/tabs";
@@ -143,7 +144,7 @@ const AddListingDrawer = ({ isOpen, setOpen, mode = "add", initialData, onSubmit
         source: "AI_SCAN"
       });
       if (res.success) {
-        alert("Listing submitted successfully for review!");
+        toaster.create({ title: "Listing submitted successfully for review!", type: "success" });
         handleClose();
       } else {
         setError(res.error || "Submission failed.");
@@ -164,7 +165,7 @@ const AddListingDrawer = ({ isOpen, setOpen, mode = "add", initialData, onSubmit
     if (mode === "edit" && onSubmitEdit) {
       try {
         await onSubmitEdit(manualData);
-        alert("Listing updated successfully!");
+        toaster.create({ title: "Listing updated successfully!", type: "success" });
         handleClose();
       } catch (e: any) {
         console.error(e);
@@ -181,7 +182,7 @@ const AddListingDrawer = ({ isOpen, setOpen, mode = "add", initialData, onSubmit
         source: "MANUAL"
       });
       if (res.success) {
-        alert("Listing submitted successfully for review!");
+        toaster.create({ title: "Listing submitted successfully for review!", type: "success" });
         handleClose();
       } else {
         setError(res.error || "Submission failed.");

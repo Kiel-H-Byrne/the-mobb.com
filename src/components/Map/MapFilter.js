@@ -1,14 +1,12 @@
-import React from "react";
 import {
-  MenuItem,
   Checkbox,
+  IconButton,
   ListItemText,
   Menu,
-  IconButton,
+  MenuItem,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import LocationOffIcon from "@mui/icons-material/LocationOffTwoTone";
-import { memo } from "react";
+import React, { memo } from "react";
 
 const useStyles = makeStyles({
   root: {
@@ -68,7 +66,7 @@ const MapFilter = memo(({ listings, categories, selectedCategories, setSelectedC
       color="inherit"
       onClick={(e) => handleFilterMenuOpen(e)}
       size="large">
-      <LocationOffIcon />
+      {/* <LocationOffIcon /> */}
     </IconButton>
     <Menu
       anchorEl={anchorEl}
@@ -82,7 +80,7 @@ const MapFilter = memo(({ listings, categories, selectedCategories, setSelectedC
     >
       {categories.map(({ name }) => (
         <MenuItem key={name} value={name}>
-          <Checkbox checked={selectedCategories.indexOf(name) > -1} onChange={(e) => handleChange(e)}/>
+          <Checkbox checked={selectedCategories.indexOf(name) > -1} onChange={(e) => handleChange(e)} />
           <ListItemText primary={name} />
         </MenuItem>
       ))}

@@ -20,7 +20,7 @@ export const DrawerPositioner = styled(ArkDialog.Positioner, {
         inset: 0,
         zIndex: 50,
         display: 'flex',
-        justifyContent: 'flex-end', // Slide from right
+        justifyContent: 'flex-start', // Slide from left
     }
 })
 

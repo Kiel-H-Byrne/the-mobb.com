@@ -1,12 +1,12 @@
+import { css } from "@styled/css";
 import { InfoWindow } from "@vis.gl/react-google-maps";
 import React from "react";
-import { css } from "@styled/css";
 import CondensedCard from "./CondensedCard";
 
 const ListingInfoWindow = ({ activeListing }) => {
-  const { location } = activeListing;
-  let loc = location.split(",");
-  let locObj = { lat: parseFloat(loc[0]), lng: parseFloat(loc[1]) };
+  const { coordinates } = activeListing;
+  let loc = coordinates.coordinates;
+  let locObj = { lat: loc[1], lng: loc[0] };
 
   return (
     <InfoWindow
@@ -30,14 +30,14 @@ const ListingInfoWindow = ({ activeListing }) => {
           position: "relative",
           overflow: "hidden",
         })}>
-           <div className={css({
-             position: "absolute",
-             height: "100%",
-             backgroundColor: "brand.orange",
-             width: "30%",
-             left: "-30%",
-             animation: "linearProgress 2s infinite linear",
-           })} />
+          <div className={css({
+            position: "absolute",
+            height: "100%",
+            backgroundColor: "brand.orange",
+            width: "30%",
+            left: "-30%",
+            animation: "linearProgress 2s infinite linear",
+          })} />
         </div>
       )}
     </InfoWindow>

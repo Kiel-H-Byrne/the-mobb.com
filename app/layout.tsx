@@ -1,3 +1,4 @@
+import { Toaster } from "@/components/ui/Toast";
 import "@/style/index.css";
 
 export const metadata = {
@@ -35,7 +36,10 @@ export default function RootLayout({
           href="/img/icons/apple-touch-icon-180x180.png"
         />
       </head>
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>
+        {children}
+        <Toaster />
+      </body>
     </html>
   );
 }

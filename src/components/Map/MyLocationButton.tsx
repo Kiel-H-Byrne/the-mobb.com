@@ -74,11 +74,12 @@ const MyLocationButton = ({ listings, mapInstance }) => {
         aria-label="My Location"
         onClick={handleClick}
         className={css({
-          color: clientLocation ? "brand.orange" : "brand.grey",
           _hover: { backgroundColor: "rgba(0,0,0,0.05)" },
         })}
       >
-        <MdMyLocation size={24} />
+        <span className={css({ color: clientLocation ? "brand.orange" : "brand.grey", display: "inline-flex" })}>
+          <MdMyLocation size={24} />
+        </span>
       </Button>
       {closestListing && toggleDisplay && (
         <ClosestCard closestListing={closestListing} />

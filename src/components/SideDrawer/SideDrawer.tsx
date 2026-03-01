@@ -109,8 +109,8 @@ const SideDrawer = ({
     <Drawer open={isOpen} onOpenChange={(e) => setOpen(e.open)}>
       <DrawerBackdrop />
       <DrawerPositioner>
-        <DrawerContent className={css({ p: "0", maxWidth: "16rem", w: "full" })}>
-          <DrawerBody className={css({ p: "0" })}>
+        <DrawerContent className={css({ p: 0, maxWidth: "16rem", w: "full" })}>
+          <DrawerBody className={css({ p: 0 })}>
             <SideGrid activeListing={activeListing} />
           </DrawerBody>
         </DrawerContent>

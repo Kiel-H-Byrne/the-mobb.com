@@ -5,11 +5,11 @@ import { memo, useEffect, useState } from "react";
 import { MdAddLocation } from "react-icons/md";
 
 import MAvatar from "@/components/Nav/Mavatar";
-import SideDrawer from "@/components/SideDrawer/SideDrawer";
 import { Category, Libraries, Listing } from "@/db/Types";
 import { GEOCENTER } from "@/util/functions";
 import { findBusinessesNearby } from "@app/actions/geo-search";
 import { css } from "@styled/css";
+import SideDrawer from "../SideDrawer/SideDrawer";
 import AddListingDrawer from "./AddListingDrawer";
 import ListingInfoWindow from "./ListingInfoWindow";
 import MapAutoComplete from "./MapAutoComplete";
@@ -98,14 +98,18 @@ const MapContent = memo(({
               className={css({
                 background: "transparent",
                 border: "none",
-                color: "brand.grey",
                 cursor: "pointer",
                 padding: "2",
                 borderRadius: "full",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
                 _hover: { backgroundColor: "rgba(0,0,0,0.05)" },
               })}
             >
-              <MdAddLocation size={32} />
+              <span className={css({ color: "brand.grey", display: "inline-flex" })}>
+                <MdAddLocation size={32} />
+              </span>
             </button>
           ) : null}
           <MAvatar />
@@ -285,7 +289,7 @@ const AppMap = memo(
             setisInfoWindowOpen={setisInfoWindowOpen}
             mapInstance={mapInstance}
             setMapInstance={setMapInstance}
-          />cat
+          />
         </Map>
       </APIProvider>
     );

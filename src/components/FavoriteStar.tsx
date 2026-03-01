@@ -45,9 +45,13 @@ const FavoriteStar = (props: Props) => {
       className={css({ cursor: "pointer", display: "inline-flex", position: "relative" })}
     >
       {inFavorites(_id) ? (
-        <MdFavorite size={24} className={css({ color: "brand.orange" })} />
+        <span className={css({ color: "brand.orange", display: "inline-flex" })}>
+          <MdFavorite size={24} />
+        </span>
       ) : (
-        <MdFavoriteBorder size={24} className={css({ color: "brand.grey" })} />
+        <span className={css({ color: "brand.grey", display: "inline-flex" })}>
+          <MdFavoriteBorder size={24} />
+        </span>
       )}
       {showToast && (
         <div className={css({

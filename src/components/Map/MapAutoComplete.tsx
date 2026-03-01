@@ -68,12 +68,6 @@ const MapAutoComplete = ({
         lat: listing.coordinates.coordinates[1],
         lng: listing.coordinates.coordinates[0],
       };
-    } else if (listing.location) {
-      const location = listing.location.split(",");
-      locationObj = {
-        lat: Number(location[0]),
-        lng: Number(location[1]),
-      };
     }
 
     locationObj && targetClient(mapInstance, locationObj);
@@ -158,17 +152,20 @@ const MapAutoComplete = ({
             )}
           </div>
         )}
-        <Button variant="ghost" size="icon" className={css({ color: "brand.grey" })}>
-          <MdSearch size={22} />
+        <Button variant="ghost" size="icon">
+          <span className={css({ color: "brand.orange", display: "inline-flex" })}>
+            <MdSearch size={22} />
+          </span>
         </Button>
         <Button
           variant="ghost"
           size="icon"
-          className={css({ color: "brand.grey" })}
           onClick={() => setIsAddListingOpen(true)}
           aria-label="Add A Listing"
         >
-          <MdAddLocation size={24} />
+          <span className={css({ color: "brand.orange", display: "inline-flex" })}>
+            <MdAddLocation size={24} />
+          </span>
         </Button>
         <div className={css({ width: "1px", height: "7", backgroundColor: "gray.300", margin: "1" })} />
         <CategoryFilter

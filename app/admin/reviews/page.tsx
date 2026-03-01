@@ -1,6 +1,7 @@
 "use client";
 
 import AddListingDrawer from "@/components/Map/AddListingDrawer";
+import { toaster } from "@/components/ui/Toast";
 import { approveListing, getPendingListings, loginAdmin, logoutAdmin, rejectListing, updatePendingListing } from "@app/actions/admin";
 import { css } from "@styled/css";
 import { APIProvider } from "@vis.gl/react-google-maps";
@@ -49,7 +50,7 @@ export default function AdminReviewsPage() {
     if (res.success) {
       setListings((prev) => prev.filter((item) => item._id !== l._id));
     } else {
-      alert("Error approving listing");
+      toaster.create({ title: "Error approving listing", type: "error" });
     }
     setIsLoading(false);
   };
@@ -60,7 +61,7 @@ export default function AdminReviewsPage() {
     if (res.success) {
       setListings((prev) => prev.filter((item) => item._id !== id));
     } else {
-      alert("Error rejecting listing");
+      toaster.create({ title: "Error rejecting listing", type: "error" });
     }
     setIsLoading(false);
   };
@@ -78,7 +79,7 @@ export default function AdminReviewsPage() {
         return item;
       }));
     } else {
-      alert("Error updating listing");
+      toaster.create({ title: "Error updating listing", type: "error" });
       throw new Error("Update failed"); // Propagate to drawer to show error
     }
     setIsLoading(false);

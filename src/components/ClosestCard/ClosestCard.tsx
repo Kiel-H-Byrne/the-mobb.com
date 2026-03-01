@@ -2,7 +2,7 @@ import { css } from "@styled/css";
 import { MdDirections, MdInfoOutline, MdLink, MdPhone } from "react-icons/md";
 
 const ClosestCard = ({ closestListing }) => {
-  const { address, city, state, url, phone, name, location, image } =
+  const { address, city, state, url, phone, name, coordinates, image } =
     closestListing;
 
   const divStyle = {
@@ -80,7 +80,7 @@ const ClosestCard = ({ closestListing }) => {
           })}
           onClick={() =>
             window.open(
-              `https://www.google.com/maps/dir/Current+Location/${location}`
+              `https://www.google.com/maps/dir/Current+Location/${coordinates?.coordinates[1]},${coordinates?.coordinates[0]}`
             )
           }
         >
