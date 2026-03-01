@@ -1,4 +1,5 @@
-import MyLocationIcon from "@mui/icons-material/MyLocationTwoTone";
+import { Button } from "@/components/ui/Button";
+import { MdMyLocation } from "react-icons/md";
 
 import ClosestCard from "@/components/ClosestCard/ClosestCard";
 import ClosestList from "@/components/ClosestList";
@@ -67,24 +68,19 @@ const MyLocationButton = ({ listings, mapInstance }) => {
 
   return (
     <>
-      <button
+      <Button
+        variant="ghost"
+        size="icon"
         aria-label="My Location"
         onClick={handleClick}
         className={css({
-          background: "transparent",
-          border: "none",
-          padding: "2",
-          cursor: "pointer",
-          color: clientLocation ? "brand.orange" : "brand.grey",
-          borderRadius: "full",
           _hover: { backgroundColor: "rgba(0,0,0,0.05)" },
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
         })}
       >
-        <MyLocationIcon />
-      </button>
+        <span className={css({ color: clientLocation ? "brand.orange" : "brand.grey", display: "inline-flex" })}>
+          <MdMyLocation size={24} />
+        </span>
+      </Button>
       {closestListing && toggleDisplay && (
         <ClosestCard closestListing={closestListing} />
       )}

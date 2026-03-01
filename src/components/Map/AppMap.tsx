@@ -1,15 +1,16 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
-import AddLocationIcon from "@mui/icons-material/AddLocationTwoTone";
 import { APIProvider, Map, MapControl, useMap } from "@vis.gl/react-google-maps";
 import { memo, useEffect, useState } from "react";
+import { MdAddLocation } from "react-icons/md";
 
 import MAvatar from "@/components/Nav/Mavatar";
-import SideDrawer from "@/components/SideDrawer/SideDrawer";
 import { Category, Libraries, Listing } from "@/db/Types";
 import { GEOCENTER } from "@/util/functions";
 import { findBusinessesNearby } from "@app/actions/geo-search";
 import { css } from "@styled/css";
+import SideDrawer from "../SideDrawer/SideDrawer";
+import AddListingDrawer from "./AddListingDrawer";
 import ListingInfoWindow from "./ListingInfoWindow";
 import MapAutoComplete from "./MapAutoComplete";
 import MyMarker from "./MyMarker";
@@ -67,6 +68,7 @@ const MapContent = memo(({
   const map = useMap("GMap");
   const [clusterer, setClusterer] = useState<MarkerClusterer>();
   const { isAuthenticated, loginWithRedirect } = useAuth0();
+  const [isAddListingOpen, setIsAddListingOpen] = useState(false);
 
   useEffect(() => {
     if (!map) return;
@@ -96,14 +98,18 @@ const MapContent = memo(({
               className={css({
                 background: "transparent",
                 border: "none",
-                color: "brand.grey",
                 cursor: "pointer",
                 padding: "2",
                 borderRadius: "full",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
                 _hover: { backgroundColor: "rgba(0,0,0,0.05)" },
               })}
             >
-              <AddLocationIcon />
+              <span className={css({ color: "brand.grey", display: "inline-flex" })}>
+                <MdAddLocation size={32} />
+              </span>
             </button>
           ) : null}
           <MAvatar />
@@ -118,6 +124,7 @@ const MapContent = memo(({
           setSelectedCategories={setSelectedCategories}
           setactiveListing={setactiveListing}
           setisDrawerOpen={setisDrawerOpen}
+          setIsAddListingOpen={setIsAddListingOpen}
         />
       </MapControl>
       {listings && listings.length === 0 && (
@@ -138,8 +145,8 @@ const MapContent = memo(({
             border: "1px solid rgba(255, 255, 255, 0.3)",
           })}
         >
-          <div className={css({ mb: "4", color: "brand.orange" })}>
-            <AddLocationIcon sx={{ fontSize: 48 }} />
+          <div className={css({ mb: "4", color: "brand.orange", display: "flex", justifyContent: "center" })}>
+            <MdAddLocation size={48} />
           </div>
           <h2 className={css({ fontSize: "2xl", fontWeight: "bold", mb: 2, color: "gray.800" })}>
             No Businesses Found Here
@@ -148,7 +155,8 @@ const MapContent = memo(({
             We couldn't find any Black-owned businesses in this immediate area. Help us grow the MOBB by adding one, or search another area!
           </p>
           <button
-            onClick={() => isAuthenticated ? setisDrawerOpen(true) : loginWithRedirect()}
+            // onClick={() => isAuthenticated ? setIsAddListingOpen(true) : loginWithRedirect()}
+            onClick={() => setIsAddListingOpen(true)}
             className={css({
               backgroundColor: "brand.orange",
               color: "white",
@@ -161,7 +169,8 @@ const MapContent = memo(({
               _active: { transform: "translateY(0)" },
             })}
           >
-            {isAuthenticated ? "Add a Business" : "Sign in to Add"}
+            {/* {isAuthenticated ? "Add a Business" : "Sign in to Add"} */}
+            Add a Business
           </button>
         </div>
       )}
@@ -196,6 +205,10 @@ const MapContent = memo(({
           mapInstance={mapInstance || map}
         />
       )}
+      <AddListingDrawer
+        isOpen={isAddListingOpen}
+        setOpen={setIsAddListingOpen}
+      />
     </>
   );
 });

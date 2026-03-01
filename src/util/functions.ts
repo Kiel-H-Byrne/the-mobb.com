@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
 import { GLocation, Listing } from "@/db/Types";
+import { useEffect, useState } from "react";
 import { mCache } from "./cache";
 
 export const useFetchOG = (url: string) => {
@@ -306,6 +306,7 @@ export const targetClient = function (map: any, pos: GLocation) {
 };
 
 export const toPositionObj = (location: string | undefined) => {
+  console.log(location)
   if (location) {
     let latLng = location.split(",");
     let lat = Number(latLng[0]);
@@ -319,23 +320,27 @@ export const findClosestMarker = function (
   listings: Listing[],
   location: GLocation
 ) {
-  // marker {position: latlngObj, map: mapinstnace, icon: iconurl}
-  let distances = [""];
+  let distances: number[] = [];
   let closest = -1;
   const start = new (window as any).google.maps.LatLng(location);
+
   for (let i = 0; i < listings.length; i++) {
-    if (listings[i].location) {
+    const coords = listings[i].coordinates?.coordinates;
+    if (coords && coords.length > 1) {
+      const posObj = new (window as any).google.maps.LatLng({ lat: coords[1], lng: coords[0] });
       let d = (window as any).google.maps.geometry.spherical.computeDistanceBetween(
-        toPositionObj(listings[i].location),
+        posObj,
         start
       );
       distances[i] = d;
       if (closest === -1 || d < distances[closest]) {
         closest = i;
       }
+    } else {
+      distances[i] = Infinity;
     }
   }
-  const closestMarker = listings[closest];
+  const closestMarker = closest !== -1 ? listings[closest] : null;
   return closestMarker;
 };
 

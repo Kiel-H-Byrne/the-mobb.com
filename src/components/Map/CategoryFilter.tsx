@@ -1,9 +1,9 @@
 import { Category, Listing } from "@/db/Types";
 import { Menu } from "@ark-ui/react/menu";
 import { Switch } from "@ark-ui/react/switch";
-import LocationOffIcon from "@mui/icons-material/LocationOffTwoTone";
 import { css } from "@styled/css";
 import { memo, useMemo } from "react";
+import { MdLocationOff } from "react-icons/md";
 
 type CategoryFilterType = {
   listings: Listing[];
@@ -45,12 +45,16 @@ const CategoryFilter = ({
           border: "none",
           padding: "2",
           cursor: "pointer",
-          color: "brand.grey",
           borderRadius: "full",
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
           _hover: { backgroundColor: "rgba(0,0,0,0.05)" },
         })}
       >
-        <LocationOffIcon />
+        <span className={css({ color: "brand.orange", display: "inline-flex" })}>
+          <MdLocationOff size={24} />
+        </span>
       </Menu.Trigger>
       <Menu.Positioner>
         <Menu.Content

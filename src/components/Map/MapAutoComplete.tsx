@@ -1,12 +1,11 @@
 
-import { AddLocation } from "@mui/icons-material";
-import SearchIcon from "@mui/icons-material/Search";
-import { Dispatch, SetStateAction, memo, useState } from "react";
-import { searchBusinesses } from "@app/actions/geo-search";
-import { css } from "@styled/css";
+import { Button } from "@/components/ui/Button";
 import { Category, Listing } from "@/db/Types";
 import { targetClient } from "@/util/functions";
-import AddListingDrawer from "./AddListingDrawer";
+import { searchBusinesses } from "@app/actions/geo-search";
+import { css } from "@styled/css";
+import { Dispatch, SetStateAction, memo, useState } from "react";
+import { MdAddLocation, MdSearch } from "react-icons/md";
 import CategoryFilter from "./CategoryFilter";
 import MyLocationButton from "./MyLocationButton";
 
@@ -18,6 +17,7 @@ interface OwnProps {
   setSelectedCategories: Dispatch<SetStateAction<Set<Category>>>;
   setactiveListing: Dispatch<SetStateAction<any>>;
   setisDrawerOpen: Dispatch<SetStateAction<boolean>>;
+  setIsAddListingOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 const MapAutoComplete = ({
@@ -28,18 +28,18 @@ const MapAutoComplete = ({
   setSelectedCategories,
   setactiveListing,
   setisDrawerOpen,
+  setIsAddListingOpen,
 }: OwnProps) => {
   let count = listings?.length ?? 0;
   const [active, setActive] = useState(0);
   const [filtered, setFiltered] = useState<Listing[]>([]);
   const [input, setInput] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isAddListingOpen, setIsAddListingOpen] = useState(false);
 
   const onChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.currentTarget.value;
     setInput(input);
-    
+
     if (input.length > 2) {
       try {
         const results = await searchBusinesses(input);
@@ -67,12 +67,6 @@ const MapAutoComplete = ({
       locationObj = {
         lat: listing.coordinates.coordinates[1],
         lng: listing.coordinates.coordinates[0],
-      };
-    } else if (listing.location) {
-      const location = listing.location.split(",");
-      locationObj = {
-        lat: Number(location[0]),
-        lng: Number(location[1]),
       };
     }
 
@@ -152,22 +146,27 @@ const MapAutoComplete = ({
                 </div>
               ))
             ) : (
-               <div className={css({ padding: "2", fontSize: "xs", color: "gray.500" })}>
-                 {input.length > 2 ? "Not Found..." : `Enter ${3 - input.length} more character`}
-               </div>
+              <div className={css({ padding: "2", fontSize: "xs", color: "gray.500" })}>
+                {input.length > 2 ? "Not Found..." : `Enter ${3 - input.length} more character`}
+              </div>
             )}
           </div>
         )}
-        <button className={css({ padding: "2", background: "transparent", border: "none", cursor: "pointer", color: "brand.grey" })}>
-          <SearchIcon />
-        </button>
-        <button 
-          className={css({ padding: "2", background: "transparent", border: "none", cursor: "pointer", color: "brand.grey" })}
+        <Button variant="ghost" size="icon">
+          <span className={css({ color: "brand.orange", display: "inline-flex" })}>
+            <MdSearch size={22} />
+          </span>
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={() => setIsAddListingOpen(true)}
           aria-label="Add A Listing"
         >
-          <AddLocation />
-        </button>
+          <span className={css({ color: "brand.orange", display: "inline-flex" })}>
+            <MdAddLocation size={24} />
+          </span>
+        </Button>
         <div className={css({ width: "1px", height: "7", backgroundColor: "gray.300", margin: "1" })} />
         <CategoryFilter
           listings={listings}
@@ -178,11 +177,6 @@ const MapAutoComplete = ({
         <div className={css({ width: "1px", height: "7", backgroundColor: "gray.300", margin: "1" })} />
         <MyLocationButton listings={listings} mapInstance={mapInstance} />
       </div>
-
-      <AddListingDrawer 
-        isOpen={isAddListingOpen} 
-        setOpen={setIsAddListingOpen} 
-      />
     </>
   );
 };

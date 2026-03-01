@@ -17,7 +17,7 @@ const MyMarker = ({
   setisInfoWindowOpen,
   setactiveListing,
 }: MyMarkerProps) => {
-  const { location, coordinates, _id } = data;
+  const { coordinates, _id } = data;
   let locObj: { lat: number; lng: number };
 
   if (coordinates && coordinates.coordinates && coordinates.coordinates.length > 1) {
@@ -25,10 +25,8 @@ const MyMarker = ({
       lat: coordinates.coordinates[1],
       lng: coordinates.coordinates[0],
     };
-  } else if (location) {
-    const loc = location.split(",");
-    locObj = { lat: parseFloat(loc[0]), lng: parseFloat(loc[1]) };
   } else {
+    // Fallback if missing coordinates
     locObj = { lat: 50.60982, lng: -1.34987 };
   }
 
