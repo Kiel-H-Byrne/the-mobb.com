@@ -90,16 +90,16 @@ const MapAutoComplete = ({
       <div className={css({
         position: "relative",
         zIndex: 1200,
-        margin: "4",
         display: "flex",
-        maxWidth: "23rem",
-        backgroundColor: "rgba(255, 255, 255, 0.85)", // Light frosted glass
-        backdropFilter: "blur(12px)",
+        width: "100%",
+        backgroundColor: "brand.greyDark",
         borderRadius: "xl",
-        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12)",
-        border: "1px solid rgba(255, 255, 255, 0.2)",
+        border: "1px solid",
+        borderColor: "white/10",
         padding: "1",
         alignItems: "center",
+        _focusWithin: { borderColor: "brand.orange/50" },
+        transition: "colors"
       })}>
         <input
           className={css({
@@ -110,6 +110,8 @@ const MapAutoComplete = ({
             outline: "none",
             padding: "2",
             fontSize: "sm",
+            color: "white",
+            _placeholder: { color: "gray.500" }
           })}
           placeholder={`Search ${count ? count + " " : ""}Listings...`}
           aria-label="Search The MOBB"
@@ -123,12 +125,15 @@ const MapAutoComplete = ({
             top: "100%",
             left: "0",
             width: "100%",
-            backgroundColor: "white",
+            backgroundColor: "#15151A",
+            border: "1px solid",
+            borderColor: "white/10",
             boxShadow: "lg",
             borderRadius: "md",
             marginTop: "1",
             maxHeight: "300px",
             overflowY: "auto",
+            zIndex: 1300
           })}>
             {filtered.length > 0 ? (
               filtered.map((listing, index) => (
@@ -136,17 +141,20 @@ const MapAutoComplete = ({
                   key={listing._id}
                   onClick={() => handleSelect(index)}
                   className={css({
-                    padding: "2",
+                    padding: "3",
                     cursor: "pointer",
-                    backgroundColor: index === active ? "rgba(251, 176, 59, 0.2)" : "transparent",
-                    _hover: { backgroundColor: "rgba(251, 176, 59, 0.1)" },
+                    color: "white",
+                    borderBottom: "1px solid",
+                    borderColor: "white/5",
+                    backgroundColor: index === active ? "rgba(255, 90, 0, 0.2)" : "transparent",
+                    _hover: { backgroundColor: "rgba(255, 90, 0, 0.1)" },
                   })}
                 >
                   {listing.name}
                 </div>
               ))
             ) : (
-              <div className={css({ padding: "2", fontSize: "xs", color: "gray.500" })}>
+              <div className={css({ padding: "3", fontSize: "xs", color: "gray.500" })}>
                 {input.length > 2 ? "Not Found..." : `Enter ${3 - input.length} more character`}
               </div>
             )}

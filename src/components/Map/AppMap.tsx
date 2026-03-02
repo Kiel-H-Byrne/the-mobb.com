@@ -1,18 +1,13 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
-import { APIProvider, Map, MapControl, useMap } from "@vis.gl/react-google-maps";
-import { memo, useEffect, useState } from "react";
-import { MdAddLocation } from "react-icons/md";
+import { APIProvider, Map, useMap } from "@vis.gl/react-google-maps";
+import { Dispatch, memo, SetStateAction, useEffect, useState } from "react";
 
-import MAvatar from "@/components/Nav/Mavatar";
 import { Category, Libraries, Listing } from "@/db/Types";
 import { GEOCENTER } from "@/util/functions";
 import { findBusinessesNearby } from "@app/actions/geo-search";
 import { css } from "@styled/css";
 import SideDrawer from "../SideDrawer/SideDrawer";
-import AddListingDrawer from "./AddListingDrawer";
-import ListingInfoWindow from "./ListingInfoWindow";
-import MapAutoComplete from "./MapAutoComplete";
 import MyMarker from "./MyMarker";
 
 const libraries: Libraries = [
@@ -49,13 +44,20 @@ interface IAppMap {
   browserLocation: any;
   setMapInstance: any;
   mapInstance: any;
+  activeListing: Listing | null;
+  setactiveListing: Dispatch<SetStateAction<Listing | null>>;
+  selectedCategories: Set<Category>;
+  setSelectedCategories: Dispatch<SetStateAction<Set<Category>>>;
+  isDrawerOpen: boolean;
+  setisDrawerOpen: Dispatch<SetStateAction<boolean>>;
+  isInfoWindowOpen: boolean;
+  setisInfoWindowOpen: Dispatch<SetStateAction<boolean>>;
+  setIsMapActive: Dispatch<SetStateAction<boolean>>;
 }
 
 const MapContent = memo(({
   listings,
-  categories,
   selectedCategories,
-  setSelectedCategories,
   activeListing,
   setactiveListing,
   isDrawerOpen,
@@ -78,103 +80,7 @@ const MapContent = memo(({
 
   return (
     <>
-      <MapControl position={3}> {/* TOP_RIGHT */}
-        <div
-          className={css({
-            display: "flex",
-            alignItems: "center",
-            gap: "2",
-            margin: "2",
-            marginRight: "4",
-            padding: "2",
-            backgroundColor: "rgba(255, 230, 200, 1)",
-            borderRadius: "full",
-            boxShadow: "md",
-          })}
-        >
-          {isAuthenticated ? (
-            <button
-              aria-label="Add A Listing"
-              className={css({
-                background: "transparent",
-                border: "none",
-                cursor: "pointer",
-                padding: "2",
-                borderRadius: "full",
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                _hover: { backgroundColor: "rgba(0,0,0,0.05)" },
-              })}
-            >
-              <span className={css({ color: "brand.grey", display: "inline-flex" })}>
-                <MdAddLocation size={32} />
-              </span>
-            </button>
-          ) : null}
-          <MAvatar />
-        </div>
-      </MapControl>
-      <MapControl position={2}>
-        <MapAutoComplete
-          listings={listings}
-          categories={categories}
-          mapInstance={mapInstance || map}
-          selectedCategories={selectedCategories}
-          setSelectedCategories={setSelectedCategories}
-          setactiveListing={setactiveListing}
-          setisDrawerOpen={setisDrawerOpen}
-          setIsAddListingOpen={setIsAddListingOpen}
-        />
-      </MapControl>
-      {listings && listings.length === 0 && (
-        <div
-          className={css({
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            backgroundColor: "rgba(255, 255, 255, 0.8)",
-            backdropFilter: "blur(12px)",
-            padding: "8",
-            borderRadius: "2xl",
-            boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-            textAlign: "center",
-            maxWidth: "350px",
-            zIndex: 10,
-            border: "1px solid rgba(255, 255, 255, 0.3)",
-          })}
-        >
-          <div className={css({ mb: "4", color: "brand.orange", display: "flex", justifyContent: "center" })}>
-            <MdAddLocation size={48} />
-          </div>
-          <h2 className={css({ fontSize: "2xl", fontWeight: "bold", mb: 2, color: "gray.800" })}>
-            No Businesses Found Here
-          </h2>
-          <p className={css({ color: "gray.600", mb: 6, fontSize: "sm", lineHeight: "relaxed" })}>
-            We couldn't find any Black-owned businesses in this immediate area. Help us grow the MOBB by adding one, or search another area!
-          </p>
-          <button
-            // onClick={() => isAuthenticated ? setIsAddListingOpen(true) : loginWithRedirect()}
-            onClick={() => setIsAddListingOpen(true)}
-            className={css({
-              backgroundColor: "brand.orange",
-              color: "white",
-              fontWeight: "600",
-              padding: "3 6",
-              borderRadius: "full",
-              cursor: "pointer",
-              transition: "all 0.2s",
-              _hover: { transform: "translateY(-1px)", boxShadow: "md" },
-              _active: { transform: "translateY(0)" },
-            })}
-          >
-            {/* {isAuthenticated ? "Add a Business" : "Sign in to Add"} */}
-            Add a Business
-          </button>
-        </div>
-      )}
-
+      {/* HUD and AutoComplete MapControls have been relocated to 2030 AR Panels */}
       {listings && listings.map((listing: Listing) => {
         const hasMatch = listing.categories && listing.categories.some((el: Category) => selectedCategories.has(el));
         const noCategories = !listing.categories || listing.categories.length === 0;
@@ -194,9 +100,7 @@ const MapContent = memo(({
           />
         );
       })}
-      {activeListing && isInfoWindowOpen && (
-        <ListingInfoWindow activeListing={activeListing} />
-      )}
+
       {activeListing && isDrawerOpen && (
         <SideDrawer
           activeListing={activeListing}
@@ -205,10 +109,6 @@ const MapContent = memo(({
           mapInstance={mapInstance || map}
         />
       )}
-      <AddListingDrawer
-        isOpen={isAddListingOpen}
-        setOpen={setIsAddListingOpen}
-      />
     </>
   );
 });
@@ -221,15 +121,18 @@ const AppMap = memo(
     browserLocation,
     setMapInstance,
     mapInstance,
+    activeListing,
+    setactiveListing,
+    selectedCategories,
+    setSelectedCategories,
+    isDrawerOpen,
+    setisDrawerOpen,
+    isInfoWindowOpen,
+    setisInfoWindowOpen,
+    setIsMapActive
   }: IAppMap) => {
-    const [isDrawerOpen, setisDrawerOpen] = useState(false);
-    const [isInfoWindowOpen, setisInfoWindowOpen] = useState(false);
-    const [activeListing, setactiveListing] = useState<Listing | null>(null);
-    const [selectedCategories, setSelectedCategories] = useState<Set<Category>>(
-      new Set(categories || [])
-    );
-
     const handleIdle = async (e: any) => {
+      setIsMapActive(false);
       const map = e.map;
       if (map) {
         const center = map.getCenter();
@@ -274,13 +177,12 @@ const AppMap = memo(
           zoomControl={options.zoomControl}
           gestureHandling={options.gestureHandling}
           colorScheme={"DARK"}
+          onDragstart={() => setIsMapActive(true)}
           onIdle={handleIdle}
         >
           <MapContent
             listings={listings}
-            categories={categories}
             selectedCategories={selectedCategories}
-            setSelectedCategories={setSelectedCategories}
             activeListing={activeListing}
             setactiveListing={setactiveListing}
             isDrawerOpen={isDrawerOpen}
