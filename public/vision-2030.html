@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOBB v3.0 | Vision 2030</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            orange: '#FF5A00',
+                            glow: '#FF8A00',
+                            grey: '#2D2D35',
+                            dark: '#0B0B0E',
+                            surface: 'rgba(255, 255, 255, 0.03)'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        tech: ['Space Grotesk', 'sans-serif']
+                    },
+                    animation: {
+                        'radar-spin': 'radar 4s linear infinite',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'glow-pulse': 'glowPulse 2s alternate infinite'
+                    },
+                    keyframes: {
+                        radar: {
+                            '0%': { transform: 'rotate(0deg)' },
+                            '100%': { transform: 'rotate(360deg)' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        },
+                        glowPulse: {
+                            '0%': { boxShadow: '0 0 10px rgba(255, 90, 0, 0.2)' },
+                            '100%': { boxShadow: '0 0 30px rgba(255, 90, 0, 0.6)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        body {
+            background-color: #0B0B0E;
+            color: #E2E8F0;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-panel {
+            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+
+        .map-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(255, 90, 0, 0.05) 0%, transparent 60%),
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+            transform: perspective(1000px) rotateX(60deg) scale(2.5) translateY(-20%);
+            transform-origin: center top;
+            z-index: -1;
+            opacity: 0.4;
+            animation: panMap 60s linear infinite;
+        }
+
+        @keyframes panMap {
+            0% { background-position: 0 0, 0 0, 0 0; }
+            100% { background-position: 0 0, 0 400px, 400px 0; }
+        }
+
+        .radar-sweep {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 800px; height: 800px;
+            margin-top: -400px; margin-left: -400px;
+            background: conic-gradient(from 0deg, transparent 70%, rgba(255, 90, 0, 0.4) 100%);
+            border-radius: 50%;
+            animation: radar 4s linear infinite;
+        }
+
+        .node {
+            position: absolute;
+            width: 12px; height: 12px;
+            background: #FF5A00;
+            border-radius: 50%;
+            box-shadow: 0 0 20px #FF5A00, 0 0 40px #FF5A00;
+        }
+
+        .node::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            border: 1px solid #FF5A00;
+            border-radius: 50%;
+            animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.5); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+
+        /* 3D Card Hover */
+        .card-3d:hover {
+            transform: translateY(-5px) scale(1.02);
+            border-color: rgba(255, 90, 0, 0.4);
+            box-shadow: 0 20px 40px rgba(255, 90, 0, 0.1);
+        }
+
+        .text-glow {
+            text-shadow: 0 0 20px rgba(255, 90, 0, 0.6);
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 90, 0, 0.5); }
+    </style>
+</head>
+<body class="antialiased selection:bg-brand-orange selection:text-white">
+
+    <!-- 3D Map Background Layer -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-[-1]">
+        <div class="map-bg"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-[#0B0B0E] via-transparent to-[#0B0B0E]"></div>
+        
+        <!-- Radar & Nodes representing "Near Me" data points -->
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] opacity-30">
+            <div class="radar-sweep"></div>
+            <div class="absolute inset-0 border border-brand-orange/20 rounded-full"></div>
+            <div class="absolute inset-[20%] border border-brand-orange/10 rounded-full"></div>
+            <div class="absolute inset-[40%] border border-brand-orange/5 rounded-full"></div>
+            
+            <!-- Simulated Business Locations -->
+            <div class="node top-[30%] left-[60%]"></div>
+            <div class="node top-[60%] left-[20%] opacity-70"></div>
+            <div class="node top-[70%] left-[75%] opacity-50"></div>
+            <div class="node top-[45%] left-[30%]"></div>
+            <div class="absolute top-[30%] left-[60%] ml-4 mt-1 font-tech text-xs text-brand-orange text-glow">RESTAURANT</div>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div class="h-screen w-screen flex flex-col md:flex-row p-4 md:p-6 gap-6 z-10 relative">
+        
+        <!-- SIDEBAR / HUD Nav -->
+        <aside class="w-full md:w-24 lg:w-32 h-16 md:h-full glass-panel rounded-3xl flex md:flex-col items-center justify-between p-4 shrink-0 transition-all z-20">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-orange to-[#FF2A00] flex items-center justify-center shadow-[0_0_30px_rgba(255,90,0,0.5)] cursor-pointer">
+                <span class="font-tech font-bold text-white text-xl tracking-tighter">M</span>
+            </div>
+
+            <nav class="flex md:flex-col gap-6 md:gap-8 overflow-x-auto md:overflow-visible">
+                <a href="#" class="text-brand-orange drop-shadow-[0_0_8px_rgba(255,90,0,0.8)] relative flex flex-col items-center gap-1 group">
+                    <i class="ph-fill ph-radar text-2xl group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[10px] font-tech font-bold hidden md:block">NEAR ME</span>
+                    <div class="absolute -right-1 -top-1 w-2 h-2 bg-white rounded-full animate-pulse-slow"></div>
+                </a>
+                <a href="#" class="text-gray-500 hover:text-white transition-colors relative flex flex-col items-center gap-1 group">
+                    <i class="ph ph-compass-rose text-2xl group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[10px] font-tech hidden md:block opacity-0 group-hover:opacity-100 transition-opacity">EXPLORE</span>
+                </a>
+                <a href="#" class="text-gray-500 hover:text-white transition-colors relative flex flex-col items-center gap-1 group">
+                    <i class="ph ph-bookmarks text-2xl group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[10px] font-tech hidden md:block opacity-0 group-hover:opacity-100 transition-opacity">SAVED</span>
+                </a>
+                <a href="#" class="text-gray-500 hover:text-white transition-colors relative flex flex-col items-center gap-1 group">
+                    <i class="ph ph-robot text-2xl group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[10px] font-tech hidden md:block opacity-0 group-hover:opacity-100 transition-opacity">CURATOR</span>
+                </a>
+            </nav>
+
+            <div class="w-10 h-10 rounded-full bg-brand-surface border border-white/10 overflow-hidden cursor-pointer hover:border-brand-orange transition-colors">
+                <img src="https://ui-avatars.com/api/?name=KB&background=2D2D35&color=fff" alt="User" class="w-full h-full object-cover">
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-1 flex flex-col md:flex-row gap-6 h-full overflow-hidden">
+            
+            <!-- List View Panel -->
+            <section class="w-full md:w-[420px] lg:w-[480px] h-full glass-panel rounded-3xl flex flex-col shadow-2xl shrink-0 z-20">
+                <!-- Search & Filters Header -->
+                <div class="p-6 border-b border-white/5 space-y-6">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h1 class="text-3xl font-tech font-bold text-white tracking-tight">Active Pulse <span class="text-brand-orange">.</span></h1>
+                            <p class="text-sm text-gray-400 mt-1 flex items-center gap-2">
+                                <i class="ph-fill ph-crosshair text-brand-orange"></i> Live Geolocation Sync
+                            </p>
+                        </div>
+                        <button class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-brand-orange/20 hover:border-brand-orange/50 transition-colors">
+                            <i class="ph ph-sliders-horizontal text-xl text-white"></i>
+                        </button>
+                    </div>
+
+                    <!-- Futuristic Search Bar -->
+                    <div class="relative group">
+                        <div class="absolute inset-0 bg-brand-orange/20 rounded-2xl blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div class="relative flex items-center bg-[#15151A] rounded-2xl border border-white/10 px-4 py-3 focus-within:border-brand-orange/50 transition-colors">
+                            <i class="ph ph-magnifying-glass text-xl text-brand-orange mr-3"></i>
+                            <input type="text" placeholder="Quantum search businesses, categories..." class="bg-transparent border-none outline-none text-white w-full font-sans placeholder-gray-500 text-sm">
+                            <div class="flex items-center gap-2 text-xs font-tech text-gray-500 bg-white/5 px-2 py-1 rounded-md">
+                                <span>⌘</span><span>K</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category Pills -->
+                    <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                        <button class="px-4 py-2 rounded-xl bg-brand-orange text-white text-xs font-bold whitespace-nowrap shadow-[0_4px_20px_rgba(255,90,0,0.3)]">All Categories</button>
+                        <button class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-300 text-xs font-medium whitespace-nowrap hover:bg-white/10 transition-colors">Gastronomy</button>
+                        <button class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-300 text-xs font-medium whitespace-nowrap hover:bg-white/10 transition-colors">Wellness Lab</button>
+                        <button class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-300 text-xs font-medium whitespace-nowrap hover:bg-white/10 transition-colors">Creative Studios</button>
+                    </div>
+                </div>
+
+                <!-- Business List -->
+                <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                    
+                    <!-- V3 Listing Card -->
+                    <div class="card-3d relative bg-[#15151A]/80 backdrop-blur-md rounded-2xl border border-white/5 p-5 cursor-pointer transition-all duration-300 group overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-r from-brand-orange/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="relative z-10 flex gap-4">
+                            <div class="w-20 h-20 rounded-xl bg-gray-800 border border-white/10 overflow-hidden relative">
+                                <img src="https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?q=80&w=200&h=200&auto=format&fit=crop" class="w-full h-full object-cover opacity-80 mix-blend-luminosity group-hover:mix-blend-normal transition-all duration-500" alt="Restaurant">
+                                <div class="absolute top-1 right-1 w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-start">
+                                    <h3 class="font-bold text-white text-lg leading-tight group-hover:text-brand-glow transition-colors">The Neo Soul Cafe</h3>
+                                    <span class="flex items-center gap-1 text-xs font-tech text-brand-orange bg-brand-orange/10 px-2 py-1 rounded-md">
+                                        <i class="ph-fill ph-navigation-arrow"></i> 0.2mi
+                                    </span>
+                                </div>
+                                <p class="text-xs text-gray-400 mt-1">Culinary Arts • Open until 23:00</p>
+                                <div class="flex items-center gap-3 mt-3">
+                                    <div class="flex -space-x-2">
+                                        <div class="w-6 h-6 rounded-full bg-gray-700 border border-gray-900"></div>
+                                        <div class="w-6 h-6 rounded-full bg-gray-600 border border-gray-900"></div>
+                                        <div class="w-6 h-6 rounded-full bg-brand-orange flex items-center justify-center text-[8px] font-bold">+24</div>
+                                    </div>
+                                    <span class="text-[10px] text-gray-500 font-tech uppercase tracking-wider">Community Verified</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- V3 Listing Card -->
+                    <div class="card-3d relative bg-[#15151A]/80 backdrop-blur-md rounded-2xl border border-white/5 p-5 cursor-pointer transition-all duration-300 group">
+                        <div class="relative z-10 flex gap-4">
+                            <div class="w-20 h-20 rounded-xl bg-gray-800 border border-white/10 overflow-hidden relative">
+                                <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=200&h=200&auto=format&fit=crop" class="w-full h-full object-cover opacity-80 mix-blend-luminosity group-hover:mix-blend-normal transition-all duration-500" alt="Salon">
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-start">
+                                    <h3 class="font-bold text-white text-lg leading-tight group-hover:text-brand-glow transition-colors">Crown & Co. Aesthetics</h3>
+                                    <span class="flex items-center gap-1 text-xs font-tech text-gray-400 bg-white/5 border border-white/10 px-2 py-1 rounded-md">
+                                        <i class="ph-fill ph-navigation-arrow"></i> 1.4mi
+                                    </span>
+                                </div>
+                                <p class="text-xs text-gray-400 mt-1">Wellness & Grooming • Booking Only</p>
+                                <div class="flex flex-wrap gap-2 mt-3">
+                                    <span class="text-[10px] px-2 py-1 rounded border border-brand-orange/30 text-brand-orange/80">Black-Owned</span>
+                                    <span class="text-[10px] px-2 py-1 rounded border border-white/10 text-gray-400">Eco-Friendly</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Curator Prompt Box -->
+                    <div class="mt-6 mx-2 p-1 rounded-2xl bg-gradient-to-r from-brand-orange/20 via-white/5 to-brand-orange/20 animate-glow-pulse">
+                        <div class="bg-[#0B0B0E] rounded-xl p-4 flex gap-3 items-center">
+                            <div class="w-10 h-10 rounded-full bg-brand-orange/20 flex items-center justify-center shrink-0">
+                                <i class="ph-fill ph-sparkle text-brand-orange text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-white">Missing a location?</h4>
+                                <p class="text-xs text-gray-400">Paste an IG link or website, AI will extract and index it instantly.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Holographic Detail / AR View Pane -->
+            <section class="hidden md:flex flex-1 relative flex-col justify-end pb-8 pr-8 pointer-events-none">
+                <!-- Data HUD overlay on the right -->
+                <div class="glass-panel w-80 rounded-2xl p-5 ml-auto border-l-4 border-l-brand-orange pointer-events-auto animate-float shadow-2xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <i class="ph-fill ph-hexagon text-brand-orange"></i>
+                            <span class="font-tech text-xs tracking-widest text-gray-400">SECTOR ANALYSIS</span>
+                        </div>
+                        <i class="ph ph-corners-out text-gray-500 cursor-pointer hover:text-white"></i>
+                    </div>
+                    
+                    <h2 class="text-2xl font-bold mb-1 text-white text-glow">Brooklyn Sector</h2>
+                    <p class="text-sm text-brand-orange mb-6">42 active enterprises detected</p>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-gray-400">Economic Volume</span>
+                                <span class="text-white font-tech">High</span>
+                            </div>
+                            <div class="w-full h-1 bg-gray-800 rounded-full overflow-hidden">
+                                <div class="h-full bg-gradient-to-r from-brand-orange to-yellow-500 w-[75%]"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-gray-400">Community Support Rate</span>
+                                <span class="text-white font-tech">92%</span>
+                            </div>
+                            <div class="w-full h-1 bg-gray-800 rounded-full overflow-hidden">
+                                <div class="h-full bg-gradient-to-r from-blue-500 to-green-400 w-[92%]"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="w-full mt-6 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-tech font-bold hover:bg-white/10 transition-colors flex items-center justify-center gap-2">
+                        <i class="ph ph-cube"></i> ENTER AR MODE
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- AI Assistant Floating Widget -->
+    <div class="fixed bottom-6 right-6 z-50 animate-float" style="animation-delay: 1s;">
+        <div class="w-14 h-14 rounded-full bg-[#15151A] border-2 border-brand-orange/50 shadow-[0_0_20px_rgba(255,90,0,0.3)] flex items-center justify-center cursor-pointer hover:scale-110 transition-transform hover:border-brand-orange">
+            <i class="ph-fill ph-robot text-2xl text-brand-orange"></i>
+        </div>
+    </div>
+</body>
+</html>
