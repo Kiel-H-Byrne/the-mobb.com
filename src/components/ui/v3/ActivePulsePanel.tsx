@@ -39,6 +39,7 @@ export const ListingCard3D = ({ listing, mapInstance, setactiveListing, setisDra
                 transition: "all 0.3s",
                 position: "relative",
                 overflow: "hidden",
+                group: "true",
                 _hover: {
                     transform: "translateY(-5px) scale(1.02)",
                     borderColor: "rgba(255,90,0,0.4)",
@@ -47,19 +48,42 @@ export const ListingCard3D = ({ listing, mapInstance, setactiveListing, setisDra
             })}
         >
             <div className={css({ position: "absolute", inset: 0, bg: "linear-gradient(to right, rgba(255,90,0,0.1), transparent)", opacity: 0, transition: "opacity 0.3s", _groupHover: { opacity: 1 } })}></div>
-            <div className={css({ position: "relative", zIndex: 10, display: "flex", gap: "4" })}>
-                <div className={css({ flex: 1 })}>
-                    <div className={css({ display: "flex", justifyContent: "space-between", alignItems: "flex-start" })}>
-                        <h3 className={css({ fontWeight: "bold", color: "white", fontSize: "lg", lineHeight: "tight", _hover: { textShadow: "0 0 20px rgba(255, 90, 0, 0.6)" } })}>{listing.name}</h3>
-                        <span className={css({ display: "flex", alignItems: "center", gap: "1", fontSize: "xs", fontFamily: "tech", color: "brand.orange", bg: "brand.orangeMuted", px: "2", py: "1", borderRadius: "md" })}>
+            <div className={css({ position: "relative", zIndex: 10, display: "flex", gap: "4", alignItems: "center" })}>
+                {/* Image Thumbnail */}
+                <div className={css({ w: "20", h: "20", borderRadius: "xl", bg: "gray.800", border: "1px solid", borderColor: "white/10", overflow: "hidden", position: "relative", flexShrink: 0 })}>
+                    {listing.image ? (
+                        <img
+                            src={listing.image}
+                            className={css({ w: "full", h: "full", objectFit: "cover", opacity: 0.8, mixBlendMode: "luminosity", _groupHover: { mixBlendMode: "normal" }, transition: "all 0.5s" })}
+                            alt={listing.name}
+                        />
+                    ) : (
+                        <div className={css({ w: "full", h: "full", display: "flex", alignItems: "center", justifyContent: "center" })}>
+                            <i className="ph-duotone ph-image text-2xl text-gray-600"></i>
+                        </div>
+                    )}
+                    <div className={css({ position: "absolute", top: "1", right: "1", w: "2", h: "2", borderRadius: "full", bg: "green.500", animation: "pulseSlow" })}></div>
+                </div>
+
+                <div className={css({ flex: 1, minW: 0 })}>
+                    <div className={css({ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "2" })}>
+                        <h3 className={css({ fontWeight: "bold", color: "white", fontSize: "lg", lineHeight: "tight", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap", _groupHover: { color: "brand.glow", textShadow: "0 0 20px rgba(255, 90, 0, 0.6)" }, transition: "colors" })}>
+                            {listing.name}
+                        </h3>
+                        <span className={css({ display: "flex", alignItems: "center", gap: "1", fontSize: "xs", fontFamily: "tech", color: "brand.orange", bg: "brand.orangeMuted", px: "2", py: "1", borderRadius: "md", flexShrink: 0 })}>
                             <i className="ph-fill ph-navigation-arrow"></i> Target
                         </span>
                     </div>
-                    <p className={css({ fontSize: "xs", color: "gray.400", mt: "1" })}>{listing.category?.replace(/_/g, " ")}</p>
+                    <p className={css({ fontSize: "xs", color: "gray.400", mt: "1", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" })}>
+                        {listing.category?.replace(/_/g, " ") || "Enterprise"}
+                    </p>
 
-                    <div className={css({ display: "flex", flexWrap: "wrap", gap: "2", mt: "3" })}>
-                        {listing.categories?.slice(0, 2).map((cat, idx) => (
-                            <span key={idx} className={css({ fontSize: "10px", px: "2", py: "1", borderRadius: "sm", border: "1px solid", borderColor: "white/10", color: "gray.400" })}>
+                    <div className={css({ display: "flex", flexWrap: "wrap", gap: "2", mt: "3", alignItems: "center" })}>
+                        <span className={css({ fontSize: "10px", color: "gray.500", fontFamily: "tech", textTransform: "uppercase", letterSpacing: "wider" })}>
+                            Community Verified
+                        </span>
+                        {listing.categories?.slice(0, 1).map((cat, idx) => (
+                            <span key={idx} className={css({ fontSize: "10px", px: "2", py: "1", borderRadius: "sm", border: "1px solid", borderColor: "white/10", color: "gray.400", ml: "auto" })}>
                                 {cat.replace(/_/g, " ")}
                             </span>
                         ))}
@@ -108,6 +132,13 @@ export const ActivePulsePanel = ({
                             <i className="ph-fill ph-crosshair text-brand-orange"></i> Live Geolocation Sync
                         </p>
                     </div>
+                    <button className={css({
+                        w: "10", h: "10", borderRadius: "xl", bg: "white/5", border: "1px solid",
+                        borderColor: "white/10", display: "flex", alignItems: "center", justifyContent: "center",
+                        cursor: "pointer", _hover: { bg: "brand.orangeMuted", borderColor: "brand.orange/50" }, transition: "colors"
+                    })}>
+                        <i className="ph ph-sliders-horizontal text-xl text-white"></i>
+                    </button>
                 </div>
 
                 <div className={css({ position: "relative", w: "full" })}>
@@ -115,12 +146,46 @@ export const ActivePulsePanel = ({
                         listings={listings}
                         categories={categories}
                         mapInstance={mapInstance}
-                        selectedCategories={selectedCategories}
-                        setSelectedCategories={setSelectedCategories}
                         setactiveListing={setactiveListing}
                         setisDrawerOpen={setisDrawerOpen}
-                        setIsAddListingOpen={setIsAddListingOpen}
                     />
+                </div>
+
+                {/* Category Pills */}
+                <div className={css({ display: "flex", gap: "3", overflowX: "auto", pb: "2", scrollbarWidth: "none", "&::-webkit-scrollbar": { display: "none" } })}>
+                    <button
+                        onClick={() => setSelectedCategories(new Set())}
+                        className={css({
+                            px: "4", py: "2", borderRadius: "xl", fontSize: "xs", fontWeight: "bold", whiteSpace: "nowrap", cursor: "pointer", transition: "colors",
+                            ...(selectedCategories.size === 0
+                                ? { bg: "brand.orange", color: "white", boxShadow: "0 4px 20px rgba(255,90,0,0.3)" }
+                                : { bg: "white/5", border: "1px solid", borderColor: "white/10", color: "gray.300", _hover: { bg: "white/10" } })
+                        })}
+                    >
+                        All Categories
+                    </button>
+                    {categories.map((cat: string) => {
+                        const isSelected = selectedCategories.has(cat);
+                        return (
+                            <button
+                                key={cat}
+                                onClick={() => {
+                                    const newSet = new Set(selectedCategories);
+                                    if (isSelected) newSet.delete(cat);
+                                    else newSet.add(cat);
+                                    setSelectedCategories(newSet);
+                                }}
+                                className={css({
+                                    px: "4", py: "2", borderRadius: "xl", fontSize: "xs", fontWeight: "bold", whiteSpace: "nowrap", cursor: "pointer", transition: "colors",
+                                    ...(isSelected
+                                        ? { bg: "brand.orange", color: "white", boxShadow: "0 4px 20px rgba(255,90,0,0.3)" }
+                                        : { bg: "white/5", border: "1px solid", borderColor: "white/10", color: "gray.300", _hover: { bg: "white/10" } })
+                                })}
+                            >
+                                {cat.replace(/_/g, " ")}
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
 

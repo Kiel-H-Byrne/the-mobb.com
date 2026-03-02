@@ -40,6 +40,16 @@ const SidebarHUD = () => {
                     <i className="ph ph-compass-rose text-2xl"></i>
                     <span className={css({ fontSize: "10px", fontFamily: "tech", display: { base: "none", md: "block" } })}>EXPLORE</span>
                 </a>
+
+                <a href="#" className={css({ color: "gray.500", _hover: { color: "white" }, transition: "colors", display: "flex", flexDir: "column", alignItems: "center", gap: "1" })}>
+                    <i className="ph ph-bookmarks text-2xl"></i>
+                    <span className={css({ fontSize: "10px", fontFamily: "tech", display: { base: "none", md: "block" } })}>SAVED</span>
+                </a>
+
+                <a href="#" className={css({ color: "gray.500", _hover: { color: "white" }, transition: "colors", display: "flex", flexDir: "column", alignItems: "center", gap: "1" })}>
+                    <i className="ph ph-robot text-2xl"></i>
+                    <span className={css({ fontSize: "10px", fontFamily: "tech", display: { base: "none", md: "block" } })}>CURATOR</span>
+                </a>
             </nav>
 
             {/* Reintegrating the Avatar from the old MapControl */}
