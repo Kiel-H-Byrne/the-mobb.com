@@ -36,19 +36,19 @@ const SidebarHUD = () => {
                     <div className={css({ position: "absolute", right: "-4px", top: "-4px", width: "8px", height: "8px", bg: "white", borderRadius: "full", animation: "pulseSlow" })}></div>
                 </a>
 
-                <a href="#" className={css({ color: "gray.500", _hover: { color: "white" }, transition: "colors", display: "flex", flexDir: "column", alignItems: "center", gap: "1" })}>
-                    <i className="ph ph-compass-rose text-2xl"></i>
-                    <span className={css({ fontSize: "10px", fontFamily: "tech", display: { base: "none", md: "block" } })}>EXPLORE</span>
+                <a href="#" className={css({ color: "gray.500", _hover: { color: "white" }, transition: "colors", display: "flex", flexDir: "column", alignItems: "center", gap: "1", group: "true" })}>
+                    <i className="ph ph-compass-rose text-2xl group-hover:scale-110 transition-transform"></i>
+                    <span className={css({ fontSize: "10px", fontFamily: "tech", display: { base: "none", md: "block" }, opacity: 0, _groupHover: { opacity: 1 }, transition: "opacity 0.3s" })}>EXPLORE</span>
                 </a>
 
-                <a href="#" className={css({ color: "gray.500", _hover: { color: "white" }, transition: "colors", display: "flex", flexDir: "column", alignItems: "center", gap: "1" })}>
-                    <i className="ph ph-bookmarks text-2xl"></i>
-                    <span className={css({ fontSize: "10px", fontFamily: "tech", display: { base: "none", md: "block" } })}>SAVED</span>
+                <a href="#" className={css({ color: "gray.500", _hover: { color: "white" }, transition: "colors", display: "flex", flexDir: "column", alignItems: "center", gap: "1", group: "true" })}>
+                    <i className="ph ph-bookmarks text-2xl group-hover:scale-110 transition-transform"></i>
+                    <span className={css({ fontSize: "10px", fontFamily: "tech", display: { base: "none", md: "block" }, opacity: 0, _groupHover: { opacity: 1 }, transition: "opacity 0.3s" })}>SAVED</span>
                 </a>
 
-                <a href="#" className={css({ color: "gray.500", _hover: { color: "white" }, transition: "colors", display: "flex", flexDir: "column", alignItems: "center", gap: "1" })}>
-                    <i className="ph ph-robot text-2xl"></i>
-                    <span className={css({ fontSize: "10px", fontFamily: "tech", display: { base: "none", md: "block" } })}>CURATOR</span>
+                <a href="#" className={css({ color: "gray.500", _hover: { color: "white" }, transition: "colors", display: "flex", flexDir: "column", alignItems: "center", gap: "1", group: "true" })}>
+                    <i className="ph ph-robot text-2xl group-hover:scale-110 transition-transform"></i>
+                    <span className={css({ fontSize: "10px", fontFamily: "tech", display: { base: "none", md: "block" }, opacity: 0, _groupHover: { opacity: 1 }, transition: "opacity 0.3s" })}>CURATOR</span>
                 </a>
             </nav>
 

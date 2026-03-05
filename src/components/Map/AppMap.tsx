@@ -1,3 +1,5 @@
+"use client";
+
 import { useAuth0 } from "@auth0/auth0-react";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { APIProvider, Map, useMap } from "@vis.gl/react-google-maps";
@@ -10,12 +12,7 @@ import { css } from "@styled/css";
 import SideDrawer from "../SideDrawer/SideDrawer";
 import MyMarker from "./MyMarker";
 
-const libraries: Libraries = [
-  "marker",
-  "places",
-  "visualization",
-  "geometry",
-];
+const libraries: Libraries = ["marker", "places", "visualization", "geometry"];
 
 const defaultProps = {
   center: GEOCENTER,
@@ -55,63 +52,118 @@ interface IAppMap {
   setIsMapActive: Dispatch<SetStateAction<boolean>>;
 }
 
-const MapContent = memo(({
-  listings,
-  selectedCategories,
-  activeListing,
-  setactiveListing,
-  isDrawerOpen,
-  setisDrawerOpen,
-  isInfoWindowOpen,
-  setisInfoWindowOpen,
-  mapInstance,
-  setMapInstance
-}: any) => {
-  const map = useMap("GMap");
-  const [clusterer, setClusterer] = useState<MarkerClusterer>();
-  const { isAuthenticated, loginWithRedirect } = useAuth0();
-  const [isAddListingOpen, setIsAddListingOpen] = useState(false);
+const MapContent = memo(
+  ({
+    listings,
+    selectedCategories,
+    activeListing,
+    setactiveListing,
+    isDrawerOpen,
+    setisDrawerOpen,
+    isInfoWindowOpen,
+    setisInfoWindowOpen,
+    mapInstance,
+    setMapInstance,
+  }: any) => {
+    const map = useMap("GMap");
+    const [clusterer, setClusterer] = useState<MarkerClusterer>();
+    const { isAuthenticated, loginWithRedirect } = useAuth0();
+    const [isAddListingOpen, setIsAddListingOpen] = useState(false);
 
-  useEffect(() => {
-    if (!map) return;
-    setMapInstance(map);
-    setClusterer(new MarkerClusterer({ map }));
-  }, [map, setMapInstance]);
+    useEffect(() => {
+      if (!map) return;
+      setMapInstance(map);
 
-  return (
-    <>
-      {/* HUD and AutoComplete MapControls have been relocated to 2030 AR Panels */}
-      {listings && listings.map((listing: Listing) => {
-        const hasMatch = listing.categories && listing.categories.some((el: Category) => selectedCategories.has(el));
-        const noCategories = !listing.categories || listing.categories.length === 0;
-        const isVisible = hasMatch || noCategories;
+      // Custom Renderer for Vision 2030 brand.orange pulsing nodes
+      const customRenderer = {
+        render: ({ count, position }: any) => {
+          const el = document.createElement('div');
+          el.innerHTML = count.toString();
 
-        if (!isVisible) return null;
+          Object.assign(el.style, {
+            width: '40px',
+            height: '40px',
+            background: '#FF5A00',
+            color: 'white',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 'bold',
+            fontFamily: 'Inter, sans-serif',
+            boxShadow: '0 0 20px #FF5A00, 0 0 40px rgba(255, 90, 0, 0.6)',
+            position: 'relative',
+            fontSize: '14px',
+            border: '1px solid rgba(255, 90, 0, 0.8)'
+          });
 
-        return (
-          <MyMarker
-            key={`marker-${listing._id}`}
-            //@ts-ignore
-            data={listing}
-            clusterer={clusterer}
-            setactiveListing={setactiveListing}
-            setisDrawerOpen={setisDrawerOpen}
-            setisInfoWindowOpen={setisInfoWindowOpen}
+          // Add pulse ring logic
+          const ring = document.createElement('div');
+          Object.assign(ring.style, {
+            position: 'absolute',
+            top: '-50%',
+            left: '-50%',
+            width: '200%',
+            height: '200%',
+            border: '1px solid #FF5A00',
+            borderRadius: '50%',
+            animation: 'pulseSlow 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite',
+            pointerEvents: 'none'
+          });
+          el.appendChild(ring);
+
+          return new google.maps.marker.AdvancedMarkerElement({
+            position,
+            content: el,
+            zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count,
+          });
+        }
+      };
+
+      setClusterer(new MarkerClusterer({ map, renderer: customRenderer }));
+    }, [map, setMapInstance]);
+
+    return (
+      <>
+        {/* HUD and AutoComplete MapControls have been relocated to 2030 AR Panels */}
+        {listings &&
+          listings.map((listing: Listing) => {
+            const hasMatch =
+              listing.categories &&
+              listing.categories.some((el: Category) =>
+                selectedCategories.has(el),
+              );
+            const noCategories =
+              !listing.categories || listing.categories.length === 0;
+            const isVisible = hasMatch || noCategories;
+
+            if (!isVisible) return null;
+
+            return (
+              <MyMarker
+                key={`marker-${listing._id}`}
+                //@ts-ignore
+                data={listing}
+                clusterer={clusterer}
+                setactiveListing={setactiveListing}
+                setisDrawerOpen={setisDrawerOpen}
+                setisInfoWindowOpen={setisInfoWindowOpen}
+              />
+            );
+          })}
+
+        {activeListing && isDrawerOpen && (
+          <SideDrawer
+            activeListing={activeListing}
+            isOpen={isDrawerOpen}
+            setOpen={setisDrawerOpen}
+            mapInstance={mapInstance || map}
           />
-        );
-      })}
-
-      {activeListing && isDrawerOpen && (
-        <SideDrawer
-          activeListing={activeListing}
-          isOpen={isDrawerOpen}
-          setOpen={setisDrawerOpen}
-          mapInstance={mapInstance || map}
-        />
-      )}
-    </>
-  );
-});
+        )}
+      </>
+    );
+  },
+);
 
 const AppMap = memo(
   ({
@@ -129,7 +181,7 @@ const AppMap = memo(
     setisDrawerOpen,
     isInfoWindowOpen,
     setisInfoWindowOpen,
-    setIsMapActive
+    setIsMapActive,
   }: IAppMap) => {
     const handleIdle = async (e: any) => {
       setIsMapActive(false);
@@ -176,7 +228,7 @@ const AppMap = memo(
           disableDefaultUI={options.disableDefaultUI}
           zoomControl={options.zoomControl}
           gestureHandling={options.gestureHandling}
-          colorScheme={"DARK"}
+          colorScheme={"LIGHT"}
           onDragstart={() => setIsMapActive(true)}
           onIdle={handleIdle}
         >
@@ -195,7 +247,7 @@ const AppMap = memo(
         </Map>
       </APIProvider>
     );
-  }
+  },
 );
 
 export default AppMap;
