@@ -80,11 +80,7 @@ const Home = React.memo(() => {
       <SidebarHUD />
 
       <main className={css({ flex: 1, display: "flex", flexDir: { base: "column", md: "row" }, gap: "6", h: "full", overflow: "hidden" })}>
-        {!listings || !categories ? (
-          <div className={css({ width: "100%", height: "4px", bg: "brand.orangeMuted", position: "relative", overflow: "hidden" })}>
-            <div className={css({ position: "absolute", height: "100%", bg: "brand.orange", width: "30%", left: "-30%", animation: "linearProgress 2s infinite linear" })} />
-          </div>
-        ) : (
+        {(listings && categories) && (
           <ActivePulsePanel
             listings={listings}
             categories={categories}
