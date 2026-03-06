@@ -16,10 +16,16 @@ const BusinessEntitySchema = z.object({
   name: z.string(),
   description: z.string().nullable().describe("Description of the business"),
   category: z.string().nullable().describe("Category of the business"),
-  address: z.string().nullable().describe("Full physical address if available"),
+  address: z.array(
+    z.string().nullable().describe("Full physical address if available"),
+  ),
   website: z.string().nullable().describe("Website URL if available"),
-  socialHandle: z.string().nullable().describe("Social media handle if available"),
+  socialHandle: z
+    .string()
+    .nullable()
+    .describe("Social media handle if available"),
   isBlackOwned: z.boolean().describe("Confidence based on text indicators"),
+  isOnlineOnly: z.boolean().describe("Online Only"),
 });
 
 // Define the schema for the AI's response (It might find ONE or MANY)
@@ -46,8 +52,10 @@ export async function extractBusinessData(url: string) {
       
       - If the page is a "Listicle" (e.g., "10 Best Restaurants"), extract ALL businesses listed.
       - If the page is a single business website, extract just that one.
+      - If there are multiple locations to a business and more than one address is found, save it as an array of addresses.
       - Look for "Black-owned" keywords (Black-led, minority-owned, cultural context).
       - Normalize addresses where possible.
+      - If the business is online only, label it as such "isOnlineOnly:true"
     `,
     prompt: `Analyze this HTML content: ${content}`,
   });
@@ -67,7 +75,7 @@ export async function extractBusinessData(url: string) {
       newListings.push({
         name: biz.name,
         category: biz.category || "Uncategorized",
-        address: biz.address || "",
+        address: biz.address || [],
         website: biz.website || "",
         description: biz.description || "",
         isBlackOwned: biz.isBlackOwned,
@@ -84,5 +92,10 @@ export async function extractBusinessData(url: string) {
     await pendingCollection.insertMany(newListings);
   }
 
-  return { success: true, count: newListings.length, sourceType: object.sourceType, data: object };
+  return {
+    success: true,
+    count: newListings.length,
+    sourceType: object.sourceType,
+    data: object,
+  };
 }

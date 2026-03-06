@@ -77,38 +77,39 @@ const MapContent = memo(
       // Custom Renderer for Vision 2030 brand.orange pulsing nodes
       const customRenderer = {
         render: ({ count, position }: any) => {
-          const el = document.createElement('div');
+          const el = document.createElement("div");
           el.innerHTML = count.toString();
 
           Object.assign(el.style, {
-            width: '40px',
-            height: '40px',
-            background: '#FF5A00',
-            color: 'white',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 'bold',
-            fontFamily: 'Inter, sans-serif',
-            boxShadow: '0 0 20px #FF5A00, 0 0 40px rgba(255, 90, 0, 0.6)',
-            position: 'relative',
-            fontSize: '14px',
-            border: '1px solid rgba(255, 90, 0, 0.8)'
+            width: "40px",
+            height: "40px",
+            background: "#FF5A00",
+            color: "white",
+            borderRadius: "50%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontWeight: "bold",
+            fontFamily: "Inter, sans-serif",
+            boxShadow: "0 0 20px #FF5A00, 0 0 40px rgba(255, 90, 0, 0.6)",
+            position: "relative",
+            fontSize: "14px",
+            border: "1px solid rgba(255, 90, 0, 0.8)",
           });
 
           // Add pulse ring logic
-          const ring = document.createElement('div');
+          const ring = document.createElement("div");
           Object.assign(ring.style, {
-            position: 'absolute',
-            top: '-50%',
-            left: '-50%',
-            width: '200%',
-            height: '200%',
-            border: '1px solid #FF5A00',
-            borderRadius: '50%',
-            animation: 'pulseSlow 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite',
-            pointerEvents: 'none'
+            position: "absolute",
+            top: "-50%",
+            left: "-50%",
+            width: "200%",
+            height: "200%",
+            border: "1px solid #FF5A00",
+            borderRadius: "50%",
+            animation:
+              "pulseSlow 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite",
+            pointerEvents: "none",
           });
           el.appendChild(ring);
 
@@ -117,7 +118,7 @@ const MapContent = memo(
             content: el,
             zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count,
           });
-        }
+        },
       };
 
       setClusterer(new MarkerClusterer({ map, renderer: customRenderer }));
@@ -136,8 +137,14 @@ const MapContent = memo(
             const noCategories =
               !listing.categories || listing.categories.length === 0;
             const isVisible = hasMatch || noCategories;
+            const hasCoordinates = Boolean(
+              listing.coordinates &&
+                listing.coordinates.coordinates &&
+                listing.coordinates.coordinates.length > 1,
+            );
 
-            if (!isVisible) return null;
+            if (!isVisible || !hasCoordinates || listing.isOnlineOnly)
+              return null;
 
             return (
               <MyMarker

@@ -2,20 +2,44 @@
 
 import AddListingDrawer from "@/components/Map/AddListingDrawer";
 import { toaster } from "@/components/ui/Toast";
-import { approveListing, getPendingListings, loginAdmin, logoutAdmin, rejectListing, updatePendingListing } from "@app/actions/admin";
+import { PendingListing } from "@/db/Types";
+import {
+  approveListing,
+  getPendingListings,
+  loginAdmin,
+  logoutAdmin,
+  rejectListing,
+  updatePendingListing,
+} from "@app/actions/admin";
 import { css } from "@styled/css";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { useEffect, useState } from "react";
+
+const toAddressString = (address?: PendingListing["address"]) => {
+  if (Array.isArray(address)) {
+    return address.filter(Boolean).join(", ");
+  }
+
+  return address || "";
+};
+
+const buildGoogleMapsSearchUrl = (listing: PendingListing) =>
+  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([listing.name, toAddressString(listing.address)].filter(Boolean).join(" "))}`;
+
+const buildGoogleSearchUrl = (listing: PendingListing) =>
+  `https://www.google.com/search?q=${encodeURIComponent([listing.name, toAddressString(listing.address), listing.website].filter(Boolean).join(" "))}`;
 
 export default function AdminReviewsPage() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
 
-  const [listings, setListings] = useState<any[]>([]);
+  const [listings, setListings] = useState<PendingListing[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false);
-  const [editingListing, setEditingListing] = useState<any>(null);
+  const [editingListing, setEditingListing] = useState<PendingListing | null>(
+    null,
+  );
 
   useEffect(() => {
     async function init() {
@@ -44,7 +68,12 @@ export default function AdminReviewsPage() {
     }
   };
 
-  const handleApprove = async (l: any) => {
+  const openEditor = (listing: PendingListing) => {
+    setEditingListing(listing);
+    setIsEditDrawerOpen(true);
+  };
+
+  const handleApprove = async (l: PendingListing) => {
     setIsLoading(true);
     const res = await approveListing(l._id, l);
     if (res.success) {
@@ -72,12 +101,14 @@ export default function AdminReviewsPage() {
     const res = await updatePendingListing(editingListing._id, updatedData);
     if (res.success) {
       // Update local state
-      setListings((prev) => prev.map((item) => {
-        if (item._id === editingListing._id) {
-          return { ...item, ...updatedData };
-        }
-        return item;
-      }));
+      setListings((prev) =>
+        prev.map((item) => {
+          if (item._id === editingListing._id) {
+            return { ...item, ...updatedData };
+          }
+          return item;
+        }),
+      );
     } else {
       toaster.create({ title: "Error updating listing", type: "error" });
       throw new Error("Update failed"); // Propagate to drawer to show error
@@ -85,89 +116,466 @@ export default function AdminReviewsPage() {
     setIsLoading(false);
   };
 
-  if (isLoggedIn === null) return <div className={css({ p: "10" })}>Loading...</div>;
+  if (isLoggedIn === null)
+    return <div className={css({ p: "10" })}>Loading...</div>;
   if (!isLoggedIn) {
     return (
-      <div className={css({ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", bg: "gray.50" })}>
-        <form onSubmit={handleLogin} className={css({ bg: "white", p: "8", borderRadius: "md", boxShadow: "md", display: "flex", flexDirection: "column", gap: "4", minWidth: "300px" })}>
-          <h1 className={css({ fontSize: "2xl", fontWeight: "bold", textAlign: "center", mb: "4" })}>Admin Login</h1>
+      <div
+        className={css({
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          bg: "gray.50",
+        })}
+      >
+        <form
+          onSubmit={handleLogin}
+          className={css({
+            bg: "white",
+            p: "8",
+            borderRadius: "md",
+            boxShadow: "md",
+            display: "flex",
+            flexDirection: "column",
+            gap: "4",
+            minWidth: "300px",
+          })}
+        >
+          <h1
+            className={css({
+              fontSize: "2xl",
+              fontWeight: "bold",
+              textAlign: "center",
+              mb: "4",
+            })}
+          >
+            Admin Login
+          </h1>
           <input
             type="password"
             placeholder="Admin Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className={css({ p: "2", border: "1px solid", borderColor: "gray.300", borderRadius: "md" })}
+            className={css({
+              p: "2",
+              border: "1px solid",
+              borderColor: "gray.300",
+              borderRadius: "md",
+            })}
           />
-          <button type="submit" className={css({ bg: "brand.orange", color: "white", p: "2", borderRadius: "md", fontWeight: "bold", cursor: "pointer" })}>
+          <button
+            type="submit"
+            className={css({
+              bg: "brand.orange",
+              color: "white",
+              p: "2",
+              borderRadius: "md",
+              fontWeight: "bold",
+              cursor: "pointer",
+            })}
+          >
             Login
           </button>
-          {loginError && <p className={css({ color: "red.500", fontSize: "sm", textAlign: "center" })}>{loginError}</p>}
+          {loginError && (
+            <p
+              className={css({
+                color: "red.500",
+                fontSize: "sm",
+                textAlign: "center",
+              })}
+            >
+              {loginError}
+            </p>
+          )}
         </form>
       </div>
     );
   }
 
   return (
-    <div className={css({ minHeight: "100vh", bg: "gray.50", p: "8" })}>
-      <div className={css({ display: "flex", justifyContent: "space-between", mb: "8", alignItems: "center" })}>
-        <h1 className={css({ fontSize: "3xl", fontWeight: "bold", color: "brand.grey" })}>Review Pending Listings</h1>
+    <div
+      className={css({
+        minHeight: "100vh",
+        bg: "gray.50",
+        p: "4",
+        md: { p: "8" },
+      })}
+    >
+      <div
+        className={css({
+          display: "flex",
+          justifyContent: "space-between",
+          mb: "8",
+          alignItems: "center",
+          gap: "4",
+          flexWrap: "wrap",
+        })}
+      >
+        <div>
+          <h1
+            className={css({
+              fontSize: "3xl",
+              fontWeight: "bold",
+              color: "brand.grey",
+            })}
+          >
+            Review Pending Listings
+          </h1>
+          <p className={css({ color: "gray.600", fontSize: "sm", mt: "1" })}>
+            Quick workflow: open edit, search Google Places, capture details, or
+            mark the listing as online only.
+          </p>
+        </div>
         <button
-          onClick={async () => { await logoutAdmin(); setIsLoggedIn(false); }}
-          className={css({ bg: "gray.200", p: "2 4", borderRadius: "md", fontWeight: "bold", cursor: "pointer" })}
+          onClick={async () => {
+            await logoutAdmin();
+            setIsLoggedIn(false);
+          }}
+          className={css({
+            bg: "gray.200",
+            p: "2 4",
+            borderRadius: "md",
+            fontWeight: "bold",
+            cursor: "pointer",
+          })}
         >
           Logout
         </button>
       </div>
 
-      <div className={css({ display: "flex", flexDirection: "column", gap: "4" })}>
+      <div
+        className={css({ display: "flex", flexDirection: "column", gap: "4" })}
+      >
         {listings.length === 0 ? (
-          <div className={css({ p: "8", bg: "white", borderRadius: "md", textAlign: "center", color: "gray.500" })}>
+          <div
+            className={css({
+              p: "8",
+              bg: "white",
+              borderRadius: "md",
+              textAlign: "center",
+              color: "gray.500",
+            })}
+          >
             No listings pending review.
           </div>
         ) : (
           listings.map((l) => (
-            <div key={l._id} className={css({ bg: "white", p: "6", borderRadius: "md", boxShadow: "sm", display: "flex", gap: "4", justifyContent: "space-between", alignItems: "flex-start" })}>
-              <div className={css({ flex: "1" })}>
-                <h2 className={css({ fontSize: "xl", fontWeight: "bold" })}>{l.name}</h2>
-                <div className={css({ display: "flex", gap: "2", mb: "2", mt: "1" })}>
-                  <span className={css({ bg: "gray.100", px: "2", py: "1", borderRadius: "md", fontSize: "xs", fontWeight: "bold" })}>{l.category}</span>
-                  <span className={css({ bg: l.source === "AI_SCAN" ? "blue.100" : "green.100", color: l.source === "AI_SCAN" ? "blue.800" : "green.800", px: "2", py: "1", borderRadius: "md", fontSize: "xs", fontWeight: "bold" })}>
-                    {l.source}
-                  </span>
-                  {l.source === "AI_SCAN" && l.isBlackOwned && (
-                    <span className={css({ bg: "orange.100", color: "orange.800", px: "2", py: "1", borderRadius: "md", fontSize: "xs", fontWeight: "bold" })}>AI Flagged: Black Owned</span>
+            <div
+              key={String(l._id)}
+              className={css({
+                bg: "white",
+                p: "5",
+                md: { p: "6" },
+                borderRadius: "lg",
+                boxShadow: "sm",
+                display: "grid",
+                gap: "5",
+                border: "1px solid",
+                borderColor: "gray.200",
+              })}
+            >
+              <div
+                className={css({
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+                  gap: "3",
+                  flexWrap: "wrap",
+                })}
+              >
+                <div className={css({ flex: "1", minWidth: "0" })}>
+                  <h2 className={css({ fontSize: "xl", fontWeight: "bold" })}>
+                    {l.name}
+                  </h2>
+                  <div
+                    className={css({
+                      display: "flex",
+                      gap: "2",
+                      mb: "2",
+                      mt: "1",
+                      flexWrap: "wrap",
+                    })}
+                  >
+                    <span
+                      className={css({
+                        bg: "gray.100",
+                        px: "2",
+                        py: "1",
+                        borderRadius: "md",
+                        fontSize: "xs",
+                        fontWeight: "bold",
+                      })}
+                    >
+                      {l.category}
+                    </span>
+                    <span
+                      className={css({
+                        bg: l.source === "AI_SCAN" ? "blue.100" : "green.100",
+                        color:
+                          l.source === "AI_SCAN" ? "blue.800" : "green.800",
+                        px: "2",
+                        py: "1",
+                        borderRadius: "md",
+                        fontSize: "xs",
+                        fontWeight: "bold",
+                      })}
+                    >
+                      {l.source}
+                    </span>
+                    {l.source === "AI_SCAN" && l.isBlackOwned && (
+                      <span
+                        className={css({
+                          bg: "orange.100",
+                          color: "orange.800",
+                          px: "2",
+                          py: "1",
+                          borderRadius: "md",
+                          fontSize: "xs",
+                          fontWeight: "bold",
+                        })}
+                      >
+                        AI Flagged: Black Owned
+                      </span>
+                    )}
+                    <span
+                      className={css({
+                        bg: l.isOnlineOnly
+                          ? "purple.100"
+                          : l.lat && l.lng
+                            ? "green.100"
+                            : "yellow.100",
+                        color: l.isOnlineOnly
+                          ? "purple.800"
+                          : l.lat && l.lng
+                            ? "green.800"
+                            : "yellow.800",
+                        px: "2",
+                        py: "1",
+                        borderRadius: "md",
+                        fontSize: "xs",
+                        fontWeight: "bold",
+                      })}
+                    >
+                      {l.isOnlineOnly
+                        ? "Online only"
+                        : l.lat && l.lng
+                          ? "Map ready"
+                          : toAddressString(l.address)
+                            ? "Needs review"
+                            : "Needs address"}
+                    </span>
+                    {(l.google_id || l.places_details) && (
+                      <span
+                        className={css({
+                          bg: "indigo.100",
+                          color: "indigo.800",
+                          px: "2",
+                          py: "1",
+                          borderRadius: "md",
+                          fontSize: "xs",
+                          fontWeight: "bold",
+                        })}
+                      >
+                        Google details captured
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div
+                  className={css({
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "2",
+                    justifyContent: "flex-start",
+                  })}
+                >
+                  <button
+                    disabled={isLoading}
+                    onClick={() => openEditor(l)}
+                    className={css({
+                      bg: "blue.500",
+                      color: "white",
+                      p: "2 3",
+                      borderRadius: "md",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      _hover: { bg: "blue.600" },
+                      opacity: isLoading ? 0.7 : 1,
+                    })}
+                  >
+                    Edit / find address
+                  </button>
+                  <a
+                    href={buildGoogleMapsSearchUrl(l)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={css({
+                      bg: "gray.100",
+                      color: "gray.800",
+                      p: "2 3",
+                      borderRadius: "md",
+                      fontWeight: "bold",
+                      textDecoration: "none",
+                    })}
+                  >
+                    Google Maps
+                  </a>
+                  <a
+                    href={buildGoogleSearchUrl(l)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={css({
+                      bg: "gray.100",
+                      color: "gray.800",
+                      p: "2 3",
+                      borderRadius: "md",
+                      fontWeight: "bold",
+                      textDecoration: "none",
+                    })}
+                  >
+                    Web search
+                  </a>
+                  {l.website && (
+                    <a
+                      href={l.website}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={css({
+                        bg: "gray.100",
+                        color: "gray.800",
+                        p: "2 3",
+                        borderRadius: "md",
+                        fontWeight: "bold",
+                        textDecoration: "none",
+                      })}
+                    >
+                      Visit site
+                    </a>
                   )}
                 </div>
-                <p className={css({ fontSize: "sm", color: "gray.600", mb: "1" })}><strong>Address:</strong> {l.address || "None"}</p>
-                <p className={css({ fontSize: "sm", color: "gray.600", mb: "1" })}><strong>Website:</strong> {l.website ? <a href={l.website} target="_blank" className={css({ color: "blue.500" })}>{l.website}</a> : "None"}</p>
-                <p className={css({ fontSize: "sm", color: "gray.600", mb: "1" })}><strong>Submitted:</strong> {l.createdAt ? new Date(l.createdAt).toLocaleString() : "Unknown"} | <strong>IP Address:</strong> {l.ipAddress || "Unknown"}</p>
+              </div>
+
+              <div className={css({ display: "grid", gap: "2" })}>
+                <p
+                  className={css({
+                    fontSize: "sm",
+                    color: "gray.700",
+                    mb: "1",
+                  })}
+                >
+                  <strong>Address:</strong>{" "}
+                  <button
+                    onClick={() => openEditor(l)}
+                    className={css({
+                      color: "blue.600",
+                      textDecoration: "underline",
+                      cursor: "pointer",
+                      background: "transparent",
+                      border: "none",
+                      padding: "0",
+                      textAlign: "left",
+                    })}
+                  >
+                    {toAddressString(l.address) ||
+                      "No address on file — click to search or enter one"}
+                  </button>
+                </p>
+                <p
+                  className={css({
+                    fontSize: "sm",
+                    color: "gray.600",
+                    mb: "1",
+                  })}
+                >
+                  <strong>Website:</strong>{" "}
+                  {l.website ? (
+                    <a
+                      href={l.website}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={css({ color: "blue.500" })}
+                    >
+                      {l.website}
+                    </a>
+                  ) : (
+                    "None"
+                  )}
+                </p>
+                {l.phone && (
+                  <p
+                    className={css({
+                      fontSize: "sm",
+                      color: "gray.600",
+                      mb: "1",
+                    })}
+                  >
+                    <strong>Phone:</strong> {l.phone}
+                  </p>
+                )}
+                <p
+                  className={css({
+                    fontSize: "sm",
+                    color: "gray.600",
+                    mb: "1",
+                  })}
+                >
+                  <strong>Submitted:</strong>{" "}
+                  {l.createdAt
+                    ? new Date(l.createdAt).toLocaleString()
+                    : "Unknown"}{" "}
+                  | <strong>IP Address:</strong>{" "}
+                  {(l as any).ipAddress || "Unknown"}
+                </p>
                 {l.description && (
-                  <p className={css({ fontSize: "sm", color: "gray.700", mt: "2", p: "2", bg: "gray.50", borderRadius: "md" })}>{l.description}</p>
+                  <p
+                    className={css({
+                      fontSize: "sm",
+                      color: "gray.700",
+                      mt: "2",
+                      p: "2",
+                      bg: "gray.50",
+                      borderRadius: "md",
+                    })}
+                  >
+                    {l.description}
+                  </p>
                 )}
               </div>
 
-              <div className={css({ display: "flex", flexDirection: "column", gap: "2", minWidth: "120px" })}>
+              <div
+                className={css({ display: "flex", flexWrap: "wrap", gap: "2" })}
+              >
                 <button
                   disabled={isLoading}
                   onClick={() => handleApprove(l)}
-                  className={css({ bg: "brand.orange", color: "white", p: "2", borderRadius: "md", fontWeight: "bold", cursor: "pointer", _hover: { bg: "orange.600" }, opacity: isLoading ? 0.7 : 1 })}
+                  className={css({
+                    bg: "brand.orange",
+                    color: "white",
+                    p: "2 4",
+                    borderRadius: "md",
+                    fontWeight: "bold",
+                    cursor: "pointer",
+                    _hover: { bg: "orange.600" },
+                    opacity: isLoading ? 0.7 : 1,
+                  })}
                 >
                   Approve
                 </button>
                 <button
                   disabled={isLoading}
-                  onClick={() => {
-                    setEditingListing(l);
-                    setIsEditDrawerOpen(true);
-                  }}
-                  className={css({ bg: "blue.500", color: "white", p: "2", borderRadius: "md", fontWeight: "bold", cursor: "pointer", _hover: { bg: "blue.600" }, opacity: isLoading ? 0.7 : 1 })}
-                >
-                  Edit
-                </button>
-                <button
-                  disabled={isLoading}
                   onClick={() => handleReject(l._id)}
-                  className={css({ bg: "red.500", color: "white", p: "2", borderRadius: "md", fontWeight: "bold", cursor: "pointer", _hover: { bg: "red.600" }, opacity: isLoading ? 0.7 : 1 })}
+                  className={css({
+                    bg: "red.500",
+                    color: "white",
+                    p: "2 4",
+                    borderRadius: "md",
+                    fontWeight: "bold",
+                    cursor: "pointer",
+                    _hover: { bg: "red.600" },
+                    opacity: isLoading ? 0.7 : 1,
+                  })}
                 >
                   Reject
                 </button>
