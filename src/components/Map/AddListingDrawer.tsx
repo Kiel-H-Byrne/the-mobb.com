@@ -122,8 +122,8 @@ const AddListingDrawer = ({
     if (!placesLib || !containerRef.current) return;
 
     // Create the PlaceAutocompleteElement
-    // @ts-ignore
-    const element = new window.google.maps.places.PlaceAutocompleteElement({
+    const PlaceAutocompleteElement = (window.google.maps.places as any).PlaceAutocompleteElement;
+    const element = new PlaceAutocompleteElement({
       includedPrimaryTypes: ["establishment"],
     });
 
@@ -859,37 +859,37 @@ const AddListingDrawer = ({
                     manualData.phone ||
                     manualData.lat ||
                     manualData.lng) && (
-                    <div
-                      className={css({
-                        backgroundColor: "gray.50",
-                        borderRadius: "md",
-                        border: "1px solid",
-                        borderColor: "gray.200",
-                        padding: "3",
-                        display: "grid",
-                        gap: "1",
-                        fontSize: "sm",
-                      })}
-                    >
-                      <strong>Captured Google details</strong>
-                      {manualData.google_id && (
-                        <div>
-                          <strong>Google ID:</strong> {manualData.google_id}
-                        </div>
-                      )}
-                      {manualData.phone && (
-                        <div>
-                          <strong>Phone:</strong> {manualData.phone}
-                        </div>
-                      )}
-                      {(manualData.lat || manualData.lng) && (
-                        <div>
-                          <strong>Coordinates:</strong> {manualData.lat || "-"},{" "}
-                          {manualData.lng || "-"}
-                        </div>
-                      )}
-                    </div>
-                  )}
+                      <div
+                        className={css({
+                          backgroundColor: "gray.50",
+                          borderRadius: "md",
+                          border: "1px solid",
+                          borderColor: "gray.200",
+                          padding: "3",
+                          display: "grid",
+                          gap: "1",
+                          fontSize: "sm",
+                        })}
+                      >
+                        <strong>Captured Google details</strong>
+                        {manualData.google_id && (
+                          <div>
+                            <strong>Google ID:</strong> {manualData.google_id}
+                          </div>
+                        )}
+                        {manualData.phone && (
+                          <div>
+                            <strong>Phone:</strong> {manualData.phone}
+                          </div>
+                        )}
+                        {(manualData.lat || manualData.lng) && (
+                          <div>
+                            <strong>Coordinates:</strong> {manualData.lat || "-"},{" "}
+                            {manualData.lng || "-"}
+                          </div>
+                        )}
+                      </div>
+                    )}
 
                   {error && (
                     <div

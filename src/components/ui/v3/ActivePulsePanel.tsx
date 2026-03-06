@@ -1,6 +1,7 @@
 import MapAutoComplete from "@/components/Map/MapAutoComplete";
 import { Category, Listing } from "@/db/Types";
 import { targetClient } from "@/util/functions";
+import { ToggleGroup } from "@ark-ui/react/toggle-group";
 import { css } from "@styled/css";
 import { Dispatch, SetStateAction } from "react";
 
@@ -33,8 +34,8 @@ export const ListingCard3D = ({
   return (
     <div
       onClick={handleClick}
-      className={css({
-        bg: "rgba(21, 21, 26, 0.95)",
+      className={`group ${css({
+        bg: "rgba(21, 21, 26, 0.8)",
         backdropFilter: "blur(24px)",
         borderRadius: "2xl",
         border: "1px solid",
@@ -44,13 +45,13 @@ export const ListingCard3D = ({
         transition: "all 0.3s",
         position: "relative",
         overflow: "hidden",
-        group: "true",
+        flexShrink: 0,
         _hover: {
           transform: "translateY(-5px) scale(1.02)",
           borderColor: "rgba(255,90,0,0.4)",
           boxShadow: "0 20px 40px rgba(255,90,0,0.1)",
         },
-      })}
+      })}`}
     >
       <div
         className={css({
@@ -87,7 +88,7 @@ export const ListingCard3D = ({
         >
           {listing.image ? (
             <img
-              src={listing.image}
+              src={typeof listing.image === 'string' ? listing.image : (listing.image as any)?.url || ''}
               className={css({
                 w: "full",
                 h: "full",
@@ -141,10 +142,7 @@ export const ListingCard3D = ({
                 color: "white",
                 fontSize: "lg",
                 lineHeight: "tight",
-                display: "-webkit-box",
-                WebkitLineClamp: "2",
-                WebkitBoxOrient: "vertical",
-                overflow: "hidden",
+                lineClamp: "2",
                 _groupHover: {
                   color: "brand.glow",
                   textShadow: "0 0 20px rgba(255, 90, 0, 0.6)",
@@ -177,13 +175,10 @@ export const ListingCard3D = ({
               fontSize: "xs",
               color: "gray.400",
               mt: "1",
-              display: "-webkit-box",
-              WebkitLineClamp: "1",
-              WebkitBoxOrient: "vertical",
-              overflow: "hidden",
+              lineClamp: "1",
             })}
           >
-            {listing.category?.replace(/_/g, " ") || "Enterprise"}
+            {(listing as any).category?.replace(/_/g, " ") || "Enterprise"}
           </p>
 
           <div
@@ -344,7 +339,10 @@ export const ActivePulsePanel = ({
         </div>
 
         {/* Category Pills */}
-        <div
+        <ToggleGroup.Root
+          multiple
+          value={Array.from(selectedCategories)}
+          onValueChange={(details) => setSelectedCategories(new Set(details.value))}
           className={css({
             display: "flex",
             gap: "3",
@@ -367,17 +365,17 @@ export const ActivePulsePanel = ({
               transition: "colors",
               ...(selectedCategories.size === 0
                 ? {
-                    bg: "brand.orange",
-                    color: "white",
-                    boxShadow: "0 4px 20px rgba(255,90,0,0.3)",
-                  }
+                  bg: "brand.orange",
+                  color: "white",
+                  boxShadow: "0 4px 20px rgba(255,90,0,0.3)",
+                }
                 : {
-                    bg: "white/5",
-                    border: "1px solid",
-                    borderColor: "white/10",
-                    color: "gray.300",
-                    _hover: { bg: "white/10" },
-                  }),
+                  bg: "white/5",
+                  border: "1px solid",
+                  borderColor: "white/10",
+                  color: "gray.300",
+                  _hover: { bg: "white/10" },
+                }),
             })}
           >
             All Categories
@@ -385,14 +383,9 @@ export const ActivePulsePanel = ({
           {categories.map((cat: string) => {
             const isSelected = selectedCategories.has(cat);
             return (
-              <button
+              <ToggleGroup.Item
                 key={cat}
-                onClick={() => {
-                  const newSet = new Set(selectedCategories);
-                  if (isSelected) newSet.delete(cat);
-                  else newSet.add(cat);
-                  setSelectedCategories(newSet);
-                }}
+                value={cat}
                 className={css({
                   px: "4",
                   py: "2",
@@ -404,24 +397,24 @@ export const ActivePulsePanel = ({
                   transition: "colors",
                   ...(isSelected
                     ? {
-                        bg: "brand.orange",
-                        color: "white",
-                        boxShadow: "0 4px 20px rgba(255,90,0,0.3)",
-                      }
+                      bg: "brand.orange",
+                      color: "white",
+                      boxShadow: "0 4px 20px rgba(255,90,0,0.3)",
+                    }
                     : {
-                        bg: "white/5",
-                        border: "1px solid",
-                        borderColor: "white/10",
-                        color: "gray.300",
-                        _hover: { bg: "white/10" },
-                      }),
+                      bg: "white/5",
+                      border: "1px solid",
+                      borderColor: "white/10",
+                      color: "gray.300",
+                      _hover: { bg: "white/10" },
+                    }),
                 })}
               >
                 {cat.replace(/_/g, " ")}
-              </button>
+              </ToggleGroup.Item>
             );
           })}
-        </div>
+        </ToggleGroup.Root>
       </div>
 
       <div

@@ -76,7 +76,7 @@ export default defineConfig({
           bg: {
             canvas: { value: "{colors.brand.black}" },
             surface: { value: "{colors.brand.greyDark}" },
-            glass: { value: "linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)" }, // 2030 Soft translucent white map
+            glass: { value: "linear-gradient(135deg, rgba(21, 21, 26, 0.85) 0%, rgba(21, 21, 26, 0.70) 100%)" }, // 2030 Solid blurred map panel
           },
           text: {
             main: { value: "{colors.brand.white}" },

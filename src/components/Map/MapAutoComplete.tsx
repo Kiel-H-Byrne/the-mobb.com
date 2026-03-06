@@ -86,7 +86,7 @@ const MapAutoComplete = ({
   }, []);
 
   return (
-    <div className={css({ position: "relative", w: "full", zIndex: 1200, group: "true" })}>
+    <div className={`group ${css({ position: "relative", w: "full", zIndex: 1200 })}`}>
       <div className={css({
         position: "absolute", inset: 0, bg: "brand.orange/20", borderRadius: "2xl",
         filter: "blur(8px)", opacity: 0, _groupHover: { opacity: 1 }, transition: "opacity 0.5s"

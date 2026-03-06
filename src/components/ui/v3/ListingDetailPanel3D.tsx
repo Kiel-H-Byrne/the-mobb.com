@@ -65,7 +65,7 @@ export const ListingDetailPanel3D = ({
                     <div className={css({ position: "absolute", inset: 0, bg: "linear-gradient(to bottom, transparent, #0B0B0E)", zIndex: 1 })} />
                     <a href={url} title="Listing Image" rel="noopener noreferrer" target="_blank" className={css({ display: "block", w: "full", h: "full" })}>
                         {image ? (
-                            <img src={image} alt={name} className={css({ w: "full", h: "full", objectFit: "cover", opacity: 0.8, filter: "contrast(1.1) saturate(1.2)" })} />
+                            <img src={typeof image === 'string' ? image : (image as any)?.url || ''} alt={name} className={css({ w: "full", h: "full", objectFit: "cover", opacity: 0.8, filter: "contrast(1.1) saturate(1.2)" })} />
                         ) : (
                             <div className={css({ w: "full", h: "full", display: "flex", alignItems: "center", justifyContent: "center" })}>
                                 <i className="ph-duotone ph-image text-6xl text-gray-600"></i>
