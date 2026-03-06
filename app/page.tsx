@@ -5,7 +5,7 @@ import { css } from "@styled/css";
 import React, { useEffect, useState } from "react";
 
 import { SAMPLE_CATEGORIES } from "@/db/SampleListings";
-import { fetchAllCategories, fetchAllListings } from "./actions/geo-search";
+import { fetchAllCategories, fetchAllListings, findBusinessesNearby } from "./actions/geo-search";
 
 import { Category, Listing } from "@/db/Types";
 
@@ -30,6 +30,49 @@ const Home = React.memo(() => {
   // Radar state
   const [isMapActive, setIsMapActive] = useState(true);
 
+  // Navigation state
+  const [activeNav, setActiveNav] = useState<"nearme" | "explore" | "saved" | "curator">("nearme");
+  const [isPanelVisible, setIsPanelVisible] = useState(true);
+
+  // Geolocation Handler
+  const handleNearMeClick = async () => {
+    setActiveNav("nearme");
+    setIsPanelVisible(true);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+
+          if (mapInstance) {
+            mapInstance.panTo({ lat, lng });
+            mapInstance.setZoom(12); // zoom in closer for local results
+          }
+
+          // 20 miles is roughly 32000 meters
+          try {
+            const nearby = await findBusinessesNearby(lat, lng, 32000);
+            if (nearby && nearby.length > 0) {
+              setListings(nearby);
+            }
+          } catch (error) {
+            console.error("Error fetching nearby businesses:", error);
+          }
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          // Fallback handling or notification could go here
+        }
+      );
+    }
+  };
+
+  const handleExploreClick = () => {
+    setActiveNav("explore");
+    setIsPanelVisible(false);
+    setIsMapActive(true);
+  };
+
   useEffect(() => {
     async function fetchListings() {
       let fetchedListings = await fetchAllListings();
@@ -48,10 +91,10 @@ const Home = React.memo(() => {
   }, []);
 
   return (
-    <div className={css({ h: "100vh", w: "100vw", display: "flex", flexDir: { base: "column", md: "row" }, gap: "6", p: { base: "4", md: "6" }, position: "relative", zIndex: 10 })}>
+    <div className={css({ h: "100vh", w: "100vw", display: "flex", flexDir: { base: "column", md: "row" }, gap: "6", p: { base: "4", md: "6" }, position: "relative", zIndex: 10, pointerEvents: "none" })}>
 
       {/* Immersive 3D Map Background */}
-      <div className={css({ position: "fixed", inset: "-24px", overflow: "hidden", pointerEvents: "none", zIndex: 0 })}>
+      <div className={css({ position: "fixed", inset: "-24px", overflow: "hidden", pointerEvents: "auto", zIndex: 0 })}>
         <AppMap
           listings={listings || []}
           setListings={setListings}
@@ -72,15 +115,22 @@ const Home = React.memo(() => {
         />
         {/* Holographic Radar Backdrop Overlay */}
         <div className={css({ position: "absolute", inset: 0, background: "linear-gradient(to top, #0B0B0E, transparent, #0B0B0E)", pointerEvents: "none" })} />
-        <div className={css({ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "800px", height: "800px", opacity: isMapActive ? 0.3 : 0.05, transition: "opacity 1s" })}>
-          <div className={css({ position: "absolute", top: "0", left: "0", w: "full", h: "full", borderRadius: "full", background: "conic-gradient(from 0deg, transparent 70%, rgba(255, 90, 0, 0.4) 100%)", animation: isMapActive ? "radarSpin" : "none" })} />
+        <div className={css({ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "800px", height: "800px", opacity: isMapActive ? 0.3 : 0.05, transition: "opacity 1s", pointerEvents: "none" })}>
+          <div className={css({ position: "absolute", top: "0", left: "0", w: "full", h: "full", borderRadius: "full", background: "conic-gradient(from 0deg, transparent 70%, rgba(255, 90, 0, 0.4) 100%)", animation: isMapActive ? "radarSpin" : "none", pointerEvents: "none" })} />
         </div>
       </div>
 
-      <SidebarHUD />
+      <SidebarHUD
+        activeNav={activeNav}
+        onNearMeClick={handleNearMeClick}
+        onExploreClick={handleExploreClick}
+        isPanelVisible={isPanelVisible}
+        onTogglePanel={() => setIsPanelVisible(!isPanelVisible)}
+      />
 
-      <main className={css({ flex: 1, display: "flex", flexDir: { base: "column", md: "row" }, gap: "6", h: "full", overflow: "hidden" })}>
-        {(listings && categories) && (
+      <main className={css({ flex: 1, display: "flex", flexDir: { base: "column", md: "row" }, gap: "6", h: "full", overflow: "hidden", pointerEvents: "none" })}>
+        {/* Active Pulse Panel (Hidden in Explore Mode or manually collapsed) */}
+        {(listings && categories && isPanelVisible) && (
           <ActivePulsePanel
             listings={listings}
             categories={categories}
@@ -106,7 +156,7 @@ const Home = React.memo(() => {
       {/* Floating Action Button for Add Listing */}
       <div
         onClick={() => setIsAddListingOpen(true)}
-        className={css({ position: "fixed", bottom: "6", right: "6", zIndex: 50, animation: "floatAnim", animationDelay: "1s" })}
+        className={css({ position: "fixed", bottom: "6", right: "6", zIndex: 50, animation: "floatAnim", animationDelay: "1s", pointerEvents: "auto" })}
       >
         <div className={css({ width: "56px", height: "56px", borderRadius: "full", bg: "brand.greyDark", border: "2px solid", borderColor: "brand.orange", boxShadow: "glow", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", _hover: { transform: "scale(1.1)" }, transition: "transform" })}>
           <i className="ph-fill ph-robot text-2xl text-brand-orange"></i>

@@ -300,7 +300,7 @@ export const targetClient = function (map: any, pos: GLocation) {
   // ZOOM TO CERTAIN LEVEL
   map.panTo(pos);
   // google.maps.event.trigger(map, 'resize');
-  map.setZoom(12);
+  map.setZoom(18);
 };
 
 export const toPositionObj = (location: string | undefined) => {

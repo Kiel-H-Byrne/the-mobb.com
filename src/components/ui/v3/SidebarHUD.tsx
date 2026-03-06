@@ -2,8 +2,30 @@ import MAvatar from "@/components/Nav/Mavatar";
 import { css } from "@styled/css";
 import { useTheme } from "next-themes";
 
-const SidebarHUD = () => {
+interface SidebarHUDProps {
+    activeNav?: "nearme" | "explore" | "saved" | "curator";
+    onNearMeClick?: () => void;
+    onExploreClick?: () => void;
+    isPanelVisible?: boolean;
+    onTogglePanel?: () => void;
+}
+
+const SidebarHUD = ({ activeNav = "nearme", onNearMeClick, onExploreClick, isPanelVisible = true, onTogglePanel }: SidebarHUDProps) => {
     const { theme, setTheme } = useTheme();
+
+    const getNavStyle = (id: string) => {
+        const isActive = activeNav === id;
+        return css({
+            color: isActive ? "text.main" : "text.muted",
+            _hover: { color: "text.main" },
+            transition: "colors 0.3s",
+            display: "flex",
+            flexDir: "column",
+            alignItems: "center",
+            gap: "1",
+            cursor: "pointer"
+        });
+    };
 
     return (
         <aside className={css({
@@ -37,26 +59,50 @@ const SidebarHUD = () => {
                 display: "flex", flexDirection: { base: "row", md: "column" }, gap: { base: "6", md: "8" },
                 overflowX: "auto", scrollbarWidth: "none", "&::-webkit-scrollbar": { display: "none" }
             })}>
-                <a href="#" className={`group ${css({ color: "brand.orange", textShadow: "0 0 8px rgba(255,90,0,0.8)", position: "relative", display: "flex", flexDir: "column", alignItems: "center", gap: "1" })}`}>
-                    <i className="ph-fill ph-navigation-arrow text-2xl group-hover:scale-110 transition-transform"></i>
+                <a onClick={onNearMeClick} className={`group ${getNavStyle("nearme")} ${activeNav === "nearme" ? css({ color: "brand.orange!" }) : ""}`}>
+                    <i className={`ph-fill ph-navigation-arrow text-2xl group-hover:scale-110 transition-transform ${activeNav === "nearme" ? css({ filter: "drop-shadow(0 0 8px rgba(255,90,0,0.8))" }) : ""}`}></i>
                     <span className={css({ fontSize: "10px", fontFamily: "tech", fontWeight: "bold", display: { base: "none", md: "block" } })}>NEAR ME</span>
-                    <div className={css({ position: "absolute", right: "-4px", top: "-4px", width: "8px", height: "8px", bg: "brand.orange", borderRadius: "full", animation: "pulseSlow" })}></div>
+                    {activeNav === "nearme" && (
+                        <div className={css({ position: "absolute", right: "-4px", top: "-4px", width: "8px", height: "8px", bg: "brand.orange", borderRadius: "full", animation: "pulseSlow" })}></div>
+                    )}
                 </a>
 
-                <a href="#" className={`group ${css({ color: "text.muted", _hover: { color: "text.main" }, transition: "colors 0.3s", display: "flex", flexDir: "column", alignItems: "center", gap: "1" })}`}>
-                    <i className="ph ph-compass-rose text-2xl group-hover:scale-110 transition-transform"></i>
+                <a onClick={onExploreClick} className={`group ${getNavStyle("explore")} ${activeNav === "explore" ? css({ color: "brand.orange!" }) : ""}`}>
+                    <i className={`ph-fill ph-compass-rose text-2xl group-hover:scale-110 transition-transform ${activeNav === "explore" ? css({ filter: "drop-shadow(0 0 8px rgba(255,90,0,0.8))" }) : ""}`}></i>
                     <span className={css({ fontSize: "10px", fontFamily: "tech", fontWeight: "bold", display: { base: "none", md: "block" } })}>EXPLORE</span>
+                    {activeNav === "explore" && (
+                        <div className={css({ position: "absolute", right: "-4px", top: "-4px", width: "8px", height: "8px", bg: "brand.orange", borderRadius: "full", animation: "pulseSlow" })}></div>
+                    )}
                 </a>
 
-                <a href="#" className={`group ${css({ color: "text.muted", _hover: { color: "text.main" }, transition: "colors 0.3s", display: "flex", flexDir: "column", alignItems: "center", gap: "1" })}`}>
-                    <i className="ph ph-bookmarks text-2xl group-hover:scale-110 transition-transform"></i>
+                <a className={`group ${getNavStyle("saved")}`}>
+                    <i className={`${activeNav === "saved" ? "ph-fill text-brand-orange" : "ph"} ph-bookmarks text-2xl group-hover:scale-110 transition-transform`}></i>
                     <span className={css({ fontSize: "10px", fontFamily: "tech", fontWeight: "bold", display: { base: "none", md: "block" } })}>SAVED</span>
                 </a>
 
-                <a href="#" className={`group ${css({ color: "text.muted", _hover: { color: "text.main" }, transition: "colors 0.3s", display: "flex", flexDir: "column", alignItems: "center", gap: "1" })}`}>
-                    <i className="ph ph-robot text-2xl group-hover:scale-110 transition-transform"></i>
+                <a className={`group ${getNavStyle("curator")}`}>
+                    <i className={`${activeNav === "curator" ? "ph-fill text-brand-orange" : "ph"} ph-robot text-2xl group-hover:scale-110 transition-transform`}></i>
                     <span className={css({ fontSize: "10px", fontFamily: "tech", fontWeight: "bold", display: { base: "none", md: "block" } })}>CURATOR</span>
                 </a>
+
+                {/* Expad Panel Handle - Visible only when Panel is hidden */}
+                {!isPanelVisible && (
+                    <button
+                        onClick={onTogglePanel}
+                        className={`group ${css({
+                            color: "brand.orange",
+                            display: "flex", flexDir: "column", alignItems: "center", gap: "1",
+                            mt: { base: "0", md: "4" }, ml: { base: "4", md: "0" },
+                            cursor: "pointer", transition: "all 0.3s",
+                            bg: "brand.surface", border: "1px solid", borderColor: "brand.orange",
+                            borderRadius: "full", p: "2",
+                            boxShadow: "0 0 10px rgba(255,90,0,0.3)"
+                        })}`}
+                        title="Expand Panel"
+                    >
+                        <i className="ph-bold ph-caret-right text-lg group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                )}
             </nav>
 
             {/* Bottom Actions Cluster */}

@@ -259,6 +259,7 @@ export const ActivePulsePanel = ({
         flexDirection: "column",
         flexShrink: 0,
         zIndex: 20,
+        pointerEvents: "auto"
       })}
     >
       <div

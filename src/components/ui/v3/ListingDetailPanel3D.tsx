@@ -36,7 +36,8 @@ export const ListingDetailPanel3D = ({
                 zIndex: 50,
                 overflow: "hidden",
                 animation: "fadeIn 0.3s ease-out",
-                transformOrigin: "right center"
+                transformOrigin: "right center",
+                pointerEvents: "auto"
             })}
         >
             {/* Header / Dismiss */}
