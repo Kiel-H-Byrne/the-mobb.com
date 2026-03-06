@@ -43,7 +43,8 @@ const SidebarHUD = ({ activeNav = "nearme", onNearMeClick, onExploreClick, isPan
             justifyContent: "space-between",
             padding: "4",
             flexShrink: 0,
-            zIndex: 40
+            zIndex: 40,
+            pointerEvents: "auto"
         })}>
             {/* Functional App Logo Avatar */}
             <div className={css({
