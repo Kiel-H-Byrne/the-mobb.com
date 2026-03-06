@@ -1,3 +1,4 @@
+import { ThemeProvider } from "@/components/ui/ThemeProvider";
 import { Toaster } from "@/components/ui/Toast";
 import "@/style/index.css";
 
@@ -13,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className="dark">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <meta
           name="viewport"
@@ -39,8 +40,14 @@ export default function RootLayout({
         <script src="https://unpkg.com/@phosphor-icons/web"></script>
       </head>
       <body suppressHydrationWarning className="antialiased bg-black text-white overflow-hidden font-sans">
-        {children}
-        <Toaster />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          disableTransitionOnChange
+        >
+          {children}
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

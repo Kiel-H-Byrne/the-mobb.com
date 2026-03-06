@@ -3,13 +3,13 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { APIProvider, Map, useMap } from "@vis.gl/react-google-maps";
+import { useTheme } from "next-themes";
 import { Dispatch, memo, SetStateAction, useEffect, useState } from "react";
 
 import { Category, Libraries, Listing } from "@/db/Types";
 import { GEOCENTER } from "@/util/functions";
 import { findBusinessesNearby } from "@app/actions/geo-search";
 import { css } from "@styled/css";
-import SideDrawer from "../SideDrawer/SideDrawer";
 import MyMarker from "./MyMarker";
 
 const libraries: Libraries = ["marker", "places", "visualization", "geometry"];
@@ -139,8 +139,8 @@ const MapContent = memo(
             const isVisible = hasMatch || noCategories;
             const hasCoordinates = Boolean(
               listing.coordinates &&
-                listing.coordinates.coordinates &&
-                listing.coordinates.coordinates.length > 1,
+              listing.coordinates.coordinates &&
+              listing.coordinates.coordinates.length > 1,
             );
 
             if (!isVisible || !hasCoordinates || listing.isOnlineOnly)
@@ -149,7 +149,6 @@ const MapContent = memo(
             return (
               <MyMarker
                 key={`marker-${listing._id}`}
-                //@ts-ignore
                 data={listing}
                 clusterer={clusterer}
                 setactiveListing={setactiveListing}
@@ -158,15 +157,6 @@ const MapContent = memo(
               />
             );
           })}
-
-        {activeListing && isDrawerOpen && (
-          <SideDrawer
-            activeListing={activeListing}
-            isOpen={isDrawerOpen}
-            setOpen={setisDrawerOpen}
-            mapInstance={mapInstance || map}
-          />
-        )}
       </>
     );
   },
@@ -190,6 +180,8 @@ const AppMap = memo(
     setisInfoWindowOpen,
     setIsMapActive,
   }: IAppMap) => {
+    const { theme } = useTheme();
+
     const handleIdle = async (e: any) => {
       setIsMapActive(false);
       const map = e.map;
@@ -216,7 +208,6 @@ const AppMap = memo(
     return (
       <APIProvider
         apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY as string}
-        //@ts-ignore
         libraries={libraries}
       >
         <Map
@@ -235,7 +226,7 @@ const AppMap = memo(
           disableDefaultUI={options.disableDefaultUI}
           zoomControl={options.zoomControl}
           gestureHandling={options.gestureHandling}
-          colorScheme={"LIGHT"}
+          colorScheme={theme === "dark" ? "DARK" : "LIGHT"}
           onDragstart={() => setIsMapActive(true)}
           onIdle={handleIdle}
         >

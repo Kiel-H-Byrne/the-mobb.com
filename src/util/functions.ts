@@ -209,11 +209,9 @@ export const getGDetails = ({ gid, map }) => {
   console.log("Details Data from API...");
   //   //get the response and stash it in GCache.
   return new Promise<any>(function (resolve, reject) {
-    // @ts-ignore
     const service = new window.google.maps.places.PlacesService(map);
     const req = { placeId: gid };
     const cbk = (place, status) => {
-      // @ts-ignore
       if (status === window.google.maps.places.PlacesServiceStatus.OK) {
         mCache.set(gid, place);
         resolve(place);

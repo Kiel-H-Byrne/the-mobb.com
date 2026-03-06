@@ -1,7 +1,10 @@
 import MAvatar from "@/components/Nav/Mavatar";
 import { css } from "@styled/css";
+import { useTheme } from "next-themes";
 
 const SidebarHUD = () => {
+    const { theme, setTheme } = useTheme();
+
     return (
         <aside className={css({
             width: { base: "100%", md: "128px" },
@@ -53,14 +56,36 @@ const SidebarHUD = () => {
                 </a>
             </nav>
 
-            {/* Reintegrating the Avatar from the old MapControl */}
-            <div className={css({
-                width: "40px", height: "40px", borderRadius: "full",
-                bg: "brand.surface", border: "1px solid", borderColor: "white/10",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                overflow: "hidden", cursor: "pointer", _hover: { borderColor: "brand.orange" }
-            })}>
-                <MAvatar />
+            {/* Bottom Actions Cluster */}
+            <div className={css({ display: "flex", flexDirection: { base: "row", md: "column" }, gap: "4", alignItems: "center" })}>
+                {/* Theme Toggle Button */}
+                <button
+                    onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                    className={css({
+                        width: "36px", height: "36px", borderRadius: "full",
+                        bg: "white/5", border: "1px solid", borderColor: "white/10",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        color: "gray.400", cursor: "pointer", _hover: { color: "white", bg: "white/10" },
+                        transition: "all 0.3s"
+                    })}
+                    title="Toggle Theme"
+                >
+                    {theme === 'dark' ? (
+                        <i className="ph-fill ph-sun text-lg"></i>
+                    ) : (
+                        <i className="ph-fill ph-moon text-lg"></i>
+                    )}
+                </button>
+
+                {/* Reintegrating the Avatar from the old MapControl */}
+                <div className={css({
+                    width: "40px", height: "40px", borderRadius: "full",
+                    bg: "brand.surface", border: "1px solid", borderColor: "white/10",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    overflow: "hidden", cursor: "pointer", _hover: { borderColor: "brand.orange" }
+                })}>
+                    <MAvatar />
+                </div>
             </div>
         </aside >
     );

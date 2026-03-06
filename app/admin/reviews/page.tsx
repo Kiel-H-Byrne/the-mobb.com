@@ -587,7 +587,6 @@ export default function AdminReviewsPage() {
 
       <APIProvider
         apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY as string}
-        //@ts-ignore
         libraries={["places", "geometry", "marker", "visualization"]}
       >
         <AddListingDrawer

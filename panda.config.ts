@@ -1,6 +1,13 @@
 import { defineConfig } from "@pandacss/dev";
 
 export default defineConfig({
+  globalCss: {
+    body: {
+      bg: "bg.canvas",
+      color: "text.main",
+      transition: "background-color 0.3s, color 0.3s",
+    }
+  },
   preflight: true,
   jsxFramework: 'react', // Enable JSX generation for Ark UI components
   include: [
@@ -74,16 +81,21 @@ export default defineConfig({
       semanticTokens: {
         colors: {
           bg: {
-            canvas: { value: "{colors.brand.black}" },
-            surface: { value: "{colors.brand.greyDark}" },
-            glass: { value: "linear-gradient(135deg, rgba(21, 21, 26, 0.85) 0%, rgba(21, 21, 26, 0.70) 100%)" }, // 2030 Solid blurred map panel
+            canvas: { value: { base: "#FFFFFF", _dark: "{colors.brand.black}" } },
+            surface: { value: { base: "#F3F4F6", _dark: "{colors.brand.greyDark}" } },
+            glass: {
+              value: {
+                base: "linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.70) 100%)",
+                _dark: "linear-gradient(135deg, rgba(21, 21, 26, 0.85) 0%, rgba(21, 21, 26, 0.70) 100%)"
+              }
+            },
           },
           text: {
-            main: { value: "{colors.brand.white}" },
-            muted: { value: "{colors.brand.greyLight}" }, // Note: greyLight might not exist, ensure safe fallback or add it
+            main: { value: { base: "{colors.brand.black}", _dark: "{colors.brand.white}" } },
+            muted: { value: { base: "#6B7280", _dark: "{colors.brand.greyLight}" } }, // Safe fallback for greyLight
           },
           border: {
-            light: { value: "rgba(255, 255, 255, 0.08)" },
+            light: { value: { base: "rgba(0, 0, 0, 0.08)", _dark: "rgba(255, 255, 255, 0.08)" } },
             neon: { value: "{colors.brand.orangeMuted}" }
           },
         },
