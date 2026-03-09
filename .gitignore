@@ -3,7 +3,8 @@ build
 .cache
 .next
 .env*
-.tsbuildinfo
+*.tsbuildinfo
+ts_errors.txt   
 next-env.d.ts
 
 # dist
