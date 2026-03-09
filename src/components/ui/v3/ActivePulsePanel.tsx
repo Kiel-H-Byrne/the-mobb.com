@@ -17,7 +17,8 @@ export const ListingCard3D = ({
   mapInstance,
   setactiveListing,
   setisDrawerOpen,
-}: ListingCard3DProps) => {
+  distance,
+}: ListingCard3DProps & { distance?: string }) => {
   const handleClick = () => {
     let locationObj;
     if (listing.coordinates && listing.coordinates.coordinates) {
@@ -46,6 +47,7 @@ export const ListingCard3D = ({
         position: "relative",
         overflow: "hidden",
         flexShrink: 0,
+        width: { base: "85%", md: "100%" },
         _hover: {
           transform: "translateY(-5px) scale(1.02)",
           borderColor: "rgba(255,90,0,0.4)",
@@ -58,7 +60,6 @@ export const ListingCard3D = ({
           position: "absolute",
           inset: 0,
           bg: "linear-gradient(to right, rgba(255,90,0,0.1), transparent)",
-          opacity: 0,
           transition: "opacity 0.3s",
           _groupHover: { opacity: 1 },
         })}
@@ -167,7 +168,7 @@ export const ListingCard3D = ({
                 flexShrink: 0,
               })}
             >
-              <i className="ph-fill ph-navigation-arrow"></i> Target
+              <i className="ph-fill ph-navigation-arrow"></i> {distance ? distance : "Target"}
             </span>
           </div>
           <p
@@ -236,7 +237,7 @@ export const ActivePulsePanel = ({
   setIsAddListingOpen,
 }: any) => {
   // Filter listings based on selected categories
-  const visibleListings = listings.filter((listing: Listing) => {
+  let visibleListings = listings.filter((listing: Listing) => {
     const hasMatch =
       listing.categories &&
       listing.categories.some((el: Category) => selectedCategories.has(el));
@@ -244,11 +245,42 @@ export const ActivePulsePanel = ({
     return hasMatch || noCategories;
   });
 
+  // Calculate distances and sort dynamically
+  if (mapInstance && visibleListings.length > 0) {
+    const center = mapInstance.getCenter();
+    if (center && window.google?.maps?.geometry) {
+      visibleListings = visibleListings.map((listing: Listing) => {
+        const coords = listing.coordinates?.coordinates;
+        let dist = Infinity;
+        let formattedDist = "";
+
+        if (coords && coords.length > 1) {
+          try {
+            const posObj = new window.google.maps.LatLng({ lat: coords[1], lng: coords[0] });
+            const distanceMeters = window.google.maps.geometry.spherical.computeDistanceBetween(posObj, center);
+            dist = distanceMeters;
+
+            // Convert to miles and format
+            const miles = distanceMeters * 0.000621371;
+            formattedDist = miles < 0.1 ? "<0.1 mi" : `${miles.toFixed(1)} mi`;
+          } catch (e) {
+            console.error("Error computing spherical distance", e);
+          }
+        }
+
+        // Return an augmented object for sorting
+        return { ...listing, _distance: dist, _formattedDistance: formattedDist };
+      }).sort((a: any, b: any) => a._distance - b._distance);
+    }
+  }
+
   return (
     <section
       className={css({
         width: { base: "100%", md: "420px", lg: "480px" },
-        height: "100%",
+        height: { base: "auto", md: "100%" },
+        maxHeight: { base: "60dvh", md: "100%" },
+        marginTop: { base: "auto", md: "0" },
         background: "brand.glass",
         backdropFilter: "blur(24px)",
         border: "1px solid",
@@ -264,12 +296,12 @@ export const ActivePulsePanel = ({
     >
       <div
         className={css({
-          p: "6",
+          p: { base: "4", md: "6" },
           borderBottom: "1px solid",
           borderColor: "white/5",
           display: "flex",
           flexDir: "column",
-          gap: "6",
+          gap: { base: "3", md: "6" },
         })}
       >
         <div
@@ -421,20 +453,25 @@ export const ActivePulsePanel = ({
       <div
         className={css({
           flex: "1",
-          overflowY: "auto",
-          p: "4",
+          overflowX: { base: "auto", md: "hidden" },
+          overflowY: { base: "hidden", md: "auto" },
+          px: { base: "4", md: "6" },
+          py: "4",
           display: "flex",
-          flexDir: "column",
+          flexDir: { base: "row", md: "column" },
           gap: "4",
+          scrollbarWidth: "none",
+          "&::-webkit-scrollbar": { display: "none" },
         })}
       >
-        {visibleListings.map((listing: Listing, i: number) => (
+        {visibleListings.map((listing: any, i: number) => (
           <ListingCard3D
-            key={i}
+            key={listing._id || i}
             listing={listing}
             mapInstance={mapInstance}
             setactiveListing={setactiveListing}
             setisDrawerOpen={setisDrawerOpen}
+            distance={listing._formattedDistance}
           />
         ))}
 

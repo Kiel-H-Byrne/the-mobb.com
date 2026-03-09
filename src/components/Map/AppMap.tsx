@@ -50,6 +50,7 @@ interface IAppMap {
   isInfoWindowOpen: boolean;
   setisInfoWindowOpen: Dispatch<SetStateAction<boolean>>;
   setIsMapActive: Dispatch<SetStateAction<boolean>>;
+  setClosestListing?: Dispatch<SetStateAction<Listing | null>>;
 }
 
 const MapContent = memo(
@@ -179,6 +180,7 @@ const AppMap = memo(
     isInfoWindowOpen,
     setisInfoWindowOpen,
     setIsMapActive,
+    setClosestListing
   }: IAppMap) => {
     const { theme } = useTheme();
 
@@ -196,6 +198,27 @@ const AppMap = memo(
           const nearby = await findBusinessesNearby(lat, lng, radius);
           if (nearby && nearby.length > 0) {
             setListings(nearby);
+
+            // Re-calculate the absolute nearest marker for the mobile floating card
+            if (setClosestListing) {
+              const start = new (window as any).google.maps.LatLng({ lat, lng });
+              let closestMarker: Listing | null = null;
+              let shortestDistance = Infinity;
+
+              nearby.forEach((listing: Listing) => {
+                const coords = listing.coordinates?.coordinates;
+                if (coords && coords.length > 1) {
+                  const posObj = new (window as any).google.maps.LatLng({ lat: coords[1], lng: coords[0] });
+                  const dist = (window as any).google.maps.geometry.spherical.computeDistanceBetween(posObj, start);
+                  if (dist < shortestDistance) {
+                    shortestDistance = dist;
+                    closestMarker = listing;
+                  }
+                }
+              });
+
+              setClosestListing(closestMarker);
+            }
           }
         } catch (error) {
           console.error("Error fetching nearby businesses:", error);

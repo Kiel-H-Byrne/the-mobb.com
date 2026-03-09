@@ -21,10 +21,12 @@ export const ListingDetailPanel3D = ({
         <div
             className={css({
                 position: "absolute",
-                top: "6",
-                right: "6",
-                bottom: "6",
-                width: { base: "100%", md: "420px", lg: "480px" },
+                top: { base: "auto", md: "0" },
+                bottom: "0",
+                right: { base: "0", md: "0" },
+                left: { base: "0", md: "auto" },
+                height: { base: "60dvh", md: "100%" },
+                width: { base: "100%", md: "380px", lg: "420px" },
                 background: "brand.glass",
                 backdropFilter: "blur(24px)",
                 border: "1px solid",
@@ -82,9 +84,9 @@ export const ListingDetailPanel3D = ({
                 </div>
 
                 {/* Content Body */}
-                <div className={css({ p: "6", display: "flex", flexDirection: "column", gap: "6" })}>
+                <div className={css({ p: "4", display: "flex", flexDirection: "column", gap: "4" })}>
                     <div>
-                        <h1 className={css({ fontSize: "3xl", fontWeight: "bold", color: "white", lineHeight: "tight", mb: "2", textShadow: "0 0 20px rgba(255,255,255,0.1)" })}>
+                        <h1 className={css({ fontSize: "2xl", fontWeight: "bold", color: "white", lineHeight: "tight", mb: "2", textShadow: "0 0 20px rgba(255,255,255,0.1)" })}>
                             {name}
                         </h1>
                         <p className={css({ color: "gray.400", fontSize: "sm", lineHeight: "relaxed" })}>

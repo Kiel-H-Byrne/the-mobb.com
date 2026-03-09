@@ -13,6 +13,10 @@ import { Category, Listing } from "@/db/Types";
 import AddListingDrawer from "@/components/Map/AddListingDrawer";
 import { ActivePulsePanel } from "@/components/ui/v3/ActivePulsePanel";
 import { ListingDetailPanel3D } from "@/components/ui/v3/ListingDetailPanel3D";
+import { MobileClosestListingsPanel } from "@/components/ui/v3/MobileClosestListingsPanel";
+import { MobileNav } from "@/components/ui/v3/MobileNav";
+import { MobileNearestCard } from "@/components/ui/v3/MobileNearestCard";
+import { MobileTopSearch } from "@/components/ui/v3/MobileTopSearch";
 import SidebarHUD from "@/components/ui/v3/SidebarHUD";
 
 const Home = React.memo(() => {
@@ -24,6 +28,7 @@ const Home = React.memo(() => {
   const [isDrawerOpen, setisDrawerOpen] = useState(false);
   const [isInfoWindowOpen, setisInfoWindowOpen] = useState(false);
   const [activeListing, setactiveListing] = useState<Listing | null>(null);
+  const [closestListing, setClosestListing] = useState<Listing | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<Set<Category>>(new Set());
   const [isAddListingOpen, setIsAddListingOpen] = useState(false);
 
@@ -91,7 +96,7 @@ const Home = React.memo(() => {
   }, []);
 
   return (
-    <div className={css({ h: "100vh", w: "100vw", display: "flex", flexDir: { base: "column", md: "row" }, gap: "6", p: { base: "4", md: "6" }, position: "relative", zIndex: 10, pointerEvents: "none" })}>
+    <div className={css({ h: "100dvh", w: "100%", overflow: "hidden", display: "flex", flexDir: { base: "column", md: "row" }, gap: "6", p: { base: "4", md: "6" }, position: "relative", zIndex: 10, pointerEvents: "none" })}>
 
       {/* Immersive 3D Map Background */}
       <div className={css({ position: "fixed", inset: "-24px", overflow: "hidden", pointerEvents: "auto", zIndex: 0 })}>
@@ -112,6 +117,7 @@ const Home = React.memo(() => {
           isInfoWindowOpen={isInfoWindowOpen}
           setisInfoWindowOpen={setisInfoWindowOpen}
           setIsMapActive={setIsMapActive}
+          setClosestListing={setClosestListing}
         />
         {/* Holographic Radar Backdrop Overlay */}
         <div className={css({ position: "absolute", inset: 0, background: "linear-gradient(to top, #0B0B0E, transparent, #0B0B0E)", pointerEvents: "none" })} />
@@ -120,15 +126,47 @@ const Home = React.memo(() => {
         </div>
       </div>
 
-      <SidebarHUD
+      <div className={css({ display: { base: "none", md: "block" }, zIndex: 40, pointerEvents: "auto" })}>
+        <SidebarHUD
+          activeNav={activeNav}
+          onNearMeClick={handleNearMeClick}
+          onExploreClick={handleExploreClick}
+          isPanelVisible={isPanelVisible}
+          onTogglePanel={() => setIsPanelVisible(!isPanelVisible)}
+        />
+      </div>
+
+      <MobileTopSearch
+        listings={listings || []}
+        categories={categories || []}
+        selectedCategories={selectedCategories}
+        setSelectedCategories={setSelectedCategories}
+        mapInstance={mapInstance}
+        setactiveListing={setactiveListing}
+        setisDrawerOpen={setisDrawerOpen}
+      />
+
+      <MobileNav
         activeNav={activeNav}
         onNearMeClick={handleNearMeClick}
         onExploreClick={handleExploreClick}
-        isPanelVisible={isPanelVisible}
-        onTogglePanel={() => setIsPanelVisible(!isPanelVisible)}
+        onAddListingClick={() => setIsAddListingOpen(true)}
       />
 
-      <main className={css({ flex: 1, display: "flex", flexDir: { base: "column", md: "row" }, gap: "6", h: "full", overflow: "hidden", pointerEvents: "none" })}>
+      <MobileNearestCard
+        listing={closestListing}
+        setactiveListing={setactiveListing}
+        setisDrawerOpen={setisDrawerOpen}
+      />
+
+      <MobileClosestListingsPanel
+        listings={listings || []}
+        mapInstance={mapInstance}
+        setactiveListing={setactiveListing}
+        setisDrawerOpen={setisDrawerOpen}
+      />
+
+      <main className={css({ flex: 1, display: { base: "none", md: "flex" }, flexDir: { base: "column", md: "row" }, gap: "6", h: "full", overflow: "hidden", pointerEvents: "none" })}>
         {/* Active Pulse Panel (Hidden in Explore Mode or manually collapsed) */}
         {(listings && categories && isPanelVisible) && (
           <ActivePulsePanel
@@ -153,10 +191,9 @@ const Home = React.memo(() => {
         )}
       </main>
 
-      {/* Floating Action Button for Add Listing */}
       <div
         onClick={() => setIsAddListingOpen(true)}
-        className={css({ position: "fixed", bottom: "6", right: "6", zIndex: 50, animation: "floatAnim", animationDelay: "1s", pointerEvents: "auto" })}
+        className={css({ display: { base: "none", md: "flex" }, position: "fixed", bottom: "6", right: "6", zIndex: 50, animation: "floatAnim", animationDelay: "1s", pointerEvents: "auto" })}
       >
         <div className={css({ width: "56px", height: "56px", borderRadius: "full", bg: "brand.greyDark", border: "2px solid", borderColor: "brand.orange", boxShadow: "glow", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", _hover: { transform: "scale(1.1)" }, transition: "transform" })}>
           <i className="ph-fill ph-robot text-2xl text-brand-orange"></i>

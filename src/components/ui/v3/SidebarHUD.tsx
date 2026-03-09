@@ -29,7 +29,7 @@ const SidebarHUD = ({ activeNav = "nearme", onNearMeClick, onExploreClick, isPan
 
     return (
         <aside className={css({
-            width: { base: "100%", md: "128px" },
+            width: { base: "100%", md: "90px" },
             height: { base: "64px", md: "100%" },
             bg: "bg.glass",
             backdropFilter: "blur(32px)", /* Increased frost */
@@ -57,7 +57,7 @@ const SidebarHUD = ({ activeNav = "nearme", onNearMeClick, onExploreClick, isPan
             </div>
 
             <nav className={css({
-                display: "flex", flexDirection: { base: "row", md: "column" }, gap: { base: "6", md: "8" },
+                display: "flex", flexDirection: { base: "row", md: "column" }, gap: { base: "6", md: "6" },
                 overflowX: "auto", scrollbarWidth: "none", "&::-webkit-scrollbar": { display: "none" }
             })}>
                 <a onClick={onNearMeClick} className={`group ${getNavStyle("nearme")} ${activeNav === "nearme" ? css({ color: "brand.orange!" }) : ""}`}>
