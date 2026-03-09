@@ -79,35 +79,65 @@ export async function approveListing(id: string, finalizedData: any) {
     const client = await clientPromise;
     const db = client.db(DB_NAME);
 
-    const normalizedAddress = normalizeAddress(finalizedData.address);
     const isOnlineOnly = Boolean(finalizedData.isOnlineOnly);
 
-    // Fetch Google Geocoding before inserting
-    let finalLat = finalizedData.lat;
-    let finalLng = finalizedData.lng;
+    let sourceLocations = finalizedData.locations;
+    if (!sourceLocations || !Array.isArray(sourceLocations)) {
+      sourceLocations = [];
+      const normalizedAddress = normalizeAddress(finalizedData.address);
+      if (normalizedAddress) {
+        sourceLocations.push({
+          address: normalizedAddress,
+          lat: finalizedData.lat,
+          lng: finalizedData.lng
+        });
+      }
+    }
 
-    if (!isOnlineOnly && !finalLat && !finalLng) {
-      const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
-      if (apiKey && normalizedAddress) {
-        try {
-          const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(normalizedAddress)}&key=${apiKey}`;
-          const geocodeRes = await fetch(geocodeUrl);
-          const geocodeData = await geocodeRes.json();
+    const finalLocations: any[] = [];
+    if (!isOnlineOnly) {
+      for (const loc of sourceLocations) {
+        let lat = loc.lat;
+        let lng = loc.lng;
+        let formattedAddress = loc.address;
+        let place_id = loc.place_id;
 
-          if (geocodeData.status === "OK" && geocodeData.results.length > 0) {
-            finalLat = geocodeData.results[0].geometry.location.lat;
-            finalLng = geocodeData.results[0].geometry.location.lng;
-          } else {
-            console.warn("Geocoding could not locate address:", geocodeData);
+        // Geocode if missing lat/lng
+        if (!lat || !lng) {
+          const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
+          if (apiKey && formattedAddress) {
+            try {
+              const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(formattedAddress)}&key=${apiKey}`;
+              const geocodeRes = await fetch(geocodeUrl);
+              const geocodeData = await geocodeRes.json();
+
+              if (geocodeData.status === "OK" && geocodeData.results.length > 0) {
+                const bestMatch = geocodeData.results[0];
+                lat = bestMatch.geometry.location.lat;
+                lng = bestMatch.geometry.location.lng;
+                place_id = bestMatch.place_id;
+                formattedAddress = bestMatch.formatted_address || formattedAddress;
+              }
+            } catch (err) {
+              console.error("Geocoding fetch error:", err);
+            }
           }
-        } catch (geocodeErr) {
-          console.error("Geocoding fetch error:", geocodeErr);
+        }
+
+        if (Number.isFinite(Number(lat)) && Number.isFinite(Number(lng))) {
+          finalLocations.push({
+            address: formattedAddress,
+            place_id,
+            coordinates: {
+              type: "Point",
+              coordinates: [Number(lng), Number(lat)]
+            }
+          });
         }
       }
     }
 
-    const safeAddress =
-      normalizedAddress || (isOnlineOnly ? "Online Only" : "Unknown Address");
+    const safeAddress = finalLocations.length > 0 ? finalLocations[0].address : (isOnlineOnly ? "Online Only" : "Unknown Address");
 
     // 0. Duplicate Check
     const existingDuplicate = await db.collection("listings").findOne({
@@ -127,6 +157,7 @@ export async function approveListing(id: string, finalizedData: any) {
     const newListing = {
       name: finalizedData.name,
       address: safeAddress,
+      locations: finalLocations,
       city: finalizedData.city || "",
       categories: [finalizedData.category],
       url: finalizedData.website,
@@ -140,16 +171,9 @@ export async function approveListing(id: string, finalizedData: any) {
       submitted: new Date(),
     };
 
-    // Note: To use $near, the coordinates MUST be [lng, lat] format precisely
-    if (
-      !isOnlineOnly &&
-      Number.isFinite(Number(finalLat)) &&
-      Number.isFinite(Number(finalLng))
-    ) {
-      (newListing as any).coordinates = {
-        type: "Point",
-        coordinates: [Number(finalLng), Number(finalLat)],
-      };
+    // Note: Legacy coordinates support for the first location to satisfy existing $near queries
+    if (finalLocations.length > 0) {
+      (newListing as any).coordinates = finalLocations[0].coordinates;
       (newListing as any).type = "Point";
     }
 

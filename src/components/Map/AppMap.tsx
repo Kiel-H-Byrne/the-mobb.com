@@ -138,14 +138,36 @@ const MapContent = memo(
             const noCategories =
               !listing.categories || listing.categories.length === 0;
             const isVisible = hasMatch || noCategories;
-            const hasCoordinates = Boolean(
+            const hasLegacyCoordinates = Boolean(
               listing.coordinates &&
               listing.coordinates.coordinates &&
               listing.coordinates.coordinates.length > 1,
             );
+            const hasLocations = Boolean(
+              listing.locations &&
+              listing.locations.length > 0 &&
+              listing.locations.some(loc => loc.coordinates?.coordinates?.length === 2)
+            );
 
-            if (!isVisible || !hasCoordinates || listing.isOnlineOnly)
+            if (!isVisible || (!hasLegacyCoordinates && !hasLocations) || listing.isOnlineOnly)
               return null;
+
+            if (hasLocations) {
+              return listing.locations!.map((loc, idx) => {
+                if (!loc.coordinates || loc.coordinates.coordinates.length < 2) return null;
+                return (
+                  <MyMarker
+                    key={`marker-${listing._id}-${idx}`}
+                    data={listing}
+                    locationData={loc}
+                    clusterer={clusterer}
+                    setactiveListing={setactiveListing}
+                    setisDrawerOpen={setisDrawerOpen}
+                    setisInfoWindowOpen={setisInfoWindowOpen}
+                  />
+                );
+              });
+            }
 
             return (
               <MyMarker
@@ -206,15 +228,24 @@ const AppMap = memo(
               let shortestDistance = Infinity;
 
               nearby.forEach((listing: Listing) => {
-                const coords = listing.coordinates?.coordinates;
-                if (coords && coords.length > 1) {
-                  const posObj = new (window as any).google.maps.LatLng({ lat: coords[1], lng: coords[0] });
-                  const dist = (window as any).google.maps.geometry.spherical.computeDistanceBetween(posObj, start);
-                  if (dist < shortestDistance) {
-                    shortestDistance = dist;
-                    closestMarker = listing;
-                  }
+                // If the listing has multiple locations, check which one is nearest
+                let coordsToTest: any[] = [];
+                if (listing.locations && listing.locations.length > 0) {
+                  coordsToTest = listing.locations.map(l => l.coordinates?.coordinates).filter(c => c && c.length > 1);
+                } else if (listing.coordinates?.coordinates) {
+                  coordsToTest = [listing.coordinates.coordinates];
                 }
+
+                coordsToTest.forEach(coords => {
+                  if (coords && coords.length > 1) {
+                    const posObj = new (window as any).google.maps.LatLng({ lat: coords[1], lng: coords[0] });
+                    const dist = (window as any).google.maps.geometry.spherical.computeDistanceBetween(posObj, start);
+                    if (dist < shortestDistance) {
+                      shortestDistance = dist;
+                      closestMarker = listing;
+                    }
+                  }
+                });
               });
 
               setClosestListing(closestMarker);

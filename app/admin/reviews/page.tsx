@@ -23,11 +23,28 @@ const toAddressString = (address?: PendingListing["address"]) => {
   return address || "";
 };
 
-const buildGoogleMapsSearchUrl = (listing: PendingListing) =>
-  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([listing.name, toAddressString(listing.address)].filter(Boolean).join(" "))}`;
+const getLocationsToRender = (listing: PendingListing) => {
+  if (listing.locations && listing.locations.length > 0) {
+    return listing.locations;
+  }
+  const fallbackAddress = toAddressString(listing.address);
+  if (fallbackAddress) {
+    return [{ address: fallbackAddress, lat: listing.lat, lng: listing.lng }];
+  }
+  return [];
+};
 
-const buildGoogleSearchUrl = (listing: PendingListing) =>
-  `https://www.google.com/search?q=${encodeURIComponent([listing.name, toAddressString(listing.address), listing.website].filter(Boolean).join(" "))}`;
+const buildGoogleMapsSearchUrl = (listing: PendingListing) => {
+  const locs = getLocationsToRender(listing);
+  const addressParam = locs.length > 0 ? locs[0].address : "";
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([listing.name, addressParam].filter(Boolean).join(" "))}`;
+};
+
+const buildGoogleSearchUrl = (listing: PendingListing) => {
+  const locs = getLocationsToRender(listing);
+  const addressParam = locs.length > 0 ? locs[0].address : "";
+  return `https://www.google.com/search?q=${encodeURIComponent([listing.name, addressParam, listing.website].filter(Boolean).join(" "))}`;
+};
 
 export default function AdminReviewsPage() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
@@ -338,33 +355,41 @@ export default function AdminReviewsPage() {
                         AI Flagged: Black Owned
                       </span>
                     )}
-                    <span
-                      className={css({
-                        bg: l.isOnlineOnly
-                          ? "purple.100"
-                          : l.lat && l.lng
-                            ? "green.100"
-                            : "yellow.100",
-                        color: l.isOnlineOnly
-                          ? "purple.800"
-                          : l.lat && l.lng
-                            ? "green.800"
-                            : "yellow.800",
-                        px: "2",
-                        py: "1",
-                        borderRadius: "md",
-                        fontSize: "xs",
-                        fontWeight: "bold",
-                      })}
-                    >
-                      {l.isOnlineOnly
-                        ? "Online only"
-                        : l.lat && l.lng
-                          ? "Map ready"
-                          : toAddressString(l.address)
-                            ? "Needs review"
-                            : "Needs address"}
-                    </span>
+                    {(() => {
+                      const locationsToRender = getLocationsToRender(l);
+                      const isMapReady = locationsToRender.length > 0 && locationsToRender.every(loc => loc.lat && loc.lng);
+                      const hasAddress = locationsToRender.length > 0;
+
+                      return (
+                        <span
+                          className={css({
+                            bg: l.isOnlineOnly
+                              ? "purple.100"
+                              : isMapReady
+                                ? "green.100"
+                                : "yellow.100",
+                            color: l.isOnlineOnly
+                              ? "purple.800"
+                              : isMapReady
+                                ? "green.800"
+                                : "yellow.800",
+                            px: "2",
+                            py: "1",
+                            borderRadius: "md",
+                            fontSize: "xs",
+                            fontWeight: "bold",
+                          })}
+                        >
+                          {l.isOnlineOnly
+                            ? "Online only"
+                            : isMapReady
+                              ? "Map ready"
+                              : hasAddress
+                                ? "Needs review"
+                                : "Needs address"}
+                        </span>
+                      )
+                    })()}
                     {(l.google_id || l.places_details) && (
                       <span
                         className={css({
@@ -458,7 +483,7 @@ export default function AdminReviewsPage() {
               </div>
 
               <div className={css({ display: "grid", gap: "2" })}>
-                <p
+                <div
                   className={css({
                     fontSize: "sm",
                     color: "gray.700",
@@ -466,22 +491,47 @@ export default function AdminReviewsPage() {
                   })}
                 >
                   <strong>Address:</strong>{" "}
-                  <button
-                    onClick={() => openEditor(l)}
-                    className={css({
-                      color: "blue.600",
-                      textDecoration: "underline",
-                      cursor: "pointer",
-                      background: "transparent",
-                      border: "none",
-                      padding: "0",
-                      textAlign: "left",
-                    })}
-                  >
-                    {toAddressString(l.address) ||
-                      "No address on file — click to search or enter one"}
-                  </button>
-                </p>
+                  {getLocationsToRender(l).length > 0 ? (
+                    getLocationsToRender(l).map((loc, idx) => (
+                      <div key={idx} className={css({ ml: "4", mt: "1", mb: "1" })}>
+                        <button
+                          onClick={() => openEditor(l)}
+                          className={css({
+                            color: "blue.600",
+                            textDecoration: "underline",
+                            cursor: "pointer",
+                            background: "transparent",
+                            border: "none",
+                            padding: "0",
+                            textAlign: "left",
+                          })}
+                        >
+                          {loc.address}
+                        </button>
+                        {loc.lat && loc.lng ? (
+                          <span className={css({ fontSize: "xs", color: "green.600", ml: "2" })}>(Geocoded)</span>
+                        ) : (
+                          <span className={css({ fontSize: "xs", color: "yellow.600", ml: "2" })}>(Needs geocoding)</span>
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <button
+                      onClick={() => openEditor(l)}
+                      className={css({
+                        color: "blue.600",
+                        textDecoration: "underline",
+                        cursor: "pointer",
+                        background: "transparent",
+                        border: "none",
+                        padding: "0",
+                        textAlign: "left",
+                      })}
+                    >
+                      No address on file — click to search or enter one
+                    </button>
+                  )}
+                </div>
                 <p
                   className={css({
                     fontSize: "sm",

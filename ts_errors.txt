@@ -1,0 +1,7 @@
+app/actions/admin.ts(128,31): error TS2345: Argument of type '{ address: any; place_id: any; coordinates: { type: string; coordinates: number[]; }; }' is not assignable to parameter of type 'never'.
+app/actions/admin.ts(140,71): error TS2339: Property 'address' does not exist on type 'never'.
+app/actions/admin.ts(176,59): error TS2339: Property 'coordinates' does not exist on type 'never'.
+app/actions/ai-curator.ts(102,26): error TS2345: Argument of type '{ address: string; lat: any; lng: any; place_id: any; }' is not assignable to parameter of type 'never'.
+app/actions/migration.ts(67,41): error TS2345: Argument of type '{ address: string; coordinates: { type: string; coordinates: number[]; }; }' is not assignable to parameter of type 'never'.
+app/admin/migrate/page.tsx(18,23): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'SetStateAction<string | null>'.
+  Type 'undefined' is not assignable to type 'SetStateAction<string | null>'.

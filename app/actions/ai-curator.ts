@@ -72,13 +72,51 @@ export async function extractBusinessData(url: string) {
     const existing = await pendingCollection.findOne({ name: biz.name });
 
     if (!existing) {
+      const addressArray = (biz.address || []).filter((a): a is string => Boolean(a));
+      const locations: any[] = [];
+
+      for (const addr of addressArray) {
+        if (!biz.isOnlineOnly) {
+          const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
+          let lat, lng, place_id;
+          let formattedAddress = addr;
+
+          if (apiKey) {
+            try {
+              const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(addr)}&key=${apiKey}`;
+              const geocodeRes = await fetch(geocodeUrl);
+              const geocodeData = await geocodeRes.json();
+
+              if (geocodeData.status === "OK" && geocodeData.results.length > 0) {
+                const bestMatch = geocodeData.results[0];
+                lat = bestMatch.geometry.location.lat;
+                lng = bestMatch.geometry.location.lng;
+                place_id = bestMatch.place_id;
+                formattedAddress = bestMatch.formatted_address || addr;
+              }
+            } catch (err) {
+              console.error("Geocoding fetch error for AI Curator:", err);
+            }
+          }
+
+          locations.push({
+            address: formattedAddress,
+            lat,
+            lng,
+            place_id
+          });
+        }
+      }
+
       newListings.push({
         name: biz.name,
         category: biz.category || "Uncategorized",
-        address: biz.address || [],
+        address: addressArray, // Legacy fallback
+        locations,
         website: biz.website || "",
         description: biz.description || "",
         isBlackOwned: biz.isBlackOwned,
+        isOnlineOnly: biz.isOnlineOnly,
         source: "AI_SCAN",
         status: "PENDING_REVIEW",
         createdAt: new Date(),

@@ -4,6 +4,7 @@ import { memo, useEffect, useState } from "react";
 
 interface MyMarkerProps {
   data: Listing;
+  locationData?: any;
   clusterer?: any;
   setisDrawerOpen: (open: boolean) => void;
   setisInfoWindowOpen: (open: boolean) => void;
@@ -12,24 +13,26 @@ interface MyMarkerProps {
 
 const MyMarker = ({
   data,
+  locationData,
   clusterer,
   setisDrawerOpen,
   setisInfoWindowOpen,
   setactiveListing,
 }: MyMarkerProps) => {
-  const { coordinates, _id } = data;
+  const coordinatesToUse = locationData?.coordinates || data.coordinates;
+  const _id = data._id;
 
   if (
-    !coordinates ||
-    !coordinates.coordinates ||
-    coordinates.coordinates.length < 2
+    !coordinatesToUse ||
+    !coordinatesToUse.coordinates ||
+    coordinatesToUse.coordinates.length < 2
   ) {
     return null;
   }
 
   const locObj = {
-    lat: coordinates.coordinates[1],
-    lng: coordinates.coordinates[0],
+    lat: coordinatesToUse.coordinates[1],
+    lng: coordinatesToUse.coordinates[0],
   };
 
   const [marker, setMarker] = useState<any>(null);

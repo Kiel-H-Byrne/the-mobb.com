@@ -8,7 +8,7 @@ export interface Claim {
 export interface Listing {
   _id: any; //ObjectId type from mongoDB
   name: string;
-  address: string;
+  address: string; // Legacy fallback
   street?: string;
   city: string;
   state?: string;
@@ -36,6 +36,14 @@ export interface Listing {
     type: "Point";
     coordinates: [number, number]; // [longitude, latitude]
   };
+  locations?: {
+    address: string;
+    coordinates?: {
+      type: "Point";
+      coordinates: [number, number]; // [longitude, latitude]
+    };
+    place_id?: string;
+  }[];
   creator: Date | string;
   submitted: Date | string;
 }
@@ -57,7 +65,13 @@ export interface PendingListing {
   _id?: any;
   name: string;
   category: string;
-  address?: string | (string | null)[] | null;
+  address?: string | (string | null)[] | null; // Legacy fallback
+  locations?: {
+    address: string;
+    lat?: number;
+    lng?: number;
+    place_id?: string;
+  }[];
   website?: string;
   description?: string;
   isBlackOwned?: boolean;
