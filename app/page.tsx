@@ -35,9 +35,10 @@ const Home = React.memo(() => {
   // Radar state
   const [isMapActive, setIsMapActive] = useState(true);
 
-  // Navigation state
+  // Navigation & Location state
   const [activeNav, setActiveNav] = useState<"nearme" | "explore" | "saved" | "curator">("nearme");
   const [isPanelVisible, setIsPanelVisible] = useState(true);
+  const [userLocation, setUserLocation] = useState<{ lat: number, lng: number } | null>(null);
 
   // Geolocation Handler
   const handleNearMeClick = async () => {
@@ -48,6 +49,7 @@ const Home = React.memo(() => {
         async (position) => {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
+          setUserLocation({ lat, lng });
 
           if (mapInstance) {
             mapInstance.panTo({ lat, lng });
@@ -178,6 +180,8 @@ const Home = React.memo(() => {
             setactiveListing={setactiveListing}
             setisDrawerOpen={setisDrawerOpen}
             setIsAddListingOpen={setIsAddListingOpen}
+            userLocation={userLocation}
+            onRequestLocation={handleNearMeClick}
           />
         )}
 

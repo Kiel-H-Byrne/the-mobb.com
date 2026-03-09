@@ -235,6 +235,8 @@ export const ActivePulsePanel = ({
   setactiveListing,
   setisDrawerOpen,
   setIsAddListingOpen,
+  userLocation,
+  onRequestLocation,
 }: any) => {
   // Filter listings based on selected categories
   let visibleListings = listings.filter((listing: Listing) => {
@@ -246,9 +248,9 @@ export const ActivePulsePanel = ({
   });
 
   // Calculate distances and sort dynamically
-  if (mapInstance && visibleListings.length > 0) {
-    const center = mapInstance.getCenter();
-    if (center && window.google?.maps?.geometry) {
+  if (visibleListings.length > 0) {
+    const routingCenter = userLocation ? new window.google.maps.LatLng(userLocation) : (mapInstance ? mapInstance.getCenter() : null);
+    if (routingCenter && window.google?.maps?.geometry) {
       visibleListings = visibleListings.map((listing: Listing) => {
         const coords = listing.coordinates?.coordinates;
         let dist = Infinity;
@@ -257,12 +259,13 @@ export const ActivePulsePanel = ({
         if (coords && coords.length > 1) {
           try {
             const posObj = new window.google.maps.LatLng({ lat: coords[1], lng: coords[0] });
-            const distanceMeters = window.google.maps.geometry.spherical.computeDistanceBetween(posObj, center);
+            const distanceMeters = window.google.maps.geometry.spherical.computeDistanceBetween(posObj, routingCenter);
             dist = distanceMeters;
 
             // Convert to miles and format
             const miles = distanceMeters * 0.000621371;
-            formattedDist = miles < 0.1 ? "<0.1 mi" : `${miles.toFixed(1)} mi`;
+            // If we don't know user Location, we don't show the badge distance since it's just relative to map center
+            formattedDist = userLocation ? (miles < 0.1 ? "<0.1 mi" : `${miles.toFixed(1)} mi`) : "Remote";
           } catch (e) {
             console.error("Error computing spherical distance", e);
           }
@@ -282,7 +285,7 @@ export const ActivePulsePanel = ({
         maxHeight: { base: "60dvh", md: "100%" },
         marginTop: { base: "auto", md: "0" },
         background: "brand.glass",
-        backdropFilter: "blur(24px)",
+        backdropFilter: "blur(1rem)",
         border: "1px solid",
         borderColor: "border.light",
         boxShadow: "glass",
@@ -464,18 +467,7 @@ export const ActivePulsePanel = ({
           "&::-webkit-scrollbar": { display: "none" },
         })}
       >
-        {visibleListings.map((listing: any, i: number) => (
-          <ListingCard3D
-            key={listing._id || i}
-            listing={listing}
-            mapInstance={mapInstance}
-            setactiveListing={setactiveListing}
-            setisDrawerOpen={setisDrawerOpen}
-            distance={listing._formattedDistance}
-          />
-        ))}
-
-        {visibleListings.length === 0 && (
+        {!userLocation ? (
           <div
             className={css({
               p: 6,
@@ -485,6 +477,83 @@ export const ActivePulsePanel = ({
               alignItems: "center",
               justifyContent: "center",
               h: "full",
+              w: "full",
+            })}
+          >
+            <i className="ph-duotone ph-globe-hemisphere-east text-6xl text-brand-orange mb-4 opacity-70"></i>
+            <h3
+              className={css({
+                color: "white",
+                fontSize: "xl",
+                fontWeight: "bold",
+                mb: 2,
+              })}
+            >
+              Uplink Required
+            </h3>
+            <p className={css({ color: "gray.400", fontSize: "sm", mb: 6, maxWidth: "300px" })}>
+              Establish a location uplink to discover the verified ecosystem in your immediate sector.
+            </p>
+            <button
+              onClick={onRequestLocation}
+              className={css({
+                w: "full",
+                bg: "brand.orange",
+                color: "black",
+                px: "6",
+                py: "3",
+                borderRadius: "full",
+                fontSize: "sm",
+                fontWeight: "bold",
+                cursor: "pointer",
+                _hover: { filter: "brightness(1.1)", transform: "scale(1.02)" },
+                transition: "all 0.2s",
+                boxShadow: "glow",
+                mb: 3,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "2"
+              })}
+            >
+              <i className="ph-bold ph-radar"></i> Locate Community
+            </button>
+            <button
+              onClick={() => setIsAddListingOpen(true)}
+              className={css({
+                w: "full",
+                bg: "white/5",
+                border: "1px solid",
+                borderColor: "white/10",
+                color: "white",
+                px: "6",
+                py: "3",
+                borderRadius: "full",
+                fontSize: "sm",
+                fontWeight: "bold",
+                cursor: "pointer",
+                _hover: { bg: "white/10" },
+                transition: "all 0.2s",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "2"
+              })}
+            >
+              <i className="ph-bold ph-plus"></i> Add an Enterprise
+            </button>
+          </div>
+        ) : visibleListings.length === 0 ? (
+          <div
+            className={css({
+              p: 6,
+              textAlign: "center",
+              display: "flex",
+              flexDir: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              h: "full",
+              w: "full",
             })}
           >
             <i className="ph-duotone ph-radar text-6xl text-brand-orange mb-4 opacity-70"></i>
@@ -506,7 +575,7 @@ export const ActivePulsePanel = ({
               onClick={() => setIsAddListingOpen(true)}
               className={css({
                 bg: "brand.orange",
-                color: "white",
+                color: "black",
                 px: "6",
                 py: "3",
                 borderRadius: "full",
@@ -521,6 +590,17 @@ export const ActivePulsePanel = ({
               <i className="ph-bold ph-plus mr-2"></i> Register Enterprise
             </button>
           </div>
+        ) : (
+          visibleListings.map((listing: any, i: number) => (
+            <ListingCard3D
+              key={listing._id || i}
+              listing={listing}
+              mapInstance={mapInstance}
+              setactiveListing={setactiveListing}
+              setisDrawerOpen={setisDrawerOpen}
+              distance={listing._formattedDistance}
+            />
+          ))
         )}
       </div>
     </section>
