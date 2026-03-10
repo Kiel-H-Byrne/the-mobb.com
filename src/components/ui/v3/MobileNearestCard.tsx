@@ -63,6 +63,7 @@ export const MobileNearestCard = ({
                 animation: "slideUp 0.3s ease-out",
                 _active: { transform: "scale(0.98)" },
                 transition: "transform 0.2s",
+                pointerEvents: "auto",
             })}
         >
             {/* Image Thumbnail */}

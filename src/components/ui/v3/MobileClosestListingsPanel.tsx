@@ -36,6 +36,7 @@ export const MobileClosestListingsPanel = ({
                     transform: "translateY(-50%)",
                     zIndex: 45,
                     display: { base: "flex", md: "none" },
+                    pointerEvents: "auto",
                 })}
             >
                 <button
@@ -89,6 +90,7 @@ export const MobileClosestListingsPanel = ({
                         zIndex: 2000,
                         display: { base: "flex", md: "none" },
                         justifyContent: "flex-end",
+                        pointerEvents: "auto",
                     })}
                 >
                     {/* Backdrop */}

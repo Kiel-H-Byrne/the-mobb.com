@@ -26,7 +26,7 @@ export default function MigratePage() {
     };
 
     return (
-        <div className={css({ minHeight: "100vh", bg: "gray.50", p: "4", md: { p: "8" } })}>
+        <div className={css({ minHeight: "100vh", bg: "bg.canvas", p: "4", md: { p: "8" } })}>
             <div
                 className={css({
                     display: "flex",
@@ -38,15 +38,16 @@ export default function MigratePage() {
                 })}
             >
                 <div>
-                    <h1 className={css({ fontSize: "3xl", fontWeight: "bold", mb: "2", color: "brand.grey" })}>Data Sanitization & Migration</h1>
-                    <p className={css({ color: "gray.600" })}>
+                    <h1 className={css({ fontSize: "3xl", fontWeight: "bold", mb: "2", color: "text.main" })}>Data Sanitization & Migration</h1>
+                    <p className={css({ color: "text.muted" })}>
                         Use this tool to automatically migrate legacy listings (single flat address strings) into the new multi-location array format. Will automatically attempt to geocode using Google Places if coordinates are missing.
                     </p>
                 </div>
                 <button
                     onClick={() => router.push("/admin/reviews")}
                     className={css({
-                        bg: "gray.200",
+                        bg: "bg.surface",
+                        color: "text.main",
                         p: "2 4",
                         borderRadius: "md",
                         fontWeight: "bold",
@@ -57,8 +58,8 @@ export default function MigratePage() {
                 </button>
             </div>
 
-            <div className={css({ bg: "white", p: "6", borderRadius: "md", boxShadow: "sm", border: "1px solid", borderColor: "gray.200" })}>
-                <h2 className={css({ fontSize: "xl", fontWeight: "bold", mb: "4" })}>Migrate Legacy Locations</h2>
+            <div className={css({ bg: "bg.surface", p: "6", borderRadius: "md", boxShadow: "sm", border: "1px solid", borderColor: "border.light" })}>
+                <h2 className={css({ fontSize: "xl", fontWeight: "bold", mb: "4", color: "text.main" })}>Migrate Legacy Locations</h2>
 
                 <button
                     onClick={handleMigration}

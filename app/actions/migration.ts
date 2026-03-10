@@ -85,11 +85,85 @@ export async function migrateLegacyListings() {
             migratedCount++;
         }
 
+        // Now sanitize pending_listings
+        const pendingCol = db.collection("pending_listings");
+        const legacyPending = await pendingCol
+            .find({
+                $or: [
+                    { locations: { $exists: false } },
+                    { locations: { $size: 0 } },
+                ],
+            })
+            .toArray();
+
+        let pendingMigratedCount = 0;
+        let pendingGeocodedCount = 0;
+
+        for (const pending of legacyPending) {
+            let finalLocations: any[] = [];
+            let addressField = pending.address;
+
+            if (!pending.isOnlineOnly && addressField) {
+                let addressStr = "";
+                if (Array.isArray(addressField)) {
+                    addressStr = addressField.filter(Boolean).join(", ");
+                } else if (typeof addressField === "string") {
+                    addressStr = addressField;
+                }
+
+                if (addressStr) {
+                    let lat = pending.lat;
+                    let lng = pending.lng;
+                    let place_id = pending.place_id || (pending.places_details ? pending.places_details.place_id : undefined);
+
+                    // Attempt to geocode if missing coordinates
+                    if (!lat || !lng) {
+                        const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
+                        if (apiKey) {
+                            try {
+                                const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(addressStr)}&key=${apiKey}`;
+                                const geocodeRes = await fetch(geocodeUrl);
+                                const geocodeData = await geocodeRes.json();
+
+                                if (geocodeData.status === "OK" && geocodeData.results.length > 0) {
+                                    lat = geocodeData.results[0].geometry.location.lat;
+                                    lng = geocodeData.results[0].geometry.location.lng;
+                                    place_id = geocodeData.results[0].place_id;
+                                    pendingGeocodedCount++;
+                                }
+                            } catch (err) {
+                                console.error("Pending Migration Geocoding Error:", err);
+                            }
+                        }
+                    }
+
+                    finalLocations.push({
+                        address: addressStr,
+                        lat,
+                        lng,
+                        place_id
+                    });
+                }
+            }
+
+            await pendingCol.updateOne(
+                { _id: pending._id },
+                {
+                    $set: {
+                        locations: finalLocations
+                    }
+                }
+            );
+            pendingMigratedCount++;
+        }
+
         return {
             success: true,
-            message: `Migrated ${migratedCount} legacy listings to multi-location array format. Automatically geocoded ${geocodedCount} missing coordinates.`,
+            message: `Sanitized Schemas: Migrated ${migratedCount} listings (${geocodedCount} geocoded) and ${pendingMigratedCount} pending listings (${pendingGeocodedCount} geocoded).`,
             migratedCount,
-            geocodedCount
+            geocodedCount,
+            pendingMigratedCount,
+            pendingGeocodedCount
         };
     } catch (error: any) {
         console.error("Migration error:", error);

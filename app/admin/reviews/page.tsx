@@ -143,13 +143,13 @@ export default function AdminReviewsPage() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          bg: "gray.50",
+          bg: "bg.canvas",
         })}
       >
         <form
           onSubmit={handleLogin}
           className={css({
-            bg: "white",
+            bg: "bg.surface",
             p: "8",
             borderRadius: "md",
             boxShadow: "md",
@@ -165,6 +165,7 @@ export default function AdminReviewsPage() {
               fontWeight: "bold",
               textAlign: "center",
               mb: "4",
+              color: "text.main",
             })}
           >
             Admin Login
@@ -177,8 +178,10 @@ export default function AdminReviewsPage() {
             className={css({
               p: "2",
               border: "1px solid",
-              borderColor: "gray.300",
+              borderColor: "border.light",
               borderRadius: "md",
+              bg: "bg.canvas",
+              color: "text.main",
             })}
           />
           <button
@@ -214,7 +217,7 @@ export default function AdminReviewsPage() {
     <div
       className={css({
         minHeight: "100vh",
-        bg: "gray.50",
+        bg: "bg.canvas",
         p: "4",
         md: { p: "8" },
       })}
@@ -234,12 +237,12 @@ export default function AdminReviewsPage() {
             className={css({
               fontSize: "3xl",
               fontWeight: "bold",
-              color: "brand.grey",
+              color: "text.main",
             })}
           >
             Review Pending Listings
           </h1>
-          <p className={css({ color: "gray.600", fontSize: "sm", mt: "1" })}>
+          <p className={css({ color: "text.muted", fontSize: "sm", mt: "1" })}>
             Quick workflow: open edit, search Google Places, capture details, or
             mark the listing as online only.
           </p>
@@ -250,7 +253,8 @@ export default function AdminReviewsPage() {
             setIsLoggedIn(false);
           }}
           className={css({
-            bg: "gray.200",
+            bg: "bg.surface",
+            color: "text.main",
             p: "2 4",
             borderRadius: "md",
             fontWeight: "bold",
@@ -268,10 +272,10 @@ export default function AdminReviewsPage() {
           <div
             className={css({
               p: "8",
-              bg: "white",
+              bg: "bg.surface",
               borderRadius: "md",
               textAlign: "center",
-              color: "gray.500",
+              color: "text.muted",
             })}
           >
             No listings pending review.
@@ -281,7 +285,7 @@ export default function AdminReviewsPage() {
             <div
               key={String(l._id)}
               className={css({
-                bg: "white",
+                bg: "bg.surface",
                 p: "5",
                 md: { p: "6" },
                 borderRadius: "lg",
@@ -289,7 +293,7 @@ export default function AdminReviewsPage() {
                 display: "grid",
                 gap: "5",
                 border: "1px solid",
-                borderColor: "gray.200",
+                borderColor: "border.light",
               })}
             >
               <div
@@ -302,7 +306,7 @@ export default function AdminReviewsPage() {
                 })}
               >
                 <div className={css({ flex: "1", minWidth: "0" })}>
-                  <h2 className={css({ fontSize: "xl", fontWeight: "bold" })}>
+                  <h2 className={css({ fontSize: "xl", fontWeight: "bold", color: "text.main" })}>
                     {l.name}
                   </h2>
                   <div
@@ -316,7 +320,8 @@ export default function AdminReviewsPage() {
                   >
                     <span
                       className={css({
-                        bg: "gray.100",
+                        bg: "bg.canvas",
+                        color: "text.main",
                         px: "2",
                         py: "1",
                         borderRadius: "md",
@@ -437,8 +442,8 @@ export default function AdminReviewsPage() {
                     target="_blank"
                     rel="noreferrer"
                     className={css({
-                      bg: "gray.100",
-                      color: "gray.800",
+                      bg: "bg.canvas",
+                      color: "text.main",
                       p: "2 3",
                       borderRadius: "md",
                       fontWeight: "bold",
@@ -452,8 +457,8 @@ export default function AdminReviewsPage() {
                     target="_blank"
                     rel="noreferrer"
                     className={css({
-                      bg: "gray.100",
-                      color: "gray.800",
+                      bg: "bg.canvas",
+                      color: "text.main",
                       p: "2 3",
                       borderRadius: "md",
                       fontWeight: "bold",
@@ -468,8 +473,8 @@ export default function AdminReviewsPage() {
                       target="_blank"
                       rel="noreferrer"
                       className={css({
-                        bg: "gray.100",
-                        color: "gray.800",
+                        bg: "bg.canvas",
+                        color: "text.main",
                         p: "2 3",
                         borderRadius: "md",
                         fontWeight: "bold",
@@ -486,7 +491,7 @@ export default function AdminReviewsPage() {
                 <div
                   className={css({
                     fontSize: "sm",
-                    color: "gray.700",
+                    color: "text.muted",
                     mb: "1",
                   })}
                 >
@@ -497,7 +502,7 @@ export default function AdminReviewsPage() {
                         <button
                           onClick={() => openEditor(l)}
                           className={css({
-                            color: "blue.600",
+                            color: "blue.500",
                             textDecoration: "underline",
                             cursor: "pointer",
                             background: "transparent",
@@ -519,7 +524,7 @@ export default function AdminReviewsPage() {
                     <button
                       onClick={() => openEditor(l)}
                       className={css({
-                        color: "blue.600",
+                        color: "blue.500",
                         textDecoration: "underline",
                         cursor: "pointer",
                         background: "transparent",
@@ -535,7 +540,7 @@ export default function AdminReviewsPage() {
                 <p
                   className={css({
                     fontSize: "sm",
-                    color: "gray.600",
+                    color: "text.muted",
                     mb: "1",
                   })}
                 >
@@ -557,7 +562,7 @@ export default function AdminReviewsPage() {
                   <p
                     className={css({
                       fontSize: "sm",
-                      color: "gray.600",
+                      color: "text.muted",
                       mb: "1",
                     })}
                   >
@@ -567,7 +572,7 @@ export default function AdminReviewsPage() {
                 <p
                   className={css({
                     fontSize: "sm",
-                    color: "gray.600",
+                    color: "text.muted",
                     mb: "1",
                   })}
                 >
@@ -582,10 +587,10 @@ export default function AdminReviewsPage() {
                   <p
                     className={css({
                       fontSize: "sm",
-                      color: "gray.700",
+                      color: "text.main",
                       mt: "2",
                       p: "2",
-                      bg: "gray.50",
+                      bg: "bg.canvas",
                       borderRadius: "md",
                     })}
                   >

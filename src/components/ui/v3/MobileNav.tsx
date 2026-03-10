@@ -54,6 +54,7 @@ export const MobileNav = ({
                 justifyContent: "space-between",
                 padding: "0 4",
                 zIndex: 50,
+                pointerEvents: "auto",
             })}
         >
             <button onClick={onNearMeClick} className={`group ${getNavStyle("nearme")}`}>
