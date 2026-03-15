@@ -362,6 +362,8 @@ export default function AdminReviewsPage() {
                 gap: "5",
                 border: "1px solid",
                 borderColor: "border.light",
+                overflow: "hidden",
+                maxWidth: "100%",
               })}
             >
               <div
@@ -373,8 +375,8 @@ export default function AdminReviewsPage() {
                   flexWrap: "wrap",
                 })}
               >
-                <div className={css({ flex: "1", minWidth: "0" })}>
-                  <h2 className={css({ fontSize: "xl", fontWeight: "bold", color: "text.main" })}>
+                <div className={css({ flex: "1", minWidth: "0", maxWidth: "100%" })}>
+                  <h2 className={css({ fontSize: "xl", fontWeight: "bold", color: "text.main", wordBreak: "break-word" })}>
                     {l.name}
                   </h2>
                   <div
@@ -610,6 +612,7 @@ export default function AdminReviewsPage() {
                     fontSize: "sm",
                     color: "text.muted",
                     mb: "1",
+                    wordBreak: "break-word",
                   })}
                 >
                   <strong>Website:</strong>{" "}
@@ -618,7 +621,7 @@ export default function AdminReviewsPage() {
                       href={l.website}
                       target="_blank"
                       rel="noreferrer"
-                      className={css({ color: "blue.500" })}
+                      className={css({ color: "blue.500", wordBreak: "break-all" })}
                     >
                       {l.website}
                     </a>
@@ -660,6 +663,7 @@ export default function AdminReviewsPage() {
                       p: "2",
                       bg: "bg.canvas",
                       borderRadius: "md",
+                      wordBreak: "break-word",
                     })}
                   >
                     {l.description}
