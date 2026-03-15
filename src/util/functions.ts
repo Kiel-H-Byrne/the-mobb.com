@@ -248,7 +248,7 @@ export const getOG = async (url: string) => {
         .then((data) => data);
       if (response.error) {
         console.error(`OGP FAILED:::${response.error.message}`);
-        return "http://placeimg.com/89/50/arch/sepia";
+        return "/images/mobb_placeholder.png";
       }
 
       const hiObj = response.htmlInferred;

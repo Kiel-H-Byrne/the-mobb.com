@@ -11,6 +11,8 @@ import {
   rejectListing,
   updatePendingListing,
   manuallyRunScout,
+  getWeeklyApprovedStats,
+  autoFindPendingListingAddress,
 } from "@app/actions/admin";
 import { css } from "@styled/css";
 import { APIProvider } from "@vis.gl/react-google-maps";
@@ -59,6 +61,7 @@ export default function AdminReviewsPage() {
   const [editingListing, setEditingListing] = useState<PendingListing | null>(
     null,
   );
+  const [stats, setStats] = useState<{ total: number; aiScanned: number; manual: number; startOfWeek: Date } | undefined>();
 
   useEffect(() => {
     async function init() {
@@ -67,6 +70,9 @@ export default function AdminReviewsPage() {
       if (res.success) {
         setIsLoggedIn(true);
         setListings(res.data || []);
+        
+        const statsRes = await getWeeklyApprovedStats();
+        if (statsRes.success) setStats(statsRes.data);
       } else if (res.error === "Unauthorized") {
         setIsLoggedIn(false);
       }
@@ -82,6 +88,9 @@ export default function AdminReviewsPage() {
       setIsLoggedIn(true);
       const dataRes = await getPendingListings();
       if (dataRes.success) setListings(dataRes.data || []);
+      
+      const statsRes = await getWeeklyApprovedStats();
+      if (statsRes.success) setStats(statsRes.data);
     } else {
       setLoginError(res.error || "Login failed");
     }
@@ -97,6 +106,8 @@ export default function AdminReviewsPage() {
     const res = await approveListing(l._id, l);
     if (res.success) {
       setListings((prev) => prev.filter((item) => item._id !== l._id));
+      const statsRes = await getWeeklyApprovedStats();
+      if (statsRes.success) setStats(statsRes.data);
     } else {
       toaster.create({ title: "Error approving listing", type: "error" });
     }
@@ -135,16 +146,40 @@ export default function AdminReviewsPage() {
     setIsLoading(false);
   };
 
-  const handleRunScout = async () => {
+  const handleAutoFind = async (l: PendingListing) => {
     setIsLoading(true);
-    toaster.create({ title: "Scout cron started. Gathering new businesses...", type: "info" });
-    const res = await manuallyRunScout();
-    if (res?.success) {
-      toaster.create({ title: `Scout complete! Successfully scanned ${res.processed?.length || 0} links.`, type: "success" });
+    const res = await autoFindPendingListingAddress(l._id as string);
+    if (!res.success || !res.found) {
+      toaster.create({ title: "No Google Places address found", type: "error" });
       const dataRes = await getPendingListings();
       if (dataRes.success) setListings(dataRes.data || []);
     } else {
-      toaster.create({ title: `Scout failed: ${res?.error || "Unknown error"}`, type: "error" });
+      toaster.create({ title: "Address auto-filled successfully", type: "success" });
+      const dataRes = await getPendingListings();
+      if (dataRes.success) setListings(dataRes.data || []);
+    }
+    setIsLoading(false);
+  };
+
+  const handleRunScout = async () => {
+    setIsLoading(true);
+    toaster.create({
+      title: "Scout cron started. Gathering new businesses...",
+      type: "info",
+    });
+    const res = await manuallyRunScout();
+    if (res?.success) {
+      toaster.create({
+        title: `Scout complete! Successfully scanned ${res.processed?.length || 0} links.`,
+        type: "success",
+      });
+      const dataRes = await getPendingListings();
+      if (dataRes.success) setListings(dataRes.data || []);
+    } else {
+      toaster.create({
+        title: `Scout failed: ${res?.error || "Unknown error"}`,
+        type: "error",
+      });
     }
     setIsLoading(false);
   };
@@ -262,6 +297,22 @@ export default function AdminReviewsPage() {
             Quick workflow: open edit, search Google Places, capture details, or
             mark the listing as online only.
           </p>
+          {stats && (
+            <div className={css({ mt: "4", display: "flex", gap: "4", alignItems: "center" })}>
+              <div className={css({ bg: "bg.surface", p: "3", borderRadius: "md", border: "1px solid", borderColor: "border.light" })}>
+                <span className={css({ fontSize: "sm", color: "text.muted", display: "block" })}>Weekly Approved (AI)</span>
+                <span className={css({ fontSize: "xl", fontWeight: "bold", color: "blue.500" })}>{stats.aiScanned}</span>
+              </div>
+              <div className={css({ bg: "bg.surface", p: "3", borderRadius: "md", border: "1px solid", borderColor: "border.light" })}>
+                <span className={css({ fontSize: "sm", color: "text.muted", display: "block" })}>Weekly Approved (Manual)</span>
+                <span className={css({ fontSize: "xl", fontWeight: "bold", color: "green.500" })}>{stats.manual}</span>
+              </div>
+              <div className={css({ bg: "bg.surface", p: "3", borderRadius: "md", border: "1px solid", borderColor: "border.light" })}>
+                <span className={css({ fontSize: "sm", color: "text.muted", display: "block" })}>Total</span>
+                <span className={css({ fontSize: "xl", fontWeight: "bold", color: "text.main" })}>{stats.total}</span>
+              </div>
+            </div>
+          )}
         </div>
         <div className={css({ display: "flex", gap: "2", flexWrap: "wrap" })}>
           <Link
@@ -276,7 +327,7 @@ export default function AdminReviewsPage() {
               textDecoration: "none",
               display: "inline-flex",
               alignItems: "center",
-              _hover: { bg: "purple.600" }
+              _hover: { bg: "purple.600" },
             })}
           >
             Database Migrations
@@ -293,7 +344,7 @@ export default function AdminReviewsPage() {
               textDecoration: "none",
               display: "inline-flex",
               alignItems: "center",
-              _hover: { bg: "orange.600" }
+              _hover: { bg: "orange.600" },
             })}
           >
             Preview Map
@@ -375,8 +426,21 @@ export default function AdminReviewsPage() {
                   flexWrap: "wrap",
                 })}
               >
-                <div className={css({ flex: "1", minWidth: "0", maxWidth: "100%" })}>
-                  <h2 className={css({ fontSize: "xl", fontWeight: "bold", color: "text.main", wordBreak: "break-word" })}>
+                <div
+                  className={css({
+                    flex: "1",
+                    minWidth: "0",
+                    maxWidth: "100%",
+                  })}
+                >
+                  <h2
+                    className={css({
+                      fontSize: "xl",
+                      fontWeight: "bold",
+                      color: "text.main",
+                      wordBreak: "break-word",
+                    })}
+                  >
                     {l.name}
                   </h2>
                   <div
@@ -432,7 +496,9 @@ export default function AdminReviewsPage() {
                     )}
                     {(() => {
                       const locationsToRender = getLocationsToRender(l);
-                      const isMapReady = locationsToRender.length > 0 && locationsToRender.every(loc => loc.lat && loc.lng);
+                      const isMapReady =
+                        locationsToRender.length > 0 &&
+                        locationsToRender.every((loc) => loc.lat && loc.lng);
                       const hasAddress = locationsToRender.length > 0;
 
                       return (
@@ -463,7 +529,7 @@ export default function AdminReviewsPage() {
                                 ? "Needs review"
                                 : "Needs address"}
                         </span>
-                      )
+                      );
                     })()}
                     {(l.google_id || l.places_details) && (
                       <span
@@ -505,7 +571,7 @@ export default function AdminReviewsPage() {
                       opacity: isLoading ? 0.7 : 1,
                     })}
                   >
-                    Edit / find address
+                    Edit Listing
                   </button>
                   <a
                     href={buildGoogleMapsSearchUrl(l)}
@@ -568,7 +634,10 @@ export default function AdminReviewsPage() {
                   <strong>Address:</strong>{" "}
                   {getLocationsToRender(l).length > 0 ? (
                     getLocationsToRender(l).map((loc, idx) => (
-                      <div key={idx} className={css({ ml: "4", mt: "1", mb: "1" })}>
+                      <div
+                        key={idx}
+                        className={css({ ml: "4", mt: "1", mb: "1" })}
+                      >
                         <button
                           onClick={() => openEditor(l)}
                           className={css({
@@ -584,27 +653,70 @@ export default function AdminReviewsPage() {
                           {loc.address}
                         </button>
                         {loc.lat && loc.lng ? (
-                          <span className={css({ fontSize: "xs", color: "green.600", ml: "2" })}>(Geocoded)</span>
+                          <span
+                            className={css({
+                              fontSize: "xs",
+                              color: "green.600",
+                              ml: "2",
+                            })}
+                          >
+                            (Geocoded)
+                          </span>
                         ) : (
-                          <span className={css({ fontSize: "xs", color: "yellow.600", ml: "2" })}>(Needs geocoding)</span>
+                          <span
+                            className={css({
+                              fontSize: "xs",
+                              color: "yellow.600",
+                              ml: "2",
+                            })}
+                          >
+                            (Needs geocoding)
+                          </span>
                         )}
                       </div>
                     ))
                   ) : (
-                    <button
-                      onClick={() => openEditor(l)}
-                      className={css({
-                        color: "blue.500",
-                        textDecoration: "underline",
-                        cursor: "pointer",
-                        background: "transparent",
-                        border: "none",
-                        padding: "0",
-                        textAlign: "left",
-                      })}
-                    >
-                      No address on file — click to search or enter one
-                    </button>
+                    <div className={css({ display: "flex", flexWrap: "wrap", gap: "2", alignItems: "center", mt: "1" })}>
+                      {l.google_search_attempted && !l.google_search_found ? (
+                        <span className={css({ color: "red.500", fontSize: "xs", fontWeight: "bold" })}>
+                          No Google Places address found.
+                        </span>
+                      ) : (
+                        <button
+                          disabled={isLoading}
+                          onClick={() => handleAutoFind(l)}
+                          className={css({
+                            color: "blue.500",
+                            textDecoration: "underline",
+                            cursor: "pointer",
+                            background: "transparent",
+                            border: "none",
+                            padding: "0",
+                            textAlign: "left",
+                            opacity: isLoading ? 0.7 : 1,
+                          })}
+                        >
+                          Auto-find address with Google Places
+                        </button>
+                      )}
+                      {!l.google_search_found && (
+                        <button
+                          onClick={() => openEditor(l)}
+                          className={css({
+                            color: "gray.500",
+                            textDecoration: "underline",
+                            cursor: "pointer",
+                            background: "transparent",
+                            border: "none",
+                            padding: "0",
+                            textAlign: "left",
+                            fontSize: "xs",
+                          })}
+                        >
+                          (or enter manually)
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
                 <p
@@ -621,7 +733,10 @@ export default function AdminReviewsPage() {
                       href={l.website}
                       target="_blank"
                       rel="noreferrer"
-                      className={css({ color: "blue.500", wordBreak: "break-all" })}
+                      className={css({
+                        color: "blue.500",
+                        wordBreak: "break-all",
+                      })}
                     >
                       {l.website}
                     </a>

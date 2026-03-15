@@ -84,6 +84,8 @@ export interface PendingListing {
   source: "MANUAL" | "AI_SCAN";
   status: "PENDING_REVIEW" | "APPROVED" | "REJECTED";
   createdAt: Date;
+  google_search_attempted?: boolean;
+  google_search_found?: boolean;
 }
 
 export interface User {

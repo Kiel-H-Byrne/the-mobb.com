@@ -297,3 +297,125 @@ export async function manuallyRunScout() {
   }
 }
 
+export async function getWeeklyApprovedStats() {
+  if (!(await checkAdmin())) return { success: false, error: "Unauthorized" };
+
+  try {
+    const client = await clientPromise;
+    const db = client.db(DB_NAME);
+    
+    // Get the start of the week (Sunday at midnight)
+    const startOfWeek = new Date();
+    startOfWeek.setHours(0, 0, 0, 0);
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+
+    const stats = await db.collection("pending_listings").aggregate([
+      {
+        $match: {
+          status: "APPROVED",
+          createdAt: { $gte: startOfWeek } // Assuming they were approved near when they were created/scraped for now
+        }
+      },
+      {
+        $group: {
+          _id: "$source", // Group by AI_SCAN vs MANUAL
+          count: { $sum: 1 }
+        }
+      }
+    ]).toArray();
+
+    // Reformat into a simple object { AI_SCAN: 10, MANUAL: 5 }
+    const formattedStats = stats.reduce((acc, curr) => {
+      acc[curr._id] = curr.count;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return { 
+      success: true, 
+      data: {
+        total: stats.reduce((sum, curr) => sum + curr.count, 0),
+        aiScanned: formattedStats["AI_SCAN"] || 0,
+        manual: formattedStats["MANUAL"] || 0,
+        startOfWeek
+      }
+    };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: "Failed to fetch stats" };
+  }
+}
+
+export async function autoFindPendingListingAddress(id: string) {
+  if (!(await checkAdmin())) return { success: false, error: "Unauthorized" };
+
+  try {
+    const client = await clientPromise;
+    const db = client.db(DB_NAME);
+
+    const listing = await db.collection("pending_listings").findOne({ _id: new ObjectId(id) });
+    if (!listing) return { success: false, error: "Listing not found" };
+
+    const query = encodeURIComponent(listing.name);
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
+    if (!apiKey) return { success: false, error: "No Google Maps API key configured" };
+
+    const searchUrl = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${query}&inputtype=textquery&fields=place_id,formatted_address,geometry,name,types&key=${apiKey}`;
+    const res = await fetch(searchUrl);
+    const data = await res.json();
+
+    if (data.status === "OK" && data.candidates && data.candidates.length > 0) {
+      const match = data.candidates[0]; // Take best match
+      const place_id = match.place_id;
+      const address = match.formatted_address;
+      const lat = match.geometry?.location?.lat;
+      const lng = match.geometry?.location?.lng;
+
+      // Ensure we have a valid place ID + address
+      if (address && place_id) {
+        // Now fetch full place details for phone/website using Places Details API
+        const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place_id}&fields=website,formatted_phone_number&key=${apiKey}`;
+        const detailsRes = await fetch(detailsUrl);
+        const detailsData = await detailsRes.json();
+        
+        const updateData: any = {
+          address,
+          lat,
+          lng,
+          places_details: { place_id },
+          google_search_attempted: true,
+          google_search_found: true
+        };
+
+        if (detailsData.status === "OK" && detailsData.result) {
+          if (!listing.website && detailsData.result.website) {
+            updateData.website = detailsData.result.website;
+          }
+          if (!listing.phone && detailsData.result.formatted_phone_number) {
+            updateData.phone = detailsData.result.formatted_phone_number;
+          }
+        }
+
+        await db.collection("pending_listings").updateOne(
+          { _id: new ObjectId(id) },
+          { $set: updateData }
+        );
+
+        revalidatePath("/admin/reviews");
+        return { success: true, found: true, updateData };
+      }
+    }
+
+    // Attempted but NOT found
+    await db.collection("pending_listings").updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { google_search_attempted: true, google_search_found: false } }
+    );
+    
+    revalidatePath("/admin/reviews");
+    return { success: true, found: false };
+
+  } catch (error: any) {
+    console.error("Auto-find failed:", error);
+    return { success: false, error: "Failed to auto-find address" };
+  }
+}
