@@ -263,7 +263,24 @@ export default function AdminReviewsPage() {
             mark the listing as online only.
           </p>
         </div>
-        <div className={css({ display: "flex", gap: "2" })}>
+        <div className={css({ display: "flex", gap: "2", flexWrap: "wrap" })}>
+          <Link
+            href="/admin/migrate"
+            className={css({
+              bg: "purple.500",
+              color: "white",
+              p: "2 4",
+              borderRadius: "md",
+              fontWeight: "bold",
+              cursor: "pointer",
+              textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              _hover: { bg: "purple.600" }
+            })}
+          >
+            Database Migrations
+          </Link>
           <Link
             href="/"
             className={css({

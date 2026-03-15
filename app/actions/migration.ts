@@ -170,3 +170,122 @@ export async function migrateLegacyListings() {
         return { success: false, error: error.message };
     }
 }
+
+export async function deduplicateListingsByName() {
+    if (!(await checkAdmin())) return { success: false, error: "Unauthorized" };
+
+    try {
+        const client = await clientPromise;
+        const db = client.db(DB_NAME);
+        const listingsCol = db.collection("listings");
+
+        // Aggregation to find listings with the same name (case-insensitive and trimmed)
+        const duplicates = await listingsCol.aggregate([
+            {
+                $group: {
+                    _id: { $toLower: { $trim: { input: { $ifNull: ["$name", ""] } } } },
+                    docs: { $push: "$$ROOT" },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $match: {
+                    count: { $gt: 1 },
+                    _id: { $nin: [null, ""] }
+                }
+            }
+        ]).toArray();
+
+        if (duplicates.length === 0) {
+            return { success: true, message: "No duplicate listings found by name." };
+        }
+
+        let mergedCount = 0;
+        let deletedCount = 0;
+
+        for (const group of duplicates) {
+            const docs = group.docs;
+            // The first listing is kept as the primary
+            const primary = docs[0];
+            const idsToDelete: any[] = [];
+            const mergedLocations: any[] = [];
+            const seenLocationKeys = new Set<string>();
+
+            // Helper to add unique location
+            const addUniqueLocation = (loc: any) => {
+                if (!loc) return;
+                
+                // Construct a unique key: place_id, or address, or coordinates string
+                let key = "";
+                if (loc.place_id) {
+                    key = loc.place_id;
+                } else if (loc.address) {
+                    key = loc.address.trim().toLowerCase();
+                } else if (loc.coordinates && Array.isArray(loc.coordinates.coordinates)) {
+                    key = loc.coordinates.coordinates.join(",");
+                } else if (loc.lat && loc.lng) {
+                    key = `${loc.lat},${loc.lng}`;
+                }
+
+                if (!key) return; // Cannot uniquely identify this location
+
+                if (!seenLocationKeys.has(key)) {
+                    seenLocationKeys.add(key);
+                    mergedLocations.push(loc);
+                }
+            };
+
+            for (let i = 0; i < docs.length; i++) {
+                const doc = docs[i];
+                if (i > 0) {
+                    idsToDelete.push(doc._id);
+                }
+
+                // If doc has locations array, add them
+                if (Array.isArray(doc.locations) && doc.locations.length > 0) {
+                    doc.locations.forEach(addUniqueLocation);
+                } 
+                // Fallback for missing locations array but existing coordinates/address at the root
+                else {
+                    const fallbackLoc: any = {};
+                    if (doc.address) fallbackLoc.address = doc.address;
+                    if (doc.coordinates && Array.isArray(doc.coordinates.coordinates)) {
+                        fallbackLoc.coordinates = doc.coordinates;
+                    }
+                    if (doc.places_details?.place_id) {
+                        fallbackLoc.place_id = doc.places_details.place_id;
+                    }
+
+                    if (fallbackLoc.address || fallbackLoc.coordinates) {
+                        addUniqueLocation(fallbackLoc);
+                    }
+                }
+            }
+
+            // Update primary doc with merged locations
+            await listingsCol.updateOne(
+                { _id: primary._id },
+                { $set: { locations: mergedLocations } }
+            );
+
+            // Delete the other duplicate docs
+            if (idsToDelete.length > 0) {
+                await listingsCol.deleteMany({ _id: { $in: idsToDelete } });
+                deletedCount += idsToDelete.length;
+            }
+
+            mergedCount++;
+        }
+
+        return {
+            success: true,
+            message: `Deduplication complete. Merged ${mergedCount} duplicate groups and deleted ${deletedCount} redundant listings.`,
+            mergedCount,
+            deletedCount
+        };
+
+    } catch (error: any) {
+        console.error("Deduplication error:", error);
+        return { success: false, error: error.message };
+    }
+}
