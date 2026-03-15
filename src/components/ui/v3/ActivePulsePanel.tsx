@@ -168,7 +168,7 @@ export const ListingCard3D = ({
                 flexShrink: 0,
               })}
             >
-              <i className="ph-fill ph-navigation-arrow"></i> {distance ? distance : "Target"}
+              <i className="ph-fill ph-navigation-arrow"></i> {distance ? distance : "Location"}
             </span>
           </div>
           <p
@@ -179,7 +179,7 @@ export const ListingCard3D = ({
               lineClamp: "1",
             })}
           >
-            {(listing as any).category?.replace(/_/g, " ") || "Enterprise"}
+            {(listing as any).category?.replace(/_/g, " ") || "Business"}
           </p>
 
           <div
@@ -324,7 +324,7 @@ export const ActivePulsePanel = ({
                 letterSpacing: "tight",
               })}
             >
-              Active Pulse{" "}
+              Explore{" "}
               <span className={css({ color: "brand.orange" })}>.</span>
             </h1>
             <p
@@ -337,8 +337,8 @@ export const ActivePulsePanel = ({
                 gap: "2",
               })}
             >
-              <i className="ph-fill ph-crosshair text-brand-orange"></i> Live
-              Geolocation Sync
+              <i className="ph-fill ph-crosshair text-brand-orange"></i> Find
+              businesses near your location
             </p>
           </div>
           <button
@@ -489,10 +489,10 @@ export const ActivePulsePanel = ({
                 mb: 2,
               })}
             >
-              Uplink Required
+              Location Access Needed
             </h3>
             <p className={css({ color: "gray.400", fontSize: "sm", mb: 6, maxWidth: "300px" })}>
-              Establish a location uplink to discover the verified ecosystem in your immediate sector.
+              Enable location services to discover verified Black-owned businesses near you.
             </p>
             <button
               onClick={onRequestLocation}
@@ -516,7 +516,7 @@ export const ActivePulsePanel = ({
                 gap: "2"
               })}
             >
-              <i className="ph-bold ph-radar"></i> Locate Community
+              <i className="ph-bold ph-radar"></i> Find Near Me
             </button>
             <button
               onClick={() => setIsAddListingOpen(true)}
@@ -540,7 +540,7 @@ export const ActivePulsePanel = ({
                 gap: "2"
               })}
             >
-              <i className="ph-bold ph-plus"></i> Add an Enterprise
+              <i className="ph-bold ph-plus"></i> Add a Business
             </button>
           </div>
         ) : visibleListings.length === 0 ? (
@@ -565,11 +565,10 @@ export const ActivePulsePanel = ({
                 mb: 2,
               })}
             >
-              No Signal Detected
+              No Businesses Found
             </h3>
             <p className={css({ color: "gray.400", fontSize: "sm", mb: 6 })}>
-              We couldn't locate any businesses matching these parameters in the
-              current sector.
+              We couldn't locate any businesses matching these parameters in this area.
             </p>
             <button
               onClick={() => setIsAddListingOpen(true)}
@@ -587,7 +586,7 @@ export const ActivePulsePanel = ({
                 boxShadow: "glow",
               })}
             >
-              <i className="ph-bold ph-plus mr-2"></i> Register Enterprise
+              <i className="ph-bold ph-plus mr-2"></i> Add a Business
             </button>
           </div>
         ) : (

@@ -141,7 +141,7 @@ export const MobileNearestCard = ({
                     color: "gray.400",
                     lineClamp: "1",
                 })}>
-                    {(listing as any).category?.replace(/_/g, " ") || (listing.categories && listing.categories[0]?.replace(/_/g, " ")) || "Enterprise"}
+                    {(listing as any).category?.replace(/_/g, " ") || (listing.categories && listing.categories[0]?.replace(/_/g, " ")) || "Business"}
                 </p>
             </div>
 

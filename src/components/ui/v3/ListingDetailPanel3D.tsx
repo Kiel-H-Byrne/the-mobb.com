@@ -45,7 +45,7 @@ export const ListingDetailPanel3D = ({
             {/* Header / Dismiss */}
             <div className={css({ p: "4", borderBottom: "1px solid", borderColor: "white/10", display: "flex", justifyContent: "space-between", alignItems: "center", bg: "rgba(11, 11, 14, 0.4)" })}>
                 <h2 className={css({ color: "brand.orange", fontFamily: "tech", fontSize: "sm", letterSpacing: "widest" })}>
-                    TARGET ACQUIRED
+                    BUSINESS DETAILS
                 </h2>
                 <button
                     onClick={() => setOpen(false)}
@@ -90,7 +90,7 @@ export const ListingDetailPanel3D = ({
                             {name}
                         </h1>
                         <p className={css({ color: "gray.400", fontSize: "sm", lineHeight: "relaxed" })}>
-                            {description || "No transmission data found for this entity."}
+                            {description || "No description available for this business."}
                         </p>
                     </div>
 
@@ -109,7 +109,7 @@ export const ListingDetailPanel3D = ({
                                 <i className="ph-fill ph-phone text-lg"></i>
                             </div>
                             <div className={css({ flex: 1 })}>
-                                <div className={css({ fontSize: "xs", color: "gray.500", textTransform: "uppercase", letterSpacing: "wider", mb: "0.5" })}>Comm-Link</div>
+                                <div className={css({ fontSize: "xs", color: "gray.500", textTransform: "uppercase", letterSpacing: "wider", mb: "0.5" })}>Contact</div>
                                 <div className={css({ fontSize: "sm", fontWeight: "bold", letterSpacing: "widest" })}>{phone || "N/A"}</div>
                             </div>
                         </a>
@@ -119,7 +119,7 @@ export const ListingDetailPanel3D = ({
                                 <i className="ph-fill ph-map-pin text-lg"></i>
                             </div>
                             <div className={css({ flex: 1 })}>
-                                <div className={css({ fontSize: "xs", color: "gray.500", textTransform: "uppercase", letterSpacing: "wider", mb: "0.5" })}>Coordinates</div>
+                                <div className={css({ fontSize: "xs", color: "gray.500", textTransform: "uppercase", letterSpacing: "wider", mb: "0.5" })}>Address</div>
                                 <div className={css({ fontSize: "sm", lineHeight: "1.4" })}>{address}</div>
                             </div>
                         </div>
@@ -140,7 +140,7 @@ export const ListingDetailPanel3D = ({
                                 transition: "all 0.2s", _hover: { filter: "brightness(1.1)", transform: "translateY(-2px)" }
                             })}
                         >
-                            <i className="ph-fill ph-navigation-arrow text-xl"></i> Calculate Trajectory
+                            <i className="ph-fill ph-navigation-arrow text-xl"></i> Get Directions
                         </a>
                     </div>
                 </div>

@@ -108,7 +108,7 @@ const MapAutoComplete = ({
             color: "white", fontFamily: "body", fontSize: "sm",
             _placeholder: { color: "gray.500" }
           })}
-          placeholder={`Quantum search ${count ? count + " " : ""}businesses...`}
+          placeholder={`Search ${count ? count + " " : ""}businesses...`}
           aria-label="Search The MOBB"
           onChange={onChange}
           onKeyDown={onKeyDown}
