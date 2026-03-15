@@ -185,15 +185,16 @@ const Home = React.memo(() => {
           />
         )}
 
-        {/* 2030 Listing Detail Panel overlay */}
-        {activeListing && (
-          <ListingDetailPanel3D
-            listing={activeListing}
-            isOpen={isDrawerOpen}
-            setOpen={setisDrawerOpen}
-          />
-        )}
       </main>
+
+      {/* 2030 Listing Detail Panel overlay - Moved outside of main to ensure it displays on mobile */}
+      {activeListing && (
+        <ListingDetailPanel3D
+          listing={activeListing}
+          isOpen={isDrawerOpen}
+          setOpen={setisDrawerOpen}
+        />
+      )}
 
       <div
         onClick={() => setIsAddListingOpen(true)}

@@ -111,13 +111,13 @@ export const MobileClosestListingsPanel = ({
                             width: "85%", // Take up majority of screen but leave map visible on left
                             maxWidth: "400px",
                             height: "100dvh",
-                            bg: "brand.glass",
+                            bg: "bg.glass",
                             borderLeft: "1px solid",
                             borderColor: "brand.orange/30",
                             boxShadow: "-10px 0 40px rgba(0,0,0,0.5)",
                             display: "flex",
                             flexDirection: "column",
-                            animation: "slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+                            animation: "slideInRight",
                         })}
                     >
                         <div className={css({

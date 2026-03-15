@@ -27,7 +27,7 @@ export const ListingDetailPanel3D = ({
                 left: { base: "0", md: "auto" },
                 height: { base: "60dvh", md: "100%" },
                 width: { base: "100%", md: "380px", lg: "420px" },
-                background: "brand.glass",
+                background: "bg.glass",
                 backdropFilter: "blur(24px)",
                 border: "1px solid",
                 borderColor: "border.light",
@@ -37,7 +37,7 @@ export const ListingDetailPanel3D = ({
                 flexDirection: "column",
                 zIndex: 50,
                 overflow: "hidden",
-                animation: "fadeIn 0.3s ease-out",
+                animation: { base: "slideUp", md: "fadeIn" },
                 transformOrigin: "right center",
                 pointerEvents: "auto"
             })}

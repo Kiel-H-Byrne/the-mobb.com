@@ -60,7 +60,7 @@ export const MobileNearestCard = ({
                 gap: "3",
                 alignItems: "center",
                 cursor: "pointer",
-                animation: "slideUp 0.3s ease-out",
+                animation: "slideUp",
                 _active: { transform: "scale(0.98)" },
                 transition: "transform 0.2s",
                 pointerEvents: "auto",
