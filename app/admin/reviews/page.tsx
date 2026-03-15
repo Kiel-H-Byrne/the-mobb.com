@@ -10,9 +10,11 @@ import {
   logoutAdmin,
   rejectListing,
   updatePendingListing,
+  manuallyRunScout,
 } from "@app/actions/admin";
 import { css } from "@styled/css";
 import { APIProvider } from "@vis.gl/react-google-maps";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 const toAddressString = (address?: PendingListing["address"]) => {
@@ -133,6 +135,20 @@ export default function AdminReviewsPage() {
     setIsLoading(false);
   };
 
+  const handleRunScout = async () => {
+    setIsLoading(true);
+    toaster.create({ title: "Scout cron started. Gathering new businesses...", type: "info" });
+    const res = await manuallyRunScout();
+    if (res?.success) {
+      toaster.create({ title: `Scout complete! Successfully scanned ${res.processed?.length || 0} links.`, type: "success" });
+      const dataRes = await getPendingListings();
+      if (dataRes.success) setListings(dataRes.data || []);
+    } else {
+      toaster.create({ title: `Scout failed: ${res?.error || "Unknown error"}`, type: "error" });
+    }
+    setIsLoading(false);
+  };
+
   if (isLoggedIn === null)
     return <div className={css({ p: "10" })}>Loading...</div>;
   if (!isLoggedIn) {
@@ -247,22 +263,57 @@ export default function AdminReviewsPage() {
             mark the listing as online only.
           </p>
         </div>
-        <button
-          onClick={async () => {
-            await logoutAdmin();
-            setIsLoggedIn(false);
-          }}
-          className={css({
-            bg: "bg.surface",
-            color: "text.main",
-            p: "2 4",
-            borderRadius: "md",
-            fontWeight: "bold",
-            cursor: "pointer",
-          })}
-        >
-          Logout
-        </button>
+        <div className={css({ display: "flex", gap: "2" })}>
+          <Link
+            href="/"
+            className={css({
+              bg: "brand.orange",
+              color: "white",
+              p: "2 4",
+              borderRadius: "md",
+              fontWeight: "bold",
+              cursor: "pointer",
+              textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              _hover: { bg: "orange.600" }
+            })}
+          >
+            Preview Map
+          </Link>
+          <button
+            disabled={isLoading}
+            onClick={handleRunScout}
+            className={css({
+              bg: "blue.500",
+              color: "white",
+              p: "2 4",
+              borderRadius: "md",
+              fontWeight: "bold",
+              cursor: "pointer",
+              _hover: { bg: "blue.600" },
+              opacity: isLoading ? 0.7 : 1,
+            })}
+          >
+            {isLoading ? "Running..." : "Gather Businesses"}
+          </button>
+          <button
+            onClick={async () => {
+              await logoutAdmin();
+              setIsLoggedIn(false);
+            }}
+            className={css({
+              bg: "bg.surface",
+              color: "text.main",
+              p: "2 4",
+              borderRadius: "md",
+              fontWeight: "bold",
+              cursor: "pointer",
+            })}
+          >
+            Logout
+          </button>
+        </div>
       </div>
 
       <div

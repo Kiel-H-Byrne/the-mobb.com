@@ -273,3 +273,27 @@ export async function updatePendingListing(id: string, updatedData: any) {
     return { success: false, error: "Update failed." };
   }
 }
+
+export async function manuallyRunScout() {
+  if (!(await checkAdmin())) return { success: false, error: "Unauthorized" };
+  
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+    
+  try {
+    const res = await fetch(`${baseUrl}/api/cron/scout`, {
+      method: "GET",
+      headers: {
+        authorization: `Bearer ${process.env.CRON_SECRET || ""}`
+      }
+    });
+    
+    // We try to parse the JSON response from the scout cron API
+    const data = await res.json();
+    revalidatePath("/admin/reviews");
+    return data;
+  } catch (error: any) {
+    console.error("Manual scout trigger failed:", error);
+    return { success: false, error: error.message || "Failed to trigger scout API." };
+  }
+}
+

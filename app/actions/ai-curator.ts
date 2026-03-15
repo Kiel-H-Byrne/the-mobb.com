@@ -51,7 +51,8 @@ export async function extractBusinessData(url: string) {
       Your job is to analyze web pages and extract business details.
       
       - If the page is a "Listicle" (e.g., "10 Best Restaurants"), extract ALL businesses listed.
-      - If the page is a single business website, extract just that one.
+      - If the page is a single business website, extract information for just that one.
+      - Prioritize extracting the primary location and full address (with street number) of the business.
       - If there are multiple locations to a business and more than one address is found, save it as an array of addresses.
       - Look for "Black-owned" keywords (Black-led, minority-owned, cultural context).
       - Normalize addresses where possible.
@@ -75,50 +76,107 @@ export async function extractBusinessData(url: string) {
       const addressArray = (biz.address || []).filter((a): a is string => Boolean(a));
       const locations: any[] = [];
 
-      for (const addr of addressArray) {
-        if (!biz.isOnlineOnly) {
-          const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
-          let lat, lng, place_id;
-          let formattedAddress = addr;
+      const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
 
+      if (!biz.isOnlineOnly) {
+        if (addressArray.length > 0) {
+          for (const addr of addressArray) {
+            let lat, lng, place_id;
+            let formattedAddress = addr;
+
+            if (apiKey) {
+              try {
+                const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(addr)}&key=${apiKey}`;
+                const geocodeRes = await fetch(geocodeUrl);
+                const geocodeData = await geocodeRes.json();
+
+                if (geocodeData.status === "OK" && geocodeData.results.length > 0) {
+                  const bestMatch = geocodeData.results[0];
+                  lat = bestMatch.geometry.location.lat;
+                  lng = bestMatch.geometry.location.lng;
+                  place_id = bestMatch.place_id;
+                  formattedAddress = bestMatch.formatted_address || addr;
+                }
+              } catch (err) {
+                console.error("Geocoding fetch error for AI Curator:", err);
+              }
+            }
+
+            locations.push({
+              address: formattedAddress,
+              lat,
+              lng,
+              place_id
+            });
+          }
+        } else {
+          // No address found by AI, try to search for the business by name to get an address and location
           if (apiKey) {
             try {
-              const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(addr)}&key=${apiKey}`;
-              const geocodeRes = await fetch(geocodeUrl);
-              const geocodeData = await geocodeRes.json();
+              // Using findplacefromtext is best for a name query to get the location details
+              const findPlaceUrl = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(biz.name)}&inputtype=textquery&fields=formatted_address,geometry,place_id&key=${apiKey}`;
+              const placeRes = await fetch(findPlaceUrl);
+              const placeData = await placeRes.json();
 
-              if (geocodeData.status === "OK" && geocodeData.results.length > 0) {
-                const bestMatch = geocodeData.results[0];
-                lat = bestMatch.geometry.location.lat;
-                lng = bestMatch.geometry.location.lng;
-                place_id = bestMatch.place_id;
-                formattedAddress = bestMatch.formatted_address || addr;
+              if (placeData.status === "OK" && placeData.candidates && placeData.candidates.length > 0) {
+                const bestMatch = placeData.candidates[0];
+                if (bestMatch.geometry && bestMatch.geometry.location) {
+                  const newAddr = bestMatch.formatted_address || biz.name;
+                  addressArray.push(newAddr);
+                  locations.push({
+                    address: newAddr,
+                    lat: bestMatch.geometry.location.lat,
+                    lng: bestMatch.geometry.location.lng,
+                    place_id: bestMatch.place_id
+                  });
+                }
               }
             } catch (err) {
-              console.error("Geocoding fetch error for AI Curator:", err);
+              console.error("Places API fetch error for AI Curator:", err);
             }
           }
-
-          locations.push({
-            address: formattedAddress,
-            lat,
-            lng,
-            place_id
-          });
         }
+      }
+
+      let bizWebsite = biz.website || "";
+      if (bizWebsite) {
+        try {
+          const sourceUrlObj = new URL(url);
+          const bizWebsiteObj = new URL(bizWebsite);
+          
+          if (object.sourceType === "listicle_directory" && sourceUrlObj.hostname === bizWebsiteObj.hostname) {
+            bizWebsite = "";
+          } else if (bizWebsite === url) {
+            bizWebsite = "";
+          }
+        } catch (e) {
+          // If URL parsing fails, continue
+        }
+      }
+
+      // Auto-approve criteria:
+      // 1. We found a valid Google Place ID / Location
+      // 2. AI confirmed isBlackOwned is true
+      // 3. We have a valid category
+      const hasValidLocation = locations.some(loc => loc.place_id && loc.lat && loc.lng);
+      const finalCategory = biz.category || "Uncategorized";
+      
+      let finalStatus: "PENDING_REVIEW" | "APPROVED" | "REJECTED" = "PENDING_REVIEW";
+      if (hasValidLocation && biz.isBlackOwned && finalCategory !== "Uncategorized") {
+        finalStatus = "APPROVED";
       }
 
       newListings.push({
         name: biz.name,
-        category: biz.category || "Uncategorized",
+        category: finalCategory,
         address: addressArray, // Legacy fallback
         locations,
-        website: biz.website || "",
+        website: bizWebsite,
         description: biz.description || "",
         isBlackOwned: biz.isBlackOwned,
         isOnlineOnly: biz.isOnlineOnly,
         source: "AI_SCAN",
-        status: "PENDING_REVIEW",
+        status: finalStatus,
         createdAt: new Date(),
       });
     } else {

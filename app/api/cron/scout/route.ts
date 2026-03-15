@@ -33,12 +33,34 @@ export async function GET(request: Request) {
     const db = client.db(DB_NAME);
     const scannedUrlsCollection = db.collection("scanned_urls");
 
-    // Query SerpApi
-    const query = "Black owned businesses near me"; // Can be randomized or rotated
-    const searchUrl = `https://serpapi.com/search.json?engine=google&q=${encodeURIComponent(query)}&api_key=${serpApiKey}`;
+    const searchConfigs = [
+      { q: "best black owned restaurants", tbs: "qdr:y", filter: 0 },
+      { q: "black owned business directory", filter: 0 },
+      { q: "intitle:\"black owned\" businesses list this year", tbs: "qdr:y", filter: 0 },
+      { q: "black owned cafes and bakeries near me", tbs: "qdr:y" },
+      { q: "inurl:listicle \"black owned\" stores", filter: 0 },
+      { q: "black owned bookstores", filter: 0 },
+      { q: "black owned clothing brands", tbs: "qdr:m", filter: 0 }, // Super fresh - last month
+      { q: "black owned beauty supply stores", filter: 0 },
+      { q: "new black owned businesses", tbs: "qdr:w", filter: 0 }, // Very fresh - last week
+      { q: "black owned vegan restaurants", tbs: "qdr:y", filter: 0 }
+    ];
+    
+    const selectedConfig = searchConfigs[Math.floor(Math.random() * searchConfigs.length)];
+    
+    // Build SerpApi URL with advanced params
+    const searchParams = new URLSearchParams({
+      engine: "google",
+      api_key: serpApiKey,
+      q: selectedConfig.q,
+      ...(selectedConfig.tbs && { tbs: selectedConfig.tbs }),
+      ...(selectedConfig.filter !== undefined && { filter: selectedConfig.filter.toString() }),
+    });
+
+    const searchUrl = `https://serpapi.com/search.json?${searchParams.toString()}`;
 
     console.log(
-      `CRON: Fetching search results from SerpAPI for query: "${query}"`,
+      `CRON: Fetching search results from SerpAPI with query: "${selectedConfig.q}" and params: ${JSON.stringify(selectedConfig)}`,
     );
 
     const searchRes = await fetch(searchUrl);

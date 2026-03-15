@@ -214,6 +214,7 @@ export const getGDetails = ({ gid, map }) => {
     const cbk = (place, status) => {
       if (status === window.google.maps.places.PlacesServiceStatus.OK) {
         mCache.set(gid, place);
+        console.log(place);
         resolve(place);
         //inject with jquery into dom?
       } else {
