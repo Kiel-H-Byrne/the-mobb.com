@@ -71,7 +71,8 @@ export const ListingDetailPanel3D = ({
                             <img src={typeof image === 'string' ? image : (image as any)?.url || ''} alt={name} className={css({ w: "full", h: "full", objectFit: "cover", opacity: 0.8, filter: "contrast(1.1) saturate(1.2)" })} />
                         ) : (
                             <div className={css({ w: "full", h: "full", display: "flex", alignItems: "center", justifyContent: "center" })}>
-                                <i className="ph-duotone ph-image text-6xl text-gray-600"></i>
+                                {/* <i className="ph-duotone ph-image text-6xl text-gray-600"></i> */}
+                                <img src="/images/mobb_placeholder.png" alt="" />
                             </div>
                         )}
                     </a>

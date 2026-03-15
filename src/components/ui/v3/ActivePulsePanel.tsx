@@ -111,7 +111,8 @@ export const ListingCard3D = ({
                 justifyContent: "center",
               })}
             >
-              <i className="ph-duotone ph-image text-2xl text-gray-600"></i>
+              {/* <i className="ph-duotone ph-image text-2xl text-gray-600"></i> */}
+              <img src="/images/mobb_placeholder.png" alt="" />
             </div>
           )}
           <div

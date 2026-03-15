@@ -99,7 +99,8 @@ export const MobileNearestCard = ({
                             justifyContent: "center",
                         })}
                     >
-                        <i className="ph-duotone ph-storefront text-2xl text-brand-orange"></i>
+                        {/* <i className="ph-duotone ph-storefront text-2xl text-brand-orange"></i> */}
+                        <img src="/images/mobb_placeholder.png" alt="" />
                     </div>
                 )}
             </div>
