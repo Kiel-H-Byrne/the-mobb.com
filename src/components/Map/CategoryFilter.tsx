@@ -3,7 +3,6 @@ import { Menu } from "@ark-ui/react/menu";
 import { Switch } from "@ark-ui/react/switch";
 import { css } from "@styled/css";
 import { memo, useMemo } from "react";
-import { MdLocationOff } from "react-icons/md";
 
 type CategoryFilterType = {
   listings: Listing[];
@@ -28,11 +27,13 @@ const CategoryFilter = ({
     setSelectedCategories(newCategorySet);
   };
 
+  const clearAll = () => {
+    setSelectedCategories(new Set());
+  };
+
   const catCount = useMemo(
     () => (name: Category) => {
-      return (listings || []).filter((el) =>
-        el.categories?.includes(name)
-      ).length;
+      return (listings || []).filter((el) => el.categories?.includes(name)).length;
     },
     [listings]
   );
@@ -40,42 +41,125 @@ const CategoryFilter = ({
   return (
     <Menu.Root>
       <Menu.Trigger
+        title="Filter Categories"
         className={css({
-          background: "transparent",
-          border: "none",
-          padding: "2",
-          cursor: "pointer",
-          borderRadius: "full",
-          display: "inline-flex",
+          display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          _hover: { backgroundColor: "rgba(0,0,0,0.05)" },
+          gap: "2",
+          h: "10",
+          px: "4",
+          borderRadius: "xl",
+          bg: "white/5",
+          border: "1px solid",
+          borderColor: "white/10",
+          color: "white",
+          fontSize: "sm",
+          fontWeight: "bold",
+          cursor: "pointer",
+          _hover: {
+            bg: "brand.orangeMuted",
+            borderColor: "brand.orange/50",
+          },
+          transition: "colors",
         })}
       >
-        <span className={css({ color: "brand.orange", display: "inline-flex" })}>
-          <MdLocationOff size={24} />
-        </span>
+        <i className="ph-bold ph-faders text-lg"></i>
+        <span className={css({ display: { base: "none", md: "inline" } })}>Filters</span>
+        {selectedCategories.size > 0 && (
+          <span
+            className={css({
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              w: "5",
+              h: "5",
+              borderRadius: "full",
+              bg: "brand.orange",
+              color: "black",
+              fontSize: "10px",
+              fontFamily: "tech",
+            })}
+          >
+            {selectedCategories.size}
+          </span>
+        )}
       </Menu.Trigger>
       <Menu.Positioner>
         <Menu.Content
           className={css({
-            backgroundColor: "white",
-            boxShadow: "lg",
-            borderRadius: "md",
-            padding: "2",
-            maxHeight: "300px",
+            bg: "rgba(21, 21, 26, 0.95)",
+            backdropFilter: "blur(24px)",
+            border: "1px solid",
+            borderColor: "white/10",
+            boxShadow: "0 10px 40px rgba(0,0,0,0.5)",
+            borderRadius: "xl",
+            padding: "4",
+            maxHeight: "350px",
             overflowY: "auto",
             zIndex: "1200",
-            minWidth: "200px",
+            minWidth: "260px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "2",
+            outline: "none",
+            scrollbarWidth: "none",
+            "&::-webkit-scrollbar": { display: "none" },
           })}
         >
+          <div
+            className={css({
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: "2",
+              borderBottom: "1px solid",
+              borderColor: "white/10",
+              pb: "2",
+            })}
+          >
+            <span
+              className={css({
+                color: "white",
+                fontSize: "sm",
+                fontWeight: "bold",
+              })}
+            >
+              Filter by Category
+            </span>
+            {selectedCategories.size > 0 && (
+              <button
+                onClick={clearAll}
+                className={css({
+                  fontSize: "xs",
+                  color: "brand.orange",
+                  cursor: "pointer",
+                  bg: "transparent",
+                  border: "none",
+                  fontWeight: "bold",
+                  _hover: { filter: "brightness(1.2)" },
+                })}
+              >
+                Clear All
+              </button>
+            )}
+          </div>
+
           {!categories.length ? (
-            <div className={css({ padding: "4", textAlign: "center" })}>
-              Loading...
+            <div
+              className={css({
+                padding: "4",
+                textAlign: "center",
+                color: "gray.400",
+                fontSize: "sm",
+              })}
+            >
+              Loading categories...
             </div>
           ) : (
             categories.map((name) => {
               const isChecked = selectedCategories.has(name);
+              const count = catCount(name);
               return (
                 <div
                   key={name}
@@ -84,7 +168,9 @@ const CategoryFilter = ({
                     alignItems: "center",
                     justifyContent: "space-between",
                     padding: "2",
-                    gap: "4",
+                    borderRadius: "lg",
+                    transition: "background 0.2s",
+                    _hover: { bg: "white/5" },
                   })}
                 >
                   <Switch.Root
@@ -93,51 +179,73 @@ const CategoryFilter = ({
                     className={css({
                       display: "flex",
                       alignItems: "center",
-                      gap: "2",
+                      gap: "3",
+                      width: "100%",
+                      justifyContent: "space-between",
                     })}
                   >
-                    <Switch.Control
+                    <Switch.Label
                       className={css({
-                        width: "10",
-                        height: "6",
-                        backgroundColor: isChecked ? "brand.orange" : "gray.200",
-                        borderRadius: "full",
-                        position: "relative",
-                        transition: "background-color 0.2s",
+                        fontSize: "sm",
+                        color: isChecked ? "white" : "gray.300",
                         cursor: "pointer",
+                        flex: 1,
+                        textTransform: "capitalize",
                       })}
                     >
-                      <Switch.Thumb
-                        className={css({
-                          width: "4",
-                          height: "4",
-                          backgroundColor: "white",
-                          borderRadius: "full",
-                          position: "absolute",
-                          top: "1",
-                          left: isChecked ? "5" : "1",
-                          transition: "left 0.2s",
-                        })}
-                      />
-                    </Switch.Control>
-                    <Switch.Label className={css({ fontSize: "sm", cursor: "pointer" })}>
-                      {name}
+                      {name.replace(/_/g, " ")}
                     </Switch.Label>
-                    <Switch.HiddenInput />
+
+                    <div
+                      className={css({
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "3",
+                      })}
+                    >
+                      <span
+                        className={css({
+                          fontSize: "xs",
+                          color: "gray.400",
+                          fontFamily: "tech",
+                          minWidth: "1.5rem",
+                          textAlign: "right",
+                        })}
+                      >
+                        {count}
+                      </span>
+                      <Switch.Control
+                        className={css({
+                          width: "9",
+                          height: "5",
+                          backgroundColor: isChecked
+                            ? "brand.orange"
+                            : "white/10",
+                          borderRadius: "full",
+                          position: "relative",
+                          transition: "background-color 0.2s",
+                          cursor: "pointer",
+                          border: isChecked ? "none" : "1px solid",
+                          borderColor: "white/20",
+                        })}
+                      >
+                        <Switch.Thumb
+                          className={css({
+                            width: "3.5",
+                            height: "3.5",
+                            backgroundColor: "white",
+                            borderRadius: "full",
+                            position: "absolute",
+                            top: "0.5",
+                            left: isChecked ? "5" : "0.5",
+                            transition: "left 0.2s",
+                            boxShadow: "sm",
+                          })}
+                        />
+                      </Switch.Control>
+                      <Switch.HiddenInput />
+                    </div>
                   </Switch.Root>
-                  <span
-                    className={css({
-                      fontSize: "xs",
-                      backgroundColor: "brand.orange",
-                      color: "white",
-                      padding: "1",
-                      borderRadius: "md",
-                      minWidth: "1.5rem",
-                      textAlign: "center",
-                    })}
-                  >
-                    {catCount(name)}
-                  </span>
                 </div>
               );
             })

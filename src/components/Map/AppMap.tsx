@@ -1,26 +1,18 @@
+"use client";
+
 import { useAuth0 } from "@auth0/auth0-react";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
-import { APIProvider, Map, MapControl, useMap } from "@vis.gl/react-google-maps";
-import { memo, useEffect, useState } from "react";
-import { MdAddLocation } from "react-icons/md";
+import { APIProvider, Map, useMap } from "@vis.gl/react-google-maps";
+import { useTheme } from "next-themes";
+import { Dispatch, memo, SetStateAction, useEffect, useState } from "react";
 
-import MAvatar from "@/components/Nav/Mavatar";
 import { Category, Libraries, Listing } from "@/db/Types";
 import { GEOCENTER } from "@/util/functions";
 import { findBusinessesNearby } from "@app/actions/geo-search";
 import { css } from "@styled/css";
-import SideDrawer from "../SideDrawer/SideDrawer";
-import AddListingDrawer from "./AddListingDrawer";
-import ListingInfoWindow from "./ListingInfoWindow";
-import MapAutoComplete from "./MapAutoComplete";
 import MyMarker from "./MyMarker";
 
-const libraries: Libraries = [
-  "marker",
-  "places",
-  "visualization",
-  "geometry",
-];
+const libraries: Libraries = ["marker", "places", "visualization", "geometry"];
 
 const defaultProps = {
   center: GEOCENTER,
@@ -49,169 +41,149 @@ interface IAppMap {
   browserLocation: any;
   setMapInstance: any;
   mapInstance: any;
+  activeListing: Listing | null;
+  setactiveListing: Dispatch<SetStateAction<Listing | null>>;
+  selectedCategories: Set<Category>;
+  setSelectedCategories: Dispatch<SetStateAction<Set<Category>>>;
+  isDrawerOpen: boolean;
+  setisDrawerOpen: Dispatch<SetStateAction<boolean>>;
+  isInfoWindowOpen: boolean;
+  setisInfoWindowOpen: Dispatch<SetStateAction<boolean>>;
+  setIsMapActive: Dispatch<SetStateAction<boolean>>;
+  setClosestListing?: Dispatch<SetStateAction<Listing | null>>;
 }
 
-const MapContent = memo(({
-  listings,
-  categories,
-  selectedCategories,
-  setSelectedCategories,
-  activeListing,
-  setactiveListing,
-  isDrawerOpen,
-  setisDrawerOpen,
-  isInfoWindowOpen,
-  setisInfoWindowOpen,
-  mapInstance,
-  setMapInstance
-}: any) => {
-  const map = useMap("GMap");
-  const [clusterer, setClusterer] = useState<MarkerClusterer>();
-  const { isAuthenticated, loginWithRedirect } = useAuth0();
-  const [isAddListingOpen, setIsAddListingOpen] = useState(false);
+const MapContent = memo(
+  ({
+    listings,
+    selectedCategories,
+    activeListing,
+    setactiveListing,
+    isDrawerOpen,
+    setisDrawerOpen,
+    isInfoWindowOpen,
+    setisInfoWindowOpen,
+    mapInstance,
+    setMapInstance,
+  }: any) => {
+    const map = useMap("GMap");
+    const [clusterer, setClusterer] = useState<MarkerClusterer>();
+    const { isAuthenticated, loginWithRedirect } = useAuth0();
+    const [isAddListingOpen, setIsAddListingOpen] = useState(false);
 
-  useEffect(() => {
-    if (!map) return;
-    setMapInstance(map);
-    setClusterer(new MarkerClusterer({ map }));
-  }, [map, setMapInstance]);
+    useEffect(() => {
+      if (!map) return;
+      setMapInstance(map);
 
-  return (
-    <>
-      <MapControl position={3}> {/* TOP_RIGHT */}
-        <div
-          className={css({
+      // Custom Renderer for Vision 2030 brand.orange pulsing nodes
+      const customRenderer = {
+        render: ({ count, position }: any) => {
+          const el = document.createElement("div");
+          el.innerHTML = count.toString();
+
+          Object.assign(el.style, {
+            width: "40px",
+            height: "40px",
+            background: "#FF5A00",
+            color: "white",
+            borderRadius: "50%",
             display: "flex",
             alignItems: "center",
-            gap: "2",
-            margin: "2",
-            marginRight: "4",
-            padding: "2",
-            backgroundColor: "rgba(255, 230, 200, 1)",
-            borderRadius: "full",
-            boxShadow: "md",
-          })}
-        >
-          {isAuthenticated ? (
-            <button
-              aria-label="Add A Listing"
-              className={css({
-                background: "transparent",
-                border: "none",
-                cursor: "pointer",
-                padding: "2",
-                borderRadius: "full",
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                _hover: { backgroundColor: "rgba(0,0,0,0.05)" },
-              })}
-            >
-              <span className={css({ color: "brand.grey", display: "inline-flex" })}>
-                <MdAddLocation size={32} />
-              </span>
-            </button>
-          ) : null}
-          <MAvatar />
-        </div>
-      </MapControl>
-      <MapControl position={2}>
-        <MapAutoComplete
-          listings={listings}
-          categories={categories}
-          mapInstance={mapInstance || map}
-          selectedCategories={selectedCategories}
-          setSelectedCategories={setSelectedCategories}
-          setactiveListing={setactiveListing}
-          setisDrawerOpen={setisDrawerOpen}
-          setIsAddListingOpen={setIsAddListingOpen}
-        />
-      </MapControl>
-      {listings && listings.length === 0 && (
-        <div
-          className={css({
+            justifyContent: "center",
+            fontWeight: "bold",
+            fontFamily: "Inter, sans-serif",
+            boxShadow: "0 0 20px #FF5A00, 0 0 40px rgba(255, 90, 0, 0.6)",
+            position: "relative",
+            fontSize: "14px",
+            border: "1px solid rgba(255, 90, 0, 0.8)",
+          });
+
+          // Add pulse ring logic
+          const ring = document.createElement("div");
+          Object.assign(ring.style, {
             position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            backgroundColor: "rgba(255, 255, 255, 0.8)",
-            backdropFilter: "blur(12px)",
-            padding: "8",
-            borderRadius: "2xl",
-            boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-            textAlign: "center",
-            maxWidth: "350px",
-            zIndex: 10,
-            border: "1px solid rgba(255, 255, 255, 0.3)",
+            top: "-50%",
+            left: "-50%",
+            width: "200%",
+            height: "200%",
+            border: "1px solid #FF5A00",
+            borderRadius: "50%",
+            animation:
+              "pulseSlow 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite",
+            pointerEvents: "none",
+          });
+          el.appendChild(ring);
+
+          return new google.maps.marker.AdvancedMarkerElement({
+            position,
+            content: el,
+            zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count,
+          });
+        },
+      };
+
+      setClusterer(new MarkerClusterer({ map, renderer: customRenderer }));
+    }, [map, setMapInstance]);
+
+    return (
+      <>
+        {/* HUD and AutoComplete MapControls have been relocated to 2030 AR Panels */}
+        {listings &&
+          listings.map((listing: Listing) => {
+            const hasMatch =
+              listing.categories &&
+              listing.categories.some((el: Category) =>
+                selectedCategories.has(el),
+              );
+            const noCategories =
+              !listing.categories || listing.categories.length === 0;
+            const isVisible = hasMatch || noCategories;
+            const hasLegacyCoordinates = Boolean(
+              listing.coordinates &&
+              listing.coordinates.coordinates &&
+              listing.coordinates.coordinates.length > 1,
+            );
+            const hasLocations = Boolean(
+              listing.locations &&
+              listing.locations.length > 0 &&
+              listing.locations.some(loc => loc.coordinates?.coordinates?.length === 2)
+            );
+
+            if (!isVisible || (!hasLegacyCoordinates && !hasLocations) || listing.isOnlineOnly)
+              return null;
+
+            if (hasLocations) {
+              return listing.locations!.map((loc, idx) => {
+                if (!loc.coordinates || loc.coordinates.coordinates.length < 2) return null;
+                return (
+                  <MyMarker
+                    key={`marker-${listing._id}-${idx}`}
+                    data={listing}
+                    locationData={loc}
+                    clusterer={clusterer}
+                    setactiveListing={setactiveListing}
+                    setisDrawerOpen={setisDrawerOpen}
+                    setisInfoWindowOpen={setisInfoWindowOpen}
+                  />
+                );
+              });
+            }
+
+            return (
+              <MyMarker
+                key={`marker-${listing._id}`}
+                data={listing}
+                clusterer={clusterer}
+                setactiveListing={setactiveListing}
+                setisDrawerOpen={setisDrawerOpen}
+                setisInfoWindowOpen={setisInfoWindowOpen}
+              />
+            );
           })}
-        >
-          <div className={css({ mb: "4", color: "brand.orange", display: "flex", justifyContent: "center" })}>
-            <MdAddLocation size={48} />
-          </div>
-          <h2 className={css({ fontSize: "2xl", fontWeight: "bold", mb: 2, color: "gray.800" })}>
-            No Businesses Found Here
-          </h2>
-          <p className={css({ color: "gray.600", mb: 6, fontSize: "sm", lineHeight: "relaxed" })}>
-            We couldn't find any Black-owned businesses in this immediate area. Help us grow the MOBB by adding one, or search another area!
-          </p>
-          <button
-            // onClick={() => isAuthenticated ? setIsAddListingOpen(true) : loginWithRedirect()}
-            onClick={() => setIsAddListingOpen(true)}
-            className={css({
-              backgroundColor: "brand.orange",
-              color: "white",
-              fontWeight: "600",
-              padding: "3 6",
-              borderRadius: "full",
-              cursor: "pointer",
-              transition: "all 0.2s",
-              _hover: { transform: "translateY(-1px)", boxShadow: "md" },
-              _active: { transform: "translateY(0)" },
-            })}
-          >
-            {/* {isAuthenticated ? "Add a Business" : "Sign in to Add"} */}
-            Add a Business
-          </button>
-        </div>
-      )}
-
-      {listings && listings.map((listing: Listing) => {
-        const hasMatch = listing.categories && listing.categories.some((el: Category) => selectedCategories.has(el));
-        const noCategories = !listing.categories || listing.categories.length === 0;
-        const isVisible = hasMatch || noCategories;
-
-        if (!isVisible) return null;
-
-        return (
-          <MyMarker
-            key={`marker-${listing._id}`}
-            //@ts-ignore
-            data={listing}
-            clusterer={clusterer}
-            setactiveListing={setactiveListing}
-            setisDrawerOpen={setisDrawerOpen}
-            setisInfoWindowOpen={setisInfoWindowOpen}
-          />
-        );
-      })}
-      {activeListing && isInfoWindowOpen && (
-        <ListingInfoWindow activeListing={activeListing} />
-      )}
-      {activeListing && isDrawerOpen && (
-        <SideDrawer
-          activeListing={activeListing}
-          isOpen={isDrawerOpen}
-          setOpen={setisDrawerOpen}
-          mapInstance={mapInstance || map}
-        />
-      )}
-      <AddListingDrawer
-        isOpen={isAddListingOpen}
-        setOpen={setIsAddListingOpen}
-      />
-    </>
-  );
-});
+      </>
+    );
+  },
+);
 
 const AppMap = memo(
   ({
@@ -221,15 +193,21 @@ const AppMap = memo(
     browserLocation,
     setMapInstance,
     mapInstance,
+    activeListing,
+    setactiveListing,
+    selectedCategories,
+    setSelectedCategories,
+    isDrawerOpen,
+    setisDrawerOpen,
+    isInfoWindowOpen,
+    setisInfoWindowOpen,
+    setIsMapActive,
+    setClosestListing
   }: IAppMap) => {
-    const [isDrawerOpen, setisDrawerOpen] = useState(false);
-    const [isInfoWindowOpen, setisInfoWindowOpen] = useState(false);
-    const [activeListing, setactiveListing] = useState<Listing | null>(null);
-    const [selectedCategories, setSelectedCategories] = useState<Set<Category>>(
-      new Set(categories || [])
-    );
+    const { theme } = useTheme();
 
     const handleIdle = async (e: any) => {
+      setIsMapActive(false);
       const map = e.map;
       if (map) {
         const center = map.getCenter();
@@ -242,6 +220,36 @@ const AppMap = memo(
           const nearby = await findBusinessesNearby(lat, lng, radius);
           if (nearby && nearby.length > 0) {
             setListings(nearby);
+
+            // Re-calculate the absolute nearest marker for the mobile floating card
+            if (setClosestListing) {
+              const start = new (window as any).google.maps.LatLng({ lat, lng });
+              let closestMarker: Listing | null = null;
+              let shortestDistance = Infinity;
+
+              nearby.forEach((listing: Listing) => {
+                // If the listing has multiple locations, check which one is nearest
+                let coordsToTest: any[] = [];
+                if (listing.locations && listing.locations.length > 0) {
+                  coordsToTest = listing.locations.map(l => l.coordinates?.coordinates).filter(c => c && c.length > 1);
+                } else if (listing.coordinates?.coordinates) {
+                  coordsToTest = [listing.coordinates.coordinates];
+                }
+
+                coordsToTest.forEach(coords => {
+                  if (coords && coords.length > 1) {
+                    const posObj = new (window as any).google.maps.LatLng({ lat: coords[1], lng: coords[0] });
+                    const dist = (window as any).google.maps.geometry.spherical.computeDistanceBetween(posObj, start);
+                    if (dist < shortestDistance) {
+                      shortestDistance = dist;
+                      closestMarker = listing;
+                    }
+                  }
+                });
+              });
+
+              setClosestListing(closestMarker);
+            }
           }
         } catch (error) {
           console.error("Error fetching nearby businesses:", error);
@@ -254,7 +262,6 @@ const AppMap = memo(
     return (
       <APIProvider
         apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY as string}
-        //@ts-ignore
         libraries={libraries}
       >
         <Map
@@ -273,14 +280,13 @@ const AppMap = memo(
           disableDefaultUI={options.disableDefaultUI}
           zoomControl={options.zoomControl}
           gestureHandling={options.gestureHandling}
-          colorScheme={"DARK"}
+          colorScheme={theme === "dark" ? "DARK" : "LIGHT"}
+          onDragstart={() => setIsMapActive(true)}
           onIdle={handleIdle}
         >
           <MapContent
             listings={listings}
-            categories={categories}
             selectedCategories={selectedCategories}
-            setSelectedCategories={setSelectedCategories}
             activeListing={activeListing}
             setactiveListing={setactiveListing}
             isDrawerOpen={isDrawerOpen}
@@ -293,7 +299,7 @@ const AppMap = memo(
         </Map>
       </APIProvider>
     );
-  }
+  },
 );
 
 export default AppMap;

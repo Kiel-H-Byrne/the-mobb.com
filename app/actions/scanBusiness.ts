@@ -70,7 +70,7 @@ export async function scanBusinessUrl(url: string) {
     schema: BusinessSchema,
     prompt: `
       Analyze this HTML content for a business directory.
-      Extract the business details. 
+      Extract the business contact details, especially address and website and phone number. 
       Look for specific cultural indicators or 'About Us' text to determine if it is Black-owned.
       
       HTML Context:

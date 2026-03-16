@@ -1,34 +1,22 @@
-
-import { Button } from "@/components/ui/Button";
-import { Category, Listing } from "@/db/Types";
+import { Listing } from "@/db/Types";
 import { targetClient } from "@/util/functions";
 import { searchBusinesses } from "@app/actions/geo-search";
 import { css } from "@styled/css";
-import { Dispatch, SetStateAction, memo, useState } from "react";
-import { MdAddLocation, MdSearch } from "react-icons/md";
-import CategoryFilter from "./CategoryFilter";
-import MyLocationButton from "./MyLocationButton";
+import React, { Dispatch, SetStateAction, memo, useEffect, useState } from "react";
 
 interface OwnProps {
   listings: Listing[];
-  categories: Category[];
-  selectedCategories: Set<Category>;
+  categories?: any[];
   mapInstance: any;
-  setSelectedCategories: Dispatch<SetStateAction<Set<Category>>>;
   setactiveListing: Dispatch<SetStateAction<any>>;
   setisDrawerOpen: Dispatch<SetStateAction<boolean>>;
-  setIsAddListingOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 const MapAutoComplete = ({
   listings,
-  categories,
-  selectedCategories,
   mapInstance,
-  setSelectedCategories,
   setactiveListing,
   setisDrawerOpen,
-  setIsAddListingOpen,
 }: OwnProps) => {
   let count = listings?.length ?? 0;
   const [active, setActive] = useState(0);
@@ -85,99 +73,88 @@ const MapAutoComplete = ({
     }
   };
 
+  // Keyboard shortcut listener for CMD+K / CTRL+K
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        document.getElementById('mobb-search-input')?.focus();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
-    <>
+    <div className={`group ${css({ position: "relative", w: "full", zIndex: 1200 })}`}>
+      <div className={css({
+        position: "absolute", inset: 0, bg: "brand.orange/20", borderRadius: "2xl",
+        filter: "blur(8px)", opacity: 0, _groupHover: { opacity: 1 }, transition: "opacity 0.5s"
+      })}></div>
+
       <div className={css({
         position: "relative",
-        zIndex: 1200,
-        margin: "4",
-        display: "flex",
-        maxWidth: "23rem",
-        backgroundColor: "rgba(255, 255, 255, 0.85)", // Light frosted glass
-        backdropFilter: "blur(12px)",
-        borderRadius: "xl",
-        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12)",
-        border: "1px solid rgba(255, 255, 255, 0.2)",
-        padding: "1",
-        alignItems: "center",
+        display: "flex", alignItems: "center",
+        bg: "#15151A", borderRadius: "2xl",
+        border: "1px solid", borderColor: "white/10",
+        px: "4", py: "3",
+        _focusWithin: { borderColor: "brand.orange/50" }, transition: "colors"
       })}>
+        <i className="ph ph-magnifying-glass text-xl text-brand-orange mr-3"></i>
         <input
+          id="mobb-search-input"
           className={css({
-            marginLeft: "2",
-            flex: "1",
-            background: "transparent",
-            border: "none",
-            outline: "none",
-            padding: "2",
-            fontSize: "sm",
+            flex: "1", bg: "transparent", border: "none", outline: "none",
+            color: "white", fontFamily: "body", fontSize: "sm",
+            _placeholder: { color: "gray.500" }
           })}
-          placeholder={`Search ${count ? count + " " : ""}Listings...`}
+          placeholder={`Search ${count ? count + " " : ""}businesses...`}
           aria-label="Search The MOBB"
           onChange={onChange}
           onKeyDown={onKeyDown}
           value={input}
+          autoComplete="off"
         />
-        {isMenuOpen && (
-          <div className={css({
-            position: "absolute",
-            top: "100%",
-            left: "0",
-            width: "100%",
-            backgroundColor: "white",
-            boxShadow: "lg",
-            borderRadius: "md",
-            marginTop: "1",
-            maxHeight: "300px",
-            overflowY: "auto",
-          })}>
+        <div className={css({
+          display: { base: "none", md: "flex" }, alignItems: "center", gap: "2", fontSize: "xs",
+          fontFamily: "tech", color: "gray.500", bg: "white/5", px: "2", py: "1", borderRadius: "md"
+        })}>
+          <span>⌘</span><span>K</span>
+        </div>
+      </div>
+
+      {isMenuOpen && (
+        <div className={css({
+          position: "absolute", top: "calc(100% + 8px)", left: "0", width: "100%",
+          backgroundColor: "#15151A", border: "1px solid", borderColor: "white/10",
+          boxShadow: "glow", borderRadius: "xl", overflow: "hidden", zIndex: 1300
+        })}>
+          <div className={css({ maxHeight: "300px", overflowY: "auto" })}>
             {filtered.length > 0 ? (
               filtered.map((listing, index) => (
                 <div
                   key={listing._id}
                   onClick={() => handleSelect(index)}
                   className={css({
-                    padding: "2",
-                    cursor: "pointer",
-                    backgroundColor: index === active ? "rgba(251, 176, 59, 0.2)" : "transparent",
-                    _hover: { backgroundColor: "rgba(251, 176, 59, 0.1)" },
+                    padding: "3", cursor: "pointer", color: "white", display: "flex", alignItems: "center", gap: "3",
+                    borderBottom: "1px solid", borderColor: "white/5",
+                    backgroundColor: index === active ? "rgba(255, 90, 0, 0.15)" : "transparent",
+                    _hover: { backgroundColor: "rgba(255, 90, 0, 0.2)" }, transition: "background 0.2s"
                   })}
                 >
-                  {listing.name}
+                  <i className="ph-fill ph-map-pin text-brand-orange"></i>
+                  <span className={css({ flex: 1, fontWeight: "500", fontSize: "sm" })}>{listing.name}</span>
                 </div>
               ))
             ) : (
-              <div className={css({ padding: "2", fontSize: "xs", color: "gray.500" })}>
-                {input.length > 2 ? "Not Found..." : `Enter ${3 - input.length} more character`}
+              <div className={css({ padding: "4", fontSize: "sm", color: "gray.500", textAlign: "center" })}>
+                {input.length > 2 ? "No matching entities found." : `Enter ${3 - input.length} more character${(3 - input.length) > 1 ? 's' : ''}`}
               </div>
             )}
           </div>
-        )}
-        <Button variant="ghost" size="icon">
-          <span className={css({ color: "brand.orange", display: "inline-flex" })}>
-            <MdSearch size={22} />
-          </span>
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setIsAddListingOpen(true)}
-          aria-label="Add A Listing"
-        >
-          <span className={css({ color: "brand.orange", display: "inline-flex" })}>
-            <MdAddLocation size={24} />
-          </span>
-        </Button>
-        <div className={css({ width: "1px", height: "7", backgroundColor: "gray.300", margin: "1" })} />
-        <CategoryFilter
-          listings={listings}
-          categories={categories}
-          selectedCategories={selectedCategories}
-          setSelectedCategories={setSelectedCategories}
-        />
-        <div className={css({ width: "1px", height: "7", backgroundColor: "gray.300", margin: "1" })} />
-        <MyLocationButton listings={listings} mapInstance={mapInstance} />
-      </div>
-    </>
+        </div>
+      )}
+    </div>
   );
 };
 

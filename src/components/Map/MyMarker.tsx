@@ -4,6 +4,7 @@ import { memo, useEffect, useState } from "react";
 
 interface MyMarkerProps {
   data: Listing;
+  locationData?: any;
   clusterer?: any;
   setisDrawerOpen: (open: boolean) => void;
   setisInfoWindowOpen: (open: boolean) => void;
@@ -12,23 +13,27 @@ interface MyMarkerProps {
 
 const MyMarker = ({
   data,
+  locationData,
   clusterer,
   setisDrawerOpen,
   setisInfoWindowOpen,
   setactiveListing,
 }: MyMarkerProps) => {
-  const { coordinates, _id } = data;
-  let locObj: { lat: number; lng: number };
+  const coordinatesToUse = locationData?.coordinates || data.coordinates;
+  const _id = data._id;
 
-  if (coordinates && coordinates.coordinates && coordinates.coordinates.length > 1) {
-    locObj = {
-      lat: coordinates.coordinates[1],
-      lng: coordinates.coordinates[0],
-    };
-  } else {
-    // Fallback if missing coordinates
-    locObj = { lat: 50.60982, lng: -1.34987 };
+  if (
+    !coordinatesToUse ||
+    !coordinatesToUse.coordinates ||
+    coordinatesToUse.coordinates.length < 2
+  ) {
+    return null;
   }
+
+  const locObj = {
+    lat: coordinatesToUse.coordinates[1],
+    lng: coordinatesToUse.coordinates[0],
+  };
 
   const [marker, setMarker] = useState<any>(null);
 
@@ -62,7 +67,12 @@ const MyMarker = ({
       onMouseEnter={handleMouseOverMarker}
       onMouseLeave={handleMouseOut}
     >
-      <img src="/img/map/orange_marker_sm.png" alt="Marker" width={32} height={32} />
+      <img
+        src="/img/map/orange_marker_sm.png"
+        alt="Marker"
+        width={32}
+        height={32}
+      />
     </AdvancedMarker>
   );
 };

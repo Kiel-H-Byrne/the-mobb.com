@@ -2,20 +2,66 @@
 
 import AddListingDrawer from "@/components/Map/AddListingDrawer";
 import { toaster } from "@/components/ui/Toast";
-import { approveListing, getPendingListings, loginAdmin, logoutAdmin, rejectListing, updatePendingListing } from "@app/actions/admin";
+import { PendingListing } from "@/db/Types";
+import {
+  approveListing,
+  getPendingListings,
+  loginAdmin,
+  logoutAdmin,
+  rejectListing,
+  updatePendingListing,
+  manuallyRunScout,
+  getWeeklyApprovedStats,
+  autoFindPendingListingAddress,
+} from "@app/actions/admin";
 import { css } from "@styled/css";
 import { APIProvider } from "@vis.gl/react-google-maps";
+import Link from "next/link";
 import { useEffect, useState } from "react";
+
+const toAddressString = (address?: PendingListing["address"]) => {
+  if (Array.isArray(address)) {
+    return address.filter(Boolean).join(", ");
+  }
+
+  return address || "";
+};
+
+const getLocationsToRender = (listing: PendingListing) => {
+  if (listing.locations && listing.locations.length > 0) {
+    return listing.locations;
+  }
+  const fallbackAddress = toAddressString(listing.address);
+  if (fallbackAddress) {
+    return [{ address: fallbackAddress, lat: listing.lat, lng: listing.lng }];
+  }
+  return [];
+};
+
+const buildGoogleMapsSearchUrl = (listing: PendingListing) => {
+  const locs = getLocationsToRender(listing);
+  const addressParam = locs.length > 0 ? locs[0].address : "";
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([listing.name, addressParam].filter(Boolean).join(" "))}`;
+};
+
+const buildGoogleSearchUrl = (listing: PendingListing) => {
+  const locs = getLocationsToRender(listing);
+  const addressParam = locs.length > 0 ? locs[0].address : "";
+  return `https://www.google.com/search?q=${encodeURIComponent([listing.name, addressParam, listing.website].filter(Boolean).join(" "))}`;
+};
 
 export default function AdminReviewsPage() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
 
-  const [listings, setListings] = useState<any[]>([]);
+  const [listings, setListings] = useState<PendingListing[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false);
-  const [editingListing, setEditingListing] = useState<any>(null);
+  const [editingListing, setEditingListing] = useState<PendingListing | null>(
+    null,
+  );
+  const [stats, setStats] = useState<{ total: number; aiScanned: number; manual: number; startOfWeek: Date } | undefined>();
 
   useEffect(() => {
     async function init() {
@@ -24,6 +70,9 @@ export default function AdminReviewsPage() {
       if (res.success) {
         setIsLoggedIn(true);
         setListings(res.data || []);
+        
+        const statsRes = await getWeeklyApprovedStats();
+        if (statsRes.success) setStats(statsRes.data);
       } else if (res.error === "Unauthorized") {
         setIsLoggedIn(false);
       }
@@ -39,16 +88,26 @@ export default function AdminReviewsPage() {
       setIsLoggedIn(true);
       const dataRes = await getPendingListings();
       if (dataRes.success) setListings(dataRes.data || []);
+      
+      const statsRes = await getWeeklyApprovedStats();
+      if (statsRes.success) setStats(statsRes.data);
     } else {
       setLoginError(res.error || "Login failed");
     }
   };
 
-  const handleApprove = async (l: any) => {
+  const openEditor = (listing: PendingListing) => {
+    setEditingListing(listing);
+    setIsEditDrawerOpen(true);
+  };
+
+  const handleApprove = async (l: PendingListing) => {
     setIsLoading(true);
     const res = await approveListing(l._id, l);
     if (res.success) {
       setListings((prev) => prev.filter((item) => item._id !== l._id));
+      const statsRes = await getWeeklyApprovedStats();
+      if (statsRes.success) setStats(statsRes.data);
     } else {
       toaster.create({ title: "Error approving listing", type: "error" });
     }
@@ -72,12 +131,14 @@ export default function AdminReviewsPage() {
     const res = await updatePendingListing(editingListing._id, updatedData);
     if (res.success) {
       // Update local state
-      setListings((prev) => prev.map((item) => {
-        if (item._id === editingListing._id) {
-          return { ...item, ...updatedData };
-        }
-        return item;
-      }));
+      setListings((prev) =>
+        prev.map((item) => {
+          if (item._id === editingListing._id) {
+            return { ...item, ...updatedData };
+          }
+          return item;
+        }),
+      );
     } else {
       toaster.create({ title: "Error updating listing", type: "error" });
       throw new Error("Update failed"); // Propagate to drawer to show error
@@ -85,89 +146,678 @@ export default function AdminReviewsPage() {
     setIsLoading(false);
   };
 
-  if (isLoggedIn === null) return <div className={css({ p: "10" })}>Loading...</div>;
+  const handleAutoFind = async (l: PendingListing) => {
+    setIsLoading(true);
+    const res = await autoFindPendingListingAddress(l._id as string);
+    if (!res.success || !res.found) {
+      toaster.create({ title: "No Google Places address found", type: "error" });
+      const dataRes = await getPendingListings();
+      if (dataRes.success) setListings(dataRes.data || []);
+    } else {
+      toaster.create({ title: "Address auto-filled successfully", type: "success" });
+      const dataRes = await getPendingListings();
+      if (dataRes.success) setListings(dataRes.data || []);
+    }
+    setIsLoading(false);
+  };
+
+  const handleRunScout = async () => {
+    setIsLoading(true);
+    toaster.create({
+      title: "Scout cron started. Gathering new businesses...",
+      type: "info",
+    });
+    const res = await manuallyRunScout();
+    if (res?.success) {
+      toaster.create({
+        title: `Scout complete! Successfully scanned ${res.processed?.length || 0} links.`,
+        type: "success",
+      });
+      const dataRes = await getPendingListings();
+      if (dataRes.success) setListings(dataRes.data || []);
+    } else {
+      toaster.create({
+        title: `Scout failed: ${res?.error || "Unknown error"}`,
+        type: "error",
+      });
+    }
+    setIsLoading(false);
+  };
+
+  if (isLoggedIn === null)
+    return <div className={css({ p: "10" })}>Loading...</div>;
   if (!isLoggedIn) {
     return (
-      <div className={css({ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", bg: "gray.50" })}>
-        <form onSubmit={handleLogin} className={css({ bg: "white", p: "8", borderRadius: "md", boxShadow: "md", display: "flex", flexDirection: "column", gap: "4", minWidth: "300px" })}>
-          <h1 className={css({ fontSize: "2xl", fontWeight: "bold", textAlign: "center", mb: "4" })}>Admin Login</h1>
+      <div
+        className={css({
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          bg: "bg.canvas",
+        })}
+      >
+        <form
+          onSubmit={handleLogin}
+          className={css({
+            bg: "bg.surface",
+            p: "8",
+            borderRadius: "md",
+            boxShadow: "md",
+            display: "flex",
+            flexDirection: "column",
+            gap: "4",
+            minWidth: "300px",
+          })}
+        >
+          <h1
+            className={css({
+              fontSize: "2xl",
+              fontWeight: "bold",
+              textAlign: "center",
+              mb: "4",
+              color: "text.main",
+            })}
+          >
+            Admin Login
+          </h1>
           <input
             type="password"
             placeholder="Admin Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className={css({ p: "2", border: "1px solid", borderColor: "gray.300", borderRadius: "md" })}
+            className={css({
+              p: "2",
+              border: "1px solid",
+              borderColor: "border.light",
+              borderRadius: "md",
+              bg: "bg.canvas",
+              color: "text.main",
+            })}
           />
-          <button type="submit" className={css({ bg: "brand.orange", color: "white", p: "2", borderRadius: "md", fontWeight: "bold", cursor: "pointer" })}>
+          <button
+            type="submit"
+            className={css({
+              bg: "brand.orange",
+              color: "white",
+              p: "2",
+              borderRadius: "md",
+              fontWeight: "bold",
+              cursor: "pointer",
+            })}
+          >
             Login
           </button>
-          {loginError && <p className={css({ color: "red.500", fontSize: "sm", textAlign: "center" })}>{loginError}</p>}
+          {loginError && (
+            <p
+              className={css({
+                color: "red.500",
+                fontSize: "sm",
+                textAlign: "center",
+              })}
+            >
+              {loginError}
+            </p>
+          )}
         </form>
       </div>
     );
   }
 
   return (
-    <div className={css({ minHeight: "100vh", bg: "gray.50", p: "8" })}>
-      <div className={css({ display: "flex", justifyContent: "space-between", mb: "8", alignItems: "center" })}>
-        <h1 className={css({ fontSize: "3xl", fontWeight: "bold", color: "brand.grey" })}>Review Pending Listings</h1>
-        <button
-          onClick={async () => { await logoutAdmin(); setIsLoggedIn(false); }}
-          className={css({ bg: "gray.200", p: "2 4", borderRadius: "md", fontWeight: "bold", cursor: "pointer" })}
-        >
-          Logout
-        </button>
+    <div
+      className={css({
+        minHeight: "100vh",
+        bg: "bg.canvas",
+        p: "4",
+        md: { p: "8" },
+      })}
+    >
+      <div
+        className={css({
+          display: "flex",
+          justifyContent: "space-between",
+          mb: "8",
+          alignItems: "center",
+          gap: "4",
+          flexWrap: "wrap",
+        })}
+      >
+        <div>
+          <h1
+            className={css({
+              fontSize: "3xl",
+              fontWeight: "bold",
+              color: "text.main",
+            })}
+          >
+            Review Pending Listings
+          </h1>
+          <p className={css({ color: "text.muted", fontSize: "sm", mt: "1" })}>
+            Quick workflow: open edit, search Google Places, capture details, or
+            mark the listing as online only.
+          </p>
+          {stats && (
+            <div className={css({ mt: "4", display: "flex", gap: "4", alignItems: "center" })}>
+              <div className={css({ bg: "bg.surface", p: "3", borderRadius: "md", border: "1px solid", borderColor: "border.light" })}>
+                <span className={css({ fontSize: "sm", color: "text.muted", display: "block" })}>Weekly Approved (AI)</span>
+                <span className={css({ fontSize: "xl", fontWeight: "bold", color: "blue.500" })}>{stats.aiScanned}</span>
+              </div>
+              <div className={css({ bg: "bg.surface", p: "3", borderRadius: "md", border: "1px solid", borderColor: "border.light" })}>
+                <span className={css({ fontSize: "sm", color: "text.muted", display: "block" })}>Weekly Approved (Manual)</span>
+                <span className={css({ fontSize: "xl", fontWeight: "bold", color: "green.500" })}>{stats.manual}</span>
+              </div>
+              <div className={css({ bg: "bg.surface", p: "3", borderRadius: "md", border: "1px solid", borderColor: "border.light" })}>
+                <span className={css({ fontSize: "sm", color: "text.muted", display: "block" })}>Total</span>
+                <span className={css({ fontSize: "xl", fontWeight: "bold", color: "text.main" })}>{stats.total}</span>
+              </div>
+            </div>
+          )}
+        </div>
+        <div className={css({ display: "flex", gap: "2", flexWrap: "wrap" })}>
+          <Link
+            href="/admin/migrate"
+            className={css({
+              bg: "purple.500",
+              color: "white",
+              p: "2 4",
+              borderRadius: "md",
+              fontWeight: "bold",
+              cursor: "pointer",
+              textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              _hover: { bg: "purple.600" },
+            })}
+          >
+            Database Migrations
+          </Link>
+          <Link
+            href="/"
+            className={css({
+              bg: "brand.orange",
+              color: "white",
+              p: "2 4",
+              borderRadius: "md",
+              fontWeight: "bold",
+              cursor: "pointer",
+              textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              _hover: { bg: "orange.600" },
+            })}
+          >
+            Preview Map
+          </Link>
+          <button
+            disabled={isLoading}
+            onClick={handleRunScout}
+            className={css({
+              bg: "blue.500",
+              color: "white",
+              p: "2 4",
+              borderRadius: "md",
+              fontWeight: "bold",
+              cursor: "pointer",
+              _hover: { bg: "blue.600" },
+              opacity: isLoading ? 0.7 : 1,
+            })}
+          >
+            {isLoading ? "Running..." : "Gather Businesses"}
+          </button>
+          <button
+            onClick={async () => {
+              await logoutAdmin();
+              setIsLoggedIn(false);
+            }}
+            className={css({
+              bg: "bg.surface",
+              color: "text.main",
+              p: "2 4",
+              borderRadius: "md",
+              fontWeight: "bold",
+              cursor: "pointer",
+            })}
+          >
+            Logout
+          </button>
+        </div>
       </div>
 
-      <div className={css({ display: "flex", flexDirection: "column", gap: "4" })}>
+      <div
+        className={css({ display: "flex", flexDirection: "column", gap: "4" })}
+      >
         {listings.length === 0 ? (
-          <div className={css({ p: "8", bg: "white", borderRadius: "md", textAlign: "center", color: "gray.500" })}>
+          <div
+            className={css({
+              p: "8",
+              bg: "bg.surface",
+              borderRadius: "md",
+              textAlign: "center",
+              color: "text.muted",
+            })}
+          >
             No listings pending review.
           </div>
         ) : (
           listings.map((l) => (
-            <div key={l._id} className={css({ bg: "white", p: "6", borderRadius: "md", boxShadow: "sm", display: "flex", gap: "4", justifyContent: "space-between", alignItems: "flex-start" })}>
-              <div className={css({ flex: "1" })}>
-                <h2 className={css({ fontSize: "xl", fontWeight: "bold" })}>{l.name}</h2>
-                <div className={css({ display: "flex", gap: "2", mb: "2", mt: "1" })}>
-                  <span className={css({ bg: "gray.100", px: "2", py: "1", borderRadius: "md", fontSize: "xs", fontWeight: "bold" })}>{l.category}</span>
-                  <span className={css({ bg: l.source === "AI_SCAN" ? "blue.100" : "green.100", color: l.source === "AI_SCAN" ? "blue.800" : "green.800", px: "2", py: "1", borderRadius: "md", fontSize: "xs", fontWeight: "bold" })}>
-                    {l.source}
-                  </span>
-                  {l.source === "AI_SCAN" && l.isBlackOwned && (
-                    <span className={css({ bg: "orange.100", color: "orange.800", px: "2", py: "1", borderRadius: "md", fontSize: "xs", fontWeight: "bold" })}>AI Flagged: Black Owned</span>
+            <div
+              key={String(l._id)}
+              className={css({
+                bg: "bg.surface",
+                p: "5",
+                md: { p: "6" },
+                borderRadius: "lg",
+                boxShadow: "sm",
+                display: "grid",
+                gap: "5",
+                border: "1px solid",
+                borderColor: "border.light",
+                overflow: "hidden",
+                maxWidth: "100%",
+              })}
+            >
+              <div
+                className={css({
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+                  gap: "3",
+                  flexWrap: "wrap",
+                })}
+              >
+                <div
+                  className={css({
+                    flex: "1",
+                    minWidth: "0",
+                    maxWidth: "100%",
+                  })}
+                >
+                  <h2
+                    className={css({
+                      fontSize: "xl",
+                      fontWeight: "bold",
+                      color: "text.main",
+                      wordBreak: "break-word",
+                    })}
+                  >
+                    {l.name}
+                  </h2>
+                  <div
+                    className={css({
+                      display: "flex",
+                      gap: "2",
+                      mb: "2",
+                      mt: "1",
+                      flexWrap: "wrap",
+                    })}
+                  >
+                    <span
+                      className={css({
+                        bg: "bg.canvas",
+                        color: "text.main",
+                        px: "2",
+                        py: "1",
+                        borderRadius: "md",
+                        fontSize: "xs",
+                        fontWeight: "bold",
+                      })}
+                    >
+                      {l.category}
+                    </span>
+                    <span
+                      className={css({
+                        bg: l.source === "AI_SCAN" ? "blue.100" : "green.100",
+                        color:
+                          l.source === "AI_SCAN" ? "blue.800" : "green.800",
+                        px: "2",
+                        py: "1",
+                        borderRadius: "md",
+                        fontSize: "xs",
+                        fontWeight: "bold",
+                      })}
+                    >
+                      {l.source}
+                    </span>
+                    {l.source === "AI_SCAN" && l.isBlackOwned && (
+                      <span
+                        className={css({
+                          bg: "orange.100",
+                          color: "orange.800",
+                          px: "2",
+                          py: "1",
+                          borderRadius: "md",
+                          fontSize: "xs",
+                          fontWeight: "bold",
+                        })}
+                      >
+                        AI Flagged: Black Owned
+                      </span>
+                    )}
+                    {(() => {
+                      const locationsToRender = getLocationsToRender(l);
+                      const isMapReady =
+                        locationsToRender.length > 0 &&
+                        locationsToRender.every((loc) => loc.lat && loc.lng);
+                      const hasAddress = locationsToRender.length > 0;
+
+                      return (
+                        <span
+                          className={css({
+                            bg: l.isOnlineOnly
+                              ? "purple.100"
+                              : isMapReady
+                                ? "green.100"
+                                : "yellow.100",
+                            color: l.isOnlineOnly
+                              ? "purple.800"
+                              : isMapReady
+                                ? "green.800"
+                                : "yellow.800",
+                            px: "2",
+                            py: "1",
+                            borderRadius: "md",
+                            fontSize: "xs",
+                            fontWeight: "bold",
+                          })}
+                        >
+                          {l.isOnlineOnly
+                            ? "Online only"
+                            : isMapReady
+                              ? "Map ready"
+                              : hasAddress
+                                ? "Needs review"
+                                : "Needs address"}
+                        </span>
+                      );
+                    })()}
+                    {(l.google_id || l.places_details) && (
+                      <span
+                        className={css({
+                          bg: "indigo.100",
+                          color: "indigo.800",
+                          px: "2",
+                          py: "1",
+                          borderRadius: "md",
+                          fontSize: "xs",
+                          fontWeight: "bold",
+                        })}
+                      >
+                        Google details captured
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div
+                  className={css({
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "2",
+                    justifyContent: "flex-start",
+                  })}
+                >
+                  <button
+                    disabled={isLoading}
+                    onClick={() => openEditor(l)}
+                    className={css({
+                      bg: "blue.500",
+                      color: "white",
+                      p: "2 3",
+                      borderRadius: "md",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      _hover: { bg: "blue.600" },
+                      opacity: isLoading ? 0.7 : 1,
+                    })}
+                  >
+                    Edit Listing
+                  </button>
+                  <a
+                    href={buildGoogleMapsSearchUrl(l)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={css({
+                      bg: "bg.canvas",
+                      color: "text.main",
+                      p: "2 3",
+                      borderRadius: "md",
+                      fontWeight: "bold",
+                      textDecoration: "none",
+                    })}
+                  >
+                    Google Maps
+                  </a>
+                  <a
+                    href={buildGoogleSearchUrl(l)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={css({
+                      bg: "bg.canvas",
+                      color: "text.main",
+                      p: "2 3",
+                      borderRadius: "md",
+                      fontWeight: "bold",
+                      textDecoration: "none",
+                    })}
+                  >
+                    Web search
+                  </a>
+                  {l.website && (
+                    <a
+                      href={l.website}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={css({
+                        bg: "bg.canvas",
+                        color: "text.main",
+                        p: "2 3",
+                        borderRadius: "md",
+                        fontWeight: "bold",
+                        textDecoration: "none",
+                      })}
+                    >
+                      Visit site
+                    </a>
                   )}
                 </div>
-                <p className={css({ fontSize: "sm", color: "gray.600", mb: "1" })}><strong>Address:</strong> {l.address || "None"}</p>
-                <p className={css({ fontSize: "sm", color: "gray.600", mb: "1" })}><strong>Website:</strong> {l.website ? <a href={l.website} target="_blank" className={css({ color: "blue.500" })}>{l.website}</a> : "None"}</p>
-                <p className={css({ fontSize: "sm", color: "gray.600", mb: "1" })}><strong>Submitted:</strong> {l.createdAt ? new Date(l.createdAt).toLocaleString() : "Unknown"} | <strong>IP Address:</strong> {l.ipAddress || "Unknown"}</p>
+              </div>
+
+              <div className={css({ display: "grid", gap: "2" })}>
+                <div
+                  className={css({
+                    fontSize: "sm",
+                    color: "text.muted",
+                    mb: "1",
+                  })}
+                >
+                  <strong>Address:</strong>{" "}
+                  {getLocationsToRender(l).length > 0 ? (
+                    getLocationsToRender(l).map((loc, idx) => (
+                      <div
+                        key={idx}
+                        className={css({ ml: "4", mt: "1", mb: "1" })}
+                      >
+                        <button
+                          onClick={() => openEditor(l)}
+                          className={css({
+                            color: "blue.500",
+                            textDecoration: "underline",
+                            cursor: "pointer",
+                            background: "transparent",
+                            border: "none",
+                            padding: "0",
+                            textAlign: "left",
+                          })}
+                        >
+                          {loc.address}
+                        </button>
+                        {loc.lat && loc.lng ? (
+                          <span
+                            className={css({
+                              fontSize: "xs",
+                              color: "green.600",
+                              ml: "2",
+                            })}
+                          >
+                            (Geocoded)
+                          </span>
+                        ) : (
+                          <span
+                            className={css({
+                              fontSize: "xs",
+                              color: "yellow.600",
+                              ml: "2",
+                            })}
+                          >
+                            (Needs geocoding)
+                          </span>
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <div className={css({ display: "flex", flexWrap: "wrap", gap: "2", alignItems: "center", mt: "1" })}>
+                      {l.google_search_attempted && !l.google_search_found ? (
+                        <span className={css({ color: "red.500", fontSize: "xs", fontWeight: "bold" })}>
+                          No Google Places address found.
+                        </span>
+                      ) : (
+                        <button
+                          disabled={isLoading}
+                          onClick={() => handleAutoFind(l)}
+                          className={css({
+                            color: "blue.500",
+                            textDecoration: "underline",
+                            cursor: "pointer",
+                            background: "transparent",
+                            border: "none",
+                            padding: "0",
+                            textAlign: "left",
+                            opacity: isLoading ? 0.7 : 1,
+                          })}
+                        >
+                          Auto-find address with Google Places
+                        </button>
+                      )}
+                      {!l.google_search_found && (
+                        <button
+                          onClick={() => openEditor(l)}
+                          className={css({
+                            color: "gray.500",
+                            textDecoration: "underline",
+                            cursor: "pointer",
+                            background: "transparent",
+                            border: "none",
+                            padding: "0",
+                            textAlign: "left",
+                            fontSize: "xs",
+                          })}
+                        >
+                          (or enter manually)
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <p
+                  className={css({
+                    fontSize: "sm",
+                    color: "text.muted",
+                    mb: "1",
+                    wordBreak: "break-word",
+                  })}
+                >
+                  <strong>Website:</strong>{" "}
+                  {l.website ? (
+                    <a
+                      href={l.website}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={css({
+                        color: "blue.500",
+                        wordBreak: "break-all",
+                      })}
+                    >
+                      {l.website}
+                    </a>
+                  ) : (
+                    "None"
+                  )}
+                </p>
+                {l.phone && (
+                  <p
+                    className={css({
+                      fontSize: "sm",
+                      color: "text.muted",
+                      mb: "1",
+                    })}
+                  >
+                    <strong>Phone:</strong> {l.phone}
+                  </p>
+                )}
+                <p
+                  className={css({
+                    fontSize: "sm",
+                    color: "text.muted",
+                    mb: "1",
+                  })}
+                >
+                  <strong>Submitted:</strong>{" "}
+                  {l.createdAt
+                    ? new Date(l.createdAt).toLocaleString()
+                    : "Unknown"}{" "}
+                  | <strong>IP Address:</strong>{" "}
+                  {(l as any).ipAddress || "Unknown"}
+                </p>
                 {l.description && (
-                  <p className={css({ fontSize: "sm", color: "gray.700", mt: "2", p: "2", bg: "gray.50", borderRadius: "md" })}>{l.description}</p>
+                  <p
+                    className={css({
+                      fontSize: "sm",
+                      color: "text.main",
+                      mt: "2",
+                      p: "2",
+                      bg: "bg.canvas",
+                      borderRadius: "md",
+                      wordBreak: "break-word",
+                    })}
+                  >
+                    {l.description}
+                  </p>
                 )}
               </div>
 
-              <div className={css({ display: "flex", flexDirection: "column", gap: "2", minWidth: "120px" })}>
+              <div
+                className={css({ display: "flex", flexWrap: "wrap", gap: "2" })}
+              >
                 <button
                   disabled={isLoading}
                   onClick={() => handleApprove(l)}
-                  className={css({ bg: "brand.orange", color: "white", p: "2", borderRadius: "md", fontWeight: "bold", cursor: "pointer", _hover: { bg: "orange.600" }, opacity: isLoading ? 0.7 : 1 })}
+                  className={css({
+                    bg: "brand.orange",
+                    color: "white",
+                    p: "2 4",
+                    borderRadius: "md",
+                    fontWeight: "bold",
+                    cursor: "pointer",
+                    _hover: { bg: "orange.600" },
+                    opacity: isLoading ? 0.7 : 1,
+                  })}
                 >
                   Approve
                 </button>
                 <button
                   disabled={isLoading}
-                  onClick={() => {
-                    setEditingListing(l);
-                    setIsEditDrawerOpen(true);
-                  }}
-                  className={css({ bg: "blue.500", color: "white", p: "2", borderRadius: "md", fontWeight: "bold", cursor: "pointer", _hover: { bg: "blue.600" }, opacity: isLoading ? 0.7 : 1 })}
-                >
-                  Edit
-                </button>
-                <button
-                  disabled={isLoading}
                   onClick={() => handleReject(l._id)}
-                  className={css({ bg: "red.500", color: "white", p: "2", borderRadius: "md", fontWeight: "bold", cursor: "pointer", _hover: { bg: "red.600" }, opacity: isLoading ? 0.7 : 1 })}
+                  className={css({
+                    bg: "red.500",
+                    color: "white",
+                    p: "2 4",
+                    borderRadius: "md",
+                    fontWeight: "bold",
+                    cursor: "pointer",
+                    _hover: { bg: "red.600" },
+                    opacity: isLoading ? 0.7 : 1,
+                  })}
                 >
                   Reject
                 </button>
@@ -179,7 +829,6 @@ export default function AdminReviewsPage() {
 
       <APIProvider
         apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY as string}
-        //@ts-ignore
         libraries={["places", "geometry", "marker", "visualization"]}
       >
         <AddListingDrawer

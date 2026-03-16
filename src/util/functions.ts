@@ -209,13 +209,12 @@ export const getGDetails = ({ gid, map }) => {
   console.log("Details Data from API...");
   //   //get the response and stash it in GCache.
   return new Promise<any>(function (resolve, reject) {
-    // @ts-ignore
     const service = new window.google.maps.places.PlacesService(map);
     const req = { placeId: gid };
     const cbk = (place, status) => {
-      // @ts-ignore
       if (status === window.google.maps.places.PlacesServiceStatus.OK) {
         mCache.set(gid, place);
+        console.log(place);
         resolve(place);
         //inject with jquery into dom?
       } else {
@@ -249,7 +248,7 @@ export const getOG = async (url: string) => {
         .then((data) => data);
       if (response.error) {
         console.error(`OGP FAILED:::${response.error.message}`);
-        return "http://placeimg.com/89/50/arch/sepia";
+        return "/images/mobb_placeholder.png";
       }
 
       const hiObj = response.htmlInferred;
@@ -302,7 +301,7 @@ export const targetClient = function (map: any, pos: GLocation) {
   // ZOOM TO CERTAIN LEVEL
   map.panTo(pos);
   // google.maps.event.trigger(map, 'resize');
-  map.setZoom(12);
+  map.setZoom(18);
 };
 
 export const toPositionObj = (location: string | undefined) => {
