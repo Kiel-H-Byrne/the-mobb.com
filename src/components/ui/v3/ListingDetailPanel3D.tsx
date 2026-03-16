@@ -6,16 +6,31 @@ interface ListingDetailPanel3DProps {
     listing: Listing;
     isOpen: boolean;
     setOpen: Dispatch<SetStateAction<boolean>>;
+    savedListings?: Listing[];
+    setSavedListings?: Dispatch<SetStateAction<Listing[]>>;
 }
 
 export const ListingDetailPanel3D = ({
     listing,
     isOpen,
     setOpen,
+    savedListings,
+    setSavedListings,
 }: ListingDetailPanel3DProps) => {
     if (!isOpen) return null;
 
     const { url, name, image, description, phone, address, categories } = listing;
+
+    const isSaved = savedListings?.some(l => (l as any)._id === (listing as any)._id || l.name === listing.name);
+
+    const toggleSave = () => {
+        if (!setSavedListings || !savedListings) return;
+        if (isSaved) {
+            setSavedListings(savedListings.filter(l => (l as any)._id !== (listing as any)._id && l.name !== listing.name));
+        } else {
+            setSavedListings([...savedListings, listing]);
+        }
+    };
 
     return (
         <div
@@ -47,19 +62,35 @@ export const ListingDetailPanel3D = ({
                 <h2 className={css({ color: "brand.orange", fontFamily: "tech", fontSize: "sm", letterSpacing: "widest" })}>
                     BUSINESS DETAILS
                 </h2>
-                <button
-                    onClick={() => setOpen(false)}
-                    className={css({
-                        color: "gray.400",
-                        cursor: "pointer",
-                        bg: "transparent",
-                        border: "none",
-                        _hover: { color: "white", transform: "scale(1.1)" },
-                        transition: "all 0.2s"
-                    })}
-                >
-                    <i className="ph-bold ph-x text-xl"></i>
-                </button>
+                <div className={css({ display: "flex", alignItems: "center", gap: "3" })}>
+                    <button
+                        onClick={toggleSave}
+                        className={css({
+                            color: isSaved ? "brand.orange" : "gray.400",
+                            cursor: "pointer",
+                            bg: "transparent",
+                            border: "none",
+                            _hover: { color: isSaved ? "brand.orangeMuted" : "white", transform: "scale(1.1)" },
+                            transition: "all 0.2s"
+                        })}
+                        title={isSaved ? "Remove from Saved" : "Save Business"}
+                    >
+                        <i className={isSaved ? "ph-fill ph-bookmark text-xl" : "ph-bold ph-bookmark text-xl"}></i>
+                    </button>
+                    <button
+                        onClick={() => setOpen(false)}
+                        className={css({
+                            color: "gray.400",
+                            cursor: "pointer",
+                            bg: "transparent",
+                            border: "none",
+                            _hover: { color: "white", transform: "scale(1.1)" },
+                            transition: "all 0.2s"
+                        })}
+                    >
+                        <i className="ph-bold ph-x text-xl"></i>
+                    </button>
+                </div>
             </div>
 
             <div className={css({ flex: "1", overflowY: "auto", pb: "6" })}>

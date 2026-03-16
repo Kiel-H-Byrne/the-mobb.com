@@ -14,8 +14,8 @@ import AddListingDrawer from "@/components/Map/AddListingDrawer";
 import { ActivePulsePanel } from "@/components/ui/v3/ActivePulsePanel";
 import { ListingDetailPanel3D } from "@/components/ui/v3/ListingDetailPanel3D";
 import { MobileClosestListingsPanel } from "@/components/ui/v3/MobileClosestListingsPanel";
-import { MobileNav } from "@/components/ui/v3/MobileNav";
 import { MobileNearestCard } from "@/components/ui/v3/MobileNearestCard";
+import { MobileSavedListingsPanel } from "@/components/ui/v3/MobileSavedListingsPanel";
 import { MobileTopSearch } from "@/components/ui/v3/MobileTopSearch";
 import SidebarHUD from "@/components/ui/v3/SidebarHUD";
 
@@ -31,6 +31,7 @@ const Home = React.memo(() => {
   const [closestListing, setClosestListing] = useState<Listing | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<Set<Category>>(new Set());
   const [isAddListingOpen, setIsAddListingOpen] = useState(false);
+  const [savedListings, setSavedListings] = useState<Listing[]>([]);
 
   // Radar state
   const [isMapActive, setIsMapActive] = useState(true);
@@ -148,13 +149,6 @@ const Home = React.memo(() => {
         setisDrawerOpen={setisDrawerOpen}
       />
 
-      <MobileNav
-        activeNav={activeNav}
-        onNearMeClick={handleNearMeClick}
-        onExploreClick={handleExploreClick}
-        onAddListingClick={() => setIsAddListingOpen(true)}
-      />
-
       <MobileNearestCard
         listing={closestListing}
         setactiveListing={setactiveListing}
@@ -163,6 +157,13 @@ const Home = React.memo(() => {
 
       <MobileClosestListingsPanel
         listings={listings || []}
+        mapInstance={mapInstance}
+        setactiveListing={setactiveListing}
+        setisDrawerOpen={setisDrawerOpen}
+      />
+
+      <MobileSavedListingsPanel
+        listings={savedListings}
         mapInstance={mapInstance}
         setactiveListing={setactiveListing}
         setisDrawerOpen={setisDrawerOpen}
@@ -193,16 +194,33 @@ const Home = React.memo(() => {
           listing={activeListing}
           isOpen={isDrawerOpen}
           setOpen={setisDrawerOpen}
+          savedListings={savedListings}
+          setSavedListings={setSavedListings}
         />
       )}
 
-      <div
-        onClick={() => setIsAddListingOpen(true)}
-        className={css({ display: { base: "none", md: "flex" }, position: "fixed", bottom: "6", right: "6", zIndex: 50, animation: "floatAnim", animationDelay: "1s", pointerEvents: "auto" })}
-      >
-        <div className={css({ width: "56px", height: "56px", borderRadius: "full", bg: "brand.greyDark", border: "2px solid", borderColor: "brand.orange", boxShadow: "glow", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", _hover: { transform: "scale(1.1)" }, transition: "transform" })}>
-          <i className="ph-fill ph-robot text-2xl text-brand-orange"></i>
-        </div>
+      <div className={css({ position: "fixed", bottom: "6", right: "6", zIndex: 50, animation: "floatAnim", animationDelay: "1s", pointerEvents: "auto" })}>
+        <button
+          onClick={() => setIsAddListingOpen(true)}
+          className={css({
+              width: "56px",
+              height: "56px",
+              borderRadius: "full",
+              bg: "brand.orange",
+              border: "2px solid",
+              borderColor: "rgba(255, 90, 0, 0.3)",
+              boxShadow: "0 0 20px rgba(255,90,0,0.6)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              color: "black",
+              _hover: { transform: "scale(1.05)", filter: "brightness(1.1)" },
+              transition: "all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+          })}
+        >
+          <i className="ph-bold ph-plus text-2xl"></i>
+        </button>
       </div>
 
       <AddListingDrawer isOpen={isAddListingOpen} setOpen={setIsAddListingOpen} />
