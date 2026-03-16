@@ -72,7 +72,7 @@ const Mavatar = () => {
           </Avatar>
         ) : (
           <Avatar size="lg">
-            <AvatarImage src="img/mlogo_roots.png" alt="MOBB" />
+            <AvatarImage src="img/mlogo_orbit.png" alt="MOBB" />
           </Avatar>
         )}
       </Menu.Trigger>

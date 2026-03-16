@@ -1,0 +1,121 @@
+{
+    "variant": "dark",
+    "styles": [
+        {
+            "id": "infrastructure",
+            "geometry": {
+                "visible": false
+            },
+            "label": {
+                "visible": false
+            }
+        },
+        {
+            "id": "infrastructure.building",
+            "geometry": {
+                "visible": false
+            }
+        },
+        {
+            "id": "infrastructure.businessCorridor",
+            "geometry": {
+                "visible": true,
+                "fillOpacity": 1,
+                "fillColor": "#2a1810"
+            }
+        },
+        {
+            "id": "infrastructure.roadNetwork",
+            "geometry": {
+                "visible": true
+            },
+            "label": {
+                "visible": true
+            }
+        },
+        {
+            "id": "natural",
+            "geometry": {
+                "visible": true
+            },
+            "label": {
+                "visible": false
+            }
+        },
+        {
+            "id": "natural.archipelago",
+            "label": {
+                "visible": true
+            }
+        },
+        {
+            "id": "natural.base",
+            "geometry": {
+                "visible": true,
+                "fillColor": "#0b0b0e"
+            }
+        },
+        {
+            "id": "natural.land.landCover",
+            "geometry": {
+                "fillOpacity": 1,
+                "fillColor": "#15151a"
+            }
+        },
+        {
+            "id": "natural.land.landCover.crops",
+            "geometry": {
+                "visible": true,
+                "fillOpacity": 1,
+                "fillColor": "#1c1c21"
+            }
+        },
+        {
+            "id": "natural.land.landCover.dryCrops",
+            "geometry": {
+                "visible": true
+            }
+        },
+        {
+            "id": "natural.land.landCover.forest",
+            "geometry": {
+                "fillOpacity": 1,
+                "fillColor": "#0e1a18"
+            }
+        },
+        {
+            "id": "natural.water",
+            "geometry": {
+                "visible": true,
+                "fillOpacity": 1,
+                "fillColor": "#080c12"
+            }
+        },
+        {
+            "id": "pointOfInterest",
+            "geometry": {
+                "visible": false
+            },
+            "label": {
+                "visible": false
+            }
+        },
+        {
+            "id": "political",
+            "geometry": {
+                "visible": false
+            },
+            "label": {
+                "visible": true
+            }
+        },
+        {
+            "id": "political.city",
+            "label": {
+                "visible": true,
+                "textFillOpacity": 1,
+                "textFillColor": "#ffffff"
+            }
+        }
+    ]
+}
