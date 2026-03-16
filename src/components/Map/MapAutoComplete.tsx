@@ -116,7 +116,7 @@ const MapAutoComplete = ({
           autoComplete="off"
         />
         <div className={css({
-          display: "flex", alignItems: "center", gap: "2", fontSize: "xs",
+          display: { base: "none", md: "flex" }, alignItems: "center", gap: "2", fontSize: "xs",
           fontFamily: "tech", color: "gray.500", bg: "white/5", px: "2", py: "1", borderRadius: "md"
         })}>
           <span>⌘</span><span>K</span>

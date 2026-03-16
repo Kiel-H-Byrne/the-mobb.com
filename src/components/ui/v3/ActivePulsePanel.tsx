@@ -1,7 +1,7 @@
 import MapAutoComplete from "@/components/Map/MapAutoComplete";
+import CategoryFilter from "@/components/Map/CategoryFilter";
 import { Category, Listing } from "@/db/Types";
 import { targetClient } from "@/util/functions";
-import { ToggleGroup } from "@ark-ui/react/toggle-group";
 import { css } from "@styled/css";
 import { Dispatch, SetStateAction } from "react";
 
@@ -342,116 +342,26 @@ export const ActivePulsePanel = ({
               businesses near your location
             </p>
           </div>
-          <button
-            className={css({
-              w: "10",
-              h: "10",
-              borderRadius: "xl",
-              bg: "white/5",
-              border: "1px solid",
-              borderColor: "white/10",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              _hover: {
-                bg: "brand.orangeMuted",
-                borderColor: "brand.orange/50",
-              },
-              transition: "colors",
-            })}
-          >
-            <i className="ph ph-sliders-horizontal text-xl text-white"></i>
-          </button>
         </div>
 
-        <div className={css({ position: "relative", w: "full" })}>
-          <MapAutoComplete
+        <div className={css({ position: "relative", w: "full", display: "flex", alignItems: "center", gap: "2" })}>
+          <div className={css({ flex: 1 })}>
+            <MapAutoComplete
+              listings={listings}
+              categories={categories}
+              mapInstance={mapInstance}
+              setactiveListing={setactiveListing}
+              setisDrawerOpen={setisDrawerOpen}
+            />
+          </div>
+          <div className={css({ width: "1px", height: "8", bg: "white/10" })}></div>
+          <CategoryFilter 
             listings={listings}
             categories={categories}
-            mapInstance={mapInstance}
-            setactiveListing={setactiveListing}
-            setisDrawerOpen={setisDrawerOpen}
+            selectedCategories={selectedCategories}
+            setSelectedCategories={setSelectedCategories}
           />
         </div>
-
-        {/* Category Pills */}
-        <ToggleGroup.Root
-          multiple
-          value={Array.from(selectedCategories)}
-          onValueChange={(details) => setSelectedCategories(new Set(details.value))}
-          className={css({
-            display: "flex",
-            gap: "3",
-            overflowX: "auto",
-            pb: "2",
-            scrollbarWidth: "none",
-            "&::-webkit-scrollbar": { display: "none" },
-          })}
-        >
-          <button
-            onClick={() => setSelectedCategories(new Set())}
-            className={css({
-              px: "4",
-              py: "2",
-              borderRadius: "xl",
-              fontSize: "xs",
-              fontWeight: "bold",
-              whiteSpace: "nowrap",
-              cursor: "pointer",
-              transition: "colors",
-              ...(selectedCategories.size === 0
-                ? {
-                  bg: "brand.orange",
-                  color: "white",
-                  boxShadow: "0 4px 20px rgba(255,90,0,0.3)",
-                }
-                : {
-                  bg: "white/5",
-                  border: "1px solid",
-                  borderColor: "white/10",
-                  color: "gray.300",
-                  _hover: { bg: "white/10" },
-                }),
-            })}
-          >
-            All Categories
-          </button>
-          {categories.map((cat: string) => {
-            const isSelected = selectedCategories.has(cat);
-            return (
-              <ToggleGroup.Item
-                key={cat}
-                value={cat}
-                className={css({
-                  px: "4",
-                  py: "2",
-                  borderRadius: "xl",
-                  fontSize: "xs",
-                  fontWeight: "bold",
-                  whiteSpace: "nowrap",
-                  cursor: "pointer",
-                  transition: "colors",
-                  ...(isSelected
-                    ? {
-                      bg: "brand.orange",
-                      color: "white",
-                      boxShadow: "0 4px 20px rgba(255,90,0,0.3)",
-                    }
-                    : {
-                      bg: "white/5",
-                      border: "1px solid",
-                      borderColor: "white/10",
-                      color: "gray.300",
-                      _hover: { bg: "white/10" },
-                    }),
-                })}
-              >
-                {cat.replace(/_/g, " ")}
-              </ToggleGroup.Item>
-            );
-          })}
-        </ToggleGroup.Root>
       </div>
 
       <div
