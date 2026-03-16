@@ -23,9 +23,6 @@ export const MobileSavedListingsPanel = ({
 }: MobileSavedListingsPanelProps) => {
     const [isOpen, setIsOpen] = useState(false);
 
-    // If no saved listings, don't show the tab
-    if (!listings || listings.length === 0) return null;
-
     return (
         <>
             {/* The floating Tab */}
@@ -90,7 +87,7 @@ export const MobileSavedListingsPanel = ({
                         inset: 0,
                         zIndex: 2000,
                         display: { base: "flex", md: "none" },
-                        justifyContent: "flex-end",
+                        alignItems: "flex-end", // Align panel to bottom
                         pointerEvents: "auto",
                     })}
                 >
@@ -109,40 +106,57 @@ export const MobileSavedListingsPanel = ({
                     <div
                         className={css({
                             position: "relative",
-                            width: "85%", // Take up majority of screen but leave map visible on left
-                            maxWidth: "400px",
-                            height: "100dvh",
+                            width: "100%",
+                            height: "60dvh",
                             bg: "bg.glass",
-                            borderLeft: "1px solid",
+                            borderTop: "1px solid",
                             borderColor: "white/20",
-                            boxShadow: "-10px 0 40px rgba(0,0,0,0.5)",
+                            borderTopRadius: "3xl",
+                            boxShadow: "0 -10px 40px rgba(0,0,0,0.5)",
                             display: "flex",
                             flexDirection: "column",
-                            animation: "slideInRight",
+                            animation: "slideUp",
+                            marginTop: "auto",
                         })}
                     >
+                        {/* Bump out dismiss button */}
+                        <button
+                            onClick={() => setIsOpen(false)}
+                            className={css({
+                                position: "absolute",
+                                top: "-16px",
+                                right: "16px",
+                                w: "36px",
+                                h: "36px",
+                                borderRadius: "full",
+                                bg: "gray.800",
+                                border: "1px solid",
+                                borderColor: "white/20",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                color: "gray.300",
+                                boxShadow: "0 4px 10px rgba(0,0,0,0.5)",
+                                _hover: { color: "white", bg: "gray.700" },
+                                zIndex: 10,
+                            })}
+                        >
+                            <i className="ph-bold ph-x text-lg"></i>
+                        </button>
+
                         <div className={css({
                             p: "4",
                             borderBottom: "1px solid",
                             borderColor: "white/10",
                             display: "flex",
-                            justifyContent: "space-between",
+                            justifyContent: "center",
                             alignItems: "center",
                             bg: "rgba(11, 11, 14, 0.8)",
+                            borderTopRadius: "3xl",
                         })}>
                             <h2 className={css({ color: "white", fontFamily: "tech", fontSize: "sm", fontWeight: "bold", letterSpacing: "widest" })}>
                                 SAVED BOOKMARKS
                             </h2>
-                            <button
-                                onClick={() => setIsOpen(false)}
-                                className={css({
-                                    w: "8", h: "8", borderRadius: "full", bg: "white/5",
-                                    display: "flex", alignItems: "center", justifyContent: "center",
-                                    color: "gray.400", _hover: { color: "white", bg: "white/10" },
-                                })}
-                            >
-                                <i className="ph-bold ph-x"></i>
-                            </button>
                         </div>
 
                         <div className={css({
@@ -153,20 +167,36 @@ export const MobileSavedListingsPanel = ({
                             flexDir: "column",
                             gap: "4",
                         })}>
-                            <p className={css({ fontSize: "xs", color: "gray.400", mb: "2" })}>
-                                You have {listings.length} saved business{listings.length !== 1 && 'es'}.
-                            </p>
+                            {listings?.length > 0 ? (
+                                <>
+                                    <p className={css({ fontSize: "xs", color: "gray.400", mb: "2" })}>
+                                        You have {listings.length} saved business{listings.length !== 1 && 'es'}.
+                                    </p>
 
-                            {listings.map((listing: Listing, i: number) => (
-                                <div key={i} onClick={() => setIsOpen(false)}> {/* Close panel when selecting to view on map */}
-                                    <ListingCard3D
-                                        listing={listing}
-                                        mapInstance={mapInstance}
-                                        setactiveListing={setactiveListing}
-                                        setisDrawerOpen={setisDrawerOpen}
-                                    />
+                                    {listings.map((listing: Listing, i: number) => (
+                                        <div key={i} onClick={() => setIsOpen(false)}>
+                                            <ListingCard3D
+                                                listing={listing}
+                                                mapInstance={mapInstance}
+                                                setactiveListing={setactiveListing}
+                                                setisDrawerOpen={setisDrawerOpen}
+                                            />
+                                        </div>
+                                    ))}
+                                </>
+                            ) : (
+                                <div className={css({ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", h: "full", textAlign: "center", color: "gray.400", gap: "4", px: "6" })}>
+                                    <div className={css({ w: "16", h: "16", borderRadius: "full", bg: "white/5", display: "flex", alignItems: "center", justifyContent: "center", color: "gray.500" })}>
+                                        <i className="ph-duotone ph-bookmarks text-3xl"></i>
+                                    </div>
+                                    <p className={css({ fontSize: "sm", lineHeight: "relaxed" })}>
+                                        You haven't saved any businesses yet.
+                                    </p>
+                                    <p className={css({ fontSize: "xs", bg: "rgba(255,255,255,0.03)", p: "3", borderRadius: "lg", border: "1px solid white/5" })}>
+                                        Tap the <i className="ph-bold ph-bookmark text-brand-orange mx-1"></i> bookmark icon on any business profile to save it here for quick access later.
+                                    </p>
                                 </div>
-                            ))}
+                            )}
                         </div>
                     </div>
                 </div>
