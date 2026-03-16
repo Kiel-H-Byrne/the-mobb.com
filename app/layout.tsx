@@ -4,14 +4,14 @@ import "@/style/index.css";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://the-mobb.com"),
+  metadataBase: new URL("https://mobb.kielbyrne.com"),
   title: "MOBB | Map of Black Businesses",
   description:
-    "The Map of 'Black' Businesses. Give your dollar the choice to make a difference... Just MOBB It.",
+    "The Map of Black Businesses. Give your dollar the choice to make a difference... Just MOBB It.",
   openGraph: {
     title: "MOBB | Map of Black Businesses",
     description: "The digital infrastructure for economic equity. Locate, patronize, and support Black-owned businesses globally.",
-    url: "https://the-mobb.com",
+    url: "https://mobb.kielbyrne.com",
     siteName: "MOBB",
     images: [
       {

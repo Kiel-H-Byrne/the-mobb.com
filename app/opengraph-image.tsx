@@ -37,31 +37,31 @@ export default async function Image() {
             backgroundSize: '48px 48px',
           }}
         />
-        
+
         {/* Glowing Radar Pulse Effect */}
         <div
-            style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                width: '800px',
-                height: '800px',
-                borderRadius: '50%',
-                border: '1px solid rgba(255, 90, 0, 0.2)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-            }}
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '800px',
+            height: '800px',
+            borderRadius: '50%',
+            border: '1px solid rgba(255, 90, 0, 0.2)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
         >
-             <div
-                style={{
-                    width: '600px',
-                    height: '600px',
-                    borderRadius: '50%',
-                    border: '1px solid rgba(255, 90, 0, 0.1)',
-                }}
-            />
+          <div
+            style={{
+              width: '600px',
+              height: '600px',
+              borderRadius: '50%',
+              border: '1px solid rgba(255, 90, 0, 0.1)',
+            }}
+          />
         </div>
 
         {/* Content Container */}
@@ -76,18 +76,18 @@ export default async function Image() {
         >
           {/* Brand Mark */}
           <div style={{ display: 'flex', position: 'relative', marginBottom: '20px' }}>
-              <div style={{ 
-                  width: '180px', 
-                  height: '180px', 
-                  borderRadius: '40px', 
-                  background: 'linear-gradient(135deg, #FF5A00 0%, #D94A00 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 0 40px rgba(255, 90, 0, 0.4)'
-              }}>
-                   <span style={{ fontSize: '100px', color: 'white', fontWeight: 'bold' }}>M</span>
-              </div>
+            <div style={{
+              width: '180px',
+              height: '180px',
+              borderRadius: '40px',
+              background: 'linear-gradient(135deg, #FF5A00 0%, #D94A00 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 0 40px rgba(255, 90, 0, 0.4)'
+            }}>
+              <span style={{ fontSize: '100px', color: 'white', fontWeight: 'bold' }}>M</span>
+            </div>
           </div>
 
           <h1
@@ -127,30 +127,30 @@ export default async function Image() {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#FF5A00' }} />
-                <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '22px' }}>Locate</span>
+              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#FF5A00' }} />
+              <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '22px' }}>Locate</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#FF5A00' }} />
-                <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '22px' }}>Support</span>
+              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#FF5A00' }} />
+              <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '22px' }}>Support</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#FF5A00' }} />
-                <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '22px' }}>Build</span>
+              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#FF5A00' }} />
+              <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '22px' }}>Build</span>
             </div>
           </div>
         </div>
-        
+
         {/* Footer Branding */}
-        <div style={{ 
-            position: 'absolute', 
-            bottom: '40px', 
-            right: '40px', 
-            display: 'flex', 
-            alignItems: 'center',
-            opacity: 0.5
+        <div style={{
+          position: 'absolute',
+          bottom: '40px',
+          right: '40px',
+          display: 'flex',
+          alignItems: 'center',
+          opacity: 0.5
         }}>
-            <span style={{ color: 'white', fontSize: '18px' }}>the-mobb.com</span>
+          <span style={{ color: 'white', fontSize: '18px' }}>mobb.kielbyrne.com</span>
         </div>
       </div>
     ),
