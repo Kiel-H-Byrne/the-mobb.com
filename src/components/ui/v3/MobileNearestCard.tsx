@@ -1,4 +1,5 @@
 import { Listing } from "@/db/Types";
+import { CheckCircleIcon, NavigationArrowIcon, ShareNetworkIcon, XIcon } from "@phosphor-icons/react";
 import { css } from "@styled/css";
 import React, { Dispatch, SetStateAction } from "react";
 
@@ -96,129 +97,129 @@ export const MobileNearestCard = ({
                         zIndex: 10,
                     })}
                 >
-                    <i className="ph-bold ph-x text-sm"></i>
+                    <XIcon weight="bold" size={14} />
                 </button>
-            {/* Image Thumbnail */}
-            <div
-                className={css({
-                    w: "14",
-                    h: "14",
-                    borderRadius: "xl",
-                    bg: "gray.800",
-                    border: "1px solid",
-                    borderColor: "white/10",
-                    overflow: "hidden",
-                    flexShrink: 0,
-                })}
-            >
-                {listing.image ? (
-                    <img
-                        src={typeof listing.image === 'string' ? listing.image : (listing.image as any)?.url || ''}
+                {/* Image Thumbnail */}
+                <div
+                    className={css({
+                        w: "14",
+                        h: "14",
+                        borderRadius: "xl",
+                        bg: "gray.800",
+                        border: "1px solid",
+                        borderColor: "white/10",
+                        overflow: "hidden",
+                        flexShrink: 0,
+                    })}
+                >
+                    {listing.image ? (
+                        <img
+                            src={typeof listing.image === 'string' ? listing.image : (listing.image as any)?.url || ''}
+                            className={css({
+                                w: "full",
+                                h: "full",
+                                objectFit: "cover",
+                            })}
+                            alt={listing.name}
+                        />
+                    ) : (
+                        <div
+                            className={css({
+                                w: "full",
+                                h: "full",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                            })}
+                        >
+                            {/* <i className="ph-duotone ph-storefront text-2xl text-brand-orange"></i> */}
+                            <img src="/images/mobb_placeholder.png" alt="" />
+                        </div>
+                    )}
+                </div>
+
+                {/* Content */}
+                <div className={css({ flex: 1, minW: 0 })}>
+                    <div className={css({ display: "flex", alignItems: "center", gap: "2", mb: "0.5" })}>
+                        <span className={css({
+                            fontSize: "9px",
+                            fontFamily: "tech",
+                            fontWeight: "bold",
+                            color: "brand.orange",
+                            bg: "brand.orangeMuted",
+                            px: "1.5",
+                            py: "0.5",
+                            borderRadius: "sm",
+                            letterSpacing: "wider",
+                            border: "1px solid rgba(255,90,0,0.2)"
+                        })}>
+                            <CheckCircleIcon weight="fill" size={10} className="mr-1 inline-block vertical-align-middle" />VERIFIED
+                        </span>
+                        {/* Distance indicator could go here if threaded through props */}
+                    </div>
+
+                    <h3
                         className={css({
-                            w: "full",
-                            h: "full",
-                            objectFit: "cover",
+                            fontWeight: "bold",
+                            color: "white",
+                            fontSize: "sm",
+                            lineClamp: "1",
+                            lineHeight: "tight",
                         })}
-                        alt={listing.name}
-                    />
-                ) : (
-                    <div
+                    >
+                        {listing.name}
+                    </h3>
+
+                    <p className={css({
+                        fontSize: "xs",
+                        color: "gray.400",
+                        lineClamp: "1",
+                    })}>
+                        {(listing as any).category?.replace(/_/g, " ") || (listing.categories && listing.categories[0]?.replace(/_/g, " ")) || "Business"}
+                    </p>
+                </div>
+
+                {/* Mission Actions */}
+                <div className={css({ display: "flex", gap: "2", flexShrink: 0 })}>
+                    <button
+                        onClick={handleShare}
                         className={css({
-                            w: "full",
-                            h: "full",
+                            w: "10",
+                            h: "10",
+                            borderRadius: "full",
+                            bg: "white/5",
+                            border: "1px solid",
+                            borderColor: "white/10",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
+                            color: "gray.300",
+                            _hover: { color: "brand.orange", bg: "brand.orangeMuted" },
                         })}
                     >
-                        {/* <i className="ph-duotone ph-storefront text-2xl text-brand-orange"></i> */}
-                        <img src="/images/mobb_placeholder.png" alt="" />
-                    </div>
-                )}
-            </div>
+                        <ShareNetworkIcon weight="bold" size={18} />
+                    </button>
 
-            {/* Content */}
-            <div className={css({ flex: 1, minW: 0 })}>
-                <div className={css({ display: "flex", alignItems: "center", gap: "2", mb: "0.5" })}>
-                    <span className={css({
-                        fontSize: "9px",
-                        fontFamily: "tech",
-                        fontWeight: "bold",
-                        color: "brand.orange",
-                        bg: "brand.orangeMuted",
-                        px: "1.5",
-                        py: "0.5",
-                        borderRadius: "sm",
-                        letterSpacing: "wider",
-                        border: "1px solid rgba(255,90,0,0.2)"
-                    })}>
-                        <i className="ph-fill ph-check-circle mr-1"></i>VERIFIED
-                    </span>
-                    {/* Distance indicator could go here if threaded through props */}
+                    <a
+                        href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(listing.address || listing.name)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()} // Prevent opening details drawer
+                        className={css({
+                            w: "10",
+                            h: "10",
+                            borderRadius: "full",
+                            bg: "brand.orange",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "black",
+                            boxShadow: "0 0 15px rgba(255,90,0,0.4)",
+                        })}
+                    >
+                        <NavigationArrowIcon weight="fill" size={18} />
+                    </a>
                 </div>
-
-                <h3
-                    className={css({
-                        fontWeight: "bold",
-                        color: "white",
-                        fontSize: "sm",
-                        lineClamp: "1",
-                        lineHeight: "tight",
-                    })}
-                >
-                    {listing.name}
-                </h3>
-
-                <p className={css({
-                    fontSize: "xs",
-                    color: "gray.400",
-                    lineClamp: "1",
-                })}>
-                    {(listing as any).category?.replace(/_/g, " ") || (listing.categories && listing.categories[0]?.replace(/_/g, " ")) || "Business"}
-                </p>
-            </div>
-
-            {/* Mission Actions */}
-            <div className={css({ display: "flex", gap: "2", flexShrink: 0 })}>
-                <button
-                    onClick={handleShare}
-                    className={css({
-                        w: "10",
-                        h: "10",
-                        borderRadius: "full",
-                        bg: "white/5",
-                        border: "1px solid",
-                        borderColor: "white/10",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: "gray.300",
-                        _hover: { color: "brand.orange", bg: "brand.orangeMuted" },
-                    })}
-                >
-                    <i className="ph-bold ph-share-network text-lg"></i>
-                </button>
-
-                <a
-                    href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(listing.address || listing.name)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()} // Prevent opening details drawer
-                    className={css({
-                        w: "10",
-                        h: "10",
-                        borderRadius: "full",
-                        bg: "brand.orange",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: "black",
-                        boxShadow: "0 0 15px rgba(255,90,0,0.4)",
-                    })}
-                >
-                    <i className="ph-fill ph-navigation-arrow text-lg"></i>
-                </a>
-            </div>
             </div>
         </div>
     );

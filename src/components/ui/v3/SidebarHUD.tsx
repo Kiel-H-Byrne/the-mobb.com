@@ -1,4 +1,5 @@
 import MAvatar from "@/components/Nav/Mavatar";
+import { BookmarksIcon, CaretRightIcon, CompassRoseIcon, MoonIcon, NavigationArrowIcon, RobotIcon, SunIcon } from "@phosphor-icons/react";
 import { css } from "@styled/css";
 import { useTheme } from "next-themes";
 
@@ -61,7 +62,11 @@ const SidebarHUD = ({ activeNav = "nearme", onNearMeClick, onExploreClick, isPan
                 overflowX: "auto", scrollbarWidth: "none", "&::-webkit-scrollbar": { display: "none" }
             })}>
                 <a onClick={onNearMeClick} className={`group ${getNavStyle("nearme")} ${activeNav === "nearme" ? css({ color: "brand.orange!" }) : ""}`}>
-                    <i className={`ph-fill ph-navigation-arrow text-2xl group-hover:scale-110 transition-transform ${activeNav === "nearme" ? css({ filter: "drop-shadow(0 0 8px rgba(255,90,0,0.8))" }) : ""}`}></i>
+                    <NavigationArrowIcon
+                        weight="fill"
+                        size={24}
+                        className={`group-hover:scale-110 transition-transform ${activeNav === "nearme" ? css({ filter: "drop-shadow(0 0 8px rgba(255,90,0,0.8))" }) : ""}`}
+                    />
                     <span className={css({ fontSize: "10px", fontFamily: "tech", fontWeight: "bold", display: { base: "none", md: "block" } })}>NEAR ME</span>
                     {activeNav === "nearme" && (
                         <div className={css({ position: "absolute", right: "-4px", top: "-4px", width: "8px", height: "8px", bg: "brand.orange", borderRadius: "full", animation: "pulseSlow" })}></div>
@@ -69,7 +74,11 @@ const SidebarHUD = ({ activeNav = "nearme", onNearMeClick, onExploreClick, isPan
                 </a>
 
                 <a onClick={onExploreClick} className={`group ${getNavStyle("explore")} ${activeNav === "explore" ? css({ color: "brand.orange!" }) : ""}`}>
-                    <i className={`ph-fill ph-compass-rose text-2xl group-hover:scale-110 transition-transform ${activeNav === "explore" ? css({ filter: "drop-shadow(0 0 8px rgba(255,90,0,0.8))" }) : ""}`}></i>
+                    <CompassRoseIcon
+                        weight="fill"
+                        size={24}
+                        className={`group-hover:scale-110 transition-transform ${activeNav === "explore" ? css({ filter: "drop-shadow(0 0 8px rgba(255,90,0,0.8))" }) : ""}`}
+                    />
                     <span className={css({ fontSize: "10px", fontFamily: "tech", fontWeight: "bold", display: { base: "none", md: "block" } })}>EXPLORE</span>
                     {activeNav === "explore" && (
                         <div className={css({ position: "absolute", right: "-4px", top: "-4px", width: "8px", height: "8px", bg: "brand.orange", borderRadius: "full", animation: "pulseSlow" })}></div>
@@ -77,12 +86,20 @@ const SidebarHUD = ({ activeNav = "nearme", onNearMeClick, onExploreClick, isPan
                 </a>
 
                 <a className={`group ${getNavStyle("saved")}`}>
-                    <i className={`${activeNav === "saved" ? "ph-fill text-brand-orange" : "ph"} ph-bookmarks text-2xl group-hover:scale-110 transition-transform`}></i>
+                    <BookmarksIcon
+                        weight={activeNav === "saved" ? "fill" : "regular"}
+                        size={24}
+                        className={`group-hover:scale-110 transition-transform ${activeNav === "saved" ? css({ color: "brand.orange" }) : ""}`}
+                    />
                     <span className={css({ fontSize: "10px", fontFamily: "tech", fontWeight: "bold", display: { base: "none", md: "block" } })}>SAVED</span>
                 </a>
 
                 <a className={`group ${getNavStyle("curator")}`}>
-                    <i className={`${activeNav === "curator" ? "ph-fill text-brand-orange" : "ph"} ph-robot text-2xl group-hover:scale-110 transition-transform`}></i>
+                    <RobotIcon
+                        weight={activeNav === "curator" ? "fill" : "regular"}
+                        size={24}
+                        className={`group-hover:scale-110 transition-transform ${activeNav === "curator" ? css({ color: "brand.orange" }) : ""}`}
+                    />
                     <span className={css({ fontSize: "10px", fontFamily: "tech", fontWeight: "bold", display: { base: "none", md: "block" } })}>CURATOR</span>
                 </a>
 
@@ -101,7 +118,7 @@ const SidebarHUD = ({ activeNav = "nearme", onNearMeClick, onExploreClick, isPan
                         })}`}
                         title="Expand Panel"
                     >
-                        <i className="ph-bold ph-caret-right text-lg group-hover:translate-x-1 transition-transform"></i>
+                        <CaretRightIcon weight="bold" size={18} className="group-hover:translate-x-1 transition-transform" />
                     </button>
                 )}
             </nav>
@@ -121,9 +138,9 @@ const SidebarHUD = ({ activeNav = "nearme", onNearMeClick, onExploreClick, isPan
                     title="Toggle Theme"
                 >
                     {theme === 'dark' ? (
-                        <i className="ph-fill ph-sun text-lg"></i>
+                        <SunIcon weight="fill" size={18} />
                     ) : (
-                        <i className="ph-fill ph-moon text-lg"></i>
+                        <MoonIcon weight="fill" size={18} />
                     )}
                 </button>
 

@@ -1,6 +1,7 @@
 import { Category, Listing } from "@/db/Types";
 import { Menu } from "@ark-ui/react/menu";
 import { Switch } from "@ark-ui/react/switch";
+import { FadersIcon } from "@phosphor-icons/react";
 import { css } from "@styled/css";
 import { memo, useMemo } from "react";
 
@@ -71,7 +72,7 @@ const CategoryFilter = ({
           transition: "colors",
         })}
       >
-        <i className="ph-bold ph-faders text-lg"></i>
+        <FadersIcon weight="bold" size={18} />
         <span className={css({ display: { base: "none", md: "inline" } })}>Filters</span>
         {selectedCategories.size > 0 && (
           <span

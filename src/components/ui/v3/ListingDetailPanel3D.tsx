@@ -1,4 +1,5 @@
 import { Listing } from "@/db/Types";
+import { BookmarkIcon, MapPinIcon, NavigationArrowIcon, PhoneIcon, TagIcon, XIcon } from "@phosphor-icons/react";
 import { css } from "@styled/css";
 import { Dispatch, SetStateAction } from "react";
 
@@ -75,7 +76,7 @@ export const ListingDetailPanel3D = ({
                         })}
                         title={isSaved ? "Remove from Saved" : "Save Business"}
                     >
-                        <i className={isSaved ? "ph-fill ph-bookmark text-xl" : "ph-bold ph-bookmark text-xl"}></i>
+                        <BookmarkIcon weight={isSaved ? "fill" : "bold"} size={20} />
                     </button>
                     <button
                         onClick={() => setOpen(false)}
@@ -88,7 +89,7 @@ export const ListingDetailPanel3D = ({
                             transition: "all 0.2s"
                         })}
                     >
-                        <i className="ph-bold ph-x text-xl"></i>
+                        <XIcon weight="bold" size={20} />
                     </button>
                 </div>
             </div>
@@ -129,7 +130,7 @@ export const ListingDetailPanel3D = ({
                     <div className={css({ display: "flex", flexWrap: "wrap", gap: "2" })}>
                         {categories?.map((cat, idx) => (
                             <span key={idx} className={css({ fontSize: "xs", px: "3", py: "1", borderRadius: "md", border: "1px solid", borderColor: "white/10", color: "gray.300", bg: "rgba(255,255,255,0.05)" })}>
-                                <i className="ph-fill ph-tag text-brand-orange mr-1"></i>
+                                <TagIcon weight="fill" size={14} className={css({ color: "brand.orange", mr: 1, display: "inline-block", verticalAlign: "middle" })} />
                                 {cat.replace(/_/g, " ")}
                             </span>
                         ))}
@@ -138,7 +139,7 @@ export const ListingDetailPanel3D = ({
                     <div className={css({ display: "flex", flexDirection: "column", gap: "4", mt: "2" })}>
                         <a href={`tel:${phone}`} className={css({ display: "flex", alignItems: "center", gap: "3", color: "white", textDecoration: "none", p: "3", borderRadius: "lg", bg: "rgba(255,255,255,0.03)", border: "1px solid transparent", _hover: { borderColor: "brand.orange/50", bg: "brand.orangeMuted" }, transition: "all 0.2s" })}>
                             <div className={css({ display: "flex", alignItems: "center", justifyContent: "center", w: "10", h: "10", borderRadius: "full", bg: "brand.greyDark", color: "brand.orange" })}>
-                                <i className="ph-fill ph-phone text-lg"></i>
+                                <PhoneIcon weight="fill" size={18} />
                             </div>
                             <div className={css({ flex: 1 })}>
                                 <div className={css({ fontSize: "xs", color: "gray.500", textTransform: "uppercase", letterSpacing: "wider", mb: "0.5" })}>Contact</div>
@@ -148,7 +149,7 @@ export const ListingDetailPanel3D = ({
 
                         <div className={css({ display: "flex", alignItems: "center", gap: "3", color: "white", p: "3", borderRadius: "lg", bg: "rgba(255,255,255,0.03)" })}>
                             <div className={css({ display: "flex", alignItems: "center", justifyContent: "center", w: "10", h: "10", borderRadius: "full", bg: "brand.greyDark", color: "brand.orange" })}>
-                                <i className="ph-fill ph-map-pin text-lg"></i>
+                                <MapPinIcon weight="fill" size={18} />
                             </div>
                             <div className={css({ flex: 1 })}>
                                 <div className={css({ fontSize: "xs", color: "gray.500", textTransform: "uppercase", letterSpacing: "wider", mb: "0.5" })}>Address</div>
@@ -172,7 +173,7 @@ export const ListingDetailPanel3D = ({
                                 transition: "all 0.2s", _hover: { filter: "brightness(1.1)", transform: "translateY(-2px)" }
                             })}
                         >
-                            <i className="ph-fill ph-navigation-arrow text-xl"></i> Get Directions
+                            <NavigationArrowIcon weight="fill" size={18} /> Get Directions
                         </a>
                     </div>
                 </div>

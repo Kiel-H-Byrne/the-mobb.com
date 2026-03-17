@@ -1,6 +1,7 @@
 import { Listing } from "@/db/Types";
 import { targetClient } from "@/util/functions";
 import { searchBusinesses } from "@app/actions/geo-search";
+import { MagnifyingGlassIcon, MapPinIcon } from "@phosphor-icons/react";
 import { css } from "@styled/css";
 import React, { Dispatch, SetStateAction, memo, useEffect, useState } from "react";
 
@@ -100,7 +101,7 @@ const MapAutoComplete = ({
         px: "4", py: "3",
         _focusWithin: { borderColor: "brand.orange/50" }, transition: "colors"
       })}>
-        <i className="ph ph-magnifying-glass text-xl text-brand-orange mr-3"></i>
+        <MagnifyingGlassIcon size={20} className={css({ color: "brand.orange", mr: 3 })} />
         <input
           id="mobb-search-input"
           className={css({
@@ -142,7 +143,7 @@ const MapAutoComplete = ({
                     _hover: { backgroundColor: "rgba(255, 90, 0, 0.2)" }, transition: "background 0.2s"
                   })}
                 >
-                  <i className="ph-fill ph-map-pin text-brand-orange"></i>
+                  <MapPinIcon weight="fill" size={16} className={css({ color: "brand.orange" })} />
                   <span className={css({ flex: 1, fontWeight: "500", fontSize: "sm" })}>{listing.name}</span>
                 </div>
               ))

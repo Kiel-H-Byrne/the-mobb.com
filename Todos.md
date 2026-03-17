@@ -10,7 +10,7 @@
 ### 1. State Management & Component Architecture
 * [ ] **Refactor `app/page.tsx` Monolith**: Break down the 230+ lines of state in `Home` into discrete providers or a lightweight state store (like **Zustand**).
 * [ ] **Atomic UI States**: Move ephemeral states (like `isDrawerOpen` or `activeNav`) out of the main loop. Toggling a drawer should not cause the Map to re-evaluate 100+ markers.
-* [ ] **Memoization Audit**: Wrap `visibleListings` calculation in `ActivePulsePanel.tsx` with `useMemo`. Currently, it sorts and maps the entire listing array on *every* mouse move or state change.
+* [x] **Memoization Audit**: Wrap `visibleListings` calculation in `ActivePulsePanel.tsx` with `useMemo`. Currently, it sorts and maps the entire listing array on *every* mouse move or state change.
 
 ### 2. Next.js & Server-Side Optimization
 * [ ] **Fetch All → Viewport Fetching**: Replace `fetchAllListings()` (which pulls the entire DB) with a Server Action that fetches businesses based on the map's `bounds` or `radius`.
@@ -24,7 +24,7 @@
 
 ### 4. UI/UX & Rendering
 * [ ] **Marker Virtualization/Clustering**: Ensure `MarkerClusterer` is efficiently handling $1000+$ points. Verify that `AdvancedMarkerElement` is using the `collisionBehavior` property to reduce GPU overhead.
-* [ ] **Icon Optimization**: Replace the blocking `<script>` tag for Phosphor icons in `layout.tsx` with local SVGs or `@phosphor-icons/react`. This improves "Largest Contentful Paint" (LCP) significantly.
+* [x] **Icon Optimization**: Replace the blocking `<script>` tag for Phosphor icons in `layout.tsx` with local SVGs or `@phosphor-icons/react`. This improves "Largest Contentful Paint" (LCP) significantly.
 * [ ] **Image Optimization**: Replace generic `<img>` tags in `ActivePulsePanel` and `ListingDetailPanel3D` with `next/image` to benefit from automatic WebP conversion and lazy loading.
 
 ---

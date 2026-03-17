@@ -1,7 +1,8 @@
-import MapAutoComplete from "@/components/Map/MapAutoComplete";
 import CategoryFilter from "@/components/Map/CategoryFilter";
+import MapAutoComplete from "@/components/Map/MapAutoComplete";
 import { Category, Listing } from "@/db/Types";
 import { targetClient } from "@/util/functions";
+import { CrosshairIcon, GlobeHemisphereEastIcon, NavigationArrowIcon, PlusIcon, TargetIcon } from "@phosphor-icons/react";
 import { css } from "@styled/css";
 import React, { Dispatch, SetStateAction, useMemo } from "react";
 
@@ -169,7 +170,7 @@ export const ListingCard3D = React.memo(({
                 flexShrink: 0,
               })}
             >
-              <i className="ph-fill ph-navigation-arrow"></i> {distance ? distance : "Location"}
+              <NavigationArrowIcon weight="fill" size={12} className="mr-1" /> {distance ? distance : "Location"}
             </span>
           </div>
           <p
@@ -328,7 +329,7 @@ export const ActivePulsePanel = React.memo(({
               Explore{" "}
               <span className={css({ color: "brand.orange" })}>.</span>
             </h1>
-            <p
+            <div
               className={css({
                 fontSize: "sm",
                 color: "gray.400",
@@ -338,9 +339,9 @@ export const ActivePulsePanel = React.memo(({
                 gap: "2",
               })}
             >
-              <i className="ph-fill ph-crosshair text-brand-orange"></i> Find
-              businesses near your location
-            </p>
+              <CrosshairIcon weight="fill" size={16} className={css({ color: "brand.orange" })} />
+              Find businesses near your location
+            </div>
           </div>
         </div>
 
@@ -355,7 +356,7 @@ export const ActivePulsePanel = React.memo(({
             />
           </div>
           <div className={css({ width: "1px", height: "8", bg: "white/10" })}></div>
-          <CategoryFilter 
+          <CategoryFilter
             listings={listings}
             categories={categories}
             selectedCategories={selectedCategories}
@@ -391,7 +392,7 @@ export const ActivePulsePanel = React.memo(({
               w: "full",
             })}
           >
-            <i className="ph-duotone ph-globe-hemisphere-east text-6xl text-brand-orange mb-4 opacity-70"></i>
+            <GlobeHemisphereEastIcon weight="duotone" size={64} className={css({ color: "brand.orange", mb: 4, opacity: 0.7 })} />
             <h3
               className={css({
                 color: "white",
@@ -427,7 +428,7 @@ export const ActivePulsePanel = React.memo(({
                 gap: "2"
               })}
             >
-              <i className="ph-bold ph-radar"></i> Find Near Me
+              <TargetIcon weight="bold" size={18} /> Find Near Me
             </button>
             <button
               onClick={() => setIsAddListingOpen(true)}
@@ -451,7 +452,7 @@ export const ActivePulsePanel = React.memo(({
                 gap: "2"
               })}
             >
-              <i className="ph-bold ph-plus"></i> Add a Business
+              <PlusIcon weight="bold" size={18} /> Add a Business
             </button>
           </div>
         ) : visibleListings.length === 0 ? (
@@ -467,7 +468,7 @@ export const ActivePulsePanel = React.memo(({
               w: "full",
             })}
           >
-            <i className="ph-duotone ph-radar text-6xl text-brand-orange mb-4 opacity-70"></i>
+            <TargetIcon weight="duotone" size={64} className={css({ color: "brand.orange", mb: 4, opacity: 0.7 })} />
             <h3
               className={css({
                 color: "white",
@@ -497,7 +498,7 @@ export const ActivePulsePanel = React.memo(({
                 boxShadow: "glow",
               })}
             >
-              <i className="ph-bold ph-plus mr-2"></i> Add a Business
+              <PlusIcon weight="bold" size={18} className="mr-2" /> Add a Business
             </button>
           </div>
         ) : (

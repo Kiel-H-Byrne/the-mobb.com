@@ -1,4 +1,5 @@
 import { Listing } from "@/db/Types";
+import { BookmarkIcon, BookmarksIcon, XIcon } from "@phosphor-icons/react";
 import { css } from "@styled/css";
 import { Dispatch, SetStateAction, useState } from "react";
 import { ListingCard3D } from "./ActivePulsePanel";
@@ -60,7 +61,7 @@ export const MobileSavedListingsPanel = ({
                         _hover: { pr: "2", bg: "rgba(21, 21, 26, 1)" },
                     })}
                 >
-                    <i className="ph-fill ph-bookmarks text-gray-300 text-xl"></i>
+                    <BookmarksIcon weight="fill" size={20} className={css({ color: "gray.300" })} />
                     <span
                         className={css({
                             writingMode: "vertical-rl",
@@ -141,7 +142,7 @@ export const MobileSavedListingsPanel = ({
                                 zIndex: 10,
                             })}
                         >
-                            <i className="ph-bold ph-x text-lg"></i>
+                            <XIcon weight="bold" size={18} />
                         </button>
 
                         <div className={css({
@@ -187,14 +188,14 @@ export const MobileSavedListingsPanel = ({
                             ) : (
                                 <div className={css({ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", h: "full", textAlign: "center", color: "gray.400", gap: "4", px: "6" })}>
                                     <div className={css({ w: "16", h: "16", borderRadius: "full", bg: "white/5", display: "flex", alignItems: "center", justifyContent: "center", color: "gray.500" })}>
-                                        <i className="ph-duotone ph-bookmarks text-3xl"></i>
+                                        <BookmarksIcon weight="duotone" size={32} />
                                     </div>
                                     <p className={css({ fontSize: "sm", lineHeight: "relaxed" })}>
                                         You haven't saved any businesses yet.
                                     </p>
-                                    <p className={css({ fontSize: "xs", bg: "rgba(255,255,255,0.03)", p: "3", borderRadius: "lg", border: "1px solid white/5" })}>
-                                        Tap the <i className="ph-bold ph-bookmark text-brand-orange mx-1"></i> bookmark icon on any business profile to save it here for quick access later.
-                                    </p>
+                                    <div className={css({ fontSize: "xs", bg: "rgba(255,255,255,0.03)", p: "3", borderRadius: "lg", border: "1px solid white/5", display: "flex", alignItems: "center", justifyContent: "center", gap: "1" })}>
+                                        Tap the <BookmarkIcon weight="bold" size={14} className={css({ color: "brand.orange" })} /> bookmark icon on any business profile to save it here for quick access later.
+                                    </div>
                                 </div>
                             )}
                         </div>

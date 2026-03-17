@@ -19,6 +19,8 @@ import { MobileSavedListingsPanel } from "@/components/ui/v3/MobileSavedListings
 import { MobileTopSearch } from "@/components/ui/v3/MobileTopSearch";
 import SidebarHUD from "@/components/ui/v3/SidebarHUD";
 
+import { PlusIcon } from "@phosphor-icons/react";
+
 const Home = React.memo(() => {
   const [mapInstance, setMapInstance] = useState<any>(null);
   const [listings, setListings] = useState<Listing[] | null>(null);
@@ -207,23 +209,23 @@ const Home = React.memo(() => {
         <button
           onClick={() => setIsAddListingOpen(true)}
           className={css({
-              width: { base: "48px", md: "56px" },
-              height: { base: "48px", md: "56px" },
-              borderRadius: "full",
-              bg: "brand.orange",
-              border: "2px solid",
-              borderColor: "rgba(255, 90, 0, 0.3)",
-              boxShadow: "0 0 20px rgba(255,90,0,0.6)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              color: "black",
-              _hover: { transform: "scale(1.05)", filter: "brightness(1.1)" },
-              transition: "all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+            width: { base: "48px", md: "56px" },
+            height: { base: "48px", md: "56px" },
+            borderRadius: "full",
+            bg: "brand.orange",
+            border: "2px solid",
+            borderColor: "rgba(255, 90, 0, 0.3)",
+            boxShadow: "0 0 20px rgba(255,90,0,0.6)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            color: "black",
+            _hover: { transform: "scale(1.05)", filter: "brightness(1.1)" },
+            transition: "all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
           })}
         >
-          <i className="ph-bold ph-plus text-2xl"></i>
+          <PlusIcon weight="bold" size={24} />
         </button>
       </div>
 

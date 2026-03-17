@@ -62,7 +62,7 @@ export default function RootLayout({
           href="/img/icons/apple-touch-icon-180x180.png"
         />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
-        <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
       </head>
       <body suppressHydrationWarning className="antialiased bg-black text-white overflow-hidden font-sans">
         <ThemeProvider
