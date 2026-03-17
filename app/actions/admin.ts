@@ -47,6 +47,37 @@ export async function logoutAdmin() {
   revalidatePath("/admin/reviews");
 }
 
+export async function clearPendingListingGeolocation(id: string) {
+  if (!(await checkAdmin())) return { success: false, error: "Unauthorized" };
+
+  try {
+    const client = await clientPromise;
+    const db = client.db(DB_NAME);
+
+    // Unset all geocode-related fields
+    await db.collection("pending_listings").updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $unset: {
+          lat: "",
+          lng: "",
+          places_details: "",
+          google_id: "",
+          google_search_attempted: "",
+          google_search_found: "",
+          locations: ""
+        }
+      }
+    );
+
+    revalidatePath("/admin/reviews");
+    return { success: true };
+  } catch (error: any) {
+    console.error("Clear geocode failed:", error);
+    return { success: false, error: "Failed to clear geocoding data" };
+  }
+}
+
 export async function getPendingListings() {
   if (!(await checkAdmin())) return { success: false, error: "Unauthorized" };
 
@@ -252,8 +283,18 @@ export async function updatePendingListing(id: string, updatedData: any) {
     if (safeData.isOnlineOnly) {
       delete safeData.lat;
       delete safeData.lng;
+      safeData.locations = [];
       unsetData.lat = "";
       unsetData.lng = "";
+    }
+
+    // Sync root coordinates/address to the primary locations array so UI renders correctly for overrides
+    if (!safeData.isOnlineOnly && safeData.address && hasLat && hasLng && !safeData.locations) {
+      safeData.locations = [{
+        address: safeData.address,
+        lat: safeData.lat,
+        lng: safeData.lng
+      }];
     }
 
     const updateOperation: Record<string, any> = { $set: safeData };
@@ -355,7 +396,9 @@ export async function autoFindPendingListingAddress(id: string) {
     const listing = await db.collection("pending_listings").findOne({ _id: new ObjectId(id) });
     if (!listing) return { success: false, error: "Listing not found" };
 
-    const query = encodeURIComponent(listing.name);
+    const addressString = normalizeAddress(listing.address);
+    // Include the address (e.g. city/state) in the query to improve accuracy
+    const query = encodeURIComponent([listing.name, addressString].filter(Boolean).join(" "));
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
     if (!apiKey) return { success: false, error: "No Google Maps API key configured" };
 
@@ -372,18 +415,55 @@ export async function autoFindPendingListingAddress(id: string) {
 
       // Ensure we have a valid place ID + address
       if (address && place_id) {
+        // Reject if it's purely a geographic region (like a city/state match) and not an actual business
+        const isEstablishment = match.types && (match.types.includes("establishment") || match.types.includes("point_of_interest"));
+        if (!isEstablishment) {
+          await db.collection("pending_listings").updateOne(
+            { _id: new ObjectId(id) },
+            { $set: { google_search_attempted: true, google_search_found: false } }
+          );
+          revalidatePath("/admin/reviews");
+          return { success: true, found: false, error: "Match was a general geography, not a business establishment." };
+        }
+
         // Now fetch full place details for phone/website using Places Details API
-        const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place_id}&fields=website,formatted_phone_number&key=${apiKey}`;
+        const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place_id}&fields=website,formatted_phone_number,address_components&key=${apiKey}`;
         const detailsRes = await fetch(detailsUrl);
         const detailsData = await detailsRes.json();
         
+        // Ensure new result has a street address, not just city/state
+        const addressComponents = detailsData.result?.address_components || [];
+        const hasStreet = addressComponents.some((c: any) => 
+          c.types.includes("route") || 
+          c.types.includes("street_number") || 
+          c.types.includes("premise") ||
+          c.types.includes("subpremise") ||
+          c.types.includes("intersection")
+        );
+        
+        if (addressComponents.length > 0 && !hasStreet) {
+          // Reject this result and mark as not found
+          await db.collection("pending_listings").updateOne(
+            { _id: new ObjectId(id) },
+            { $set: { google_search_attempted: true, google_search_found: false } }
+          );
+          revalidatePath("/admin/reviews");
+          return { success: true, found: false, error: "Only city/state found, requires street address." };
+        }
+
         const updateData: any = {
           address,
           lat,
           lng,
           places_details: { place_id },
           google_search_attempted: true,
-          google_search_found: true
+          google_search_found: true,
+          locations: [{
+            address,
+            lat,
+            lng,
+            place_id,
+          }]
         };
 
         if (detailsData.status === "OK" && detailsData.result) {

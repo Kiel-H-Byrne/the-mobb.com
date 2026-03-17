@@ -10,6 +10,8 @@ export default function MigratePage() {
     const [result, setResult] = useState<string | null>(null);
     const [isDedupLoading, setIsDedupLoading] = useState(false);
     const [dedupResult, setDedupResult] = useState<string | null>(null);
+    const [isSanitizeLoading, setIsSanitizeLoading] = useState(false);
+    const [sanitizeResult, setSanitizeResult] = useState<string | null>(null);
     const router = useRouter();
 
     const handleMigration = async () => {
@@ -42,6 +44,22 @@ export default function MigratePage() {
             setDedupResult(`Error: ${res.error || "Unknown"}`);
         }
         setIsDedupLoading(false);
+    };
+
+    const handleSanitization = async () => {
+        setIsSanitizeLoading(true);
+        setSanitizeResult(null);
+        const { sanitizeGeolocations } = await import("@app/actions/migration");
+        const res = await sanitizeGeolocations();
+        if (res.success) {
+            setSanitizeResult(res.message || "Success");
+        } else {
+            if (res.error === "Unauthorized") {
+                router.push("/admin/reviews");
+            }
+            setSanitizeResult(`Error: ${res.error || "Unknown"}`);
+        }
+        setIsSanitizeLoading(false);
     };
 
     return (
@@ -140,6 +158,39 @@ export default function MigratePage() {
                     {dedupResult && (
                         <div className={css({ mt: "6", p: "4", bg: dedupResult.includes("Error") ? "red.50" : "green.50", color: dedupResult.includes("Error") ? "red.800" : "green.800", borderRadius: "md", fontWeight: "bold" })}>
                             {dedupResult}
+                        </div>
+                    )}
+                </div>
+
+                <div className={css({ bg: "bg.surface", p: "6", borderRadius: "md", boxShadow: "sm", border: "1px solid", borderColor: "border.light" })}>
+                    <div className={css({ display: "flex", alignItems: "center", gap: "3", mb: "2" })}>
+                        <span className={css({ fontSize: "2xl" })}>3️⃣</span>
+                        <h2 className={css({ fontSize: "xl", fontWeight: "bold", color: "text.main" })}>Sanitize Geolocation Data</h2>
+                    </div>
+                    <p className={css({ color: "text.muted", mb: "4" })}>
+                        Sweep the database to find listings containing mock address strings (e.g., "N/A"), strings lacking street numbers (e.g., just "Atlanta, GA"), and map entries missing lat/long coordinates. Invalid location data will be rigorously purged to ensure Map constraints are strictly met. Unmapped data will return to "Needs Geocoding".
+                    </p>
+
+                    <button
+                        onClick={handleSanitization}
+                        disabled={isSanitizeLoading}
+                        className={css({
+                            bg: "purple.500",
+                            color: "white",
+                            p: "3 6",
+                            borderRadius: "md",
+                            fontWeight: "bold",
+                            cursor: isSanitizeLoading ? "not-allowed" : "pointer",
+                            opacity: isSanitizeLoading ? 0.7 : 1,
+                            _hover: { bg: "purple.600" }
+                        })}
+                    >
+                        {isSanitizeLoading ? "Running Sanitization..." : "Run Database Scrub"}
+                    </button>
+
+                    {sanitizeResult && (
+                        <div className={css({ mt: "6", p: "4", bg: sanitizeResult.includes("Error") ? "red.50" : "green.50", color: sanitizeResult.includes("Error") ? "red.800" : "green.800", borderRadius: "md", fontWeight: "bold" })}>
+                            {sanitizeResult}
                         </div>
                     )}
                 </div>

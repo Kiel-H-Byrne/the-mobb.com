@@ -5,14 +5,15 @@ import { toaster } from "@/components/ui/Toast";
 import { PendingListing } from "@/db/Types";
 import {
   approveListing,
+  autoFindPendingListingAddress,
+  clearPendingListingGeolocation,
   getPendingListings,
+  getWeeklyApprovedStats,
   loginAdmin,
   logoutAdmin,
+  manuallyRunScout,
   rejectListing,
   updatePendingListing,
-  manuallyRunScout,
-  getWeeklyApprovedStats,
-  autoFindPendingListingAddress,
 } from "@app/actions/admin";
 import { css } from "@styled/css";
 import { APIProvider } from "@vis.gl/react-google-maps";
@@ -33,7 +34,10 @@ const getLocationsToRender = (listing: PendingListing) => {
   }
   const fallbackAddress = toAddressString(listing.address);
   if (fallbackAddress) {
-    return [{ address: fallbackAddress, lat: listing.lat, lng: listing.lng }];
+    const isMock = ["n/a", "geocoded"].includes(fallbackAddress.toLowerCase().trim());
+    if (!isMock || (listing.lat && listing.lng)) {
+      return [{ address: fallbackAddress, lat: listing.lat, lng: listing.lng }];
+    }
   }
   return [];
 };
@@ -70,7 +74,7 @@ export default function AdminReviewsPage() {
       if (res.success) {
         setIsLoggedIn(true);
         setListings(res.data || []);
-        
+
         const statsRes = await getWeeklyApprovedStats();
         if (statsRes.success) setStats(statsRes.data);
       } else if (res.error === "Unauthorized") {
@@ -88,7 +92,7 @@ export default function AdminReviewsPage() {
       setIsLoggedIn(true);
       const dataRes = await getPendingListings();
       if (dataRes.success) setListings(dataRes.data || []);
-      
+
       const statsRes = await getWeeklyApprovedStats();
       if (statsRes.success) setStats(statsRes.data);
     } else {
@@ -157,6 +161,19 @@ export default function AdminReviewsPage() {
       toaster.create({ title: "Address auto-filled successfully", type: "success" });
       const dataRes = await getPendingListings();
       if (dataRes.success) setListings(dataRes.data || []);
+    }
+    setIsLoading(false);
+  };
+
+  const handleClearGeocode = async (l: PendingListing) => {
+    setIsLoading(true);
+    const res = await clearPendingListingGeolocation(l._id as string);
+    if (res.success) {
+      toaster.create({ title: "Geocode cleared successfully", type: "success" });
+      const dataRes = await getPendingListings();
+      if (dataRes.success) setListings(dataRes.data || []);
+    } else {
+      toaster.create({ title: "Error clearing geocode", type: "error" });
     }
     setIsLoading(false);
   };
@@ -653,35 +670,107 @@ export default function AdminReviewsPage() {
                           {loc.address}
                         </button>
                         {loc.lat && loc.lng ? (
-                          <span
-                            className={css({
-                              fontSize: "xs",
-                              color: "green.600",
-                              ml: "2",
-                            })}
-                          >
-                            (Geocoded)
-                          </span>
+                          <>
+                            <span
+                              className={css({
+                                fontSize: "xs",
+                                color: "green.600",
+                                ml: "2",
+                              })}
+                            >
+                              (Geocoded)
+                            </span>
+                            <button
+                              disabled={isLoading}
+                              onClick={() => handleClearGeocode(l)}
+                              className={css({
+                                fontSize: "xs",
+                                color: "red.500",
+                                textDecoration: "underline",
+                                background: "none",
+                                border: "none",
+                                cursor: "pointer",
+                                ml: "2",
+                                opacity: isLoading ? 0.7 : 1,
+                              })}
+                            >
+                              Clear Geocode
+                            </button>
+                          </>
                         ) : (
-                          <span
-                            className={css({
-                              fontSize: "xs",
-                              color: "yellow.600",
-                              ml: "2",
-                            })}
-                          >
-                            (Needs geocoding)
-                          </span>
+                          <>
+                            <span
+                              className={css({
+                                fontSize: "xs",
+                                color: "yellow.600",
+                                ml: "2",
+                              })}
+                            >
+                              (Needs geocoding)
+                            </span>
+                            {!l.google_search_attempted ? (
+                              <button
+                                disabled={isLoading}
+                                onClick={() => handleAutoFind(l)}
+                                className={css({
+                                  fontSize: "xs",
+                                  color: "blue.500",
+                                  textDecoration: "underline",
+                                  background: "none",
+                                  border: "none",
+                                  cursor: "pointer",
+                                  ml: "2",
+                                  opacity: isLoading ? 0.7 : 1,
+                                })}
+                              >
+                                Auto-find
+                              </button>
+                            ) : !l.google_search_found ? (
+                              <button
+                                disabled={isLoading}
+                                onClick={() => handleClearGeocode(l)}
+                                className={css({
+                                  fontSize: "xs",
+                                  color: "blue.500",
+                                  textDecoration: "underline",
+                                  background: "none",
+                                  border: "none",
+                                  cursor: "pointer",
+                                  ml: "2",
+                                  opacity: isLoading ? 0.7 : 1,
+                                })}
+                              >
+                                Reset Search
+                              </button>
+                            ) : null}
+                          </>
                         )}
                       </div>
                     ))
                   ) : (
                     <div className={css({ display: "flex", flexWrap: "wrap", gap: "2", alignItems: "center", mt: "1" })}>
                       {l.google_search_attempted && !l.google_search_found ? (
-                        <span className={css({ color: "red.500", fontSize: "xs", fontWeight: "bold" })}>
-                          No Google Places address found.
-                        </span>
-                      ) : (
+                        <>
+                          <span className={css({ color: "red.500", fontSize: "xs", fontWeight: "bold" })}>
+                            No Google Places address found.
+                          </span>
+                          <button
+                            disabled={isLoading}
+                            onClick={() => handleClearGeocode(l)}
+                            className={css({
+                              fontSize: "xs",
+                              color: "blue.500",
+                              textDecoration: "underline",
+                              background: "none",
+                              border: "none",
+                              cursor: "pointer",
+                              opacity: isLoading ? 0.7 : 1,
+                            })}
+                          >
+                            Reset Search
+                          </button>
+                        </>
+                      ) : !l.google_search_found ? (
                         <button
                           disabled={isLoading}
                           onClick={() => handleAutoFind(l)}
@@ -698,7 +787,7 @@ export default function AdminReviewsPage() {
                         >
                           Auto-find address with Google Places
                         </button>
-                      )}
+                      ) : null}
                       {!l.google_search_found && (
                         <button
                           onClick={() => openEditor(l)}
