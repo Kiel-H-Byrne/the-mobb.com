@@ -7,12 +7,14 @@ import {
   approveListing,
   autoFindPendingListingAddress,
   clearPendingListingGeolocation,
+  deleteMultiplePendingListings,
   getPendingListings,
   getWeeklyApprovedStats,
   loginAdmin,
   logoutAdmin,
   manuallyRunScout,
   rejectListing,
+  rejectMultipleListings,
   updatePendingListing,
 } from "@app/actions/admin";
 import { css } from "@styled/css";
@@ -66,6 +68,7 @@ export default function AdminReviewsPage() {
     null,
   );
   const [stats, setStats] = useState<{ total: number; aiScanned: number; manual: number; startOfWeek: Date } | undefined>();
+  const [selectedListingIds, setSelectedListingIds] = useState<string[]>([]);
 
   useEffect(() => {
     async function init() {
@@ -199,6 +202,46 @@ export default function AdminReviewsPage() {
       });
     }
     setIsLoading(false);
+  };
+
+  const handleBatchReject = async () => {
+    if (selectedListingIds.length === 0) return;
+    if (!confirm(`Are you sure you want to reject ${selectedListingIds.length} listings?`)) return;
+    
+    setIsLoading(true);
+    const res = await rejectMultipleListings(selectedListingIds);
+    if (res.success) {
+      setListings((prev) => prev.filter((item) => !selectedListingIds.includes(item._id)));
+      setSelectedListingIds([]);
+      toaster.create({ title: `Batch rejected ${selectedListingIds.length} listings`, type: "success" });
+    } else {
+      toaster.create({ title: "Error rejected listings in batch", type: "error" });
+    }
+    setIsLoading(false);
+  };
+
+  const handleBatchDelete = async () => {
+    if (selectedListingIds.length === 0) return;
+    if (!confirm(`PERMANENTLY DELETE ${selectedListingIds.length} listings from the database? This cannot be undone.`)) return;
+    
+    setIsLoading(true);
+    const res = await deleteMultiplePendingListings(selectedListingIds);
+    if (res.success) {
+      setListings((prev) => prev.filter((item) => !selectedListingIds.includes(item._id)));
+      setSelectedListingIds([]);
+      toaster.create({ title: `Permanently deleted ${selectedListingIds.length} listings`, type: "success" });
+    } else {
+      toaster.create({ title: "Error deleting listings in batch", type: "error" });
+    }
+    setIsLoading(false);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedListingIds.length === listings.length) {
+      setSelectedListingIds([]);
+    } else {
+      setSelectedListingIds(listings.map(l => String(l._id)));
+    }
   };
 
   if (isLoggedIn === null)
@@ -404,6 +447,82 @@ export default function AdminReviewsPage() {
       <div
         className={css({ display: "flex", flexDirection: "column", gap: "4" })}
       >
+        {selectedListingIds.length > 0 && (
+          <div className={css({
+            position: "sticky",
+            top: "4",
+            zIndex: 10,
+            bg: "bg.surface",
+            p: "4",
+            borderRadius: "md",
+            boxShadow: "lg",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            border: "2px solid",
+            borderColor: "brand.orange"
+          })}>
+            <div className={css({ display: "flex", gap: "4", alignItems: "center" })}>
+              <input 
+                type="checkbox" 
+                checked={selectedListingIds.length === listings.length}
+                onChange={toggleSelectAll}
+                className={css({ width: "18px", height: "18px", cursor: "pointer" })}
+              />
+              <span className={css({ fontWeight: "bold" })}>
+                {selectedListingIds.length} listings selected
+              </span>
+            </div>
+            <div className={css({ display: "flex", gap: "2" })}>
+              <button
+                onClick={() => setSelectedListingIds([])}
+                className={css({ 
+                  color: "text.muted", 
+                  cursor: "pointer",
+                  p: "2 4",
+                  _hover: { color: "text.main" }
+                })}
+              >
+                Cancel
+              </button>
+              <button
+                disabled={isLoading}
+                onClick={handleBatchReject}
+                className={css({
+                  bg: "red.500",
+                  color: "white",
+                  p: "2 6",
+                  borderRadius: "md",
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                  _hover: { bg: "red.600" },
+                  opacity: isLoading ? 0.7 : 1,
+                })}
+              >
+                {isLoading ? "Processing..." : "Batch Reject"}
+              </button>
+              <button
+                disabled={isLoading}
+                onClick={handleBatchDelete}
+                className={css({
+                  bg: "bg.canvas",
+                  color: "red.600",
+                  p: "2 4",
+                  border: "1px solid",
+                  borderColor: "red.200",
+                  borderRadius: "md",
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                  _hover: { bg: "red.50" },
+                  opacity: isLoading ? 0.7 : 1,
+                })}
+              >
+                Batch Delete
+              </button>
+            </div>
+          </div>
+        )}
+
         {listings.length === 0 ? (
           <div
             className={css({
@@ -443,14 +562,27 @@ export default function AdminReviewsPage() {
                   flexWrap: "wrap",
                 })}
               >
-                <div
-                  className={css({
-                    flex: "1",
-                    minWidth: "0",
-                    maxWidth: "100%",
-                  })}
-                >
-                  <h2
+                <div className={css({ display: "flex", gap: "4", alignItems: "flex-start", flex: "1" })}>
+                  <input
+                    type="checkbox"
+                    checked={selectedListingIds.includes(String(l._id))}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedListingIds((prev) => [...prev, String(l._id)]);
+                      } else {
+                        setSelectedListingIds((prev) => prev.filter((id) => id !== String(l._id)));
+                      }
+                    }}
+                    className={css({ mt: "2", cursor: "pointer", width: "18px", height: "18px" })}
+                  />
+                  <div
+                    className={css({
+                      flex: "1",
+                      minWidth: "0",
+                      maxWidth: "100%",
+                    })}
+                  >
+                    <h2
                     className={css({
                       fontSize: "xl",
                       fontWeight: "bold",
@@ -565,6 +697,7 @@ export default function AdminReviewsPage() {
                     )}
                   </div>
                 </div>
+              </div>
 
                 <div
                   className={css({

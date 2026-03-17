@@ -244,6 +244,46 @@ export async function rejectListing(id: string) {
   }
 }
 
+export async function rejectMultipleListings(ids: string[]) {
+  if (!(await checkAdmin())) return { success: false, error: "Unauthorized" };
+
+  try {
+    const client = await clientPromise;
+    const db = client.db(DB_NAME);
+
+    const objectIds = ids.map((id) => new ObjectId(id));
+    await db
+      .collection("pending_listings")
+      .updateMany({ _id: { $in: objectIds } }, { $set: { status: "REJECTED" } });
+
+    revalidatePath("/admin/reviews");
+    return { success: true };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: "Batch rejection failed." };
+  }
+}
+
+export async function deleteMultiplePendingListings(ids: string[]) {
+  if (!(await checkAdmin())) return { success: false, error: "Unauthorized" };
+
+  try {
+    const client = await clientPromise;
+    const db = client.db(DB_NAME);
+
+    const objectIds = ids.map((id) => new ObjectId(id));
+    await db
+      .collection("pending_listings")
+      .deleteMany({ _id: { $in: objectIds } });
+
+    revalidatePath("/admin/reviews");
+    return { success: true };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: "Batch deletion failed." };
+  }
+}
+
 export async function updatePendingListing(id: string, updatedData: any) {
   if (!(await checkAdmin())) return { success: false, error: "Unauthorized" };
 
