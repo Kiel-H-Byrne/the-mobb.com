@@ -18,7 +18,9 @@ export const MobileNearestCard = ({
     setactiveListing,
     setisDrawerOpen,
 }: MobileNearestCardProps) => {
-    if (!listing) return null;
+    const [isDismissed, setIsDismissed] = React.useState(false);
+
+    if (!listing || isDismissed) return null;
 
     const handleOpenDetails = () => {
         setactiveListing(listing);
@@ -42,30 +44,60 @@ export const MobileNearestCard = ({
 
     return (
         <div
-            onClick={handleOpenDetails}
             className={css({
                 position: "fixed",
-                bottom: "90px", // Just above the MobileNav (64px + 6px bottom offset + gap)
+                bottom: "6", // Moved to bottom since MobileNav is gone
                 left: "4",
                 right: "4",
                 zIndex: 40,
                 display: { base: "flex", md: "none" },
-                bg: "rgba(21, 21, 26, 0.95)", // More opaque to ensure legibility over map
-                backdropFilter: "blur(24px)",
-                borderRadius: "2xl",
-                border: "1px solid",
-                borderColor: "brand.orange/30", // Highlight to draw attention
-                boxShadow: "0 10px 40px rgba(0,0,0,0.5), 0 -5px 20px rgba(255,90,0,0.15)",
-                p: "3",
-                gap: "3",
-                alignItems: "center",
-                cursor: "pointer",
-                animation: "slideUp",
-                _active: { transform: "scale(0.98)" },
-                transition: "transform 0.2s",
                 pointerEvents: "auto",
             })}
         >
+            <div
+                onClick={handleOpenDetails}
+                className={css({
+                    w: "100%",
+                    display: "flex",
+                    bg: "rgba(21, 21, 26, 0.95)",
+                    backdropFilter: "blur(24px)",
+                    borderRadius: "2xl",
+                    border: "1px solid",
+                    borderColor: "brand.orange/30",
+                    boxShadow: "0 10px 40px rgba(0,0,0,0.5), 0 -5px 20px rgba(255,90,0,0.15)",
+                    p: "3",
+                    gap: "3",
+                    alignItems: "center",
+                    cursor: "pointer",
+                    animation: "slideUp",
+                    _active: { transform: "scale(0.98)" },
+                    transition: "transform 0.2s",
+                })}
+            >
+                {/* Bump out dismiss button */}
+                <button
+                    onClick={(e) => { e.stopPropagation(); setIsDismissed(true); }}
+                    className={css({
+                        position: "absolute",
+                        top: "-12px",
+                        right: "-12px",
+                        w: "28px",
+                        h: "28px",
+                        borderRadius: "full",
+                        bg: "gray.800",
+                        border: "1px solid",
+                        borderColor: "white/20",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "gray.400",
+                        boxShadow: "0 4px 10px rgba(0,0,0,0.5)",
+                        _hover: { color: "white", bg: "gray.700" },
+                        zIndex: 10,
+                    })}
+                >
+                    <i className="ph-bold ph-x text-sm"></i>
+                </button>
             {/* Image Thumbnail */}
             <div
                 className={css({
@@ -186,6 +218,7 @@ export const MobileNearestCard = ({
                 >
                     <i className="ph-fill ph-navigation-arrow text-lg"></i>
                 </a>
+            </div>
             </div>
         </div>
     );

@@ -19,7 +19,19 @@ const MyMarker = ({
   setisInfoWindowOpen,
   setactiveListing,
 }: MyMarkerProps) => {
-  const coordinatesToUse = locationData?.coordinates || data.coordinates;
+  let coordinatesToUse = locationData?.coordinates || data.coordinates;
+
+  // Fallback to places_details location if available
+  if (!coordinatesToUse && (data.places_details as any)?.location) {
+    const loc = (data.places_details as any).location;
+    if (loc.lat && loc.lng) {
+      coordinatesToUse = {
+        type: "Point",
+        coordinates: [loc.lng, loc.lat], // Convert to [lng, lat] format
+      };
+    }
+  }
+
   const _id = data._id;
 
   if (

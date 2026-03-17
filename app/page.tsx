@@ -149,17 +149,21 @@ const Home = React.memo(() => {
         setisDrawerOpen={setisDrawerOpen}
       />
 
-      <MobileNearestCard
-        listing={closestListing}
-        setactiveListing={setactiveListing}
-        setisDrawerOpen={setisDrawerOpen}
-      />
+      {userLocation && (
+        <MobileNearestCard
+          listing={closestListing}
+          setactiveListing={setactiveListing}
+          setisDrawerOpen={setisDrawerOpen}
+        />
+      )}
 
       <MobileClosestListingsPanel
         listings={listings || []}
         mapInstance={mapInstance}
         setactiveListing={setactiveListing}
         setisDrawerOpen={setisDrawerOpen}
+        userLocation={userLocation}
+        onRequestLocation={handleNearMeClick}
       />
 
       <MobileSavedListingsPanel
@@ -203,8 +207,8 @@ const Home = React.memo(() => {
         <button
           onClick={() => setIsAddListingOpen(true)}
           className={css({
-              width: "56px",
-              height: "56px",
+              width: { base: "48px", md: "56px" },
+              height: { base: "48px", md: "56px" },
               borderRadius: "full",
               bg: "brand.orange",
               border: "2px solid",

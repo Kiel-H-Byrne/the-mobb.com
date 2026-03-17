@@ -289,3 +289,141 @@ export async function deduplicateListingsByName() {
         return { success: false, error: error.message };
     }
 }
+
+export async function sanitizeGeolocations() {
+    if (!(await checkAdmin())) return { success: false, error: "Unauthorized" };
+
+    try {
+        const client = await clientPromise;
+        const db = client.db(DB_NAME);
+        
+        // 1. Sanitize Pending Listings
+        const pendingCol = db.collection("pending_listings");
+        const pendingCursor = pendingCol.find({ isOnlineOnly: { $ne: true } });
+        let pendingUpdated = 0;
+
+        for await (const doc of pendingCursor) {
+            let needsUpdate = false;
+            let updatedFields: any = {};
+            let unsetFields: any = {};
+
+            const addressStr = Array.isArray(doc.address) ? doc.address.join(" ") : (doc.address || "");
+            const isMock = ["n/a", "geocoded", "unknown address"].includes(addressStr.toLowerCase().trim());
+            // Most valid street addresses have a number. If none, it's highly likely to be purely a city/state match.
+            const hasNoNumbers = addressStr ? !/\d/.test(addressStr) : false;
+            const isMissingCoords = !doc.lat || !doc.lng;
+
+            if (isMock || hasNoNumbers || isMissingCoords) {
+                needsUpdate = true;
+                unsetFields.lat = "";
+                unsetFields.lng = "";
+                unsetFields.places_details = "";
+                unsetFields.google_id = "";
+                unsetFields.google_search_attempted = "";
+                unsetFields.google_search_found = "";
+                
+                if (isMock) {
+                    updatedFields.address = ""; // Clear entirely if it's N/A
+                }
+            }
+
+            if (doc.locations && Array.isArray(doc.locations)) {
+                // Check if existing locations array has bad data
+                const validLocations = doc.locations.filter((loc: any) => {
+                    const locAddr = loc.address || "";
+                    const mock = ["n/a", "geocoded", "unknown address"].includes(locAddr.toLowerCase().trim());
+                    const noNums = locAddr ? !/\d/.test(locAddr) : false;
+                    const noCoords = !loc.lat || !loc.lng;
+                    return !mock && !noNums && !noCoords;
+                });
+
+                if (validLocations.length !== doc.locations.length) {
+                    needsUpdate = true;
+                    if (validLocations.length === 0) {
+                        unsetFields.locations = ""; // Clear array if all bad
+                    } else {
+                        updatedFields.locations = validLocations;
+                        delete unsetFields.locations; // prioritize set over unset
+                    }
+                }
+            }
+
+            if (needsUpdate) {
+                const updateOp: any = {};
+                if (Object.keys(updatedFields).length > 0) updateOp.$set = updatedFields;
+                if (Object.keys(unsetFields).length > 0) updateOp.$unset = unsetFields;
+                if (updateOp.$set || updateOp.$unset) {
+                    await pendingCol.updateOne({ _id: doc._id }, updateOp);
+                    pendingUpdated++;
+                }
+            }
+        }
+
+        // 2. Sanitize Approved/Active Listings
+        const listingsCol = db.collection("listings");
+        const listingsCursor = listingsCol.find({ isOnlineOnly: { $ne: true } });
+        let listingsUpdated = 0;
+
+        for await (const doc of listingsCursor) {
+            let needsUpdate = false;
+            let updatedFields: any = {};
+            let unsetFields: any = {};
+
+            const addressStr = doc.address || "";
+            const isMock = ["n/a", "geocoded", "unknown address"].includes(addressStr.toLowerCase().trim());
+            const hasNoNumbers = addressStr ? !/\d/.test(addressStr) : false;
+            const isMissingCoords = !doc.coordinates || !doc.coordinates.coordinates || doc.coordinates.coordinates.length !== 2;
+
+            if (isMock || hasNoNumbers || isMissingCoords) {
+                needsUpdate = true;
+                unsetFields.coordinates = "";
+                unsetFields.type = "";
+                unsetFields.places_details = "";
+                unsetFields.google_id = "";
+                
+                if (isMock) {
+                    updatedFields.address = ""; 
+                }
+            }
+
+            if (doc.locations && Array.isArray(doc.locations)) {
+                const validLocations = doc.locations.filter((loc: any) => {
+                    const locAddr = loc.address || "";
+                    const mock = ["n/a", "geocoded", "unknown address"].includes(locAddr.toLowerCase().trim());
+                    const noNums = locAddr ? !/\d/.test(locAddr) : false;
+                    const noCoords = !loc.coordinates || !loc.coordinates.coordinates || loc.coordinates.coordinates.length !== 2;
+                    return !mock && !noNums && !noCoords;
+                });
+
+                if (validLocations.length !== doc.locations.length) {
+                    needsUpdate = true;
+                    if (validLocations.length === 0) {
+                        unsetFields.locations = "";
+                    } else {
+                        updatedFields.locations = validLocations;
+                        delete unsetFields.locations;
+                    }
+                }
+            }
+
+            if (needsUpdate) {
+                const updateOp: any = {};
+                if (Object.keys(updatedFields).length > 0) updateOp.$set = updatedFields;
+                if (Object.keys(unsetFields).length > 0) updateOp.$unset = unsetFields;
+                if (updateOp.$set || updateOp.$unset) {
+                    await listingsCol.updateOne({ _id: doc._id }, updateOp);
+                    listingsUpdated++;
+                }
+            }
+        }
+
+        return {
+            success: true,
+            message: `Sanitized ${pendingUpdated} pending listings and ${listingsUpdated} active listings. Unmapped mock strings, missing coords, and city/state only entries were cleared.`
+        };
+
+    } catch (error: any) {
+        console.error("Sanitization error:", error);
+        return { success: false, error: error.message };
+    }
+}

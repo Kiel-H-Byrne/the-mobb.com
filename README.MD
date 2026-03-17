@@ -13,7 +13,7 @@
 
 The Map of Black Businesses (MOBB) is a digital infrastructure for economic equity designed to serve the diaspora. It is a tool to practice group economics. The application allows consumers to seamlessly identify, locate, and support Black-owned businesses in their immediate vicinity (or globally), with the primary goal of growing the community's economy.
 
-<img width="80%" src="https://github.com/Kiel-H-Byrne/the-mobb.com/assets/955269/99259907-11dc-446a-a6a8-455bc4787e9c" />
+<img width="80%" src="https://github.com/Kiel-H-Byrne/the-mobb.com/blob/main/public/img/og-listings.png" />
 
 ---
 
@@ -37,7 +37,7 @@ We have moved away from manual curation to an "Autonomous Data Engine." The syst
 1.  **Ingestion:** Scrape listicles and websites using external tools (like SerpApi).
 2.  **Extraction:** LLMs (Google Gemini via Vercel AI SDK) analyze the HTML and extract structured business data (Name, Address, Categories, Black-owned status).
 3.  **Review Queue:** Extracted businesses are saved to MongoDB in a `PENDING_REVIEW` state.
-4.  **Admin Approval:** Administrators review pending entries in the dashboard. Approving an entry automatically triggers Google Geocoding to fetch missing coordinates and saves the listing as a `2dsphere` Point in the primary database for instant geospatial discovery.
+4.  **Admin Approval:** Administrators review pending entries in the dashboard. Approving an entry automatically triggers Google Geocoding to fetch missing coordinates and saves the listing as a `2dsphere` Point in the primary database for instant geospatial discovery. See [Listing Approval Criteria](./docs/approval-criteria.md) for data quality standards.
 
 ## 🚀 Getting Started
 

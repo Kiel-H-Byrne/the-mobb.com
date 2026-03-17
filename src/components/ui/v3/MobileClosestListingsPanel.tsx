@@ -8,6 +8,8 @@ interface MobileClosestListingsPanelProps {
     mapInstance: any;
     setactiveListing: Dispatch<SetStateAction<any>>;
     setisDrawerOpen: Dispatch<SetStateAction<boolean>>;
+    userLocation?: { lat: number; lng: number } | null;
+    onRequestLocation?: () => void;
 }
 
 /**
@@ -19,11 +21,18 @@ export const MobileClosestListingsPanel = ({
     mapInstance,
     setactiveListing,
     setisDrawerOpen,
+    userLocation,
+    onRequestLocation,
 }: MobileClosestListingsPanelProps) => {
     const [isOpen, setIsOpen] = useState(false);
 
-    // If no listings, don't show the tab
-    if (!listings || listings.length === 0) return null;
+    const handleTabClick = () => {
+        if (!userLocation && onRequestLocation) {
+            onRequestLocation();
+        } else {
+            setIsOpen(true);
+        }
+    };
 
     return (
         <>
@@ -40,7 +49,7 @@ export const MobileClosestListingsPanel = ({
                 })}
             >
                 <button
-                    onClick={() => setIsOpen(true)}
+                    onClick={handleTabClick}
                     className={css({
                         bg: "rgba(21, 21, 26, 0.9)",
                         backdropFilter: "blur(12px)",
@@ -89,7 +98,7 @@ export const MobileClosestListingsPanel = ({
                         inset: 0,
                         zIndex: 2000,
                         display: { base: "flex", md: "none" },
-                        justifyContent: "flex-end",
+                        alignItems: "flex-end", // Align panel to bottom
                         pointerEvents: "auto",
                     })}
                 >
@@ -108,40 +117,57 @@ export const MobileClosestListingsPanel = ({
                     <div
                         className={css({
                             position: "relative",
-                            width: "85%", // Take up majority of screen but leave map visible on left
-                            maxWidth: "400px",
-                            height: "100dvh",
+                            width: "100%", 
+                            height: "60dvh",
                             bg: "bg.glass",
-                            borderLeft: "1px solid",
+                            borderTop: "1px solid",
                             borderColor: "brand.orange/30",
-                            boxShadow: "-10px 0 40px rgba(0,0,0,0.5)",
+                            borderTopRadius: "3xl",
+                            boxShadow: "0 -10px 40px rgba(0,0,0,0.5)",
                             display: "flex",
                             flexDirection: "column",
-                            animation: "slideInRight",
+                            animation: "slideUp",
+                            marginTop: "auto",
                         })}
                     >
+                        {/* Bump out dismiss button */}
+                        <button
+                            onClick={() => setIsOpen(false)}
+                            className={css({
+                                position: "absolute",
+                                top: "-16px",
+                                right: "16px",
+                                w: "36px",
+                                h: "36px",
+                                borderRadius: "full",
+                                bg: "gray.800",
+                                border: "1px solid",
+                                borderColor: "brand.orange/50",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                color: "gray.300",
+                                boxShadow: "0 4px 10px rgba(0,0,0,0.5)",
+                                _hover: { color: "white", bg: "gray.700" },
+                                zIndex: 10,
+                            })}
+                        >
+                            <i className="ph-bold ph-x text-lg"></i>
+                        </button>
+
                         <div className={css({
                             p: "4",
                             borderBottom: "1px solid",
                             borderColor: "white/10",
                             display: "flex",
-                            justifyContent: "space-between",
+                            justifyContent: "center",
                             alignItems: "center",
                             bg: "rgba(11, 11, 14, 0.8)",
+                            borderTopRadius: "3xl",
                         })}>
                             <h2 className={css({ color: "brand.orange", fontFamily: "tech", fontSize: "sm", fontWeight: "bold", letterSpacing: "widest" })}>
                                 LOCAL ECOSYSTEM
                             </h2>
-                            <button
-                                onClick={() => setIsOpen(false)}
-                                className={css({
-                                    w: "8", h: "8", borderRadius: "full", bg: "white/5",
-                                    display: "flex", alignItems: "center", justifyContent: "center",
-                                    color: "gray.400", _hover: { color: "white", bg: "white/10" },
-                                })}
-                            >
-                                <i className="ph-bold ph-x"></i>
-                            </button>
                         </div>
 
                         <div className={css({
