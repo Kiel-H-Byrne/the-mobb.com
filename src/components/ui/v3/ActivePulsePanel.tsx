@@ -3,7 +3,7 @@ import CategoryFilter from "@/components/Map/CategoryFilter";
 import { Category, Listing } from "@/db/Types";
 import { targetClient } from "@/util/functions";
 import { css } from "@styled/css";
-import { Dispatch, SetStateAction } from "react";
+import React, { Dispatch, SetStateAction, useMemo } from "react";
 
 interface ListingCard3DProps {
   listing: Listing;
@@ -12,7 +12,7 @@ interface ListingCard3DProps {
   setisDrawerOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-export const ListingCard3D = ({
+export const ListingCard3D = React.memo(({
   listing,
   mapInstance,
   setactiveListing,
@@ -225,9 +225,9 @@ export const ListingCard3D = ({
       </div>
     </div>
   );
-};
+});
 
-export const ActivePulsePanel = ({
+export const ActivePulsePanel = React.memo(({
   listings,
   categories,
   selectedCategories,
@@ -239,44 +239,44 @@ export const ActivePulsePanel = ({
   userLocation,
   onRequestLocation,
 }: any) => {
-  // Filter listings based on selected categories
-  let visibleListings = listings.filter((listing: Listing) => {
-    const hasMatch =
-      listing.categories &&
-      listing.categories.some((el: Category) => selectedCategories.has(el));
-    const noCategories = !listing.categories || listing.categories.length === 0;
-    return hasMatch || noCategories;
-  });
+  // Filter and sort listings based on selected categories and distance
+  const visibleListings = useMemo(() => {
+    let filtered = listings.filter((listing: Listing) => {
+      const hasMatch =
+        listing.categories &&
+        listing.categories.some((el: Category) => selectedCategories.has(el));
+      const noCategories = !listing.categories || listing.categories.length === 0;
+      return hasMatch || noCategories;
+    });
 
-  // Calculate distances and sort dynamically
-  if (visibleListings.length > 0) {
-    const routingCenter = userLocation ? new window.google.maps.LatLng(userLocation) : (mapInstance ? mapInstance.getCenter() : null);
-    if (routingCenter && window.google?.maps?.geometry) {
-      visibleListings = visibleListings.map((listing: Listing) => {
-        const coords = listing.coordinates?.coordinates;
-        let dist = Infinity;
-        let formattedDist = "";
+    if (filtered.length > 0) {
+      const routingCenter = userLocation ? new window.google.maps.LatLng(userLocation) : (mapInstance ? mapInstance.getCenter() : null);
+      if (routingCenter && window.google?.maps?.geometry) {
+        return filtered.map((listing: Listing) => {
+          const coords = listing.coordinates?.coordinates;
+          let dist = Infinity;
+          let formattedDist = "";
 
-        if (coords && coords.length > 1) {
-          try {
-            const posObj = new window.google.maps.LatLng({ lat: coords[1], lng: coords[0] });
-            const distanceMeters = window.google.maps.geometry.spherical.computeDistanceBetween(posObj, routingCenter);
-            dist = distanceMeters;
+          if (coords && coords.length > 1) {
+            try {
+              const posObj = new window.google.maps.LatLng({ lat: coords[1], lng: coords[0] });
+              const distanceMeters = window.google.maps.geometry.spherical.computeDistanceBetween(posObj, routingCenter);
+              dist = distanceMeters;
 
-            // Convert to miles and format
-            const miles = distanceMeters * 0.000621371;
-            // If we don't know user Location, we don't show the badge distance since it's just relative to map center
-            formattedDist = userLocation ? (miles < 0.1 ? "<0.1 mi" : `${miles.toFixed(1)} mi`) : "Remote";
-          } catch (e) {
-            console.error("Error computing spherical distance", e);
+              // Convert to miles and format
+              const miles = distanceMeters * 0.000621371;
+              formattedDist = userLocation ? (miles < 0.1 ? "<0.1 mi" : `${miles.toFixed(1)} mi`) : "Remote";
+            } catch (e) {
+              console.error("Error computing spherical distance", e);
+            }
           }
-        }
 
-        // Return an augmented object for sorting
-        return { ...listing, _distance: dist, _formattedDistance: formattedDist };
-      }).sort((a: any, b: any) => a._distance - b._distance);
+          return { ...listing, _distance: dist, _formattedDistance: formattedDist };
+        }).sort((a: any, b: any) => a._distance - b._distance);
+      }
     }
-  }
+    return filtered;
+  }, [listings, selectedCategories, userLocation, mapInstance]);
 
   return (
     <section
@@ -515,4 +515,4 @@ export const ActivePulsePanel = ({
       </div>
     </section>
   );
-};
+});

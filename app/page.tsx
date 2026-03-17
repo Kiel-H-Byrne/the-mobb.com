@@ -42,7 +42,7 @@ const Home = React.memo(() => {
   const [userLocation, setUserLocation] = useState<{ lat: number, lng: number } | null>(null);
 
   // Geolocation Handler
-  const handleNearMeClick = async () => {
+  const handleNearMeClick = React.useCallback(async () => {
     setActiveNav("nearme");
     setIsPanelVisible(true);
     if (navigator.geolocation) {
@@ -73,13 +73,13 @@ const Home = React.memo(() => {
         }
       );
     }
-  };
+  }, [mapInstance]);
 
-  const handleExploreClick = () => {
+  const handleExploreClick = React.useCallback(() => {
     setActiveNav("explore");
     setIsPanelVisible(false);
     setIsMapActive(true);
-  };
+  }, []);
 
   useEffect(() => {
     async function fetchListings() {
