@@ -103,6 +103,45 @@ export async function getPendingListings() {
   }
 }
 
+export async function sanitizePendingListings() {
+  if (!(await checkAdmin())) return { success: false, error: "Unauthorized" };
+
+  try {
+    const client = await clientPromise;
+    const db = client.db(DB_NAME);
+
+    // 1. Identify listings in 'pending_listings' marked as APPROVED but missing from 'listings'
+    const approvedInPending = await db
+      .collection("pending_listings")
+      .find({ status: "APPROVED" })
+      .toArray();
+
+    let resetCount = 0;
+    for (const p of approvedInPending) {
+      const existsInLive = await db
+        .collection("listings")
+        .findOne({ name: p.name });
+
+      if (!existsInLive) {
+        // Reset to PENDING_REVIEW so it appears in the dashboard
+        await db
+          .collection("pending_listings")
+          .updateOne(
+            { _id: p._id },
+            { $set: { status: "PENDING_REVIEW" } }
+          );
+        resetCount++;
+      }
+    }
+
+    revalidatePath("/admin/reviews");
+    return { success: true, count: resetCount };
+  } catch (error) {
+    console.error("Sanitize failed:", error);
+    return { success: false, error: "Sanitization failed." };
+  }
+}
+
 export async function approveListing(id: string, finalizedData: any) {
   if (!(await checkAdmin())) return { success: false, error: "Unauthorized" };
 
@@ -213,7 +252,10 @@ export async function approveListing(id: string, finalizedData: any) {
     // 2. Mark as APPROVED in pending_listings
     await db
       .collection("pending_listings")
-      .updateOne({ _id: new ObjectId(id) }, { $set: { status: "APPROVED" } });
+      .updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { status: "APPROVED", approvedAt: new Date() } }
+      );
 
     revalidatePath("/admin/reviews");
     revalidatePath("/");
@@ -394,7 +436,13 @@ export async function getWeeklyApprovedStats() {
       {
         $match: {
           status: "APPROVED",
-          createdAt: { $gte: startOfWeek } // Assuming they were approved near when they were created/scraped for now
+          $or: [
+            { approvedAt: { $gte: startOfWeek } },
+            { 
+              approvedAt: { $exists: false },
+              createdAt: { $gte: startOfWeek } 
+            }
+          ]
         }
       },
       {
@@ -538,4 +586,31 @@ export async function autoFindPendingListingAddress(id: string) {
     console.error("Auto-find failed:", error);
     return { success: false, error: "Failed to auto-find address" };
   }
+}
+
+export async function batchClearAndAutoFindListings(ids: string[]) {
+  if (!(await checkAdmin())) return { success: false, error: "Unauthorized" };
+
+  let successCount = 0;
+  let failedCount = 0;
+
+  for (const id of ids) {
+    const clearRes = await clearPendingListingGeolocation(id);
+    if (!clearRes.success) {
+      failedCount++;
+      continue;
+    }
+    
+    // Add a small delay to respect Google Places API limits
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    const findRes = await autoFindPendingListingAddress(id);
+    if (findRes.success && findRes.found) {
+      successCount++;
+    } else {
+      failedCount++;
+    }
+  }
+
+  return { success: true, successCount, failedCount };
 }

@@ -213,4 +213,6 @@ export const SAMPLE_CATEGORIES = [
   "Bookstore",
   "Restaurant",
   "Boutique",
-  "Bakery"]
+  "Bakery",
+  "Service",
+  "Uncategorized"]

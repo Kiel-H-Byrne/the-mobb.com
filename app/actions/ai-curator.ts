@@ -52,11 +52,12 @@ export async function extractBusinessData(url: string) {
       
       - If the page is a "Listicle" (e.g., "10 Best Restaurants"), extract ALL businesses listed.
       - If the page is a single business website, extract information for just that one.
-      - Prioritize extracting the primary location and full address (with street number) of the business.
+      - Prioritize extracting the primary location and full physical street address (with street number, city, state, and zip) of the business.
+      - DO NOT save an address if it is just a city and state (e.g. "Washington, D.C."). If no street address is found, leave the address field empty or mark as "online only" if applicable.
       - If there are multiple locations to a business and more than one address is found, save it as an array of addresses.
       - Look for "Black-owned" keywords (Black-led, minority-owned, cultural context).
       - Normalize addresses where possible.
-      - If the business is online only, label it as such "isOnlineOnly:true"
+      - If the business is online only (no physical storefront), label it as such "isOnlineOnly:true".
     `,
     prompt: `Analyze this HTML content: ${content}`,
   });
@@ -75,6 +76,7 @@ export async function extractBusinessData(url: string) {
     if (!existing) {
       const addressArray = (biz.address || []).filter((a): a is string => Boolean(a));
       const locations: any[] = [];
+      let hasValidStreetLocation = false;
 
       const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
 
@@ -96,6 +98,15 @@ export async function extractBusinessData(url: string) {
                   lng = bestMatch.geometry.location.lng;
                   place_id = bestMatch.place_id;
                   formattedAddress = bestMatch.formatted_address || addr;
+                  
+                  // Check if the result is a specific street/premise, not a broad city/state
+                  const types = bestMatch.types || [];
+                  const isStreet = types.some((t: string) => 
+                    ["street_address", "premise", "subpremise", "route", "intersection", "establishment", "point_of_interest"].includes(t));
+                  
+                  if (lat && lng && isStreet) {
+                    hasValidStreetLocation = true;
+                  }
                 }
               } catch (err) {
                 console.error("Geocoding fetch error for AI Curator:", err);
@@ -114,7 +125,7 @@ export async function extractBusinessData(url: string) {
           if (apiKey) {
             try {
               // Using findplacefromtext is best for a name query to get the location details
-              const findPlaceUrl = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(biz.name)}&inputtype=textquery&fields=formatted_address,geometry,place_id&key=${apiKey}`;
+              const findPlaceUrl = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(biz.name)}&inputtype=textquery&fields=formatted_address,geometry,place_id,types&key=${apiKey}`;
               const placeRes = await fetch(findPlaceUrl);
               const placeData = await placeRes.json();
 
@@ -129,6 +140,14 @@ export async function extractBusinessData(url: string) {
                     lng: bestMatch.geometry.location.lng,
                     place_id: bestMatch.place_id
                   });
+                  
+                  const types = bestMatch.types || [];
+                  const isSpecificPlace = types.some((t: string) => ["establishment", "point_of_interest"].includes(t));
+                  const isGeneral = types.some((t: string) => ["locality", "administrative_area_level_1", "administrative_area_level_2", "political"].includes(t));
+                  
+                  if (isSpecificPlace && !isGeneral && bestMatch.geometry.location.lat && bestMatch.geometry.location.lng) {
+                    hasValidStreetLocation = true;
+                  }
                 }
               }
             } catch (err) {
@@ -154,19 +173,28 @@ export async function extractBusinessData(url: string) {
         }
       }
 
-      // Auto-approve criteria:
-      // 1. We found a valid Google Place ID / Location
-      // 2. AI confirmed isBlackOwned is true
-      // 3. We have a valid category
-      const hasValidLocation = locations.some(loc => loc.place_id && loc.lat && loc.lng);
       const finalCategory = biz.category || "Uncategorized";
       
       let finalStatus: "PENDING_REVIEW" | "APPROVED" | "REJECTED" = "PENDING_REVIEW";
-      if (hasValidLocation && biz.isBlackOwned && finalCategory !== "Uncategorized") {
-        finalStatus = "APPROVED";
+      let approvedAt: Date | undefined = undefined;
+
+      if (biz.isOnlineOnly) {
+        hasValidStreetLocation = true; // Online-only doesn't require a physical street
       }
 
-      newListings.push({
+      // Robust Auto-Approve Criteria
+      const isHighlyConfident = biz.isBlackOwned && finalCategory !== "Uncategorized";
+      
+      if (isHighlyConfident && hasValidStreetLocation) {
+        finalStatus = "APPROVED";
+        approvedAt = new Date();
+      } else if (!hasValidStreetLocation && !biz.isOnlineOnly) {
+        // AI found a business but NO physical street address. We leave it as PENDING_REVIEW 
+        // to force human review instead of spamming map with city centers.
+        finalStatus = "PENDING_REVIEW";
+      }
+
+      const pendingInsertData: any = {
         name: biz.name,
         category: finalCategory,
         address: addressArray, // Legacy fallback
@@ -178,7 +206,46 @@ export async function extractBusinessData(url: string) {
         source: "AI_SCAN",
         status: finalStatus,
         createdAt: new Date(),
-      });
+      };
+
+      if (approvedAt) {
+        pendingInsertData.approvedAt = approvedAt;
+
+        // Auto-promote directly to the live 'listings' collection
+        const liveLocations = locations.map(l => ({
+            address: l.address,
+            place_id: l.place_id,
+            coordinates: { type: "Point", coordinates: [Number(l.lng), Number(l.lat)] }
+        })).filter(l => l.coordinates.coordinates[0] && l.coordinates.coordinates[1]);
+
+        const liveListingToInsert = {
+          name: biz.name,
+          address: liveLocations.length > 0 ? liveLocations[0].address : (biz.isOnlineOnly ? "Online Only" : addressArray[0] || "Unknown"),
+          city: "",
+          categories: [finalCategory],
+          url: bizWebsite,
+          description: biz.description || "",
+          isOnlineOnly: biz.isOnlineOnly,
+          claims: [],
+          creator: new Date(),
+          submitted: new Date(),
+          locations: liveLocations
+        };
+
+        if (liveLocations.length > 0) {
+          (liveListingToInsert as any).coordinates = liveLocations[0].coordinates;
+          (liveListingToInsert as any).type = "Point";
+        }
+
+        const liveCollection = db.collection("listings");
+        const dupInLive = await liveCollection.findOne({ name: biz.name });
+        if (!dupInLive) {
+          await liveCollection.insertOne(liveListingToInsert);
+          console.log(`🤖 AI Auto-Approved and Published: ${biz.name}`);
+        }
+      }
+
+      newListings.push(pendingInsertData);
     } else {
       console.log(`AI Curator: Skipping duplicate business "${biz.name}"`);
     }

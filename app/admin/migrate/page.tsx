@@ -1,5 +1,6 @@
 "use client";
 
+import { sanitizePendingListings } from "@app/actions/admin";
 import { migrateLegacyListings } from "@app/actions/migration";
 import { css } from "@styled/css";
 import { useRouter } from "next/navigation";
@@ -12,6 +13,8 @@ export default function MigratePage() {
     const [dedupResult, setDedupResult] = useState<string | null>(null);
     const [isSanitizeLoading, setIsSanitizeLoading] = useState(false);
     const [sanitizeResult, setSanitizeResult] = useState<string | null>(null);
+    const [isRepairLoading, setIsRepairLoading] = useState(false);
+    const [repairResult, setRepairResult] = useState<string | null>(null);
     const router = useRouter();
 
     const handleMigration = async () => {
@@ -60,6 +63,18 @@ export default function MigratePage() {
             setSanitizeResult(`Error: ${res.error || "Unknown"}`);
         }
         setIsSanitizeLoading(false);
+    };
+
+    const handleRepair = async () => {
+        setIsRepairLoading(true);
+        setRepairResult(null);
+        const res = await sanitizePendingListings();
+        if (res.success) {
+            setRepairResult(`Success: Recovered ${res.count} orphaned listings.`);
+        } else {
+            setRepairResult(`Error: ${res.error || "Unknown"}`);
+        }
+        setIsRepairLoading(false);
     };
 
     return (
@@ -191,6 +206,38 @@ export default function MigratePage() {
                     {sanitizeResult && (
                         <div className={css({ mt: "6", p: "4", bg: sanitizeResult.includes("Error") ? "red.50" : "green.50", color: sanitizeResult.includes("Error") ? "red.800" : "green.800", borderRadius: "md", fontWeight: "bold" })}>
                             {sanitizeResult}
+                        </div>
+                    )}
+                </div>
+                <div className={css({ bg: "bg.surface", p: "6", borderRadius: "md", boxShadow: "sm", border: "1px solid", borderColor: "border.light" })}>
+                    <div className={css({ display: "flex", alignItems: "center", gap: "3", mb: "2" })}>
+                        <span className={css({ fontSize: "2xl" })}>4️⃣</span>
+                        <h2 className={css({ fontSize: "xl", fontWeight: "bold", color: "text.main" })}>Repair Database (Orphans)</h2>
+                    </div>
+                    <p className={css({ color: "text.muted", mb: "4" })}>
+                        Heals listings that were marked "Approved" in pending but failed to publish to the live map. This typically happens if the AI Curator auto-approves a listing but skips the final promotion step. <strong>Safe to run anytime.</strong>
+                    </p>
+
+                    <button
+                        onClick={handleRepair}
+                        disabled={isRepairLoading}
+                        className={css({
+                            bg: "gray.700",
+                            color: "white",
+                            p: "3 6",
+                            borderRadius: "md",
+                            fontWeight: "bold",
+                            cursor: isRepairLoading ? "not-allowed" : "pointer",
+                            opacity: isRepairLoading ? 0.7 : 1,
+                            _hover: { bg: "gray.800" }
+                        })}
+                    >
+                        {isRepairLoading ? "Repairing..." : "Run Database Repair"}
+                    </button>
+
+                    {repairResult && (
+                        <div className={css({ mt: "6", p: "4", bg: repairResult.includes("Error") ? "red.50" : "green.50", color: repairResult.includes("Error") ? "red.800" : "green.800", borderRadius: "md", fontWeight: "bold" })}>
+                            {repairResult}
                         </div>
                     )}
                 </div>

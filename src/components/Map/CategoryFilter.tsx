@@ -33,9 +33,16 @@ const CategoryFilter = ({
 
   const catCount = useMemo(
     () => (name: Category) => {
+      if (name === "Uncategorized") {
+        return (listings || []).filter((el) => {
+          const noCategories = !el.categories || el.categories.length === 0;
+          const hasUnrecognized = el.categories?.some(cat => !categories.includes(cat) && cat !== "Uncategorized");
+          return noCategories || hasUnrecognized;
+        }).length;
+      }
       return (listings || []).filter((el) => el.categories?.includes(name)).length;
     },
-    [listings]
+    [listings, categories]
   );
 
   return (

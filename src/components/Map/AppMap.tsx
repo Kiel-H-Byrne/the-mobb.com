@@ -56,6 +56,7 @@ interface IAppMap {
 const MapContent = memo(
   ({
     listings,
+    categories,
     selectedCategories,
     activeListing,
     setactiveListing,
@@ -137,7 +138,12 @@ const MapContent = memo(
               );
             const noCategories =
               !listing.categories || listing.categories.length === 0;
-            const isVisible = hasMatch || noCategories;
+            
+            const hasUnrecognizedCategory = listing.categories && listing.categories.some((cat: string) => !categories.includes(cat) && cat !== "Uncategorized");
+
+            const isUncategorizedMatch = selectedCategories.has("Uncategorized") && (noCategories || hasUnrecognizedCategory);
+
+            const isVisible = hasMatch || isUncategorizedMatch;
             const hasLegacyCoordinates = Boolean(
               listing.coordinates &&
               listing.coordinates.coordinates &&
@@ -149,7 +155,12 @@ const MapContent = memo(
               listing.locations.some(loc => loc.coordinates?.coordinates?.length === 2)
             );
 
-            if (!isVisible || (!hasLegacyCoordinates && !hasLocations) || listing.isOnlineOnly)
+            const hasPlacesLocation = Boolean(
+              (listing.places_details as any)?.location?.lat &&
+              (listing.places_details as any)?.location?.lng
+            );
+
+            if (!isVisible || (!hasLegacyCoordinates && !hasLocations && !hasPlacesLocation) || listing.isOnlineOnly)
               return null;
 
             if (hasLocations) {
@@ -286,6 +297,7 @@ const AppMap = memo(
         >
           <MapContent
             listings={listings}
+            categories={categories}
             selectedCategories={selectedCategories}
             activeListing={activeListing}
             setactiveListing={setactiveListing}
