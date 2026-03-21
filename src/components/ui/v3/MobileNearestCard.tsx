@@ -112,15 +112,15 @@ export const MobileNearestCard = ({
                         flexShrink: 0,
                     })}
                 >
-                    {listing.image ? (
+                    {listing.image || listing.og_image ? (
                         <img
-                            src={typeof listing.image === 'string' ? listing.image : (listing.image as any)?.url || ''}
+                            src={typeof listing.image === 'string' ? listing.image : (listing.image as any)?.url || listing.og_image || ''}
                             className={css({
                                 w: "full",
                                 h: "full",
                                 objectFit: "cover",
                             })}
-                            alt={listing.name}
+                            alt={listing.name || listing.og_title}
                         />
                     ) : (
                         <div
@@ -167,7 +167,7 @@ export const MobileNearestCard = ({
                             lineHeight: "tight",
                         })}
                     >
-                        {listing.name}
+                        {listing.name || listing.og_title}
                     </h3>
 
                     <p className={css({

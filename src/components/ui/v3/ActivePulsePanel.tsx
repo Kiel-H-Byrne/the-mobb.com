@@ -88,9 +88,9 @@ export const ListingCard3D = React.memo(({
             flexShrink: 0,
           })}
         >
-          {listing.image ? (
+          {listing.image || listing.og_image ? (
             <img
-              src={typeof listing.image === 'string' ? listing.image : (listing.image as any)?.url || ''}
+              src={typeof listing.image === 'string' ? listing.image : (listing.image as any)?.url || listing.og_image || ''}
               className={css({
                 w: "full",
                 h: "full",
@@ -100,7 +100,7 @@ export const ListingCard3D = React.memo(({
                 _groupHover: { mixBlendMode: "normal" },
                 transition: "all 0.5s",
               })}
-              alt={listing.name}
+              alt={listing.name || listing.og_title}
             />
           ) : (
             <div

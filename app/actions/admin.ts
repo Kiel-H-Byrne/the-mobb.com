@@ -1,6 +1,7 @@
 "use server";
 
 import clientPromise, { DB_NAME } from "@/db/mongodb";
+import { fetchLinkPreview } from "@/util/linkPreview";
 import { ObjectId } from "mongodb";
 import { revalidatePath } from "next/cache";
 
@@ -65,9 +66,9 @@ export async function clearPendingListingGeolocation(id: string) {
           google_id: "",
           google_search_attempted: "",
           google_search_found: "",
-          locations: ""
-        }
-      }
+          locations: "",
+        },
+      },
     );
 
     revalidatePath("/admin/reviews");
@@ -126,10 +127,7 @@ export async function sanitizePendingListings() {
         // Reset to PENDING_REVIEW so it appears in the dashboard
         await db
           .collection("pending_listings")
-          .updateOne(
-            { _id: p._id },
-            { $set: { status: "PENDING_REVIEW" } }
-          );
+          .updateOne({ _id: p._id }, { $set: { status: "PENDING_REVIEW" } });
         resetCount++;
       }
     }
@@ -159,7 +157,7 @@ export async function approveListing(id: string, finalizedData: any) {
         sourceLocations.push({
           address: normalizedAddress,
           lat: finalizedData.lat,
-          lng: finalizedData.lng
+          lng: finalizedData.lng,
         });
       }
     }
@@ -181,12 +179,16 @@ export async function approveListing(id: string, finalizedData: any) {
               const geocodeRes = await fetch(geocodeUrl);
               const geocodeData = await geocodeRes.json();
 
-              if (geocodeData.status === "OK" && geocodeData.results.length > 0) {
+              if (
+                geocodeData.status === "OK" &&
+                geocodeData.results.length > 0
+              ) {
                 const bestMatch = geocodeData.results[0];
                 lat = bestMatch.geometry.location.lat;
                 lng = bestMatch.geometry.location.lng;
                 place_id = bestMatch.place_id;
-                formattedAddress = bestMatch.formatted_address || formattedAddress;
+                formattedAddress =
+                  bestMatch.formatted_address || formattedAddress;
               }
             } catch (err) {
               console.error("Geocoding fetch error:", err);
@@ -200,14 +202,25 @@ export async function approveListing(id: string, finalizedData: any) {
             place_id,
             coordinates: {
               type: "Point",
-              coordinates: [Number(lng), Number(lat)]
-            }
+              coordinates: [Number(lng), Number(lat)],
+            },
           });
         }
       }
     }
 
-    const safeAddress = finalLocations.length > 0 ? finalLocations[0].address : (isOnlineOnly ? "Online Only" : "Unknown Address");
+    const safeAddress =
+      finalLocations.length > 0
+        ? finalLocations[0].address
+        : isOnlineOnly
+          ? "Online Only"
+          : "Unknown Address";
+
+    // Fetch OpenGraph metadata if website exists
+    let ogData = null;
+    if (finalizedData.website) {
+      ogData = await fetchLinkPreview(finalizedData.website);
+    }
 
     // 0. Duplicate Check
     const existingDuplicate = await db.collection("listings").findOne({
@@ -239,6 +252,9 @@ export async function approveListing(id: string, finalizedData: any) {
       claims: [],
       creator: new Date(),
       submitted: new Date(),
+      og_title: ogData?.title,
+      og_description: ogData?.description,
+      og_image: ogData?.image,
     };
 
     // Note: Legacy coordinates support for the first location to satisfy existing $near queries
@@ -254,7 +270,7 @@ export async function approveListing(id: string, finalizedData: any) {
       .collection("pending_listings")
       .updateOne(
         { _id: new ObjectId(id) },
-        { $set: { status: "APPROVED", approvedAt: new Date() } }
+        { $set: { status: "APPROVED", approvedAt: new Date() } },
       );
 
     revalidatePath("/admin/reviews");
@@ -296,7 +312,10 @@ export async function rejectMultipleListings(ids: string[]) {
     const objectIds = ids.map((id) => new ObjectId(id));
     await db
       .collection("pending_listings")
-      .updateMany({ _id: { $in: objectIds } }, { $set: { status: "REJECTED" } });
+      .updateMany(
+        { _id: { $in: objectIds } },
+        { $set: { status: "REJECTED" } },
+      );
 
     revalidatePath("/admin/reviews");
     return { success: true };
@@ -371,12 +390,20 @@ export async function updatePendingListing(id: string, updatedData: any) {
     }
 
     // Sync root coordinates/address to the primary locations array so UI renders correctly for overrides
-    if (!safeData.isOnlineOnly && safeData.address && hasLat && hasLng && !safeData.locations) {
-      safeData.locations = [{
-        address: safeData.address,
-        lat: safeData.lat,
-        lng: safeData.lng
-      }];
+    if (
+      !safeData.isOnlineOnly &&
+      safeData.address &&
+      hasLat &&
+      hasLng &&
+      !safeData.locations
+    ) {
+      safeData.locations = [
+        {
+          address: safeData.address,
+          lat: safeData.lat,
+          lng: safeData.lng,
+        },
+      ];
     }
 
     const updateOperation: Record<string, any> = { $set: safeData };
@@ -399,24 +426,31 @@ export async function updatePendingListing(id: string, updatedData: any) {
 
 export async function manuallyRunScout() {
   if (!(await checkAdmin())) return { success: false, error: "Unauthorized" };
-  
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
-    
+
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000");
+
   try {
     const res = await fetch(`${baseUrl}/api/cron/scout`, {
       method: "GET",
       headers: {
-        authorization: `Bearer ${process.env.CRON_SECRET || ""}`
-      }
+        authorization: `Bearer ${process.env.CRON_SECRET || ""}`,
+      },
     });
-    
+
     // We try to parse the JSON response from the scout cron API
     const data = await res.json();
     revalidatePath("/admin/reviews");
     return data;
   } catch (error: any) {
     console.error("Manual scout trigger failed:", error);
-    return { success: false, error: error.message || "Failed to trigger scout API." };
+    return {
+      success: false,
+      error: error.message || "Failed to trigger scout API.",
+    };
   }
 }
 
@@ -426,47 +460,53 @@ export async function getWeeklyApprovedStats() {
   try {
     const client = await clientPromise;
     const db = client.db(DB_NAME);
-    
+
     // Get the start of the week (Sunday at midnight)
     const startOfWeek = new Date();
     startOfWeek.setHours(0, 0, 0, 0);
     startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
 
-    const stats = await db.collection("pending_listings").aggregate([
-      {
-        $match: {
-          status: "APPROVED",
-          $or: [
-            { approvedAt: { $gte: startOfWeek } },
-            { 
-              approvedAt: { $exists: false },
-              createdAt: { $gte: startOfWeek } 
-            }
-          ]
-        }
-      },
-      {
-        $group: {
-          _id: "$source", // Group by AI_SCAN vs MANUAL
-          count: { $sum: 1 }
-        }
-      }
-    ]).toArray();
+    const stats = await db
+      .collection("pending_listings")
+      .aggregate([
+        {
+          $match: {
+            status: "APPROVED",
+            $or: [
+              { approvedAt: { $gte: startOfWeek } },
+              {
+                approvedAt: { $exists: false },
+                createdAt: { $gte: startOfWeek },
+              },
+            ],
+          },
+        },
+        {
+          $group: {
+            _id: "$source", // Group by AI_SCAN vs MANUAL
+            count: { $sum: 1 },
+          },
+        },
+      ])
+      .toArray();
 
     // Reformat into a simple object { AI_SCAN: 10, MANUAL: 5 }
-    const formattedStats = stats.reduce((acc, curr) => {
-      acc[curr._id] = curr.count;
-      return acc;
-    }, {} as Record<string, number>);
+    const formattedStats = stats.reduce(
+      (acc, curr) => {
+        acc[curr._id] = curr.count;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
 
-    return { 
-      success: true, 
+    return {
+      success: true,
       data: {
         total: stats.reduce((sum, curr) => sum + curr.count, 0),
         aiScanned: formattedStats["AI_SCAN"] || 0,
         manual: formattedStats["MANUAL"] || 0,
-        startOfWeek
-      }
+        startOfWeek,
+      },
     };
   } catch (error) {
     console.error(error);
@@ -481,14 +521,19 @@ export async function autoFindPendingListingAddress(id: string) {
     const client = await clientPromise;
     const db = client.db(DB_NAME);
 
-    const listing = await db.collection("pending_listings").findOne({ _id: new ObjectId(id) });
+    const listing = await db
+      .collection("pending_listings")
+      .findOne({ _id: new ObjectId(id) });
     if (!listing) return { success: false, error: "Listing not found" };
 
     const addressString = normalizeAddress(listing.address);
     // Include the address (e.g. city/state) in the query to improve accuracy
-    const query = encodeURIComponent([listing.name, addressString].filter(Boolean).join(" "));
+    const query = encodeURIComponent(
+      [listing.name, addressString].filter(Boolean).join(" "),
+    );
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
-    if (!apiKey) return { success: false, error: "No Google Maps API key configured" };
+    if (!apiKey)
+      return { success: false, error: "No Google Maps API key configured" };
 
     const searchUrl = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${query}&inputtype=textquery&fields=place_id,formatted_address,geometry,name,types&key=${apiKey}`;
     const res = await fetch(searchUrl);
@@ -504,39 +549,62 @@ export async function autoFindPendingListingAddress(id: string) {
       // Ensure we have a valid place ID + address
       if (address && place_id) {
         // Reject if it's purely a geographic region (like a city/state match) and not an actual business
-        const isEstablishment = match.types && (match.types.includes("establishment") || match.types.includes("point_of_interest"));
+        const isEstablishment =
+          match.types &&
+          (match.types.includes("establishment") ||
+            match.types.includes("point_of_interest"));
         if (!isEstablishment) {
           await db.collection("pending_listings").updateOne(
             { _id: new ObjectId(id) },
-            { $set: { google_search_attempted: true, google_search_found: false } }
+            {
+              $set: {
+                google_search_attempted: true,
+                google_search_found: false,
+              },
+            },
           );
           revalidatePath("/admin/reviews");
-          return { success: true, found: false, error: "Match was a general geography, not a business establishment." };
+          return {
+            success: true,
+            found: false,
+            error:
+              "Match was a general geography, not a business establishment.",
+          };
         }
 
         // Now fetch full place details for phone/website using Places Details API
         const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place_id}&fields=website,formatted_phone_number,address_components&key=${apiKey}`;
         const detailsRes = await fetch(detailsUrl);
         const detailsData = await detailsRes.json();
-        
+
         // Ensure new result has a street address, not just city/state
         const addressComponents = detailsData.result?.address_components || [];
-        const hasStreet = addressComponents.some((c: any) => 
-          c.types.includes("route") || 
-          c.types.includes("street_number") || 
-          c.types.includes("premise") ||
-          c.types.includes("subpremise") ||
-          c.types.includes("intersection")
+        const hasStreet = addressComponents.some(
+          (c: any) =>
+            c.types.includes("route") ||
+            c.types.includes("street_number") ||
+            c.types.includes("premise") ||
+            c.types.includes("subpremise") ||
+            c.types.includes("intersection"),
         );
-        
+
         if (addressComponents.length > 0 && !hasStreet) {
           // Reject this result and mark as not found
           await db.collection("pending_listings").updateOne(
             { _id: new ObjectId(id) },
-            { $set: { google_search_attempted: true, google_search_found: false } }
+            {
+              $set: {
+                google_search_attempted: true,
+                google_search_found: false,
+              },
+            },
           );
           revalidatePath("/admin/reviews");
-          return { success: true, found: false, error: "Only city/state found, requires street address." };
+          return {
+            success: true,
+            found: false,
+            error: "Only city/state found, requires street address.",
+          };
         }
 
         const updateData: any = {
@@ -546,12 +614,14 @@ export async function autoFindPendingListingAddress(id: string) {
           places_details: { place_id },
           google_search_attempted: true,
           google_search_found: true,
-          locations: [{
-            address,
-            lat,
-            lng,
-            place_id,
-          }]
+          locations: [
+            {
+              address,
+              lat,
+              lng,
+              place_id,
+            },
+          ],
         };
 
         if (detailsData.status === "OK" && detailsData.result) {
@@ -563,10 +633,9 @@ export async function autoFindPendingListingAddress(id: string) {
           }
         }
 
-        await db.collection("pending_listings").updateOne(
-          { _id: new ObjectId(id) },
-          { $set: updateData }
-        );
+        await db
+          .collection("pending_listings")
+          .updateOne({ _id: new ObjectId(id) }, { $set: updateData });
 
         revalidatePath("/admin/reviews");
         return { success: true, found: true, updateData };
@@ -574,14 +643,15 @@ export async function autoFindPendingListingAddress(id: string) {
     }
 
     // Attempted but NOT found
-    await db.collection("pending_listings").updateOne(
-      { _id: new ObjectId(id) },
-      { $set: { google_search_attempted: true, google_search_found: false } }
-    );
-    
+    await db
+      .collection("pending_listings")
+      .updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { google_search_attempted: true, google_search_found: false } },
+      );
+
     revalidatePath("/admin/reviews");
     return { success: true, found: false };
-
   } catch (error: any) {
     console.error("Auto-find failed:", error);
     return { success: false, error: "Failed to auto-find address" };
@@ -600,9 +670,9 @@ export async function batchClearAndAutoFindListings(ids: string[]) {
       failedCount++;
       continue;
     }
-    
+
     // Add a small delay to respect Google Places API limits
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     const findRes = await autoFindPendingListingAddress(id);
     if (findRes.success && findRes.found) {

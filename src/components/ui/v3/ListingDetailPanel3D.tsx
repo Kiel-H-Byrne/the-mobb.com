@@ -20,7 +20,7 @@ export const ListingDetailPanel3D = ({
 }: ListingDetailPanel3DProps) => {
     if (!isOpen) return null;
 
-    const { url, name, image, description, phone, address, categories } = listing;
+    const { url, name, image, description, phone, address, categories, og_title, og_description, og_image } = listing;
 
     const isSaved = savedListings?.some(l => (l as any)._id === (listing as any)._id || l.name === listing.name);
 
@@ -99,8 +99,8 @@ export const ListingDetailPanel3D = ({
                 <div className={css({ position: "relative", w: "full", h: "240px", bg: "brand.greyDark", overflow: "hidden" })}>
                     <div className={css({ position: "absolute", inset: 0, bg: "linear-gradient(to bottom, transparent, #0B0B0E)", zIndex: 1 })} />
                     <a href={url} title="Listing Image" rel="noopener noreferrer" target="_blank" className={css({ display: "block", w: "full", h: "full" })}>
-                        {image ? (
-                            <img src={typeof image === 'string' ? image : (image as any)?.url || ''} alt={name} className={css({ w: "full", h: "full", objectFit: "cover", opacity: 0.8, filter: "contrast(1.1) saturate(1.2)" })} />
+                        {(image || og_image) ? (
+                            <img src={typeof image === 'string' ? image : (image as any)?.url || og_image || ''} alt={name} className={css({ w: "full", h: "full", objectFit: "cover", opacity: 0.8, filter: "contrast(1.1) saturate(1.2)" })} />
                         ) : (
                             <div className={css({ w: "full", h: "full", display: "flex", alignItems: "center", justifyContent: "center" })}>
                                 {/* <i className="ph-duotone ph-image text-6xl text-gray-600"></i> */}
@@ -120,10 +120,10 @@ export const ListingDetailPanel3D = ({
                 <div className={css({ p: "4", display: "flex", flexDirection: "column", gap: "4" })}>
                     <div>
                         <h1 className={css({ fontSize: "2xl", fontWeight: "bold", color: "white", lineHeight: "tight", mb: "2", textShadow: "0 0 20px rgba(255,255,255,0.1)" })}>
-                            {name}
+                            {name || og_title}
                         </h1>
                         <p className={css({ color: "gray.400", fontSize: "sm", lineHeight: "relaxed" })}>
-                            {description || "No description available for this business."}
+                            {description || og_description || "No description available for this business."}
                         </p>
                     </div>
 
