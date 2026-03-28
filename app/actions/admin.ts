@@ -1,7 +1,7 @@
 "use server";
 
 import clientPromise, { DB_NAME } from "@/db/mongodb";
-import { fetchLinkPreview } from "@/util/linkPreview";
+import { fetchLinkPreview, LinkPreviewData } from "@/util/linkPreview";
 import { ObjectId } from "mongodb";
 import { revalidatePath } from "next/cache";
 
@@ -217,7 +217,7 @@ export async function approveListing(id: string, finalizedData: any) {
           : "Unknown Address";
 
     // Fetch OpenGraph metadata if website exists
-    let ogData = null;
+    let ogData: LinkPreviewData | null = null;
     if (finalizedData.website) {
       ogData = await fetchLinkPreview(finalizedData.website);
     }

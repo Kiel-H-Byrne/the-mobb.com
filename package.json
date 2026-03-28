@@ -4,11 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "panda codegen && next build",
+    "build": "tsc -b && panda codegen && next build",
     "start": "next start",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "prepare": "panda codegen"
+    "prepare": "tsc -b && panda codegen"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.33",

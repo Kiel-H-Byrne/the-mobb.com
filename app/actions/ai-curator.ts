@@ -3,7 +3,7 @@
 
 import clientPromise, { DB_NAME } from "@/db/mongodb";
 import { PendingListing } from "@/db/Types";
-import { fetchLinkPreview } from "@/util/linkPreview";
+import { fetchLinkPreview, LinkPreviewData } from "@/util/linkPreview";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateObject } from "ai";
 import { z } from "zod";
@@ -210,7 +210,7 @@ export async function extractBusinessData(url: string) {
       }
 
       // Fetch OpenGraph metadata if website exists
-      let ogData = null;
+      let ogData: LinkPreviewData | null = null;
       if (bizWebsite) {
         ogData = await fetchLinkPreview(bizWebsite);
       }
