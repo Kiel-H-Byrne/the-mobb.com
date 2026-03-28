@@ -112,7 +112,7 @@ export default defineConfig({
           },
           text: {
             main: { value: { base: "{colors.brand.black}", _dark: "{colors.brand.white}" } },
-            muted: { value: { base: "#6B7280", _dark: "{colors.brand.greyLight}" } }, // Safe fallback for greyLight
+            muted: { value: { base: "#6B7280", _dark: "{colors.brand.grey}" } },
           },
           border: {
             light: { value: { base: "rgba(0, 0, 0, 0.08)", _dark: "rgba(255, 255, 255, 0.08)" } },
