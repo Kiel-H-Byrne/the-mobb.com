@@ -21,11 +21,11 @@ export interface LinkPreviewData {
 }
 
 const LINKPREVIEW_API_URL = "https://api.linkpreview.net";
-const API_KEY = process.env.NEXT_PUBLIC_LINKPREVIEW_API_KEY;
+const API_KEY = process.env.LINKPREVIEW_API_KEY;
 
 if (!API_KEY) {
   console.warn(
-    "NEXT_PUBLIC_LINKPREVIEW_API_KEY not found in environment variables",
+    "LINKPREVIEW_API_KEY not found in environment variables",
   );
 }
 
