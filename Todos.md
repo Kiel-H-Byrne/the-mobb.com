@@ -8,8 +8,8 @@
 ## 📋 Performance Optimization Todo List
 
 ### 1. State Management & Component Architecture
-* [ ] **Refactor `app/page.tsx` Monolith**: Break down the 230+ lines of state in `Home` into discrete providers or a lightweight state store (like **Zustand**).
-* [ ] **Atomic UI States**: Move ephemeral states (like `isDrawerOpen` or `activeNav`) out of the main loop. Toggling a drawer should not cause the Map to re-evaluate 100+ markers.
+* [x] **Refactor `app/page.tsx` Monolith**: Break down the 230+ lines of state in `Home` into discrete providers or a lightweight state store (like **Zustand**).
+* [x] **Atomic UI States**: Move ephemeral states (like `isDrawerOpen` or `activeNav`) out of the main loop. Toggling a drawer should not cause the Map to re-evaluate 100+ markers.
 * [x] **Memoization Audit**: Wrap `visibleListings` calculation in `ActivePulsePanel.tsx` with `useMemo`. Currently, it sorts and maps the entire listing array on *every* mouse move or state change.
 
 ### 2. Next.js & Server-Side Optimization

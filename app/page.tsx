@@ -2,14 +2,15 @@
 
 import AppMap from "@/components/Map/AppMap";
 import { css } from "@styled/css";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 
 import { SAMPLE_CATEGORIES } from "@/db/SampleListings";
 import { fetchAllCategories, fetchAllListings, findBusinessesNearby } from "./actions/geo-search";
 
-import { Category, Listing } from "@/db/Types";
+// Store
+import { useAppStore } from "@/store/useAppStore";
 
-// Placeholder Components for modularity (to be extracted later)
+// Components
 import AddListingDrawer from "@/components/Map/AddListingDrawer";
 import { ActivePulsePanel } from "@/components/ui/v3/ActivePulsePanel";
 import { ListingDetailPanel3D } from "@/components/ui/v3/ListingDetailPanel3D";
@@ -21,29 +22,156 @@ import SidebarHUD from "@/components/ui/v3/SidebarHUD";
 
 import { PlusIcon } from "@phosphor-icons/react";
 
+// --- Wrappers for Atomic Rendering --- //
+
+const RadarOverlay = () => {
+  const isMapActive = useAppStore((state) => state.isMapActive);
+  return (
+    <div className={css({ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "800px", height: "800px", opacity: isMapActive ? 0.3 : 0.05, transition: "opacity 1s", pointerEvents: "none" })}>
+      <div className={css({ position: "absolute", top: "0", left: "0", w: "full", h: "full", borderRadius: "full", background: "conic-gradient(from 0deg, transparent 70%, rgba(255, 90, 0, 0.4) 100%)", animation: isMapActive ? "radarSpin" : "none", pointerEvents: "none" })} />
+    </div>
+  );
+};
+
+const AddListingContainer = () => {
+  const isAddListingOpen = useAppStore((s) => s.isAddListingOpen);
+  const setIsAddListingOpen = useAppStore((s) => s.setIsAddListingOpen);
+  return <AddListingDrawer isOpen={isAddListingOpen} setOpen={setIsAddListingOpen} />;
+};
+
+const DetailPanelContainer = () => {
+  const activeListing = useAppStore((s) => s.activeListing);
+  const isDrawerOpen = useAppStore((s) => s.isDrawerOpen);
+  const setIsDrawerOpen = useAppStore((s) => s.setIsDrawerOpen);
+  const savedListings = useAppStore((s) => s.savedListings);
+  const setSavedListings = useAppStore((s) => s.setSavedListings);
+  
+  if (!activeListing) return null;
+  
+  return (
+    <ListingDetailPanel3D
+      listing={activeListing}
+      isOpen={isDrawerOpen}
+      setOpen={setIsDrawerOpen}
+      savedListings={savedListings}
+      setSavedListings={setSavedListings}
+    />
+  );
+};
+
+const NearestCardContainer = () => {
+  const userLocation = useAppStore((s) => s.userLocation);
+  const closestListing = useAppStore((s) => s.closestListing);
+  const setActiveListing = useAppStore((s) => s.setActiveListing);
+  const setIsDrawerOpen = useAppStore((s) => s.setIsDrawerOpen);
+  
+  if (!userLocation) return null;
+  
+  return (
+    <MobileNearestCard
+      listing={closestListing}
+      setactiveListing={setActiveListing}
+      setisDrawerOpen={setIsDrawerOpen}
+    />
+  );
+};
+
+const FloatingAddButton = () => {
+  const setIsAddListingOpen = useAppStore(s => s.setIsAddListingOpen);
+  return (
+    <div className={css({ position: "fixed", bottom: "6", right: "6", zIndex: 50, animation: "floatAnim", animationDelay: "1s", pointerEvents: "auto" })}>
+      <button
+        onClick={() => setIsAddListingOpen(true)}
+        className={css({
+          width: { base: "48px", md: "56px" },
+          height: { base: "48px", md: "56px" },
+          borderRadius: "full",
+          bg: "brand.orange",
+          border: "2px solid",
+          borderColor: "rgba(255, 90, 0, 0.3)",
+          boxShadow: "0 0 20px rgba(255,90,0,0.6)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer",
+          color: "black",
+          _hover: { transform: "scale(1.05)", filter: "brightness(1.1)" },
+          transition: "all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+        })}
+      >
+        <PlusIcon weight="bold" size={24} />
+      </button>
+    </div>
+  );
+};
+
+const MapContainer = () => {
+  const listings = useAppStore(s => s.listings);
+  const setListings = useAppStore(s => s.setListings);
+  const categories = useAppStore(s => s.categories);
+  const mapInstance = useAppStore(s => s.mapInstance);
+  const setMapInstance = useAppStore(s => s.setMapInstance);
+  const activeListing = useAppStore(s => s.activeListing);
+  const setActiveListing = useAppStore(s => s.setActiveListing);
+  const selectedCategories = useAppStore(s => s.selectedCategories);
+  const setSelectedCategories = useAppStore(s => s.setSelectedCategories);
+  const setIsDrawerOpen = useAppStore(s => s.setIsDrawerOpen);
+  const setIsInfoWindowOpen = useAppStore(s => s.setIsInfoWindowOpen);
+  const setIsMapActive = useAppStore(s => s.setIsMapActive);
+  const setClosestListing = useAppStore(s => s.setClosestListing);
+  
+  // Note: We deliberately EXCLUDE `isDrawerOpen` here so toggling the drawer doesn't re-render the map
+  // AppMap's inner components only need `setisDrawerOpen` anyway!
+
+  return (
+    <AppMap
+      listings={listings || []}
+      setListings={setListings}
+      categories={categories || []}
+      setMapInstance={setMapInstance}
+      mapInstance={mapInstance}
+      browserLocation={null}
+      // Lifted State Handlers
+      activeListing={activeListing}
+      setactiveListing={setActiveListing}
+      selectedCategories={selectedCategories}
+      setSelectedCategories={setSelectedCategories}
+      isDrawerOpen={false} // Passes dummy value to avoid prop requirements or errors
+      setisDrawerOpen={setIsDrawerOpen}
+      isInfoWindowOpen={false} // Also pass dummy value to prevent atomic re-render
+      setisInfoWindowOpen={setIsInfoWindowOpen}
+      setIsMapActive={setIsMapActive}
+      setClosestListing={setClosestListing}
+    />
+  );
+};
+
+// --- Main Page Component --- //
+
 const Home = React.memo(() => {
-  const [mapInstance, setMapInstance] = useState<any>(null);
-  const [listings, setListings] = useState<Listing[] | null>(null);
-  const [categories, setCategories] = useState<Category[] | null>(null);
+  // Main Page level state subscriptions (only things needed for layout rendering)
+  const listings = useAppStore((state) => state.listings);
+  const categories = useAppStore((state) => state.categories);
+  const setListings = useAppStore((state) => state.setListings);
+  const setCategories = useAppStore((state) => state.setCategories);
+  const selectedCategories = useAppStore((state) => state.selectedCategories);
+  const setSelectedCategories = useAppStore((state) => state.setSelectedCategories);
+  const mapInstance = useAppStore((state) => state.mapInstance);
+  
+  const activeNav = useAppStore((state) => state.activeNav);
+  const setActiveNav = useAppStore((state) => state.setActiveNav);
+  const isPanelVisible = useAppStore((state) => state.isPanelVisible);
+  const setIsPanelVisible = useAppStore((state) => state.setIsPanelVisible);
+  const setIsMapActive = useAppStore((state) => state.setIsMapActive);
+  
+  const userLocation = useAppStore((state) => state.userLocation);
+  const setUserLocation = useAppStore((state) => state.setUserLocation);
 
-  // States lifted from AppMap
-  const [isDrawerOpen, setisDrawerOpen] = useState(false);
-  const [isInfoWindowOpen, setisInfoWindowOpen] = useState(false);
-  const [activeListing, setactiveListing] = useState<Listing | null>(null);
-  const [closestListing, setClosestListing] = useState<Listing | null>(null);
-  const [selectedCategories, setSelectedCategories] = useState<Set<Category>>(new Set());
-  const [isAddListingOpen, setIsAddListingOpen] = useState(false);
-  const [savedListings, setSavedListings] = useState<Listing[]>([]);
+  const setActiveListing = useAppStore((state) => state.setActiveListing);
+  const setIsDrawerOpen = useAppStore((state) => state.setIsDrawerOpen);
+  const setIsAddListingOpen = useAppStore((state) => state.setIsAddListingOpen);
+  const savedListings = useAppStore((state) => state.savedListings);
 
-  // Radar state
-  const [isMapActive, setIsMapActive] = useState(true);
-
-  // Navigation & Location state
-  const [activeNav, setActiveNav] = useState<"nearme" | "explore" | "saved" | "curator">("nearme");
-  const [isPanelVisible, setIsPanelVisible] = useState(true);
-  const [userLocation, setUserLocation] = useState<{ lat: number, lng: number } | null>(null);
-
-  // Geolocation Handler
   const handleNearMeClick = React.useCallback(async () => {
     setActiveNav("nearme");
     setIsPanelVisible(true);
@@ -56,10 +184,9 @@ const Home = React.memo(() => {
 
           if (mapInstance) {
             mapInstance.panTo({ lat, lng });
-            mapInstance.setZoom(12); // zoom in closer for local results
+            mapInstance.setZoom(12);
           }
 
-          // 20 miles is roughly 32000 meters
           try {
             const nearby = await findBusinessesNearby(lat, lng, 32000);
             if (nearby && nearby.length > 0) {
@@ -71,17 +198,16 @@ const Home = React.memo(() => {
         },
         (error) => {
           console.error("Geolocation error:", error);
-          // Fallback handling or notification could go here
         }
       );
     }
-  }, [mapInstance]);
+  }, [mapInstance, setActiveNav, setIsPanelVisible, setUserLocation, setListings]);
 
   const handleExploreClick = React.useCallback(() => {
     setActiveNav("explore");
     setIsPanelVisible(false);
     setIsMapActive(true);
-  }, []);
+  }, [setActiveNav, setIsPanelVisible, setIsMapActive]);
 
   useEffect(() => {
     async function fetchListings() {
@@ -98,37 +224,16 @@ const Home = React.memo(() => {
     }
     fetchListings();
     fetchCategories();
-  }, []);
+  }, [setListings, setCategories, setSelectedCategories]);
 
   return (
     <div className={css({ h: "100dvh", w: "100%", overflow: "hidden", display: "flex", flexDir: { base: "column", md: "row" }, gap: "6", p: { base: "4", md: "6" }, position: "relative", zIndex: 10, pointerEvents: "none" })}>
-
+      
       {/* Immersive 3D Map Background */}
       <div className={css({ position: "fixed", inset: "-24px", overflow: "hidden", pointerEvents: "auto", zIndex: 0 })}>
-        <AppMap
-          listings={listings || []}
-          setListings={setListings}
-          categories={categories || []}
-          setMapInstance={setMapInstance}
-          mapInstance={mapInstance}
-          browserLocation={null}
-          // Lifted State Handlers
-          activeListing={activeListing}
-          setactiveListing={setactiveListing}
-          selectedCategories={selectedCategories}
-          setSelectedCategories={setSelectedCategories}
-          isDrawerOpen={isDrawerOpen}
-          setisDrawerOpen={setisDrawerOpen}
-          isInfoWindowOpen={isInfoWindowOpen}
-          setisInfoWindowOpen={setisInfoWindowOpen}
-          setIsMapActive={setIsMapActive}
-          setClosestListing={setClosestListing}
-        />
-        {/* Holographic Radar Backdrop Overlay */}
+        <MapContainer />
         <div className={css({ position: "absolute", inset: 0, background: "linear-gradient(to top, #0B0B0E, transparent, #0B0B0E)", pointerEvents: "none" })} />
-        <div className={css({ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "800px", height: "800px", opacity: isMapActive ? 0.3 : 0.05, transition: "opacity 1s", pointerEvents: "none" })}>
-          <div className={css({ position: "absolute", top: "0", left: "0", w: "full", h: "full", borderRadius: "full", background: "conic-gradient(from 0deg, transparent 70%, rgba(255, 90, 0, 0.4) 100%)", animation: isMapActive ? "radarSpin" : "none", pointerEvents: "none" })} />
-        </div>
+        <RadarOverlay />
       </div>
 
       <div className={css({ display: { base: "none", md: "block" }, zIndex: 40, pointerEvents: "auto" })}>
@@ -147,23 +252,17 @@ const Home = React.memo(() => {
         selectedCategories={selectedCategories}
         setSelectedCategories={setSelectedCategories}
         mapInstance={mapInstance}
-        setactiveListing={setactiveListing}
-        setisDrawerOpen={setisDrawerOpen}
+        setactiveListing={setActiveListing}
+        setisDrawerOpen={setIsDrawerOpen}
       />
 
-      {userLocation && (
-        <MobileNearestCard
-          listing={closestListing}
-          setactiveListing={setactiveListing}
-          setisDrawerOpen={setisDrawerOpen}
-        />
-      )}
+      <NearestCardContainer />
 
       <MobileClosestListingsPanel
         listings={listings || []}
         mapInstance={mapInstance}
-        setactiveListing={setactiveListing}
-        setisDrawerOpen={setisDrawerOpen}
+        setactiveListing={setActiveListing}
+        setisDrawerOpen={setIsDrawerOpen}
         userLocation={userLocation}
         onRequestLocation={handleNearMeClick}
       />
@@ -171,12 +270,11 @@ const Home = React.memo(() => {
       <MobileSavedListingsPanel
         listings={savedListings}
         mapInstance={mapInstance}
-        setactiveListing={setactiveListing}
-        setisDrawerOpen={setisDrawerOpen}
+        setactiveListing={setActiveListing}
+        setisDrawerOpen={setIsDrawerOpen}
       />
 
       <main className={css({ flex: 1, display: { base: "none", md: "flex" }, flexDir: { base: "column", md: "row" }, gap: "6", h: "full", overflow: "hidden", pointerEvents: "none" })}>
-        {/* Active Pulse Panel (Hidden in Explore Mode or manually collapsed) */}
         {(listings && categories && isPanelVisible) && (
           <ActivePulsePanel
             listings={listings}
@@ -184,55 +282,21 @@ const Home = React.memo(() => {
             selectedCategories={selectedCategories}
             setSelectedCategories={setSelectedCategories}
             mapInstance={mapInstance}
-            setactiveListing={setactiveListing}
-            setisDrawerOpen={setisDrawerOpen}
+            setactiveListing={setActiveListing}
+            setisDrawerOpen={setIsDrawerOpen}
             setIsAddListingOpen={setIsAddListingOpen}
             userLocation={userLocation}
             onRequestLocation={handleNearMeClick}
           />
         )}
-
       </main>
 
-      {/* 2030 Listing Detail Panel overlay - Moved outside of main to ensure it displays on mobile */}
-      {activeListing && (
-        <ListingDetailPanel3D
-          listing={activeListing}
-          isOpen={isDrawerOpen}
-          setOpen={setisDrawerOpen}
-          savedListings={savedListings}
-          setSavedListings={setSavedListings}
-        />
-      )}
+      <DetailPanelContainer />
+      <FloatingAddButton />
+      <AddListingContainer />
 
-      <div className={css({ position: "fixed", bottom: "6", right: "6", zIndex: 50, animation: "floatAnim", animationDelay: "1s", pointerEvents: "auto" })}>
-        <button
-          onClick={() => setIsAddListingOpen(true)}
-          className={css({
-            width: { base: "48px", md: "56px" },
-            height: { base: "48px", md: "56px" },
-            borderRadius: "full",
-            bg: "brand.orange",
-            border: "2px solid",
-            borderColor: "rgba(255, 90, 0, 0.3)",
-            boxShadow: "0 0 20px rgba(255,90,0,0.6)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            color: "black",
-            _hover: { transform: "scale(1.05)", filter: "brightness(1.1)" },
-            transition: "all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-          })}
-        >
-          <PlusIcon weight="bold" size={24} />
-        </button>
-      </div>
-
-      <AddListingDrawer isOpen={isAddListingOpen} setOpen={setIsAddListingOpen} />
     </div>
   );
 });
 
 export default Home;
-
