@@ -8,7 +8,7 @@
     "start": "next start",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "prepare": "tsc -b && panda codegen"
+    "prepare": "panda codegen"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.33",
