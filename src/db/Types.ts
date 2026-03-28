@@ -25,6 +25,9 @@ export interface Listing {
   deverifierCount?: number;
   description?: string;
   image?: { url: string };
+  og_title?: string;
+  og_description?: string;
+  og_image?: string;
   google_id?: string;
   places_details?: Object;
   yelp_id?: string;
