@@ -3,6 +3,7 @@
 
 import clientPromise, { DB_NAME } from "@/db/mongodb";
 import { PendingListing } from "@/db/Types";
+import { fetchLinkPreview, LinkPreviewData } from "@/util/linkPreview";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateObject } from "ai";
 import { z } from "zod";
@@ -74,7 +75,9 @@ export async function extractBusinessData(url: string) {
     const existing = await pendingCollection.findOne({ name: biz.name });
 
     if (!existing) {
-      const addressArray = (biz.address || []).filter((a): a is string => Boolean(a));
+      const addressArray = (biz.address || []).filter((a): a is string =>
+        Boolean(a),
+      );
       const locations: any[] = [];
       let hasValidStreetLocation = false;
 
@@ -92,18 +95,30 @@ export async function extractBusinessData(url: string) {
                 const geocodeRes = await fetch(geocodeUrl);
                 const geocodeData = await geocodeRes.json();
 
-                if (geocodeData.status === "OK" && geocodeData.results.length > 0) {
+                if (
+                  geocodeData.status === "OK" &&
+                  geocodeData.results.length > 0
+                ) {
                   const bestMatch = geocodeData.results[0];
                   lat = bestMatch.geometry.location.lat;
                   lng = bestMatch.geometry.location.lng;
                   place_id = bestMatch.place_id;
                   formattedAddress = bestMatch.formatted_address || addr;
-                  
+
                   // Check if the result is a specific street/premise, not a broad city/state
                   const types = bestMatch.types || [];
-                  const isStreet = types.some((t: string) => 
-                    ["street_address", "premise", "subpremise", "route", "intersection", "establishment", "point_of_interest"].includes(t));
-                  
+                  const isStreet = types.some((t: string) =>
+                    [
+                      "street_address",
+                      "premise",
+                      "subpremise",
+                      "route",
+                      "intersection",
+                      "establishment",
+                      "point_of_interest",
+                    ].includes(t),
+                  );
+
                   if (lat && lng && isStreet) {
                     hasValidStreetLocation = true;
                   }
@@ -117,7 +132,7 @@ export async function extractBusinessData(url: string) {
               address: formattedAddress,
               lat,
               lng,
-              place_id
+              place_id,
             });
           }
         } else {
@@ -129,7 +144,11 @@ export async function extractBusinessData(url: string) {
               const placeRes = await fetch(findPlaceUrl);
               const placeData = await placeRes.json();
 
-              if (placeData.status === "OK" && placeData.candidates && placeData.candidates.length > 0) {
+              if (
+                placeData.status === "OK" &&
+                placeData.candidates &&
+                placeData.candidates.length > 0
+              ) {
                 const bestMatch = placeData.candidates[0];
                 if (bestMatch.geometry && bestMatch.geometry.location) {
                   const newAddr = bestMatch.formatted_address || biz.name;
@@ -138,14 +157,28 @@ export async function extractBusinessData(url: string) {
                     address: newAddr,
                     lat: bestMatch.geometry.location.lat,
                     lng: bestMatch.geometry.location.lng,
-                    place_id: bestMatch.place_id
+                    place_id: bestMatch.place_id,
                   });
-                  
+
                   const types = bestMatch.types || [];
-                  const isSpecificPlace = types.some((t: string) => ["establishment", "point_of_interest"].includes(t));
-                  const isGeneral = types.some((t: string) => ["locality", "administrative_area_level_1", "administrative_area_level_2", "political"].includes(t));
-                  
-                  if (isSpecificPlace && !isGeneral && bestMatch.geometry.location.lat && bestMatch.geometry.location.lng) {
+                  const isSpecificPlace = types.some((t: string) =>
+                    ["establishment", "point_of_interest"].includes(t),
+                  );
+                  const isGeneral = types.some((t: string) =>
+                    [
+                      "locality",
+                      "administrative_area_level_1",
+                      "administrative_area_level_2",
+                      "political",
+                    ].includes(t),
+                  );
+
+                  if (
+                    isSpecificPlace &&
+                    !isGeneral &&
+                    bestMatch.geometry.location.lat &&
+                    bestMatch.geometry.location.lng
+                  ) {
                     hasValidStreetLocation = true;
                   }
                 }
@@ -162,8 +195,11 @@ export async function extractBusinessData(url: string) {
         try {
           const sourceUrlObj = new URL(url);
           const bizWebsiteObj = new URL(bizWebsite);
-          
-          if (object.sourceType === "listicle_directory" && sourceUrlObj.hostname === bizWebsiteObj.hostname) {
+
+          if (
+            object.sourceType === "listicle_directory" &&
+            sourceUrlObj.hostname === bizWebsiteObj.hostname
+          ) {
             bizWebsite = "";
           } else if (bizWebsite === url) {
             bizWebsite = "";
@@ -173,9 +209,16 @@ export async function extractBusinessData(url: string) {
         }
       }
 
+      // Fetch OpenGraph metadata if website exists
+      let ogData: LinkPreviewData | null = null;
+      if (bizWebsite) {
+        ogData = await fetchLinkPreview(bizWebsite);
+      }
+
       const finalCategory = biz.category || "Uncategorized";
-      
-      let finalStatus: "PENDING_REVIEW" | "APPROVED" | "REJECTED" = "PENDING_REVIEW";
+
+      let finalStatus: "PENDING_REVIEW" | "APPROVED" | "REJECTED" =
+        "PENDING_REVIEW";
       let approvedAt: Date | undefined = undefined;
 
       if (biz.isOnlineOnly) {
@@ -183,13 +226,14 @@ export async function extractBusinessData(url: string) {
       }
 
       // Robust Auto-Approve Criteria
-      const isHighlyConfident = biz.isBlackOwned && finalCategory !== "Uncategorized";
-      
+      const isHighlyConfident =
+        biz.isBlackOwned && finalCategory !== "Uncategorized";
+
       if (isHighlyConfident && hasValidStreetLocation) {
         finalStatus = "APPROVED";
         approvedAt = new Date();
       } else if (!hasValidStreetLocation && !biz.isOnlineOnly) {
-        // AI found a business but NO physical street address. We leave it as PENDING_REVIEW 
+        // AI found a business but NO physical street address. We leave it as PENDING_REVIEW
         // to force human review instead of spamming map with city centers.
         finalStatus = "PENDING_REVIEW";
       }
@@ -212,15 +256,27 @@ export async function extractBusinessData(url: string) {
         pendingInsertData.approvedAt = approvedAt;
 
         // Auto-promote directly to the live 'listings' collection
-        const liveLocations = locations.map(l => ({
+        const liveLocations = locations
+          .map((l) => ({
             address: l.address,
             place_id: l.place_id,
-            coordinates: { type: "Point", coordinates: [Number(l.lng), Number(l.lat)] }
-        })).filter(l => l.coordinates.coordinates[0] && l.coordinates.coordinates[1]);
+            coordinates: {
+              type: "Point",
+              coordinates: [Number(l.lng), Number(l.lat)],
+            },
+          }))
+          .filter(
+            (l) => l.coordinates.coordinates[0] && l.coordinates.coordinates[1],
+          );
 
         const liveListingToInsert = {
           name: biz.name,
-          address: liveLocations.length > 0 ? liveLocations[0].address : (biz.isOnlineOnly ? "Online Only" : addressArray[0] || "Unknown"),
+          address:
+            liveLocations.length > 0
+              ? liveLocations[0].address
+              : biz.isOnlineOnly
+                ? "Online Only"
+                : addressArray[0] || "Unknown",
           city: "",
           categories: [finalCategory],
           url: bizWebsite,
@@ -229,11 +285,15 @@ export async function extractBusinessData(url: string) {
           claims: [],
           creator: new Date(),
           submitted: new Date(),
-          locations: liveLocations
+          locations: liveLocations,
+          og_title: ogData?.title,
+          og_description: ogData?.description,
+          og_image: ogData?.image,
         };
 
         if (liveLocations.length > 0) {
-          (liveListingToInsert as any).coordinates = liveLocations[0].coordinates;
+          (liveListingToInsert as any).coordinates =
+            liveLocations[0].coordinates;
           (liveListingToInsert as any).type = "Point";
         }
 

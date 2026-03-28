@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "panda codegen && next build",
+    "build": "tsc -b && panda codegen && next build",
     "start": "next start",
     "test": "vitest",
     "test:ui": "vitest --ui",

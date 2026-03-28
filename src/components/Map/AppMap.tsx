@@ -18,14 +18,14 @@ const defaultProps = {
   center: GEOCENTER,
   zoom: 5,
   options: {
+    clickableIcons: false,
     backgroundColor: "#555",
-    clickableIcons: true,
     disableDefaultUI: true,
     fullscreenControl: false,
-    zoomControl: true,
+    zoomControl: false,
     mapTypeControl: false,
     scaleControl: false,
-    rotateControl: true,
+    rotateControl: false,
     streetViewControl: false,
     gestureHandling: "greedy",
     scrollwheel: true,
@@ -138,34 +138,48 @@ const MapContent = memo(
               );
             const noCategories =
               !listing.categories || listing.categories.length === 0;
-            
-            const hasUnrecognizedCategory = listing.categories && listing.categories.some((cat: string) => !categories.includes(cat) && cat !== "Uncategorized");
 
-            const isUncategorizedMatch = selectedCategories.has("Uncategorized") && (noCategories || hasUnrecognizedCategory);
+            const hasUnrecognizedCategory =
+              listing.categories &&
+              listing.categories.some(
+                (cat: string) =>
+                  !categories.includes(cat) && cat !== "Uncategorized",
+              );
+
+            const isUncategorizedMatch =
+              selectedCategories.has("Uncategorized") &&
+              (noCategories || hasUnrecognizedCategory);
 
             const isVisible = hasMatch || isUncategorizedMatch;
             const hasLegacyCoordinates = Boolean(
               listing.coordinates &&
-              listing.coordinates.coordinates &&
-              listing.coordinates.coordinates.length > 1,
+                listing.coordinates.coordinates &&
+                listing.coordinates.coordinates.length > 1,
             );
             const hasLocations = Boolean(
               listing.locations &&
-              listing.locations.length > 0 &&
-              listing.locations.some(loc => loc.coordinates?.coordinates?.length === 2)
+                listing.locations.length > 0 &&
+                listing.locations.some(
+                  (loc) => loc.coordinates?.coordinates?.length === 2,
+                ),
             );
 
             const hasPlacesLocation = Boolean(
               (listing.places_details as any)?.location?.lat &&
-              (listing.places_details as any)?.location?.lng
+                (listing.places_details as any)?.location?.lng,
             );
 
-            if (!isVisible || (!hasLegacyCoordinates && !hasLocations && !hasPlacesLocation) || listing.isOnlineOnly)
+            if (
+              !isVisible ||
+              (!hasLegacyCoordinates && !hasLocations && !hasPlacesLocation) ||
+              listing.isOnlineOnly
+            )
               return null;
 
             if (hasLocations) {
               return listing.locations!.map((loc, idx) => {
-                if (!loc.coordinates || loc.coordinates.coordinates.length < 2) return null;
+                if (!loc.coordinates || loc.coordinates.coordinates.length < 2)
+                  return null;
                 return (
                   <MyMarker
                     key={`marker-${listing._id}-${idx}`}
@@ -213,7 +227,7 @@ const AppMap = memo(
     isInfoWindowOpen,
     setisInfoWindowOpen,
     setIsMapActive,
-    setClosestListing
+    setClosestListing,
   }: IAppMap) => {
     const { theme } = useTheme();
 
@@ -234,7 +248,10 @@ const AppMap = memo(
 
             // Re-calculate the absolute nearest marker for the mobile floating card
             if (setClosestListing) {
-              const start = new (window as any).google.maps.LatLng({ lat, lng });
+              const start = new (window as any).google.maps.LatLng({
+                lat,
+                lng,
+              });
               let closestMarker: Listing | null = null;
               let shortestDistance = Infinity;
 
@@ -242,15 +259,25 @@ const AppMap = memo(
                 // If the listing has multiple locations, check which one is nearest
                 let coordsToTest: any[] = [];
                 if (listing.locations && listing.locations.length > 0) {
-                  coordsToTest = listing.locations.map(l => l.coordinates?.coordinates).filter(c => c && c.length > 1);
+                  coordsToTest = listing.locations
+                    .map((l) => l.coordinates?.coordinates)
+                    .filter((c) => c && c.length > 1);
                 } else if (listing.coordinates?.coordinates) {
                   coordsToTest = [listing.coordinates.coordinates];
                 }
 
-                coordsToTest.forEach(coords => {
+                coordsToTest.forEach((coords) => {
                   if (coords && coords.length > 1) {
-                    const posObj = new (window as any).google.maps.LatLng({ lat: coords[1], lng: coords[0] });
-                    const dist = (window as any).google.maps.geometry.spherical.computeDistanceBetween(posObj, start);
+                    const posObj = new (window as any).google.maps.LatLng({
+                      lat: coords[1],
+                      lng: coords[0],
+                    });
+                    const dist = (
+                      window as any
+                    ).google.maps.geometry.spherical.computeDistanceBetween(
+                      posObj,
+                      start,
+                    );
                     if (dist < shortestDistance) {
                       shortestDistance = dist;
                       closestMarker = listing;
@@ -288,9 +315,7 @@ const AppMap = memo(
           })}
           defaultCenter={browserLocation || center}
           defaultZoom={browserLocation ? 16 : zoom}
-          disableDefaultUI={options.disableDefaultUI}
-          zoomControl={options.zoomControl}
-          gestureHandling={options.gestureHandling}
+          {...options}
           colorScheme={theme === "dark" ? "DARK" : "LIGHT"}
           onDragstart={() => setIsMapActive(true)}
           onIdle={handleIdle}
