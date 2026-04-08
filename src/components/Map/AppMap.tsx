@@ -119,6 +119,7 @@ const MapContent = memo(
             position,
             content: el,
             zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count,
+            collisionBehavior: google.maps.CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY,
           });
         },
       };
@@ -247,46 +248,9 @@ const AppMap = memo(
             setListings(nearby);
 
             // Re-calculate the absolute nearest marker for the mobile floating card
+            // We use nearby[0] because MongoDB $near operator inherently sorts by distance!
             if (setClosestListing) {
-              const start = new (window as any).google.maps.LatLng({
-                lat,
-                lng,
-              });
-              let closestMarker: Listing | null = null;
-              let shortestDistance = Infinity;
-
-              nearby.forEach((listing: Listing) => {
-                // If the listing has multiple locations, check which one is nearest
-                let coordsToTest: any[] = [];
-                if (listing.locations && listing.locations.length > 0) {
-                  coordsToTest = listing.locations
-                    .map((l) => l.coordinates?.coordinates)
-                    .filter((c) => c && c.length > 1);
-                } else if (listing.coordinates?.coordinates) {
-                  coordsToTest = [listing.coordinates.coordinates];
-                }
-
-                coordsToTest.forEach((coords) => {
-                  if (coords && coords.length > 1) {
-                    const posObj = new (window as any).google.maps.LatLng({
-                      lat: coords[1],
-                      lng: coords[0],
-                    });
-                    const dist = (
-                      window as any
-                    ).google.maps.geometry.spherical.computeDistanceBetween(
-                      posObj,
-                      start,
-                    );
-                    if (dist < shortestDistance) {
-                      shortestDistance = dist;
-                      closestMarker = listing;
-                    }
-                  }
-                });
-              });
-
-              setClosestListing(closestMarker);
+              setClosestListing(nearby[0]);
             }
           }
         } catch (error) {

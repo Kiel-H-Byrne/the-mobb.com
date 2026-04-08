@@ -4,6 +4,7 @@ import { Category, Listing } from "@/db/Types";
 import { targetClient } from "@/util/functions";
 import { CrosshairIcon, GlobeHemisphereEastIcon, NavigationArrowIcon, PlusIcon, TargetIcon } from "@phosphor-icons/react";
 import { css } from "@styled/css";
+import Image from "next/image";
 import React, { Dispatch, SetStateAction, useMemo } from "react";
 
 interface ListingCard3DProps {
@@ -89,18 +90,17 @@ export const ListingCard3D = React.memo(({
           })}
         >
           {listing.image || listing.og_image ? (
-            <img
+            <Image
               src={typeof listing.image === 'string' ? listing.image : (listing.image as any)?.url || listing.og_image || ''}
+              fill
               className={css({
-                w: "full",
-                h: "full",
                 objectFit: "cover",
                 opacity: 0.8,
                 mixBlendMode: "luminosity",
                 _groupHover: { mixBlendMode: "normal" },
                 transition: "all 0.5s",
               })}
-              alt={listing.name || listing.og_title}
+              alt={listing.name || listing.og_title || "Listing Image"}
             />
           ) : (
             <div
@@ -113,7 +113,7 @@ export const ListingCard3D = React.memo(({
               })}
             >
               {/* <i className="ph-duotone ph-image text-2xl text-gray-600"></i> */}
-              <img src="/images/mobb_placeholder.png" alt="" />
+              <Image src="/images/mobb_placeholder.png" alt="" fill className={css({ objectFit: "cover" })} />
             </div>
           )}
           <div

@@ -78,6 +78,7 @@ const MyMarker = ({
       onClick={handleClickMarker}
       onMouseEnter={handleMouseOverMarker}
       onMouseLeave={handleMouseOut}
+      collisionBehavior={"OPTIONAL_AND_HIDES_LOWER_PRIORITY" as any}
     >
       <img
         src="/img/map/orange_marker_sm.png"
