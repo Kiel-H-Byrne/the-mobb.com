@@ -1,16 +1,11 @@
 import { css } from "@styled/css";
-import { useEffect, useState } from "react";
+import { useState, useMemo } from "react";
 import { Listing, Category } from "@/db/Types";
 import { useAppStore } from "@/store/useAppStore";
-import { fetchGlobalListings } from "@app/actions/geo-search";
 import { ListingCard3D } from "./ActivePulsePanel";
 import CategoryFilter from "@/components/Map/CategoryFilter";
 
-export const GlobalGrid = () => {
-  const [gridData, setGridData] = useState<Listing[]>([]);
-  const [page, setPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-  
+export const GlobalGrid = ({ listings }: { listings: Listing[] }) => {
   // Localized filtering state for Grid View
   const globalCategories = useAppStore(s => s.categories) || [];
   const [selectedFilters, setSelectedFilters] = useState<Set<Category>>(new Set());
@@ -19,31 +14,15 @@ export const GlobalGrid = () => {
   const setActiveListing = useAppStore(s => s.setActiveListing);
   const setIsDrawerOpen = useAppStore(s => s.setIsDrawerOpen);
 
-  // Re-fetch from page 1 if filter changes
-  useEffect(() => {
-    setGridData([]);
-    setPage(1);
-  }, [selectedFilters]);
-
-  useEffect(() => {
-    async function loadData() {
-      setIsLoading(true);
-      try {
-        const filtersArray = Array.from(selectedFilters);
-        const newData = await fetchGlobalListings(page, 20, filtersArray);
-        setGridData(prev => {
-          // Prevent duplicates on React strict mode
-          const newIds = new Set(newData.map(item => item._id));
-          const cleanPrev = prev.filter(item => !newIds.has(item._id));
-          return [...cleanPrev, ...newData];
-        });
-      } catch (e) {
-        console.error(e);
-      }
-      setIsLoading(false);
-    }
-    loadData();
-  }, [page, selectedFilters]);
+  const gridData = useMemo(() => {
+    return listings.filter((listing) => {
+      const hasMatch =
+        listing.categories &&
+        listing.categories.some((el: Category) => selectedFilters.has(el));
+      const noCategories = !listing.categories || listing.categories.length === 0;
+      return selectedFilters.size === 0 || hasMatch || (selectedFilters.has("Uncategorized" as any) && noCategories);
+    });
+  }, [listings, selectedFilters]);
   return (
     <div
       className={css({
@@ -116,29 +95,7 @@ export const GlobalGrid = () => {
           ))}
         </div>
 
-        {/* Load More Trigger */}
-        <div className={css({ mt: "12", textAlign: "center" })}>
-          <button
-            onClick={() => setPage((p) => p + 1)}
-            disabled={isLoading}
-            className={css({
-              bg: "white/5",
-              color: "white",
-              px: "8",
-              py: "3",
-              borderRadius: "full",
-              fontFamily: "tech",
-              fontWeight: "bold",
-              border: "1px solid",
-              borderColor: "white/10",
-              cursor: isLoading ? "not-allowed" : "pointer",
-              _hover: { bg: "white/10" },
-              transition: "all 0.2s"
-            })}
-          >
-            {isLoading ? "Loading..." : "Load More"}
-          </button>
-        </div>
+
       </div>
     </div>
   );

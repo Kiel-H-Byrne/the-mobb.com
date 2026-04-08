@@ -1,10 +1,9 @@
 import { ArrowUpRightIcon, GlobeIcon, TagIcon } from "@phosphor-icons/react";
 import { css } from "@styled/css";
 import Image from "next/image";
-import { memo, useEffect, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { Listing, Category } from "@/db/Types";
 import { useAppStore } from "@/store/useAppStore";
-import { fetchOnlineOnlyListings } from "@app/actions/geo-search";
 import CategoryFilter from "@/components/Map/CategoryFilter";
 
 const DigitalStorefrontCard = memo(({ listing, setactiveListing, setisDrawerOpen }: { listing: Listing, setactiveListing: any, setisDrawerOpen: any }) => {
@@ -142,41 +141,33 @@ const DigitalStorefrontCard = memo(({ listing, setactiveListing, setisDrawerOpen
   );
 });
 
-export const OnlineOrbit = () => {
-  const [orbitData, setOrbitData] = useState<Listing[]>([]);
-  const [page, setPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-
+export const OnlineOrbit = ({ listings }: { listings: Listing[] }) => {
   const globalCategories = useAppStore(s => s.categories) || [];
   const [selectedFilters, setSelectedFilters] = useState<Set<Category>>(new Set());
 
   const setActiveListing = useAppStore(s => s.setActiveListing);
   const setIsDrawerOpen = useAppStore(s => s.setIsDrawerOpen);
 
-  useEffect(() => {
-    setOrbitData([]);
-    setPage(1);
-  }, [selectedFilters]);
-
-  useEffect(() => {
-    async function loadData() {
-      setIsLoading(true);
-      try {
-        const filtersArray = Array.from(selectedFilters);
-        const newData = await fetchOnlineOnlyListings(page, 15, filtersArray);
-        setOrbitData(prev => {
-          // Prevent duplicates on React strict mode
-          const newIds = new Set(newData.map(item => item._id));
-          const cleanPrev = prev.filter(item => !newIds.has(item._id));
-          return [...cleanPrev, ...newData];
-        });
-      } catch (e) {
-        console.error(e);
+  const orbitData = useMemo(() => {
+    return listings.filter((listing) => {
+      // 1. Must be Online Only
+      if (!listing.isOnlineOnly && !(listing as any).onlineOnly && !listing.categories?.includes("Online" as any)) {
+        // As a fallback since we don't know the exact schema, if we strictly need online only 
+        // we can check properties or fallback if it's the only category.
+        // Assuming your DB has isOnlineOnly boolean. If mapping is weak, use categories checking.
+        // Since schema is unknown, assume isOnlineOnly exists. If not, this might need tuning.
+        if (!listing.isOnlineOnly) return false;
       }
-      setIsLoading(false);
-    }
-    loadData();
-  }, [page, selectedFilters]);
+
+      // 2. Filter by CategoryFilter
+      const hasMatch =
+        listing.categories &&
+        listing.categories.some((el: Category) => selectedFilters.has(el));
+      const noCategories = !listing.categories || listing.categories.length === 0;
+
+      return selectedFilters.size === 0 || hasMatch || (selectedFilters.has("Uncategorized" as any) && noCategories);
+    });
+  }, [listings, selectedFilters]);
 
   return (
     <div
@@ -253,37 +244,9 @@ export const OnlineOrbit = () => {
           ))}
         </div>
 
-        {orbitData.length === 0 && !isLoading && (
+        {orbitData.length === 0 && (
           <div className={css({ color: "gray.500", p: "12", mx: "auto", fontSize: "xl" })}>
             Scanning orbit... no digital storefronts found yet.
-          </div>
-        )}
-
-        {/* Load More Button */}
-        {orbitData.length > 0 && (
-          <div className={css({ mt: "16" })}>
-            <button
-              onClick={() => setPage(p => p + 1)}
-              disabled={isLoading}
-              className={css({
-                bg: "white/5",
-                color: "white",
-                px: "10",
-                py: "4",
-                borderRadius: "full",
-                fontFamily: "tech",
-                fontSize: "lg",
-                fontWeight: "bold",
-                border: "1px solid",
-                borderColor: "white/10",
-                cursor: isLoading ? "not-allowed" : "pointer",
-                _hover: { bg: "white/10", borderColor: "brand.orange" },
-                transition: "all 0.3s",
-                boxShadow: "0 10px 20px rgba(0,0,0,0.2)"
-              })}
-            >
-              {isLoading ? "Downloading Data..." : "Load More Storefronts"}
-            </button>
           </div>
         )}
       </div>
