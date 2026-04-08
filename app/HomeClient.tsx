@@ -18,6 +18,9 @@ import { MobileNearestCard } from "@/components/ui/v3/MobileNearestCard";
 import { MobileSavedListingsPanel } from "@/components/ui/v3/MobileSavedListingsPanel";
 import { MobileTopSearch } from "@/components/ui/v3/MobileTopSearch";
 import SidebarHUD from "@/components/ui/v3/SidebarHUD";
+import EcosystemToggle from "@/components/ui/v3/EcosystemToggle";
+import GlobalGrid from "@/components/ui/v3/GlobalGrid";
+import OnlineOrbit from "@/components/ui/v3/OnlineOrbit";
 
 import { findBusinessesNearby } from "./actions/geo-search";
 
@@ -164,6 +167,9 @@ const HomeClient = React.memo(({ initialListings, initialCategories }: HomeClien
   const setSelectedCategories = useAppStore((state) => state.setSelectedCategories);
   const mapInstance = useAppStore((state) => state.mapInstance);
   
+  const viewMode = useAppStore((state) => state.viewMode);
+  const setViewMode = useAppStore((state) => state.setViewMode);
+
   const activeNav = useAppStore((state) => state.activeNav);
   const setActiveNav = useAppStore((state) => state.setActiveNav);
   const isPanelVisible = useAppStore((state) => state.isPanelVisible);
@@ -181,6 +187,7 @@ const HomeClient = React.memo(({ initialListings, initialCategories }: HomeClien
   const handleNearMeClick = React.useCallback(async () => {
     setActiveNav("nearme");
     setIsPanelVisible(true);
+    setViewMode("RADAR"); // Always jump back to map when grabbing location
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
@@ -207,13 +214,14 @@ const HomeClient = React.memo(({ initialListings, initialCategories }: HomeClien
         }
       );
     }
-  }, [mapInstance, setActiveNav, setIsPanelVisible, setUserLocation, setListings]);
+  }, [mapInstance, setActiveNav, setIsPanelVisible, setUserLocation, setListings, setViewMode]);
 
   const handleExploreClick = React.useCallback(() => {
     setActiveNav("explore");
     setIsPanelVisible(false);
     setIsMapActive(true);
-  }, [setActiveNav, setIsPanelVisible, setIsMapActive]);
+    setViewMode("GRID");
+  }, [setActiveNav, setIsPanelVisible, setIsMapActive, setViewMode]);
 
   useEffect(() => {
     if (!listings) setListings(initialListings);
@@ -223,17 +231,41 @@ const HomeClient = React.memo(({ initialListings, initialCategories }: HomeClien
     }
   }, [initialListings, initialCategories, listings, categories, setListings, setCategories, setSelectedCategories]);
 
+  // Determine structural visibility based on main toggle
+  const showRadarUI = viewMode === "RADAR";
+
   return (
     <div className={css({ h: "100dvh", w: "100%", overflow: "hidden", display: "flex", flexDir: { base: "column", md: "row" }, gap: "6", p: { base: "4", md: "6" }, position: "relative", zIndex: 10, pointerEvents: "none" })}>
       
-      {/* Immersive 3D Map Background */}
-      <div className={css({ position: "fixed", inset: "-24px", overflow: "hidden", pointerEvents: "auto", zIndex: 0 })}>
+      <EcosystemToggle activeView={viewMode} setActiveView={setViewMode} />
+
+      {viewMode === "GRID" && <GlobalGrid listings={listings || []} />}
+      {viewMode === "ORBIT" && <OnlineOrbit listings={listings || []} />}
+
+      {/* Immersive 3D Map Background - Remains mounted for API caching, just hidden visually */}
+      <div 
+        className={css({ 
+          position: "fixed", 
+          inset: "-24px", 
+          overflow: "hidden", 
+          pointerEvents: showRadarUI ? "auto" : "none", 
+          zIndex: 0,
+          opacity: showRadarUI ? 1 : 0,
+          transition: "opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1)"
+        })}
+      >
         <MapContainer initialListings={initialListings} />
         <div className={css({ position: "absolute", inset: 0, background: "linear-gradient(to top, #0B0B0E, transparent, #0B0B0E)", pointerEvents: "none" })} />
         <RadarOverlay />
       </div>
 
-      <div className={css({ display: { base: "none", md: "block" }, zIndex: 40, pointerEvents: "auto" })}>
+      <div className={css({ 
+        display: { base: "none", md: "block" }, 
+        zIndex: 40, 
+        pointerEvents: showRadarUI ? "auto" : "none",
+        opacity: showRadarUI ? 1 : 0,
+        transition: "opacity 0.4s"
+      })}>
         <SidebarHUD
           activeNav={activeNav}
           onNearMeClick={handleNearMeClick}
@@ -243,36 +275,58 @@ const HomeClient = React.memo(({ initialListings, initialCategories }: HomeClien
         />
       </div>
 
-      <MobileTopSearch
-        listings={listings || initialListings || []}
-        categories={categories || initialCategories || []}
-        selectedCategories={selectedCategories}
-        setSelectedCategories={setSelectedCategories}
-        mapInstance={mapInstance}
-        setactiveListing={setActiveListing}
-        setisDrawerOpen={setIsDrawerOpen}
-      />
+      <div className={css({ 
+        opacity: showRadarUI ? 1 : 0, 
+        pointerEvents: showRadarUI ? "auto" : "none",
+        transition: "opacity 0.4s",
+        position: "relative",
+        zIndex: 30,
+        w: "full",
+        display: "flex",
+        flexDir: "column",
+        gap: "6"
+      })}>
+        <MobileTopSearch
+          listings={listings || initialListings || []}
+          categories={categories || initialCategories || []}
+          selectedCategories={selectedCategories}
+          setSelectedCategories={setSelectedCategories}
+          mapInstance={mapInstance}
+          setactiveListing={setActiveListing}
+          setisDrawerOpen={setIsDrawerOpen}
+        />
 
-      <NearestCardContainer />
+        <NearestCardContainer />
 
-      <MobileClosestListingsPanel
-        listings={listings || initialListings || []}
-        mapInstance={mapInstance}
-        setactiveListing={setActiveListing}
-        setisDrawerOpen={setIsDrawerOpen}
-        userLocation={userLocation}
-        onRequestLocation={handleNearMeClick}
-      />
+        <MobileClosestListingsPanel
+          listings={listings || initialListings || []}
+          mapInstance={mapInstance}
+          setactiveListing={setActiveListing}
+          setisDrawerOpen={setIsDrawerOpen}
+          userLocation={userLocation}
+          onRequestLocation={handleNearMeClick}
+        />
 
-      <MobileSavedListingsPanel
-        listings={savedListings}
-        mapInstance={mapInstance}
-        setactiveListing={setActiveListing}
-        setisDrawerOpen={setIsDrawerOpen}
-      />
+        <MobileSavedListingsPanel
+          listings={savedListings}
+          mapInstance={mapInstance}
+          setactiveListing={setActiveListing}
+          setisDrawerOpen={setIsDrawerOpen}
+        />
+      </div>
 
-      <main className={css({ flex: 1, display: { base: "none", md: "flex" }, flexDir: { base: "column", md: "row" }, gap: "6", h: "full", overflow: "hidden", pointerEvents: "none" })}>
-        {((listings || initialListings) && (categories || initialCategories) && isPanelVisible) && (
+      <main className={css({ 
+        flex: 1, 
+        display: { base: "none", md: "flex" }, 
+        flexDir: { base: "column", md: "row" }, 
+        gap: "6", 
+        h: "full", 
+        overflow: "hidden", 
+        pointerEvents: showRadarUI ? "none" : "none",
+        opacity: showRadarUI ? 1 : 0,
+        transition: "opacity 0.4s"
+      })}>
+        {((listings || initialListings) && (categories || initialCategories) && isPanelVisible && showRadarUI) && (
           <ActivePulsePanel
             listings={listings || initialListings}
             categories={categories || initialCategories}

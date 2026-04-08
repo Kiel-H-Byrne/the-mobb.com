@@ -240,7 +240,6 @@ export const ActivePulsePanel = React.memo(({
   userLocation,
   onRequestLocation,
 }: any) => {
-  // Filter and sort listings based on selected categories and distance
   const visibleListings = useMemo(() => {
     let filtered = listings.filter((listing: Listing) => {
       const hasMatch =
@@ -250,34 +249,9 @@ export const ActivePulsePanel = React.memo(({
       return hasMatch || noCategories;
     });
 
-    if (filtered.length > 0) {
-      const routingCenter = userLocation ? new window.google.maps.LatLng(userLocation) : (mapInstance ? mapInstance.getCenter() : null);
-      if (routingCenter && window.google?.maps?.geometry) {
-        return filtered.map((listing: Listing) => {
-          const coords = listing.coordinates?.coordinates;
-          let dist = Infinity;
-          let formattedDist = "";
-
-          if (coords && coords.length > 1) {
-            try {
-              const posObj = new window.google.maps.LatLng({ lat: coords[1], lng: coords[0] });
-              const distanceMeters = window.google.maps.geometry.spherical.computeDistanceBetween(posObj, routingCenter);
-              dist = distanceMeters;
-
-              // Convert to miles and format
-              const miles = distanceMeters * 0.000621371;
-              formattedDist = userLocation ? (miles < 0.1 ? "<0.1 mi" : `${miles.toFixed(1)} mi`) : "Remote";
-            } catch (e) {
-              console.error("Error computing spherical distance", e);
-            }
-          }
-
-          return { ...listing, _distance: dist, _formattedDistance: formattedDist };
-        }).sort((a: any, b: any) => a._distance - b._distance);
-      }
-    }
+    // MongoDB $near query inherently sorts by nearest distance. No need to massively compute distances manually.
     return filtered;
-  }, [listings, selectedCategories, userLocation, mapInstance]);
+  }, [listings, selectedCategories]);
 
   return (
     <section
@@ -348,7 +322,6 @@ export const ActivePulsePanel = React.memo(({
         <div className={css({ position: "relative", w: "full", display: "flex", alignItems: "center", gap: "2" })}>
           <div className={css({ flex: 1 })}>
             <MapAutoComplete
-              listings={listings}
               categories={categories}
               mapInstance={mapInstance}
               setactiveListing={setactiveListing}

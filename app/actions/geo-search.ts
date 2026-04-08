@@ -47,6 +47,50 @@ export async function fetchTopListings(limit = 50): Promise<Listing[]> {
   return JSON.parse(JSON.stringify(listings));
 }
 
+export async function fetchGlobalListings(page = 1, limit = 20, selectedCategories?: string[]): Promise<Listing[]> {
+  const client = await clientPromise;
+  const db = client.db("vercel-db");
+  const collection = db.collection<Listing>("listings");
+
+  const skip = Math.max(0, (page - 1) * limit);
+  const query: any = {};
+  if (selectedCategories && selectedCategories.length > 0) {
+    query.categories = { $in: selectedCategories };
+  }
+
+  const listings = await collection
+    .find(query)
+    .project({ places_details: 0 })
+    .sort({ _id: -1 })
+    .skip(skip)
+    .limit(limit)
+    .toArray();
+
+  return JSON.parse(JSON.stringify(listings));
+}
+
+export async function fetchOnlineOnlyListings(page = 1, limit = 20, selectedCategories?: string[]): Promise<Listing[]> {
+  const client = await clientPromise;
+  const db = client.db("vercel-db");
+  const collection = db.collection<Listing>("listings");
+
+  const skip = Math.max(0, (page - 1) * limit);
+  const query: any = { isOnlineOnly: true };
+  if (selectedCategories && selectedCategories.length > 0) {
+    query.categories = { $in: selectedCategories };
+  }
+
+  const listings = await collection
+    .find(query)
+    .project({ places_details: 0 })
+    .sort({ _id: -1 })
+    .skip(skip)
+    .limit(limit)
+    .toArray();
+
+  return JSON.parse(JSON.stringify(listings));
+}
+
 // Caching strategies
 export const getCachedCategories = unstable_cache(
   async () => {

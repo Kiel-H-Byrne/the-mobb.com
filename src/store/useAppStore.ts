@@ -39,6 +39,10 @@ interface AppState {
   setIsPanelVisible: (isVisible: boolean) => void;
   userLocation: { lat: number; lng: number } | null;
   setUserLocation: (location: { lat: number; lng: number } | null) => void;
+
+  // New Global Architecture States
+  viewMode: "RADAR" | "GRID" | "ORBIT";
+  setViewMode: (mode: "RADAR" | "GRID" | "ORBIT") => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -84,4 +88,7 @@ export const useAppStore = create<AppState>((set) => ({
 
   userLocation: null,
   setUserLocation: (userLocation) => set({ userLocation }),
+
+  viewMode: "RADAR",
+  setViewMode: (viewMode) => set({ viewMode }),
 }));

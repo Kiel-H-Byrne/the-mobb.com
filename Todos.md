@@ -27,6 +27,11 @@
 * [x] **Icon Optimization**: Replace the blocking `<script>` tag for Phosphor icons in `layout.tsx` with local SVGs or `@phosphor-icons/react`. This improves "Largest Contentful Paint" (LCP) significantly.
 * [x] **Image Optimization**: Replace generic `<img>` tags in `ActivePulsePanel` and `ListingDetailPanel3D` with `next/image` to benefit from automatic WebP conversion and lazy loading.
 
+### 5. Multi-View Architecture (Alternative UI/UX)
+* [ ] **Map View Scoping**: Reserve the map-centric UI strictly for location-aware routing. Render the map only when the device location is known or when actively searching a specific radius (`max-zoom` scope) to eliminate global rendering overload.
+* [ ] **Global Directory View**: Build a robust, non-map list/grid interface (e.g., standard e-commerce or directory style) allowing users to filter, paginated-search, and browse the ENTIRE database irrespective of bounds payload limits.
+* [ ] **Online-Only Businesses View**: Create a dedicated view for `website-only` Black-owned businesses, bypassing the geospatial requirements entirely and focusing strictly on digital storefronts.
+
 ---
 
 ## 🛠️ Technical Implementation Plan
