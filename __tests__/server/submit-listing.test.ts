@@ -41,6 +41,12 @@ describe("submitListing Server Action", () => {
         status: "PENDING_REVIEW",
       }),
     );
+    // ── SNAPSHOT: User submission document schema ──────────────────────────
+    // Captures the exact shape written to pending_listings from a user submission.
+    // Guards against field renames (e.g. ipAddress → ip) or missing status fields.
+    const submittedDoc = (collection.insertOne as any).mock.calls[0][0];
+    expect(submittedDoc).toMatchSnapshot("submitListing:manual-submission");
+
   });
 
   it("includes the requester IP address in the stored document", async () => {

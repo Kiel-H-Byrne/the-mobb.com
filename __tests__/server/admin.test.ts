@@ -85,7 +85,9 @@ describe("Admin Server Actions", () => {
       expect(global.fetch).toHaveBeenCalledWith(
         expect.stringContaining("maps.googleapis.com/maps/api/geocode"),
       );
-      // Database insert must use [lng, lat] order — critical for 2dsphere queries
+      // ── SNAPSHOT: Live listing insert payload ────────────────────────────────
+      // The 2dsphere coordinates shape is critical for geospatial queries.
+      // coordinates MUST be [lng, lat] (not [lat, lng]) or all map searches break.
       expect(listings.insertOne).toHaveBeenCalledWith(
         expect.objectContaining({
           name: "Test Business",
@@ -95,6 +97,8 @@ describe("Admin Server Actions", () => {
           },
         }),
       );
+      const insertPayload = (listings.insertOne as any).mock.calls[0][0];
+      expect(insertPayload).toMatchSnapshot("approveListing:live-listing-insert");
     });
 
     it("skips geocoding for online-only listings and does not add coordinates", async () => {
@@ -240,6 +244,23 @@ describe("Admin Server Actions", () => {
           $unset: { lat: "", lng: "" },
         }),
       );
+      // ── SNAPSHOT: Online-only transition $set/$unset shape ──────────────────
+      // Validates that lat/lng are explicitly UNSET (not just zeroed) and
+      // locations[] is cleared when a listing is marked as online-only.
+      const updateOp = (pending.updateOne as any).mock.calls[0][1];
+      expect(updateOp).toMatchInlineSnapshot(`
+        {
+          "$set": {
+            "address": "Online, Only",
+            "isOnlineOnly": true,
+            "locations": [],
+          },
+          "$unset": {
+            "lat": "",
+            "lng": "",
+          },
+        }
+      `);
     });
 
     it("normalizes an array address to a single string", async () => {
@@ -370,6 +391,11 @@ describe("Admin Server Actions", () => {
           }),
         }),
       );
+      // ── SNAPSHOT: Geocoded address update payload ────────────────────────
+      // Captures the full shape of the auto-geocode update so any drift in field
+      // names (e.g. google_search_found vs googleSearchFound) is immediately caught.
+      const geocodedUpdate = (pending.updateOne as any).mock.calls[0][1];
+      expect(geocodedUpdate).toMatchSnapshot("autoFindPendingListingAddress:geocoded-update");
     });
   });
 });

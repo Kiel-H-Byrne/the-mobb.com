@@ -41,17 +41,37 @@ describe("Geo-Search Server Actions", () => {
 
       await findBusinessesNearby(lat, lng, radius);
 
-      expect(collection.find).toHaveBeenCalledWith({
-        coordinates: {
-          $near: {
-            $geometry: {
-              type: "Point",
-              coordinates: [lng, lat], // Critical: MUST be [lng, lat] not [lat, lng]
+      // ── SNAPSHOT: Full $near query shape ─────────────────────────────────
+      // If this fails, a coordinate-order or schema change has broken map search.
+      expect(collection.find).toHaveBeenCalledWith(
+        expect.objectContaining({
+          coordinates: {
+            $near: {
+              $geometry: {
+                type: "Point",
+                coordinates: [lng, lat], // Critical: MUST be [lng, lat] not [lat, lng]
+              },
+              $maxDistance: radius,
             },
-            $maxDistance: radius,
           },
-        },
-      });
+        }),
+      );
+      expect((collection.find as any).mock.calls[0][0]).toMatchInlineSnapshot(`
+        {
+          "coordinates": {
+            "$near": {
+              "$geometry": {
+                "coordinates": [
+                  -84.388,
+                  33.749,
+                ],
+                "type": "Point",
+              },
+              "$maxDistance": 8000,
+            },
+          },
+        }
+      `);
     });
 
     it("uses the default 5000 meter radius when none is specified", async () => {
@@ -172,10 +192,21 @@ describe("Geo-Search Server Actions", () => {
 
       await fetchOnlineOnlyListings(1, 20, ["Tech"]);
 
+      // ── SNAPSHOT: Combined online-only + category filter shape ────────────
       expect(collection.find).toHaveBeenCalledWith({
         isOnlineOnly: true,
         categories: { $in: ["Tech"] },
       });
+      expect((collection.find as any).mock.calls[0][0]).toMatchInlineSnapshot(`
+        {
+          "categories": {
+            "$in": [
+              "Tech",
+            ],
+          },
+          "isOnlineOnly": true,
+        }
+      `);
     });
   });
 
@@ -215,6 +246,24 @@ describe("Geo-Search Server Actions", () => {
           }),
         ]),
       );
+      // ── SNAPSHOT: First stage of the Atlas Search pipeline ────────────────
+      // Guards against accidental pipeline restructure that silences search results.
+      const firstStage = (collection.aggregate as any).mock.calls[0][0][0];
+      expect(firstStage).toMatchInlineSnapshot(`
+        {
+          "$search": {
+            "index": "default",
+            "text": {
+              "fuzzy": {
+                "maxEdits": 1,
+              },
+              "path": "name",
+              "query": "Wakanda",
+            },
+          },
+        }
+      `);
+
       expect(results[0].name).toBe("Wakanda Cuts Barbershop");
     });
 

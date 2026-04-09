@@ -1,5 +1,18 @@
 import '@testing-library/jest-dom';
-import { vi } from 'vitest';
+import { expect, vi } from 'vitest';
+
+/**
+ * Custom snapshot serializer: replaces Date instances with "[Date]".
+ *
+ * WHY: Database documents contain createdAt/submitted/approvedAt timestamps
+ * that change every test run. Snapshotting the raw Date would cause constant
+ * failures. This serializer preserves the presence and position of Date fields
+ * (proving they exist in the schema) without caring about the exact value.
+ */
+expect.addSnapshotSerializer({
+    test: (val) => val instanceof Date,
+    print: () => '"[Date]"',
+});
 
 // Mock next/cache — include both revalidatePath AND unstable_cache
 vi.mock('next/cache', () => ({

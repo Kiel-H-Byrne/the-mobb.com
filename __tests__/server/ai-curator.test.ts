@@ -104,6 +104,11 @@ describe("AI Curator: extractBusinessData", () => {
         expect.objectContaining({ name: "Afro Tech Hub", source: "AI_SCAN" }),
       ]),
     );
+    // ── SNAPSHOT: Pending listing document schema ──────────────────────────
+    // Captures the full shape of what the AI curator writes to pending_listings.
+    // Any field rename or removal is caught here before it reaches production.
+    const insertedDocs = (pending.insertMany as any).mock.calls[0][0];
+    expect(insertedDocs).toMatchSnapshot("ai-curator:pending-listings-insertMany");
   });
 
   // ── Auto-approve: confident + street address ──────────────────────────────
@@ -144,6 +149,11 @@ describe("AI Curator: extractBusinessData", () => {
         expect.objectContaining({ status: "APPROVED", name: "Slutty Vegan ATL" }),
       ]),
     );
+    // ── SNAPSHOT: Auto-approved live listing schema ────────────────────────
+    // This is the exact document written to the live `listings` collection.
+    // Validates the 2dsphere locations[] structure and approvedAt field presence.
+    const liveDoc = (listings.insertOne as any).mock.calls[0][0];
+    expect(liveDoc).toMatchSnapshot("ai-curator:auto-approve-live-listing");
   });
 
   // ── Online-only auto-approve ───────────────────────────────────────────────
