@@ -1,13 +1,13 @@
 import clientPromise from "@/db/mongodb";
 import {
-  findBusinessesNearby,
+  fetchAllCategories,
   fetchGlobalListings,
   fetchOnlineOnlyListings,
-  fetchAllCategories,
-  searchBusinesses,
   fetchTopListings,
+  findBusinessesNearby,
+  searchBusinesses,
 } from "@app/actions/geo-search";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -90,7 +90,7 @@ describe("Geo-Search Server Actions", () => {
 
     it("returns an empty array gracefully on MongoDB query error", async () => {
       const collection = await getCollectionMock("listings");
-      (collection.toArray as any).mockRejectedValueOnce(new Error("DB connection error"));
+      ((collection as any).toArray as any).mockRejectedValueOnce(new Error("DB connection error"));
 
       const result = await findBusinessesNearby(0, 0);
       expect(result).toEqual([]);
@@ -98,7 +98,7 @@ describe("Geo-Search Server Actions", () => {
 
     it("returns JSON-serializable results (no ObjectId instances)", async () => {
       const collection = await getCollectionMock("listings");
-      (collection.toArray as any).mockResolvedValueOnce([
+      ((collection as any).toArray as any).mockResolvedValueOnce([
         { _id: "507f1f77bcf86cd799439011", name: "Soul Bistro", coordinates: { type: "Point", coordinates: [-84.3, 33.7] } },
       ]);
 
@@ -117,7 +117,7 @@ describe("Geo-Search Server Actions", () => {
 
       await fetchTopListings(25);
 
-      expect(collection.limit).toHaveBeenCalledWith(25);
+      expect((collection as any).limit).toHaveBeenCalledWith(25);
     });
 
     it("defaults to 50 listings when no limit is specified", async () => {
@@ -125,7 +125,7 @@ describe("Geo-Search Server Actions", () => {
 
       await fetchTopListings();
 
-      expect(collection.limit).toHaveBeenCalledWith(50);
+      expect((collection as any).limit).toHaveBeenCalledWith(50);
     });
   });
 
@@ -162,7 +162,7 @@ describe("Geo-Search Server Actions", () => {
 
       await fetchGlobalListings(3, 20); // Page 3, limit 20 → skip 40
 
-      expect(collection.skip).toHaveBeenCalledWith(40);
+      expect((collection as any).skip).toHaveBeenCalledWith(40);
     });
 
     it("clamps skip to 0 for page 0 or negative page numbers", async () => {
@@ -170,7 +170,7 @@ describe("Geo-Search Server Actions", () => {
 
       await fetchGlobalListings(0, 20);
 
-      expect(collection.skip).toHaveBeenCalledWith(0);
+      expect((collection as any).skip).toHaveBeenCalledWith(0);
     });
   });
 
@@ -215,7 +215,7 @@ describe("Geo-Search Server Actions", () => {
   describe("fetchAllCategories", () => {
     it("returns a flat array of category names", async () => {
       const collection = await getCollectionMock("categories");
-      (collection.toArray as any).mockResolvedValueOnce([
+      ((collection as any).toArray as any).mockResolvedValueOnce([
         { name: "Restaurant" },
         { name: "Barbershop" },
         { name: "Tech" },
@@ -231,7 +231,7 @@ describe("Geo-Search Server Actions", () => {
   describe("searchBusinesses", () => {
     it("runs an Atlas Search aggregate pipeline with the query term", async () => {
       const collection = await getCollectionMock("listings");
-      (collection.toArray as any).mockResolvedValueOnce([
+      ((collection as any).toArray as any).mockResolvedValueOnce([
         { name: "Wakanda Cuts Barbershop" },
       ]);
 

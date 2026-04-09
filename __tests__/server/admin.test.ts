@@ -1,15 +1,15 @@
 import clientPromise from "@/db/mongodb";
 import {
   approveListing,
+  autoFindPendingListingAddress,
   checkAdmin,
+  deleteMultiplePendingListings,
   getPendingListings,
   rejectListing,
   rejectMultipleListings,
-  deleteMultiplePendingListings,
   updatePendingListing,
-  autoFindPendingListingAddress,
 } from "@app/actions/admin";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -48,7 +48,7 @@ describe("Admin Server Actions", () => {
     it("serializes ObjectId to string for client components", async () => {
       const fakeDoc = { _id: { toString: () => "abc123" }, name: "Test Biz", status: "PENDING_REVIEW" };
       const collection = await getCollectionMock("pending_listings");
-      (collection.toArray as any).mockResolvedValueOnce([fakeDoc]);
+      ((collection as any).toArray as any).mockResolvedValueOnce([fakeDoc]);
 
       const res = await getPendingListings();
       expect(res.success).toBe(true);
