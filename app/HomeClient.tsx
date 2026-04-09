@@ -12,17 +12,17 @@ import { useAppStore } from "@/store/useAppStore";
 // Components
 import AddListingDrawer from "@/components/Map/AddListingDrawer";
 import { ActivePulsePanel } from "@/components/ui/v3/ActivePulsePanel";
+import EcosystemToggle from "@/components/ui/v3/EcosystemToggle";
+import GlobalGrid from "@/components/ui/v3/GlobalGrid";
 import { ListingDetailPanel3D } from "@/components/ui/v3/ListingDetailPanel3D";
 import { MobileClosestListingsPanel } from "@/components/ui/v3/MobileClosestListingsPanel";
 import { MobileNearestCard } from "@/components/ui/v3/MobileNearestCard";
 import { MobileSavedListingsPanel } from "@/components/ui/v3/MobileSavedListingsPanel";
 import { MobileTopSearch } from "@/components/ui/v3/MobileTopSearch";
-import SidebarHUD from "@/components/ui/v3/SidebarHUD";
-import EcosystemToggle from "@/components/ui/v3/EcosystemToggle";
-import GlobalGrid from "@/components/ui/v3/GlobalGrid";
 import OnlineOrbit from "@/components/ui/v3/OnlineOrbit";
+import SidebarHUD from "@/components/ui/v3/SidebarHUD";
 
-import { findBusinessesNearby } from "./actions/geo-search";
+import { findBusinessesNearby, fetchGlobalListings, fetchOnlineOnlyListings } from "./actions/geo-search";
 
 import { PlusIcon } from "@phosphor-icons/react";
 
@@ -49,9 +49,9 @@ const DetailPanelContainer = () => {
   const setIsDrawerOpen = useAppStore((s) => s.setIsDrawerOpen);
   const savedListings = useAppStore((s) => s.savedListings);
   const setSavedListings = useAppStore((s) => s.setSavedListings);
-  
+
   if (!activeListing) return null;
-  
+
   return (
     <ListingDetailPanel3D
       listing={activeListing}
@@ -68,9 +68,9 @@ const NearestCardContainer = () => {
   const closestListing = useAppStore((s) => s.closestListing);
   const setActiveListing = useAppStore((s) => s.setActiveListing);
   const setIsDrawerOpen = useAppStore((s) => s.setIsDrawerOpen);
-  
+
   if (!userLocation) return null;
-  
+
   return (
     <MobileNearestCard
       listing={closestListing}
@@ -123,7 +123,7 @@ const MapContainer = ({ initialListings }: { initialListings: Listing[] }) => {
   const setIsInfoWindowOpen = useAppStore(s => s.setIsInfoWindowOpen);
   const setIsMapActive = useAppStore(s => s.setIsMapActive);
   const setClosestListing = useAppStore(s => s.setClosestListing);
-  
+
   // Note: We deliberately EXCLUDE `isDrawerOpen` here so toggling the drawer doesn't re-render the map
   // AppMap's inner components only need `setisDrawerOpen` anyway!
 
@@ -166,7 +166,7 @@ const HomeClient = React.memo(({ initialListings, initialCategories }: HomeClien
   const selectedCategories = useAppStore((state) => state.selectedCategories);
   const setSelectedCategories = useAppStore((state) => state.setSelectedCategories);
   const mapInstance = useAppStore((state) => state.mapInstance);
-  
+
   const viewMode = useAppStore((state) => state.viewMode);
   const setViewMode = useAppStore((state) => state.setViewMode);
 
@@ -175,7 +175,7 @@ const HomeClient = React.memo(({ initialListings, initialCategories }: HomeClien
   const isPanelVisible = useAppStore((state) => state.isPanelVisible);
   const setIsPanelVisible = useAppStore((state) => state.setIsPanelVisible);
   const setIsMapActive = useAppStore((state) => state.setIsMapActive);
-  
+
   const userLocation = useAppStore((state) => state.userLocation);
   const setUserLocation = useAppStore((state) => state.setUserLocation);
 
@@ -224,31 +224,60 @@ const HomeClient = React.memo(({ initialListings, initialCategories }: HomeClien
   }, [setActiveNav, setIsPanelVisible, setIsMapActive, setViewMode]);
 
   useEffect(() => {
-    if (!listings) setListings(initialListings);
+    // If listings don't exist yet, we initialize.
+    // Also, respond to viewMode changes to act as true Global Provider.
+    async function syncGlobalData() {
+      if (viewMode === "GRID") {
+        try {
+          const freshGrid = await fetchGlobalListings(1, 100);
+          setListings(freshGrid);
+        } catch (e) {
+          console.error(e);
+        }
+      } else if (viewMode === "ORBIT") {
+        try {
+          const freshOrbit = await fetchOnlineOnlyListings(1, 100);
+          setListings(freshOrbit);
+        } catch (e) {
+          console.error(e);
+        }
+      } else if (viewMode === "RADAR") {
+        if (!userLocation) {
+          setListings(initialListings);
+        } else {
+          // Keep it to whatever userLocation was last nearby searched,
+          // or just default to initialListings if we don't want to overfetch
+        }
+      }
+    }
+    syncGlobalData();
+  }, [viewMode, initialListings, setListings, userLocation]);
+
+  useEffect(() => {
     if (!categories) {
       setCategories(initialCategories);
       setSelectedCategories(new Set(initialCategories));
     }
-  }, [initialListings, initialCategories, listings, categories, setListings, setCategories, setSelectedCategories]);
+  }, [initialCategories, categories, setCategories, setSelectedCategories]);
 
   // Determine structural visibility based on main toggle
   const showRadarUI = viewMode === "RADAR";
 
   return (
     <div className={css({ h: "100dvh", w: "100%", overflow: "hidden", display: "flex", flexDir: { base: "column", md: "row" }, gap: "6", p: { base: "4", md: "6" }, position: "relative", zIndex: 10, pointerEvents: "none" })}>
-      
+
       <EcosystemToggle activeView={viewMode} setActiveView={setViewMode} />
 
       {viewMode === "GRID" && <GlobalGrid listings={listings || []} />}
       {viewMode === "ORBIT" && <OnlineOrbit listings={listings || []} />}
 
       {/* Immersive 3D Map Background - Remains mounted for API caching, just hidden visually */}
-      <div 
-        className={css({ 
-          position: "fixed", 
-          inset: "-24px", 
-          overflow: "hidden", 
-          pointerEvents: showRadarUI ? "auto" : "none", 
+      <div
+        className={css({
+          position: "fixed",
+          inset: "-24px",
+          overflow: "hidden",
+          pointerEvents: showRadarUI ? "auto" : "none",
           zIndex: 0,
           opacity: showRadarUI ? 1 : 0,
           transition: "opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1)"
@@ -259,9 +288,9 @@ const HomeClient = React.memo(({ initialListings, initialCategories }: HomeClien
         <RadarOverlay />
       </div>
 
-      <div className={css({ 
-        display: { base: "none", md: "block" }, 
-        zIndex: 40, 
+      <div className={css({
+        display: { base: "none", md: "block" },
+        zIndex: 40,
         pointerEvents: showRadarUI ? "auto" : "none",
         opacity: showRadarUI ? 1 : 0,
         transition: "opacity 0.4s"
@@ -275,8 +304,8 @@ const HomeClient = React.memo(({ initialListings, initialCategories }: HomeClien
         />
       </div>
 
-      <div className={css({ 
-        opacity: showRadarUI ? 1 : 0, 
+      <div className={css({
+        opacity: showRadarUI ? 1 : 0,
         pointerEvents: showRadarUI ? "auto" : "none",
         transition: "opacity 0.4s",
         position: "relative",
@@ -315,13 +344,13 @@ const HomeClient = React.memo(({ initialListings, initialCategories }: HomeClien
         />
       </div>
 
-      <main className={css({ 
-        flex: 1, 
-        display: { base: "none", md: "flex" }, 
-        flexDir: { base: "column", md: "row" }, 
-        gap: "6", 
-        h: "full", 
-        overflow: "hidden", 
+      <main className={css({
+        flex: 1,
+        display: { base: "none", md: "flex" },
+        flexDir: { base: "column", md: "row" },
+        gap: "6",
+        h: "full",
+        overflow: "hidden",
         pointerEvents: showRadarUI ? "none" : "none",
         opacity: showRadarUI ? 1 : 0,
         transition: "opacity 0.4s"

@@ -89,6 +89,6 @@ export const useAppStore = create<AppState>((set) => ({
   userLocation: null,
   setUserLocation: (userLocation) => set({ userLocation }),
 
-  viewMode: "RADAR",
+  viewMode: "GRID",
   setViewMode: (viewMode) => set({ viewMode }),
 }));
