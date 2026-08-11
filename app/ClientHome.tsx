@@ -102,13 +102,10 @@ const ClientHome = React.memo(({ initialListings, initialCategories }: ClientHom
           mapInstance={mapInstance}
           browserLocation={null}
           // Lifted State Handlers
-          activeListing={activeListing}
           setactiveListing={setactiveListing}
           selectedCategories={selectedCategories}
           setSelectedCategories={setSelectedCategories}
-          isDrawerOpen={isDrawerOpen}
           setisDrawerOpen={setisDrawerOpen}
-          isInfoWindowOpen={isInfoWindowOpen}
           setisInfoWindowOpen={setisInfoWindowOpen}
           setIsMapActive={setIsMapActive}
           setClosestListing={setClosestListing}

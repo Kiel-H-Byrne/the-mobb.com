@@ -41,13 +41,11 @@ interface IAppMap {
   browserLocation: any;
   setMapInstance: any;
   mapInstance: any;
-  activeListing: Listing | null;
+  activeListing?: Listing | null; // Kept as optional just in case, but unused
   setactiveListing: Dispatch<SetStateAction<Listing | null>>;
   selectedCategories: Set<Category>;
   setSelectedCategories: Dispatch<SetStateAction<Set<Category>>>;
-  isDrawerOpen: boolean;
   setisDrawerOpen: Dispatch<SetStateAction<boolean>>;
-  isInfoWindowOpen: boolean;
   setisInfoWindowOpen: Dispatch<SetStateAction<boolean>>;
   setIsMapActive: Dispatch<SetStateAction<boolean>>;
   setClosestListing?: Dispatch<SetStateAction<Listing | null>>;
@@ -58,11 +56,8 @@ const MapContent = memo(
     listings,
     categories,
     selectedCategories,
-    activeListing,
     setactiveListing,
-    isDrawerOpen,
     setisDrawerOpen,
-    isInfoWindowOpen,
     setisInfoWindowOpen,
     mapInstance,
     setMapInstance,
@@ -218,13 +213,10 @@ const AppMap = memo(
     browserLocation,
     setMapInstance,
     mapInstance,
-    activeListing,
     setactiveListing,
     selectedCategories,
     setSelectedCategories,
-    isDrawerOpen,
     setisDrawerOpen,
-    isInfoWindowOpen,
     setisInfoWindowOpen,
     setIsMapActive,
     setClosestListing,
@@ -324,11 +316,8 @@ const AppMap = memo(
             listings={listings}
             categories={categories}
             selectedCategories={selectedCategories}
-            activeListing={activeListing}
             setactiveListing={setactiveListing}
-            isDrawerOpen={isDrawerOpen}
             setisDrawerOpen={setisDrawerOpen}
-            isInfoWindowOpen={isInfoWindowOpen}
             setisInfoWindowOpen={setisInfoWindowOpen}
             mapInstance={mapInstance}
             setMapInstance={setMapInstance}
