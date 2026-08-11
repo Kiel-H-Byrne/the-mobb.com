@@ -27,6 +27,7 @@ export async function findBusinessesNearby(
           },
         },
       })
+      .project({ places_details: 0 })
       .toArray();
 
     return JSON.parse(JSON.stringify(businesses)); // Serializing for Server Action response
@@ -41,7 +42,7 @@ export async function fetchAllListings(): Promise<Listing[]> {
   const db = client.db("vercel-db");
   const collection = db.collection<Listing>("listings");
 
-  const listings = await collection.find({}).toArray();
+  const listings = await collection.find({}).project({ places_details: 0 }).toArray();
   return JSON.parse(JSON.stringify(listings));
 }
 
@@ -65,6 +66,7 @@ export async function searchBusinesses(query: string): Promise<Listing[]> {
     .find({
       name: { $regex: query, $options: "i" },
     })
+    .project({ places_details: 0 })
     .limit(10)
     .toArray();
 
