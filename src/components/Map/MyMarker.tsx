@@ -52,10 +52,25 @@ const MyMarker = ({
   useEffect(() => {
     if (!marker || !clusterer) return;
 
-    clusterer.addMarker(marker);
+    // Add marker without triggering immediate redraw
+    clusterer.addMarker(marker, true);
+    
+    // Debounce the clusterer render to prevent O(n) repaints when rendering many markers
+    if ((window as any).clustererTimeout) {
+      clearTimeout((window as any).clustererTimeout);
+    }
+    (window as any).clustererTimeout = setTimeout(() => {
+      clusterer.render();
+    }, 50);
 
     return () => {
-      clusterer.removeMarker(marker);
+      clusterer.removeMarker(marker, true);
+      if ((window as any).clustererTimeout) {
+        clearTimeout((window as any).clustererTimeout);
+      }
+      (window as any).clustererTimeout = setTimeout(() => {
+        clusterer.render();
+      }, 50);
     };
   }, [marker, clusterer]);
 

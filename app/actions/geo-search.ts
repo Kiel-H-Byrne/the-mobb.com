@@ -28,6 +28,7 @@ export async function findBusinessesNearby(
           },
         },
       })
+      .limit(100)
       .project({ places_details: 0 })
       .toArray();
 
@@ -43,11 +44,18 @@ export async function fetchTopListings(limit = 50): Promise<Listing[]> {
   const db = client.db("vercel-db");
   const collection = db.collection<Listing>("listings");
 
-  const listings = await collection.find({}).project({ places_details: 0 }).limit(limit).toArray();
+  const listings = await collection
+    .find({})
+    .project({ places_details: 0 })
+    .toArray();
   return JSON.parse(JSON.stringify(listings));
 }
 
-export async function fetchGlobalListings(page = 1, limit = 20, selectedCategories?: string[]): Promise<Listing[]> {
+export async function fetchGlobalListings(
+  page = 1,
+  limit = 20,
+  selectedCategories?: string[],
+): Promise<Listing[]> {
   const client = await clientPromise;
   const db = client.db("vercel-db");
   const collection = db.collection<Listing>("listings");
@@ -59,17 +67,21 @@ export async function fetchGlobalListings(page = 1, limit = 20, selectedCategori
   }
 
   const listings = await collection
-    .find(query)
+    .find({
+      name: { $regex: query, $options: "i" },
+    })
     .project({ places_details: 0 })
-    .sort({ _id: -1 })
-    .skip(skip)
-    .limit(limit)
+    .limit(10)
     .toArray();
 
   return JSON.parse(JSON.stringify(listings));
 }
 
-export async function fetchOnlineOnlyListings(page = 1, limit = 20, selectedCategories?: string[]): Promise<Listing[]> {
+export async function fetchOnlineOnlyListings(
+  page = 1,
+  limit = 20,
+  selectedCategories?: string[],
+): Promise<Listing[]> {
   const client = await clientPromise;
   const db = client.db("vercel-db");
   const collection = db.collection<Listing>("listings");
@@ -101,8 +113,8 @@ export const getCachedCategories = unstable_cache(
     const categories = await collection.find({}).toArray();
     return categories.map((cat: any) => cat.name || cat);
   },
-  ['all-categories'],
-  { revalidate: 3600 } // Cache for 1 hour
+  ["all-categories"],
+  { revalidate: 3600 }, // Cache for 1 hour
 );
 
 export async function fetchAllCategories(): Promise<string[]> {
@@ -131,14 +143,14 @@ export const getCachedSearchResults = unstable_cache(
           },
         },
         { $limit: 10 },
-        { $project: { places_details: 0 } }
+        { $project: { places_details: 0 } },
       ])
       .toArray();
 
     return JSON.parse(JSON.stringify(listings));
   },
-  ['search-results'],
-  { revalidate: 300 } // Cache for 5 minutes
+  ["search-results"],
+  { revalidate: 300 }, // Cache for 5 minutes
 );
 
 export async function searchBusinesses(query: string): Promise<Listing[]> {
