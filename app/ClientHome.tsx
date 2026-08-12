@@ -189,6 +189,7 @@ const ClientHome = React.memo(({ initialListings, initialCategories }: ClientHom
             setIsAddListingOpen={setIsAddListingOpen}
             userLocation={userLocation}
             onRequestLocation={handleNearMeClick}
+            isSavedMode={activeNav === "saved"}
           />
         )}
 
