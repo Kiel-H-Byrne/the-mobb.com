@@ -1,11 +1,11 @@
 import { SAMPLE_CATEGORIES } from "@/db/SampleListings";
 import { unstable_cache } from "next/cache";
 import ClientHome from "./ClientHome";
-import { fetchAllCategories, fetchAllListings } from "./actions/geo-search";
+import { fetchAllCategories, fetchTopListings } from "./actions/geo-search";
 
 // Cache the initial listing fetch for 1 hour to reduce DB hits on initial load
 const getCachedListings = unstable_cache(
-  async () => fetchAllListings(),
+  async () => fetchTopListings(),
   ["all-listings-initial"],
   { revalidate: 3600 },
 );
@@ -24,21 +24,10 @@ export default async function Page() {
     initialCategories = SAMPLE_CATEGORIES;
   }
 
-  // Server Component
-  export default async function Home() {
-    let categories = await fetchAllCategories();
-    if (!categories || categories.length === 0) {
-      categories = SAMPLE_CATEGORIES as string[];
-    }
-
-    // We no longer pre-fetch arbitrary listings. The map UI is scoped solely to user search and physical device location.
-    const listings: any[] = [];
-
-    return (
-      <ClientHome
-        initialListings={initialListings || []}
-        initialCategories={initialCategories}
-      />
-    );
-  }
+  return (
+    <ClientHome
+      initialListings={initialListings || []}
+      initialCategories={initialCategories}
+    />
+  );
 }
