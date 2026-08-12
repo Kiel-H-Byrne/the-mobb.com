@@ -27,6 +27,7 @@ export async function findBusinessesNearby(
           },
         },
       })
+      .limit(100)
       .project({ places_details: 0 })
       .toArray();
 
