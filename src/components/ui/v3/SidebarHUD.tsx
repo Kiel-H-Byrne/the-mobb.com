@@ -4,14 +4,15 @@ import { css } from "@styled/css";
 import { useTheme } from "next-themes";
 
 interface SidebarHUDProps {
-    activeNav?: "nearme" | "explore" | "saved" | "curator";
+    activeNav?: "nearme" | "explore" | "saved";
     onNearMeClick?: () => void;
     onExploreClick?: () => void;
+    onSavedClick?: () => void;
     isPanelVisible?: boolean;
     onTogglePanel?: () => void;
 }
 
-const SidebarHUD = ({ activeNav = "nearme", onNearMeClick, onExploreClick, isPanelVisible = true, onTogglePanel }: SidebarHUDProps) => {
+const SidebarHUD = ({ activeNav = "nearme", onNearMeClick, onExploreClick, onSavedClick, isPanelVisible = true, onTogglePanel }: SidebarHUDProps) => {
     const { theme, setTheme } = useTheme();
 
     const getNavStyle = (id: string) => {
@@ -85,22 +86,13 @@ const SidebarHUD = ({ activeNav = "nearme", onNearMeClick, onExploreClick, isPan
                     )}
                 </a>
 
-                <a className={`group ${getNavStyle("saved")}`}>
+                <a onClick={onSavedClick} className={`group ${getNavStyle("saved")}`}>
                     <BookmarksIcon
                         weight={activeNav === "saved" ? "fill" : "regular"}
                         size={24}
                         className={`group-hover:scale-110 transition-transform ${activeNav === "saved" ? css({ color: "brand.orange" }) : ""}`}
                     />
                     <span className={css({ fontSize: "10px", fontFamily: "tech", fontWeight: "bold", display: { base: "none", md: "block" } })}>SAVED</span>
-                </a>
-
-                <a className={`group ${getNavStyle("curator")}`}>
-                    <RobotIcon
-                        weight={activeNav === "curator" ? "fill" : "regular"}
-                        size={24}
-                        className={`group-hover:scale-110 transition-transform ${activeNav === "curator" ? css({ color: "brand.orange" }) : ""}`}
-                    />
-                    <span className={css({ fontSize: "10px", fontFamily: "tech", fontWeight: "bold", display: { base: "none", md: "block" } })}>CURATOR</span>
                 </a>
 
                 {/* Expad Panel Handle - Visible only when Panel is hidden */}

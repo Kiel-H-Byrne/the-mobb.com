@@ -1,7 +1,7 @@
 import { css } from "@styled/css";
 
 interface MobileNavProps {
-    activeNav?: "nearme" | "explore" | "saved" | "curator";
+    activeNav?: "nearme" | "explore" | "saved";
     onNearMeClick?: () => void;
     onExploreClick?: () => void;
     onAddListingClick?: () => void;

@@ -41,13 +41,11 @@ interface IAppMap {
   browserLocation: any;
   setMapInstance: any;
   mapInstance: any;
-  activeListing: Listing | null;
+  activeListing?: Listing | null; // Kept as optional just in case, but unused
   setactiveListing: Dispatch<SetStateAction<Listing | null>>;
   selectedCategories: Set<Category>;
   setSelectedCategories: Dispatch<SetStateAction<Set<Category>>>;
-  isDrawerOpen: boolean;
   setisDrawerOpen: Dispatch<SetStateAction<boolean>>;
-  isInfoWindowOpen: boolean;
   setisInfoWindowOpen: Dispatch<SetStateAction<boolean>>;
   setIsMapActive: Dispatch<SetStateAction<boolean>>;
   setClosestListing?: Dispatch<SetStateAction<Listing | null>>;
@@ -58,11 +56,8 @@ const MapContent = memo(
     listings,
     categories,
     selectedCategories,
-    activeListing,
     setactiveListing,
-    isDrawerOpen,
     setisDrawerOpen,
-    isInfoWindowOpen,
     setisInfoWindowOpen,
     mapInstance,
     setMapInstance,
@@ -218,13 +213,10 @@ const AppMap = memo(
     browserLocation,
     setMapInstance,
     mapInstance,
-    activeListing,
     setactiveListing,
     selectedCategories,
     setSelectedCategories,
-    isDrawerOpen,
     setisDrawerOpen,
-    isInfoWindowOpen,
     setisInfoWindowOpen,
     setIsMapActive,
     setClosestListing,
@@ -246,47 +238,48 @@ const AppMap = memo(
           if (nearby && nearby.length > 0) {
             setListings(nearby);
 
-            // Re-calculate the absolute nearest marker for the mobile floating card
+            // Re-calculate the absolute nearest marker for the mobile floating card based on actual device location
             if (setClosestListing) {
-              const start = new (window as any).google.maps.LatLng({
-                lat,
-                lng,
-              });
-              let closestMarker: Listing | null = null;
-              let shortestDistance = Infinity;
+              if (browserLocation) {
+                const start = new (window as any).google.maps.LatLng(browserLocation);
+                let closestMarker: Listing | null = null;
+                let shortestDistance = Infinity;
 
-              nearby.forEach((listing: Listing) => {
-                // If the listing has multiple locations, check which one is nearest
-                let coordsToTest: any[] = [];
-                if (listing.locations && listing.locations.length > 0) {
-                  coordsToTest = listing.locations
-                    .map((l) => l.coordinates?.coordinates)
-                    .filter((c) => c && c.length > 1);
-                } else if (listing.coordinates?.coordinates) {
-                  coordsToTest = [listing.coordinates.coordinates];
-                }
-
-                coordsToTest.forEach((coords) => {
-                  if (coords && coords.length > 1) {
-                    const posObj = new (window as any).google.maps.LatLng({
-                      lat: coords[1],
-                      lng: coords[0],
-                    });
-                    const dist = (
-                      window as any
-                    ).google.maps.geometry.spherical.computeDistanceBetween(
-                      posObj,
-                      start,
-                    );
-                    if (dist < shortestDistance) {
-                      shortestDistance = dist;
-                      closestMarker = listing;
-                    }
+                nearby.forEach((listing: Listing) => {
+                  // If the listing has multiple locations, check which one is nearest
+                  let coordsToTest: any[] = [];
+                  if (listing.locations && listing.locations.length > 0) {
+                    coordsToTest = listing.locations
+                      .map((l) => l.coordinates?.coordinates)
+                      .filter((c) => c && c.length > 1);
+                  } else if (listing.coordinates?.coordinates) {
+                    coordsToTest = [listing.coordinates.coordinates];
                   }
-                });
-              });
 
-              setClosestListing(closestMarker);
+                  coordsToTest.forEach((coords) => {
+                    if (coords && coords.length > 1) {
+                      const posObj = new (window as any).google.maps.LatLng({
+                        lat: coords[1],
+                        lng: coords[0],
+                      });
+                      const dist = (
+                        window as any
+                      ).google.maps.geometry.spherical.computeDistanceBetween(
+                        posObj,
+                        start,
+                      );
+                      if (dist < shortestDistance) {
+                        shortestDistance = dist;
+                        closestMarker = listing;
+                      }
+                    }
+                  });
+                });
+
+                setClosestListing(closestMarker);
+              } else {
+                setClosestListing(null);
+              }
             }
           }
         } catch (error) {
@@ -324,11 +317,8 @@ const AppMap = memo(
             listings={listings}
             categories={categories}
             selectedCategories={selectedCategories}
-            activeListing={activeListing}
             setactiveListing={setactiveListing}
-            isDrawerOpen={isDrawerOpen}
             setisDrawerOpen={setisDrawerOpen}
-            isInfoWindowOpen={isInfoWindowOpen}
             setisInfoWindowOpen={setisInfoWindowOpen}
             mapInstance={mapInstance}
             setMapInstance={setMapInstance}

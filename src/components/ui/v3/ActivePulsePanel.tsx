@@ -5,6 +5,7 @@ import { targetClient } from "@/util/functions";
 import { CrosshairIcon, GlobeHemisphereEastIcon, NavigationArrowIcon, PlusIcon, TargetIcon } from "@phosphor-icons/react";
 import { css } from "@styled/css";
 import React, { Dispatch, SetStateAction, useMemo } from "react";
+import { BookmarksIcon } from "@phosphor-icons/react";
 
 interface ListingCard3DProps {
   listing: Listing;
@@ -239,10 +240,13 @@ export const ActivePulsePanel = React.memo(({
   setIsAddListingOpen,
   userLocation,
   onRequestLocation,
+  isSavedMode,
 }: any) => {
   // Filter and sort listings based on selected categories and distance
   const visibleListings = useMemo(() => {
     let filtered = listings.filter((listing: Listing) => {
+      if (isSavedMode) return true; // Don't filter saved listings by category
+
       const hasMatch =
         listing.categories &&
         listing.categories.some((el: Category) => selectedCategories.has(el));
@@ -251,8 +255,8 @@ export const ActivePulsePanel = React.memo(({
     });
 
     if (filtered.length > 0) {
-      const routingCenter = userLocation ? new window.google.maps.LatLng(userLocation) : (mapInstance ? mapInstance.getCenter() : null);
-      if (routingCenter && window.google?.maps?.geometry) {
+      if (userLocation && window.google?.maps?.geometry) {
+        const routingCenter = new window.google.maps.LatLng(userLocation);
         return filtered.map((listing: Listing) => {
           const coords = listing.coordinates?.coordinates;
           let dist = Infinity;
@@ -266,7 +270,7 @@ export const ActivePulsePanel = React.memo(({
 
               // Convert to miles and format
               const miles = distanceMeters * 0.000621371;
-              formattedDist = userLocation ? (miles < 0.1 ? "<0.1 mi" : `${miles.toFixed(1)} mi`) : "Remote";
+              formattedDist = miles < 0.1 ? "<0.1 mi" : `${miles.toFixed(1)} mi`;
             } catch (e) {
               console.error("Error computing spherical distance", e);
             }
@@ -277,7 +281,7 @@ export const ActivePulsePanel = React.memo(({
       }
     }
     return filtered;
-  }, [listings, selectedCategories, userLocation, mapInstance]);
+  }, [listings, selectedCategories, userLocation]);
 
   return (
     <section
@@ -326,7 +330,7 @@ export const ActivePulsePanel = React.memo(({
                 letterSpacing: "tight",
               })}
             >
-              Explore{" "}
+              {isSavedMode ? "Saved Bookmarks " : "Explore "}
               <span className={css({ color: "brand.orange" })}>.</span>
             </h1>
             <div
@@ -339,8 +343,17 @@ export const ActivePulsePanel = React.memo(({
                 gap: "2",
               })}
             >
-              <CrosshairIcon weight="fill" size={16} className={css({ color: "brand.orange" })} />
-              Find businesses near your location
+              {isSavedMode ? (
+                <>
+                  <BookmarksIcon weight="fill" size={16} className={css({ color: "brand.orange" })} />
+                  Your curated collection of businesses
+                </>
+              ) : (
+                <>
+                  <CrosshairIcon weight="fill" size={16} className={css({ color: "brand.orange" })} />
+                  Find businesses near your location
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -379,7 +392,7 @@ export const ActivePulsePanel = React.memo(({
           "&::-webkit-scrollbar": { display: "none" },
         })}
       >
-        {!userLocation ? (
+        {!userLocation && !isSavedMode ? (
           <div
             className={css({
               p: 6,
@@ -468,38 +481,59 @@ export const ActivePulsePanel = React.memo(({
               w: "full",
             })}
           >
-            <TargetIcon weight="duotone" size={64} className={css({ color: "brand.orange", mb: 4, opacity: 0.7 })} />
-            <h3
-              className={css({
-                color: "white",
-                fontSize: "lg",
-                fontWeight: "bold",
-                mb: 2,
-              })}
-            >
-              No Businesses Found
-            </h3>
-            <p className={css({ color: "gray.400", fontSize: "sm", mb: 6 })}>
-              We couldn't locate any businesses matching these parameters in this area.
-            </p>
-            <button
-              onClick={() => setIsAddListingOpen(true)}
-              className={css({
-                bg: "brand.orange",
-                color: "black",
-                px: "6",
-                py: "3",
-                borderRadius: "full",
-                fontSize: "sm",
-                fontWeight: "bold",
-                cursor: "pointer",
-                _hover: { filter: "brightness(1.1)", transform: "scale(1.05)" },
-                transition: "all 0.2s",
-                boxShadow: "glow",
-              })}
-            >
-              <PlusIcon weight="bold" size={18} className="mr-2" /> Add a Business
-            </button>
+            {isSavedMode ? (
+              <>
+                <BookmarksIcon weight="duotone" size={64} className={css({ color: "brand.orange", mb: 4, opacity: 0.7 })} />
+                <h3
+                  className={css({
+                    color: "white",
+                    fontSize: "lg",
+                    fontWeight: "bold",
+                    mb: 2,
+                  })}
+                >
+                  No Saved Businesses
+                </h3>
+                <p className={css({ color: "gray.400", fontSize: "sm", mb: 6 })}>
+                  You haven't bookmarked any businesses yet.
+                </p>
+              </>
+            ) : (
+              <>
+                <TargetIcon weight="duotone" size={64} className={css({ color: "brand.orange", mb: 4, opacity: 0.7 })} />
+                <h3
+                  className={css({
+                    color: "white",
+                    fontSize: "lg",
+                    fontWeight: "bold",
+                    mb: 2,
+                  })}
+                >
+                  No Businesses Found
+                </h3>
+                <p className={css({ color: "gray.400", fontSize: "sm", mb: 6 })}>
+                  We couldn't locate any businesses matching these parameters in this area.
+                </p>
+                <button
+                  onClick={() => setIsAddListingOpen(true)}
+                  className={css({
+                    bg: "brand.orange",
+                    color: "black",
+                    px: "6",
+                    py: "3",
+                    borderRadius: "full",
+                    fontSize: "sm",
+                    fontWeight: "bold",
+                    cursor: "pointer",
+                    _hover: { filter: "brightness(1.1)", transform: "scale(1.05)" },
+                    transition: "all 0.2s",
+                    boxShadow: "glow",
+                  })}
+                >
+                  <PlusIcon weight="bold" size={18} className="mr-2" /> Add a Business
+                </button>
+              </>
+            )}
           </div>
         ) : (
           visibleListings.map((listing: any, i: number) => (
