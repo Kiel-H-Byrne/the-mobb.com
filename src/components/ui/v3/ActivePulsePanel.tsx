@@ -251,8 +251,8 @@ export const ActivePulsePanel = React.memo(({
     });
 
     if (filtered.length > 0) {
-      const routingCenter = userLocation ? new window.google.maps.LatLng(userLocation) : (mapInstance ? mapInstance.getCenter() : null);
-      if (routingCenter && window.google?.maps?.geometry) {
+      if (userLocation && window.google?.maps?.geometry) {
+        const routingCenter = new window.google.maps.LatLng(userLocation);
         return filtered.map((listing: Listing) => {
           const coords = listing.coordinates?.coordinates;
           let dist = Infinity;
@@ -266,7 +266,7 @@ export const ActivePulsePanel = React.memo(({
 
               // Convert to miles and format
               const miles = distanceMeters * 0.000621371;
-              formattedDist = userLocation ? (miles < 0.1 ? "<0.1 mi" : `${miles.toFixed(1)} mi`) : "Remote";
+              formattedDist = miles < 0.1 ? "<0.1 mi" : `${miles.toFixed(1)} mi`;
             } catch (e) {
               console.error("Error computing spherical distance", e);
             }
@@ -277,7 +277,7 @@ export const ActivePulsePanel = React.memo(({
       }
     }
     return filtered;
-  }, [listings, selectedCategories, userLocation, mapInstance]);
+  }, [listings, selectedCategories, userLocation]);
 
   return (
     <section
