@@ -43,7 +43,7 @@ const ClientHome = React.memo(({ initialListings, initialCategories }: ClientHom
   const [isMapActive, setIsMapActive] = useState(true);
 
   // Navigation & Location state
-  const [activeNav, setActiveNav] = useState<"nearme" | "explore" | "saved" | "curator">("nearme");
+  const [activeNav, setActiveNav] = useState<"nearme" | "explore" | "saved">("nearme");
   const [isPanelVisible, setIsPanelVisible] = useState(true);
   const [userLocation, setUserLocation] = useState<{ lat: number, lng: number } | null>(null);
 
@@ -93,12 +93,6 @@ const ClientHome = React.memo(({ initialListings, initialCategories }: ClientHom
     setIsMapActive(true);
   }, []);
 
-  const handleCuratorClick = React.useCallback(() => {
-    setActiveNav("curator");
-    setIsPanelVisible(true);
-    setIsMapActive(true);
-  }, []);
-
 
 
   return (
@@ -135,7 +129,6 @@ const ClientHome = React.memo(({ initialListings, initialCategories }: ClientHom
           onNearMeClick={handleNearMeClick}
           onExploreClick={handleExploreClick}
           onSavedClick={handleSavedClick}
-          onCuratorClick={handleCuratorClick}
           isPanelVisible={isPanelVisible}
           onTogglePanel={() => setIsPanelVisible(!isPanelVisible)}
         />

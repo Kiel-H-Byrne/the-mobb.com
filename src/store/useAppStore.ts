@@ -34,8 +34,8 @@ interface AppState {
   setIsMapActive: (isActive: boolean) => void;
 
   // Navigation & Location
-  activeNav: "nearme" | "explore" | "saved" | "curator";
-  setActiveNav: (nav: "nearme" | "explore" | "saved" | "curator") => void;
+  activeNav: "nearme" | "explore" | "saved";
+  setActiveNav: (nav: "nearme" | "explore" | "saved") => void;
   isPanelVisible: boolean;
   setIsPanelVisible: (isVisible: boolean) => void;
   userLocation: { lat: number; lng: number } | null;
