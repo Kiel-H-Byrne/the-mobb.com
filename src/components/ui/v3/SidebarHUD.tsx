@@ -7,11 +7,13 @@ interface SidebarHUDProps {
     activeNav?: "nearme" | "explore" | "saved" | "curator";
     onNearMeClick?: () => void;
     onExploreClick?: () => void;
+    onSavedClick?: () => void;
+    onCuratorClick?: () => void;
     isPanelVisible?: boolean;
     onTogglePanel?: () => void;
 }
 
-const SidebarHUD = ({ activeNav = "nearme", onNearMeClick, onExploreClick, isPanelVisible = true, onTogglePanel }: SidebarHUDProps) => {
+const SidebarHUD = ({ activeNav = "nearme", onNearMeClick, onExploreClick, onSavedClick, onCuratorClick, isPanelVisible = true, onTogglePanel }: SidebarHUDProps) => {
     const { theme, setTheme } = useTheme();
 
     const getNavStyle = (id: string) => {
@@ -85,7 +87,7 @@ const SidebarHUD = ({ activeNav = "nearme", onNearMeClick, onExploreClick, isPan
                     )}
                 </a>
 
-                <a className={`group ${getNavStyle("saved")}`}>
+                <a onClick={onSavedClick} className={`group ${getNavStyle("saved")}`}>
                     <BookmarksIcon
                         weight={activeNav === "saved" ? "fill" : "regular"}
                         size={24}
@@ -94,7 +96,7 @@ const SidebarHUD = ({ activeNav = "nearme", onNearMeClick, onExploreClick, isPan
                     <span className={css({ fontSize: "10px", fontFamily: "tech", fontWeight: "bold", display: { base: "none", md: "block" } })}>SAVED</span>
                 </a>
 
-                <a className={`group ${getNavStyle("curator")}`}>
+                <a onClick={onCuratorClick} className={`group ${getNavStyle("curator")}`}>
                     <RobotIcon
                         weight={activeNav === "curator" ? "fill" : "regular"}
                         size={24}

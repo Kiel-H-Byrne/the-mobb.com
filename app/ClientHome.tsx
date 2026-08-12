@@ -87,6 +87,18 @@ const ClientHome = React.memo(({ initialListings, initialCategories }: ClientHom
     setIsMapActive(true);
   }, []);
 
+  const handleSavedClick = React.useCallback(() => {
+    setActiveNav("saved");
+    setIsPanelVisible(true);
+    setIsMapActive(true);
+  }, []);
+
+  const handleCuratorClick = React.useCallback(() => {
+    setActiveNav("curator");
+    setIsPanelVisible(true);
+    setIsMapActive(true);
+  }, []);
+
 
 
   return (
@@ -122,6 +134,8 @@ const ClientHome = React.memo(({ initialListings, initialCategories }: ClientHom
           activeNav={activeNav}
           onNearMeClick={handleNearMeClick}
           onExploreClick={handleExploreClick}
+          onSavedClick={handleSavedClick}
+          onCuratorClick={handleCuratorClick}
           isPanelVisible={isPanelVisible}
           onTogglePanel={() => setIsPanelVisible(!isPanelVisible)}
         />
@@ -165,7 +179,7 @@ const ClientHome = React.memo(({ initialListings, initialCategories }: ClientHom
         {/* Active Pulse Panel (Hidden in Explore Mode or manually collapsed) */}
         {(listings && categories && isPanelVisible) && (
           <ActivePulsePanel
-            listings={listings}
+            listings={activeNav === "saved" ? savedListings : listings}
             categories={categories}
             selectedCategories={selectedCategories}
             setSelectedCategories={setSelectedCategories}
