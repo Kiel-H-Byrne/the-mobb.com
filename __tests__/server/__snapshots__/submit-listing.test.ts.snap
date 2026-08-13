@@ -1,0 +1,16 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`submitListing Server Action > saves a valid MANUAL listing to pending_listings with PENDING_REVIEW status > submitListing:manual-submission 1`] = `
+{
+  "address": "1234 Malcolm X Blvd, Harlem, NY 10037",
+  "category": "Barbershop",
+  "createdAt": "[Date]",
+  "description": "Premium cuts since 1995.",
+  "ipAddress": "127.0.0.1",
+  "isBlackOwned": true,
+  "name": "King's Barber Shop",
+  "source": "MANUAL",
+  "status": "PENDING_REVIEW",
+  "website": "https://kingsbarber.com",
+}
+`;

@@ -1,0 +1,93 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`AI Curator: extractBusinessData > auto-approves and publishes when isBlackOwned=true, category set, and street address geocoded > ai-curator:auto-approve-live-listing 1`] = `
+{
+  "address": "33.739,-84.419",
+  "categories": [
+    "Restaurant",
+  ],
+  "city": "",
+  "claims": [],
+  "coordinates": {
+    "coordinates": [
+      -84.419,
+      33.739,
+    ],
+    "type": "Point",
+  },
+  "creator": "[Date]",
+  "description": "Plant-based soul food.",
+  "isOnlineOnly": false,
+  "locations": [
+    {
+      "address": "33.739,-84.419",
+      "coordinates": {
+        "coordinates": [
+          -84.419,
+          33.739,
+        ],
+        "type": "Point",
+      },
+      "place_id": "ChIJtest",
+    },
+  ],
+  "name": "Slutty Vegan ATL",
+  "og_description": undefined,
+  "og_image": undefined,
+  "og_title": undefined,
+  "submitted": "[Date]",
+  "type": "Point",
+  "url": "",
+}
+`;
+
+exports[`AI Curator: extractBusinessData > extracts multiple businesses from a listicle and saves them as pending > ai-curator:pending-listings-insertMany 1`] = `
+[
+  {
+    "address": [
+      "500 Auburn Ave NE, Atlanta, GA 30312",
+    ],
+    "approvedAt": "[Date]",
+    "category": "Restaurant",
+    "createdAt": "[Date]",
+    "description": "Soul food",
+    "isBlackOwned": true,
+    "isOnlineOnly": false,
+    "locations": [
+      {
+        "address": "33.75,-84.37",
+        "lat": 33.75,
+        "lng": -84.37,
+        "place_id": "ChIJtest",
+      },
+    ],
+    "name": "Mama's Kitchen",
+    "source": "AI_SCAN",
+    "status": "APPROVED",
+    "website": "",
+  },
+  {
+    "address": [
+      "100 Peachtree St, Atlanta, GA 30303",
+    ],
+    "approvedAt": "[Date]",
+    "category": "Tech",
+    "createdAt": "[Date]",
+    "description": "Co-working",
+    "isBlackOwned": true,
+    "isOnlineOnly": false,
+    "locations": [
+      {
+        "address": "33.76,-84.38",
+        "lat": 33.76,
+        "lng": -84.38,
+        "place_id": "ChIJtest",
+      },
+    ],
+    "name": "Afro Tech Hub",
+    "source": "AI_SCAN",
+    "status": "APPROVED",
+    "website": "",
+  },
+]
+`;

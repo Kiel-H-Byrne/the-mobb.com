@@ -1,0 +1,70 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Admin Server Actions > approveListing > geocodes a missing address and inserts with 2dsphere coordinates > approveListing:live-listing-insert 1`] = `
+{
+  "address": "123 Test St, Los Angeles, CA 90001",
+  "categories": [
+    "Tech",
+  ],
+  "city": "",
+  "claims": [],
+  "coordinates": {
+    "coordinates": [
+      -118.2437,
+      34.0522,
+    ],
+    "type": "Point",
+  },
+  "creator": "[Date]",
+  "description": undefined,
+  "google_id": undefined,
+  "isOnlineOnly": false,
+  "locations": [
+    {
+      "address": "123 Test St, Los Angeles, CA 90001",
+      "coordinates": {
+        "coordinates": [
+          -118.2437,
+          34.0522,
+        ],
+        "type": "Point",
+      },
+      "place_id": "ChIJtestplace",
+    },
+  ],
+  "name": "Test Business",
+  "og_description": undefined,
+  "og_image": undefined,
+  "og_title": undefined,
+  "phone": undefined,
+  "places_details": undefined,
+  "submitted": "[Date]",
+  "type": "Point",
+  "url": undefined,
+}
+`;
+
+exports[`Admin Server Actions > autoFindPendingListingAddress > saves updated address, lat, lng and marks google_search_found:true on a valid establishment hit > autoFindPendingListingAddress:geocoded-update 1`] = `
+{
+  "$set": {
+    "address": "565 Lawton St SW, Atlanta, GA 30310",
+    "google_search_attempted": true,
+    "google_search_found": true,
+    "lat": 33.739,
+    "lng": -84.419,
+    "locations": [
+      {
+        "address": "565 Lawton St SW, Atlanta, GA 30310",
+        "lat": 33.739,
+        "lng": -84.419,
+        "place_id": "ChIJSluVegan",
+      },
+    ],
+    "phone": "(404) 555-1234",
+    "places_details": {
+      "place_id": "ChIJSluVegan",
+    },
+    "website": "https://slutvegan.com",
+  },
+}
+`;

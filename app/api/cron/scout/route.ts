@@ -34,20 +34,20 @@ export async function GET(request: Request) {
     const scannedUrlsCollection = db.collection("scanned_urls");
 
     const searchConfigs = [
-      { q: "best black owned restaurants", tbs: "qdr:y", filter: 0 },
+      { q: "black owned near me", tbs: "qdr:m", filter: 0 }, //within month
       { q: "black owned business directory", filter: 0 },
-      { q: "intitle:\"black owned\" businesses list this year", tbs: "qdr:y", filter: 0 },
+      { q: "intitle:\"black owned\" businesses", tbs: "qdr:y", filter: 0 },
       { q: "black owned cafes and bakeries near me", tbs: "qdr:y" },
       { q: "inurl:listicle \"black owned\" stores", filter: 0 },
       { q: "black owned bookstores", filter: 0 },
-      { q: "black owned clothing brands", tbs: "qdr:m", filter: 0 }, // Super fresh - last month
+      { q: "black owned retail stores", tbs: "qdr:m", filter: 0 }, // Super fresh - last month
       { q: "black owned beauty supply stores", filter: 0 },
       { q: "new black owned businesses", tbs: "qdr:w", filter: 0 }, // Very fresh - last week
-      { q: "black owned vegan restaurants", tbs: "qdr:y", filter: 0 }
+      { q: "black owned restaurants", tbs: "qdr:y", filter: 0 }
     ];
-    
+
     const selectedConfig = searchConfigs[Math.floor(Math.random() * searchConfigs.length)];
-    
+
     // Build SerpApi URL with advanced params
     const searchParams = new URLSearchParams({
       engine: "google",
