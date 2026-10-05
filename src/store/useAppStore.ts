@@ -17,8 +17,6 @@ interface AppState {
   setIsInfoWindowOpen: (isOpen: boolean) => void;
   activeListing: Listing | null;
   setActiveListing: (listing: Listing | null) => void;
-  closestListing: Listing | null;
-  setClosestListing: (listing: Listing | null) => void;
   
   // Sets in Zustand need special handling if mutated, we'll store as Array for simplicity or replace entire Set
   selectedCategories: Set<Category>;
@@ -64,9 +62,6 @@ export const useAppStore = create<AppState>((set) => ({
   activeListing: null,
   setActiveListing: (activeListing) => set({ activeListing }),
 
-  closestListing: null,
-  setClosestListing: (closestListing) => set({ closestListing }),
-
   selectedCategories: new Set(),
   setSelectedCategories: (selectedCategories) => set({ selectedCategories }),
 
@@ -88,6 +83,6 @@ export const useAppStore = create<AppState>((set) => ({
   userLocation: null,
   setUserLocation: (userLocation) => set({ userLocation }),
 
-  viewMode: "GRID",
+  viewMode: "RADAR",
   setViewMode: (viewMode) => set({ viewMode }),
 }));

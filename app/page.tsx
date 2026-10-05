@@ -1,12 +1,12 @@
 import { SAMPLE_CATEGORIES } from "@/db/SampleListings";
 import { unstable_cache } from "next/cache";
 import ClientHome from "./ClientHome";
-import { fetchAllCategories, fetchTopListings } from "./actions/geo-search";
+import { fetchAllCategories, fetchMapListings } from "./actions/geo-search";
 
 // Cache the initial listing fetch for 1 hour to reduce DB hits on initial load
 const getCachedListings = unstable_cache(
-  async () => fetchTopListings(),
-  ["all-listings-initial"],
+  async () => fetchMapListings(),
+  ["map-listings-v1"],
   { revalidate: 3600 },
 );
 

@@ -3,7 +3,14 @@ import { targetClient } from "@/util/functions";
 import { searchBusinesses } from "@app/actions/geo-search";
 import { MagnifyingGlassIcon, MapPinIcon } from "@phosphor-icons/react";
 import { css } from "@styled/css";
-import React, { Dispatch, SetStateAction, memo, useEffect, useState } from "react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  memo,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 interface OwnProps {
   categories?: any[];
@@ -21,6 +28,15 @@ const MapAutoComplete = ({
   const [filtered, setFiltered] = useState<Listing[]>([]);
   const [input, setInput] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMac, setIsMac] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Decided after mount so server and client render the same hint first.
+  useEffect(() => {
+    const platform =
+      (navigator as any).userAgentData?.platform || navigator.platform || "";
+    setIsMac(/mac|iphone|ipad|ipod/i.test(platform));
+  }, []);
 
   const onChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.currentTarget.value;
@@ -62,7 +78,10 @@ const MapAutoComplete = ({
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && filtered.length > 0) {
+    if (e.key === "Escape") {
+      setIsMenuOpen(false);
+      inputRef.current?.blur();
+    } else if (e.key === "Enter" && filtered.length > 0) {
       handleSelect(active);
     } else if (e.key === "ArrowUp") {
       setActive((prev) => (prev === 0 ? filtered.length - 1 : prev - 1));
@@ -71,16 +90,26 @@ const MapAutoComplete = ({
     }
   };
 
-  // Keyboard shortcut listener for CMD+K / CTRL+K
+  // ⌘K (Mac) / Ctrl+K (Windows/Linux) focuses search. The search box is
+  // rendered twice (desktop panel + mobile top bar, one hidden by CSS), so each
+  // instance only responds when its own input is actually visible.
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        document.getElementById('mobb-search-input')?.focus();
-      }
+      if (!(e.metaKey || e.ctrlKey) || e.altKey || e.key.toLowerCase() !== "k")
+        return;
+      const input = inputRef.current;
+      if (
+        !input ||
+        input.getClientRects().length === 0 ||
+        getComputedStyle(input).visibility === "hidden"
+      )
+        return;
+      e.preventDefault(); // keep the browser's own Ctrl+K (address bar search)
+      input.focus();
+      input.select();
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   return (
@@ -100,7 +129,7 @@ const MapAutoComplete = ({
       })}>
         <MagnifyingGlassIcon size={20} className={css({ color: "brand.orange", mr: 3 })} />
         <input
-          id="mobb-search-input"
+          ref={inputRef}
           className={css({
             flex: "1", bg: "transparent", border: "none", outline: "none",
             color: "white", fontFamily: "body", fontSize: "sm",
@@ -108,6 +137,7 @@ const MapAutoComplete = ({
           })}
           placeholder={`Search all businesses...`}
           aria-label="Search The MOBB"
+          aria-keyshortcuts="Meta+K Control+K"
           onChange={onChange}
           onKeyDown={onKeyDown}
           value={input}
@@ -117,7 +147,14 @@ const MapAutoComplete = ({
           display: { base: "none", md: "flex" }, alignItems: "center", gap: "2", fontSize: "xs",
           fontFamily: "tech", color: "gray.500", bg: "white/5", px: "2", py: "1", borderRadius: "md"
         })}>
-          <span>⌘</span><span>K</span>
+          {isMac ? (
+            <>
+              <span>⌘</span>
+              <span>K</span>
+            </>
+          ) : (
+            <span>Ctrl K</span>
+          )}
         </div>
       </div>
 

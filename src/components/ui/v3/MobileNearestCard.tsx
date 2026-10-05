@@ -1,3 +1,4 @@
+import ListingCoverImage from "@/components/ListingCoverImage";
 import { Listing } from "@/db/Types";
 import { CheckCircleIcon, NavigationArrowIcon, ShareNetworkIcon, XIcon } from "@phosphor-icons/react";
 import { css } from "@styled/css";
@@ -109,33 +110,11 @@ export const MobileNearestCard = ({
                         border: "1px solid",
                         borderColor: "white/10",
                         overflow: "hidden",
+                        position: "relative",
                         flexShrink: 0,
                     })}
                 >
-                    {listing.image || listing.og_image ? (
-                        <img
-                            src={typeof listing.image === 'string' ? listing.image : (listing.image as any)?.url || listing.og_image || ''}
-                            className={css({
-                                w: "full",
-                                h: "full",
-                                objectFit: "cover",
-                            })}
-                            alt={listing.name || listing.og_title}
-                        />
-                    ) : (
-                        <div
-                            className={css({
-                                w: "full",
-                                h: "full",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                            })}
-                        >
-                            {/* <i className="ph-duotone ph-storefront text-2xl text-brand-orange"></i> */}
-                            <img src="/images/mobb_placeholder.png" alt="" />
-                        </div>
-                    )}
+                    <ListingCoverImage listing={listing} sizes="64px" />
                 </div>
 
                 {/* Content */}
