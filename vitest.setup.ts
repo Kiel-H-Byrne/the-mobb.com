@@ -58,6 +58,7 @@ vi.mock('@/db/mongodb', () => {
         deleteOne: vi.fn().mockResolvedValue({ deletedCount: 1 }),
         deleteMany: vi.fn().mockResolvedValue({ deletedCount: 0 }),
         findOne: vi.fn().mockResolvedValue(null),
+        countDocuments: vi.fn().mockResolvedValue(0),
     };
 
     const dbMock = {
@@ -124,6 +125,7 @@ beforeEach(async () => {
     col.aggregate.mockReturnThis();
     col.toArray.mockResolvedValue([]);
     col.findOne.mockResolvedValue(null);
+    col.countDocuments.mockResolvedValue(0);
     col.insertOne.mockResolvedValue({ insertedId: 'fake-id' });
     col.insertMany.mockResolvedValue({ insertedCount: 1 });
     col.updateOne.mockResolvedValue({ modifiedCount: 1 });

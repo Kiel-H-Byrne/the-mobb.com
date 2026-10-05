@@ -1,7 +1,13 @@
-import CategoryFilter from "@/components/Map/CategoryFilter";
+import ListingCoverImage from "@/components/ListingCoverImage";
 import MapAutoComplete from "@/components/Map/MapAutoComplete";
 import { Category, Listing } from "@/db/Types";
+import {
+  countCategories,
+  listingMatchesCategories,
+  toggleCategory,
+} from "@/util/categories";
 import { targetClient } from "@/util/functions";
+import { nearestListings } from "@/util/location";
 import {
   BookmarksIcon,
   CrosshairIcon,
@@ -11,8 +17,10 @@ import {
   TargetIcon,
 } from "@phosphor-icons/react";
 import { css } from "@styled/css";
-import Image from "next/image";
-import React, { Dispatch, SetStateAction, useMemo } from "react";
+import React, { Dispatch, SetStateAction, useCallback, useMemo } from "react";
+import CategoryPills from "./CategoryPills";
+
+const PANEL_LIST_LIMIT = 40;
 
 interface ListingCard3DProps {
   listing: Listing;
@@ -28,7 +36,8 @@ export const ListingCard3D = React.memo(
     setactiveListing,
     setisDrawerOpen,
     distance,
-  }: ListingCard3DProps & { distance?: string }) => {
+    fullWidth,
+  }: ListingCard3DProps & { distance?: string; fullWidth?: boolean }) => {
     const handleClick = () => {
       let locationObj;
       if (listing.coordinates && listing.coordinates.coordinates) {
@@ -57,7 +66,8 @@ export const ListingCard3D = React.memo(
           position: "relative",
           overflow: "hidden",
           flexShrink: 0,
-          width: { base: "85%", md: "100%" },
+          width: fullWidth ? "100%" : { base: "85%", md: "100%" },
+          height: fullWidth ? "100%" : "auto",
           _hover: {
             transform: "translateY(-5px) scale(1.02)",
             borderColor: "rgba(255,90,0,0.4)",
@@ -97,42 +107,16 @@ export const ListingCard3D = React.memo(
               flexShrink: 0,
             })}
           >
-            {listing.image || listing.og_image ? (
-              <Image
-                src={
-                  typeof listing.image === "string"
-                    ? listing.image
-                    : (listing.image as any)?.url || listing.og_image || ""
-                }
-                fill
-                className={css({
-                  objectFit: "cover",
-                  opacity: 0.8,
-                  mixBlendMode: "luminosity",
-                  _groupHover: { mixBlendMode: "normal" },
-                  transition: "all 0.5s",
-                })}
-                alt={listing.name || listing.og_title || "Listing Image"}
-              />
-            ) : (
-              <div
-                className={css({
-                  w: "full",
-                  h: "full",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                })}
-              >
-                {/* <i className="ph-duotone ph-image text-2xl text-gray-600"></i> */}
-                <Image
-                  src="/images/mobb_placeholder.png"
-                  alt=""
-                  fill
-                  className={css({ objectFit: "cover" })}
-                />
-              </div>
-            )}
+            <ListingCoverImage
+              listing={listing}
+              sizes="80px"
+              className={css({
+                opacity: 0.8,
+                mixBlendMode: "luminosity",
+                _groupHover: { mixBlendMode: "normal" },
+                transition: "all 0.5s",
+              })}
+            />
             <div
               className={css({
                 position: "absolute",
@@ -261,60 +245,37 @@ export const ActivePulsePanel = React.memo(
     onRequestLocation,
     isSavedMode,
   }: any) => {
-    const visibleListings = useMemo(() => {
-      let filtered = listings.filter((listing: Listing) => {
+    // Every map listing is loaded, so the list shows the nearest few rather
+    // than rendering hundreds of cards.
+    const { visibleListings, matchingCount } = useMemo(() => {
+      const filtered = listings.filter((listing: Listing) => {
         if (isSavedMode) return true; // Don't filter saved listings by category
-
-        const hasMatch =
-          listing.categories &&
-          listing.categories.some((el: Category) => selectedCategories.has(el));
-        const noCategories =
-          !listing.categories || listing.categories.length === 0;
-        return hasMatch || noCategories;
+        return listingMatchesCategories(listing, selectedCategories);
       });
-
-      if (filtered.length > 0) {
-        if (userLocation && window.google?.maps?.geometry) {
-          const routingCenter = new window.google.maps.LatLng(userLocation);
-          return filtered
-            .map((listing: Listing) => {
-              const coords = listing.coordinates?.coordinates;
-              let dist = Infinity;
-              let formattedDist = "";
-
-              if (coords && coords.length > 1) {
-                try {
-                  const posObj = new window.google.maps.LatLng({
-                    lat: coords[1],
-                    lng: coords[0],
-                  });
-                  const distanceMeters =
-                    window.google.maps.geometry.spherical.computeDistanceBetween(
-                      posObj,
-                      routingCenter,
-                    );
-                  dist = distanceMeters;
-
-                  // Convert to miles and format
-                  const miles = distanceMeters * 0.000621371;
-                  formattedDist =
-                    miles < 0.1 ? "<0.1 mi" : `${miles.toFixed(1)} mi`;
-                } catch (e) {
-                  console.error("Error computing spherical distance", e);
-                }
-              }
-
-              return {
-                ...listing,
-                _distance: dist,
-                _formattedDistance: formattedDist,
-              };
-            })
-            .sort((a: any, b: any) => a._distance - b._distance);
-        }
+      if (!userLocation) {
+        return { visibleListings: filtered, matchingCount: filtered.length };
       }
-      return filtered;
-    }, [listings, selectedCategories, userLocation]);
+      return {
+        visibleListings: nearestListings(
+          filtered,
+          userLocation,
+          isSavedMode ? Infinity : PANEL_LIST_LIMIT,
+        ),
+        matchingCount: filtered.length,
+      };
+    }, [listings, selectedCategories, userLocation, isSavedMode]);
+
+    // Counts reflect what's loaded on the map, so they match the markers.
+    const categoryCounts = useMemo(() => countCategories(listings), [listings]);
+    const handleToggleCategory = useCallback(
+      (name: string) =>
+        setSelectedCategories(toggleCategory(selectedCategories, name)),
+      [selectedCategories, setSelectedCategories],
+    );
+    const handleClearCategories = useCallback(
+      () => setSelectedCategories(new Set()),
+      [setSelectedCategories],
+    );
 
     return (
       <section
@@ -399,33 +360,23 @@ export const ActivePulsePanel = React.memo(
             </div>
           </div>
 
-          <div
-            className={css({
-              position: "relative",
-              w: "full",
-              display: "flex",
-              alignItems: "center",
-              gap: "2",
-            })}
-          >
-            <div className={css({ flex: 1 })}>
-              <MapAutoComplete
-                categories={categories}
-                mapInstance={mapInstance}
-                setactiveListing={setactiveListing}
-                setisDrawerOpen={setisDrawerOpen}
-              />
-            </div>
-            <div
-              className={css({ width: "1px", height: "8", bg: "white/10" })}
-            ></div>
-            <CategoryFilter
-              listings={listings}
+          <div className={css({ position: "relative", w: "full" })}>
+            <MapAutoComplete
               categories={categories}
-              selectedCategories={selectedCategories}
-              setSelectedCategories={setSelectedCategories}
+              mapInstance={mapInstance}
+              setactiveListing={setactiveListing}
+              setisDrawerOpen={setisDrawerOpen}
             />
           </div>
+          {!isSavedMode && (
+            <CategoryPills
+              categories={categoryCounts}
+              selected={selectedCategories}
+              onToggle={handleToggleCategory}
+              onClear={handleClearCategories}
+              collapsedCount={8}
+            />
+          )}
         </div>
 
         <div
@@ -634,16 +585,35 @@ export const ActivePulsePanel = React.memo(
               )}
             </div>
           ) : (
-            visibleListings.map((listing: any, i: number) => (
-              <ListingCard3D
-                key={listing._id || i}
-                listing={listing}
-                mapInstance={mapInstance}
-                setactiveListing={setactiveListing}
-                setisDrawerOpen={setisDrawerOpen}
-                distance={listing._formattedDistance}
-              />
-            ))
+            <>
+              {!isSavedMode && (
+                <p
+                  aria-live="polite"
+                  className={css({
+                    display: { base: "none", md: "block" },
+                    flexShrink: 0,
+                    fontSize: "xs",
+                    fontFamily: "tech",
+                    color: "gray.500",
+                  })}
+                >
+                  {visibleListings.length < matchingCount
+                    ? `${visibleListings.length} nearest of ${matchingCount.toLocaleString()} businesses`
+                    : `${matchingCount.toLocaleString()} businesses`}
+                  {selectedCategories.size > 0 ? " in these categories" : ""}
+                </p>
+              )}
+              {visibleListings.map((listing: any, i: number) => (
+                <ListingCard3D
+                  key={listing._id || i}
+                  listing={listing}
+                  mapInstance={mapInstance}
+                  setactiveListing={setactiveListing}
+                  setisDrawerOpen={setisDrawerOpen}
+                  distance={listing._formattedDistance}
+                />
+              ))}
+            </>
           )}
         </div>
       </section>

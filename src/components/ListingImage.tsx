@@ -7,18 +7,28 @@ const DEFAULT_IMAGE = "/images/mobb_placeholder.png";
 
 const ListingImage = ({ image, name, url, className }: Partial<Listing & { className?: string }>) => {
   const [ogImage, setogImage] = useState("");
+  // Each fallback is tried once: listing image → OG lookup → placeholder.
+  // Without this, a broken OG image re-triggers the lookup on every error.
+  const [triedOG, setTriedOG] = useState(false);
 
-  const handleImageError = async (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    const img = e.currentTarget;
-    img.onerror = null;
-    !url
-      ? setogImage(DEFAULT_IMAGE)
-      : await getOG(url).then((data) => setogImage(data));
+  const handleImageError = async () => {
+    if (ogImage === DEFAULT_IMAGE) return;
+    if (!url || triedOG) {
+      setogImage(DEFAULT_IMAGE);
+      return;
+    }
+    setTriedOG(true);
+    try {
+      const data = await getOG(url);
+      setogImage(typeof data === "string" && data ? data : DEFAULT_IMAGE);
+    } catch {
+      setogImage(DEFAULT_IMAGE);
+    }
   };
 
   return image ? (
     <img
-      src={ogImage || image.url}
+      src={ogImage || image.url || DEFAULT_IMAGE}
       onError={handleImageError}
       alt={name}
       title={name}

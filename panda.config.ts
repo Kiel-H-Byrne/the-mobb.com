@@ -61,7 +61,10 @@ export default defineConfig({
           fadeIn: { value: 'fadeIn 0.3s ease-out' },
           slideUp: { value: 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)' },
           slideInRight: { value: 'slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1)' },
-          slideOutBottom: { value: 'slideOutBottom 0.3s ease-in' }
+          slideOutBottom: { value: 'slideOutBottom 0.3s ease-in' },
+          cardIn: { value: 'cardIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both' },
+          cardOut: { value: 'cardOut 0.22s ease-in both' },
+          shimmer: { value: 'shimmer 1.6s linear infinite' }
         }
       },
       keyframes: {
@@ -96,6 +99,18 @@ export default defineConfig({
         slideOutBottom: {
           '0%': { transform: 'translateY(0)' },
           '100%': { transform: 'translateY(100%)' }
+        },
+        cardIn: {
+          '0%': { opacity: '0', transform: 'translateY(16px) scale(0.97)', filter: 'blur(4px)' },
+          '100%': { opacity: '1', transform: 'translateY(0) scale(1)', filter: 'blur(0)' }
+        },
+        cardOut: {
+          '0%': { opacity: '1', transform: 'scale(1)', filter: 'blur(0)' },
+          '100%': { opacity: '0', transform: 'scale(0.94)', filter: 'blur(4px)' }
+        },
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' }
         }
       },
       semanticTokens: {

@@ -5,6 +5,8 @@ import { ListingCard3D } from "./ActivePulsePanel";
 
 interface MobileClosestListingsPanelProps {
     listings: Listing[];
+    /** Matching listings overall, when `listings` is only the nearest few. */
+    totalCount?: number;
     mapInstance: any;
     setactiveListing: Dispatch<SetStateAction<any>>;
     setisDrawerOpen: Dispatch<SetStateAction<boolean>>;
@@ -18,6 +20,7 @@ interface MobileClosestListingsPanelProps {
  */
 export const MobileClosestListingsPanel = ({
     listings,
+    totalCount,
     mapInstance,
     setactiveListing,
     setisDrawerOpen,
@@ -179,13 +182,16 @@ export const MobileClosestListingsPanel = ({
                             gap: "4",
                         })}>
                             <p className={css({ fontSize: "xs", color: "gray.400", mb: "2" })}>
-                                Found {listings.length} verified businesses in your sector.
+                                {totalCount !== undefined && totalCount > listings.length
+                                    ? `The ${listings.length} nearest of ${totalCount.toLocaleString()} businesses.`
+                                    : `Found ${listings.length} verified businesses in your sector.`}
                             </p>
 
-                            {listings.map((listing: Listing, i: number) => (
+                            {listings.map((listing: any, i: number) => (
                                 <div key={i} onClick={() => setIsOpen(false)}> {/* Close panel when selecting to view on map */}
                                     <ListingCard3D
                                         listing={listing}
+                                        distance={listing._formattedDistance}
                                         mapInstance={mapInstance}
                                         setactiveListing={setactiveListing}
                                         setisDrawerOpen={setisDrawerOpen}

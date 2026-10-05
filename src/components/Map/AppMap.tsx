@@ -7,8 +7,8 @@ import { useTheme } from "next-themes";
 import { Dispatch, memo, SetStateAction, useEffect, useState } from "react";
 
 import { Category, Libraries, Listing } from "@/db/Types";
+import { listingMatchesCategories } from "@/util/categories";
 import { GEOCENTER } from "@/util/functions";
-import { findBusinessesNearby } from "@app/actions/geo-search";
 import { css } from "@styled/css";
 import MyMarker from "./MyMarker";
 
@@ -36,7 +36,6 @@ const defaultProps = {
 
 interface IAppMap {
   listings: Listing[];
-  setListings: (listings: Listing[]) => void;
   categories: Category[];
   browserLocation: any;
   setMapInstance: any;
@@ -48,7 +47,6 @@ interface IAppMap {
   setisDrawerOpen: Dispatch<SetStateAction<boolean>>;
   setisInfoWindowOpen: Dispatch<SetStateAction<boolean>>;
   setIsMapActive: Dispatch<SetStateAction<boolean>>;
-  setClosestListing?: Dispatch<SetStateAction<Listing | null>>;
 }
 
 const MapContent = memo(
@@ -128,26 +126,10 @@ const MapContent = memo(
         {/* HUD and AutoComplete MapControls have been relocated to 2030 AR Panels */}
         {listings &&
           listings.map((listing: Listing) => {
-            const hasMatch =
-              listing.categories &&
-              listing.categories.some((el: Category) =>
-                selectedCategories.has(el),
-              );
-            const noCategories =
-              !listing.categories || listing.categories.length === 0;
-
-            const hasUnrecognizedCategory =
-              listing.categories &&
-              listing.categories.some(
-                (cat: string) =>
-                  !categories.includes(cat) && cat !== "Uncategorized",
-              );
-
-            const isUncategorizedMatch =
-              selectedCategories.has("Uncategorized") &&
-              (noCategories || hasUnrecognizedCategory);
-
-            const isVisible = hasMatch || isUncategorizedMatch;
+            const isVisible = listingMatchesCategories(
+              listing,
+              selectedCategories,
+            );
             const hasLegacyCoordinates = Boolean(
               listing.coordinates &&
                 listing.coordinates.coordinates &&
@@ -210,7 +192,6 @@ const MapContent = memo(
 const AppMap = memo(
   ({
     listings,
-    setListings,
     categories,
     browserLocation,
     setMapInstance,
@@ -221,76 +202,12 @@ const AppMap = memo(
     setisDrawerOpen,
     setisInfoWindowOpen,
     setIsMapActive,
-    setClosestListing,
   }: IAppMap) => {
     const { theme } = useTheme();
 
-    const handleIdle = async (e: any) => {
-      setIsMapActive(false);
-      const map = e.map;
-      if (map) {
-        const center = map.getCenter();
-        const lat = center.lat();
-        const lng = center.lng();
-        const zoom = map.getZoom();
-        const radius = Math.max(5000, 10 ** (15 - zoom));
-
-        try {
-          const nearby = await findBusinessesNearby(lat, lng, radius);
-          if (nearby && nearby.length > 0) {
-            setListings(nearby);
-
-            // Re-calculate the absolute nearest marker for the mobile floating card based on actual device location
-            if (setClosestListing) {
-              if (browserLocation) {
-                const start = new (window as any).google.maps.LatLng(
-                  browserLocation,
-                );
-                let closestMarker: Listing | null = null;
-                let shortestDistance = Infinity;
-
-                nearby.forEach((listing: Listing) => {
-                  // If the listing has multiple locations, check which one is nearest
-                  let coordsToTest: any[] = [];
-                  if (listing.locations && listing.locations.length > 0) {
-                    coordsToTest = listing.locations
-                      .map((l) => l.coordinates?.coordinates)
-                      .filter((c) => c && c.length > 1);
-                  } else if (listing.coordinates?.coordinates) {
-                    coordsToTest = [listing.coordinates.coordinates];
-                  }
-
-                  coordsToTest.forEach((coords) => {
-                    if (coords && coords.length > 1) {
-                      const posObj = new (window as any).google.maps.LatLng({
-                        lat: coords[1],
-                        lng: coords[0],
-                      });
-                      const dist = (
-                        window as any
-                      ).google.maps.geometry.spherical.computeDistanceBetween(
-                        posObj,
-                        start,
-                      );
-                      if (dist < shortestDistance) {
-                        shortestDistance = dist;
-                        closestMarker = listing;
-                      }
-                    }
-                  });
-                });
-
-                setClosestListing(closestMarker);
-              } else {
-                setClosestListing(null);
-              }
-            }
-          }
-        } catch (error) {
-          console.error("Error fetching nearby businesses:", error);
-        }
-      }
-    };
+    // All mappable listings are loaded up front (see fetchMapListings), so
+    // moving the map no longer swaps in a different subset of listings.
+    const handleIdle = () => setIsMapActive(false);
 
     let { center, zoom, options } = defaultProps;
 

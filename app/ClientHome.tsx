@@ -2,7 +2,7 @@
 
 import AppMap from "@/components/Map/AppMap";
 import { css } from "@styled/css";
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 
 import { Category, Listing } from "@/db/Types";
 
@@ -22,11 +22,8 @@ import { MobileTopSearch } from "@/components/ui/v3/MobileTopSearch";
 import OnlineOrbit from "@/components/ui/v3/OnlineOrbit";
 import SidebarHUD from "@/components/ui/v3/SidebarHUD";
 
-import {
-  fetchGlobalListings,
-  fetchOnlineOnlyListings,
-  findBusinessesNearby,
-} from "./actions/geo-search";
+import { listingMatchesCategories } from "@/util/categories";
+import { nearestListings } from "@/util/location";
 
 import { PlusIcon } from "@phosphor-icons/react";
 
@@ -94,11 +91,20 @@ const DetailPanelContainer = () => {
   );
 };
 
-const NearestCardContainer = () => {
+const MOBILE_LIST_LIMIT = 40;
+
+const NearestCardContainer = ({ listings }: { listings: Listing[] }) => {
   const userLocation = useAppStore((s) => s.userLocation);
-  const closestListing = useAppStore((s) => s.closestListing);
   const setActiveListing = useAppStore((s) => s.setActiveListing);
   const setIsDrawerOpen = useAppStore((s) => s.setIsDrawerOpen);
+
+  const closestListing = useMemo(
+    () =>
+      userLocation
+        ? nearestListings(listings, userLocation, 1)[0] ?? null
+        : null,
+    [listings, userLocation],
+  );
 
   if (!userLocation) return null;
 
@@ -152,7 +158,6 @@ const FloatingAddButton = () => {
 
 const MapContainer = ({ initialListings }: { initialListings: Listing[] }) => {
   const listings = useAppStore((s) => s.listings);
-  const setListings = useAppStore((s) => s.setListings);
   const categories = useAppStore((s) => s.categories);
   const mapInstance = useAppStore((s) => s.mapInstance);
   const setMapInstance = useAppStore((s) => s.setMapInstance);
@@ -163,12 +168,10 @@ const MapContainer = ({ initialListings }: { initialListings: Listing[] }) => {
   const setIsDrawerOpen = useAppStore((s) => s.setIsDrawerOpen);
   const setIsInfoWindowOpen = useAppStore((s) => s.setIsInfoWindowOpen);
   const setIsMapActive = useAppStore((s) => s.setIsMapActive);
-  const setClosestListing = useAppStore((s) => s.setClosestListing);
 
   return (
     <AppMap
       listings={listings || initialListings || []}
-      setListings={setListings}
       categories={categories || []}
       setMapInstance={setMapInstance}
       mapInstance={mapInstance}
@@ -182,7 +185,6 @@ const MapContainer = ({ initialListings }: { initialListings: Listing[] }) => {
       // isInfoWindowOpen={false}
       setisInfoWindowOpen={setIsInfoWindowOpen}
       setIsMapActive={setIsMapActive}
-      setClosestListing={setClosestListing}
     />
   );
 };
@@ -198,7 +200,6 @@ const ClientHome = React.memo(
   ({ initialListings, initialCategories }: ClientHomeProps) => {
     const listings = useAppStore((state) => state.listings);
     const categories = useAppStore((state) => state.categories);
-    const setListings = useAppStore((state) => state.setListings);
     const setCategories = useAppStore((state) => state.setCategories);
     const selectedCategories = useAppStore((state) => state.selectedCategories);
     const setSelectedCategories = useAppStore(
@@ -236,18 +237,11 @@ const ClientHome = React.memo(
             const lng = position.coords.longitude;
             setUserLocation({ lat, lng });
 
+            // All map listings are already loaded; just focus the map here.
+            // The side lists sort by distance from userLocation.
             if (mapInstance) {
               mapInstance.panTo({ lat, lng });
               mapInstance.setZoom(12);
-            }
-
-            try {
-              const nearby = await findBusinessesNearby(lat, lng, 32000);
-              if (nearby && nearby.length > 0) {
-                setListings(nearby);
-              }
-            } catch (error) {
-              console.error("Error fetching nearby businesses:", error);
             }
           },
           (error) => {
@@ -260,7 +254,6 @@ const ClientHome = React.memo(
       setActiveNav,
       setIsPanelVisible,
       setUserLocation,
-      setListings,
       setViewMode,
     ]);
 
@@ -268,7 +261,7 @@ const ClientHome = React.memo(
       setActiveNav("explore");
       setIsPanelVisible(false);
       setIsMapActive(true);
-      setViewMode("GRID");
+      setViewMode("RADAR");
     }, [setActiveNav, setIsPanelVisible, setIsMapActive, setViewMode]);
 
     const handleSavedClick = React.useCallback(() => {
@@ -277,37 +270,28 @@ const ClientHome = React.memo(
       setIsMapActive(true);
     }, [setActiveNav, setIsPanelVisible, setIsMapActive]);
 
-    useEffect(() => {
-      async function syncGlobalData() {
-        if (viewMode === "GRID") {
-          try {
-            const freshGrid = await fetchGlobalListings(1, 100);
-            setListings(freshGrid);
-          } catch (e) {
-            console.error(e);
-          }
-        } else if (viewMode === "ORBIT") {
-          try {
-            const freshOrbit = await fetchOnlineOnlyListings(1, 100);
-            setListings(freshOrbit);
-          } catch (e) {
-            console.error(e);
-          }
-        } else if (viewMode === "RADAR") {
-          if (!userLocation) {
-            setListings(initialListings);
-          }
-        }
-      }
-      syncGlobalData();
-    }, [viewMode, initialListings, setListings, userLocation]);
+    // Global Grid and Online Only page their own data (see DirectoryView),
+    // so the map's listings are never overwritten by those views.
 
+    // An empty category selection means "show everything" (see listingMatchesCategories).
     useEffect(() => {
-      if (!categories) {
-        setCategories(initialCategories);
-        setSelectedCategories(new Set(initialCategories));
-      }
-    }, [initialCategories, categories, setCategories, setSelectedCategories]);
+      if (!categories) setCategories(initialCategories);
+    }, [initialCategories, categories, setCategories]);
+
+    const mapListings = listings || initialListings || [];
+
+    // Nearest matches for the mobile list (the desktop panel does the same).
+    const mobileNearest = useMemo(() => {
+      const matching = mapListings.filter((l) =>
+        listingMatchesCategories(l, selectedCategories),
+      );
+      return {
+        listings: userLocation
+          ? nearestListings(matching, userLocation, MOBILE_LIST_LIMIT)
+          : matching.slice(0, MOBILE_LIST_LIMIT),
+        total: matching.length,
+      };
+    }, [mapListings, selectedCategories, userLocation]);
 
     const showRadarUI = viewMode === "RADAR";
 
@@ -328,8 +312,8 @@ const ClientHome = React.memo(
       >
         <EcosystemToggle activeView={viewMode} setActiveView={setViewMode} />
 
-        {viewMode === "GRID" && <GlobalGrid listings={listings || []} />}
-        {viewMode === "ORBIT" && <OnlineOrbit listings={listings || []} />}
+        {viewMode === "GRID" && <GlobalGrid />}
+        {viewMode === "ORBIT" && <OnlineOrbit />}
 
         <div
           className={css({
@@ -361,7 +345,8 @@ const ClientHome = React.memo(
             zIndex: 40,
             pointerEvents: showRadarUI ? "auto" : "none",
             opacity: showRadarUI ? 1 : 0,
-            transition: "opacity 0.4s",
+            visibility: showRadarUI ? "visible" : "hidden",
+            transition: "opacity 0.4s, visibility 0.4s",
           })}
         >
           <SidebarHUD
@@ -374,47 +359,40 @@ const ClientHome = React.memo(
           />
         </div>
 
-        <div
-          className={css({
-            opacity: showRadarUI ? 1 : 0,
-            pointerEvents: showRadarUI ? "auto" : "none",
-            transition: "opacity 0.4s",
-            position: "relative",
-            zIndex: 30,
-            w: "full",
-            display: "flex",
-            flexDir: "column",
-            gap: "6",
-          })}
-        >
-          <MobileTopSearch
-            listings={listings || initialListings || []}
-            categories={categories || initialCategories || []}
-            selectedCategories={selectedCategories}
-            setSelectedCategories={setSelectedCategories}
-            mapInstance={mapInstance}
-            setactiveListing={setActiveListing}
-            setisDrawerOpen={setIsDrawerOpen}
-          />
+        {/* Mobile overlays are position:fixed and opt into pointer events
+            themselves — no wrapper, so nothing takes layout space or blocks the map. */}
+        {showRadarUI && (
+          <>
+            <MobileTopSearch
+              listings={listings || initialListings || []}
+              categories={categories || initialCategories || []}
+              selectedCategories={selectedCategories}
+              setSelectedCategories={setSelectedCategories}
+              mapInstance={mapInstance}
+              setactiveListing={setActiveListing}
+              setisDrawerOpen={setIsDrawerOpen}
+            />
 
-          <NearestCardContainer />
+            <NearestCardContainer listings={mapListings} />
 
-          <MobileClosestListingsPanel
-            listings={listings || initialListings || []}
-            mapInstance={mapInstance}
-            setactiveListing={setActiveListing}
-            setisDrawerOpen={setIsDrawerOpen}
-            userLocation={userLocation}
-            onRequestLocation={handleNearMeClick}
-          />
+            <MobileClosestListingsPanel
+              listings={mobileNearest.listings}
+              totalCount={mobileNearest.total}
+              mapInstance={mapInstance}
+              setactiveListing={setActiveListing}
+              setisDrawerOpen={setIsDrawerOpen}
+              userLocation={userLocation}
+              onRequestLocation={handleNearMeClick}
+            />
 
-          <MobileSavedListingsPanel
-            listings={savedListings}
-            mapInstance={mapInstance}
-            setactiveListing={setActiveListing}
-            setisDrawerOpen={setIsDrawerOpen}
-          />
-        </div>
+            <MobileSavedListingsPanel
+              listings={savedListings}
+              mapInstance={mapInstance}
+              setactiveListing={setActiveListing}
+              setisDrawerOpen={setIsDrawerOpen}
+            />
+          </>
+        )}
 
         <main
           className={css({
@@ -424,7 +402,7 @@ const ClientHome = React.memo(
             gap: "6",
             h: "full",
             overflow: "hidden",
-            pointerEvents: showRadarUI ? "none" : "none",
+            pointerEvents: "none",
             opacity: showRadarUI ? 1 : 0,
             transition: "opacity 0.4s",
           })}
