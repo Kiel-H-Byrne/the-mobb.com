@@ -1,6 +1,7 @@
 import { Listing } from "@/db/Types";
 import { BookmarkIcon, MapPinIcon, NavigationArrowIcon, PhoneIcon, TagIcon, XIcon } from "@phosphor-icons/react";
 import { css } from "@styled/css";
+import Image from "next/image";
 import { Dispatch, SetStateAction } from "react";
 
 interface ListingDetailPanel3DProps {
@@ -98,13 +99,13 @@ export const ListingDetailPanel3D = ({
                 {/* Holographic Image Frame */}
                 <div className={css({ position: "relative", w: "full", h: "240px", bg: "brand.greyDark", overflow: "hidden" })}>
                     <div className={css({ position: "absolute", inset: 0, bg: "linear-gradient(to bottom, transparent, #0B0B0E)", zIndex: 1 })} />
-                    <a href={url} title="Listing Image" rel="noopener noreferrer" target="_blank" className={css({ display: "block", w: "full", h: "full" })}>
+                    <a href={url} title="Listing Image" rel="noopener noreferrer" target="_blank" className={css({ display: "block", w: "full", h: "full", position: "absolute", inset: 0 })}>
                         {(image || og_image) ? (
-                            <img src={typeof image === 'string' ? image : (image as any)?.url || og_image || ''} alt={name} className={css({ w: "full", h: "full", objectFit: "cover", opacity: 0.8, filter: "contrast(1.1) saturate(1.2)" })} />
+                            <Image src={typeof image === 'string' ? image : (image as any)?.url || og_image || ''} alt={name || "Listing Image"} fill className={css({ objectFit: "cover", opacity: 0.8, filter: "contrast(1.1) saturate(1.2)" })} unoptimized={false} />
                         ) : (
-                            <div className={css({ w: "full", h: "full", display: "flex", alignItems: "center", justifyContent: "center" })}>
+                            <div className={css({ w: "full", h: "full", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" })}>
                                 {/* <i className="ph-duotone ph-image text-6xl text-gray-600"></i> */}
-                                <img src="/images/mobb_placeholder.png" alt="" />
+                                <Image src="/images/mobb_placeholder.png" alt="" fill className={css({ objectFit: "cover" })} />
                             </div>
                         )}
                     </a>

@@ -5,6 +5,18 @@
 const path = require("path");
 
 module.exports = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**",
+      },
+      {
+        protocol: "http",
+        hostname: "**",
+      },
+    ],
+  },
   env: {
     NEXT_PUBLIC_GOOGLE_MAPS_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY,
     NEXT_PUBLIC_MAP_ID: process.env.NEXT_PUBLIC_MAP_ID,

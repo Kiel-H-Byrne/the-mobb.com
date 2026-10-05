@@ -1,5 +1,5 @@
-import MapAutoComplete from "@/components/Map/MapAutoComplete";
 import CategoryFilter from "@/components/Map/CategoryFilter";
+import MapAutoComplete from "@/components/Map/MapAutoComplete";
 import { Category, Listing } from "@/db/Types";
 import { css } from "@styled/css";
 import { Dispatch, SetStateAction } from "react";
@@ -42,26 +42,25 @@ export const MobileTopSearch = ({
                 pointerEvents: "none", // Let clicks pass through empty space
             })}
         >
-            <div className={css({ 
-                pointerEvents: "auto", 
-                w: "full", 
-                display: "flex", 
-                alignItems: "center", 
-                gap: "2" 
+            <div className={css({
+                pointerEvents: "auto",
+                w: "full",
+                display: "flex",
+                alignItems: "center",
+                gap: "2"
             })}>
                 <div className={css({ flex: 1, position: "relative" })}>
                     <MapAutoComplete
-                        listings={listings}
                         categories={categories}
                         mapInstance={mapInstance}
                         setactiveListing={setactiveListing}
                         setisDrawerOpen={setisDrawerOpen}
                     />
                 </div>
-                
+
                 <div className={css({ width: "1px", height: "8", bg: "white/10" })}></div>
-                
-                <CategoryFilter 
+
+                <CategoryFilter
                     listings={listings}
                     categories={categories}
                     selectedCategories={selectedCategories}

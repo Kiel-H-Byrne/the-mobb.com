@@ -1,5 +1,5 @@
-import { create } from 'zustand';
 import { Category, Listing } from '@/db/Types';
+import { create } from 'zustand';
 
 interface AppState {
   // Map Data
@@ -40,6 +40,9 @@ interface AppState {
   setIsPanelVisible: (isVisible: boolean) => void;
   userLocation: { lat: number; lng: number } | null;
   setUserLocation: (location: { lat: number; lng: number } | null) => void;
+  // New Global Architecture States
+  viewMode: "RADAR" | "GRID" | "ORBIT";
+  setViewMode: (mode: "RADAR" | "GRID" | "ORBIT") => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -84,4 +87,7 @@ export const useAppStore = create<AppState>((set) => ({
 
   userLocation: null,
   setUserLocation: (userLocation) => set({ userLocation }),
+
+  viewMode: "GRID",
+  setViewMode: (viewMode) => set({ viewMode }),
 }));

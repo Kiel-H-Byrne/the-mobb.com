@@ -35,13 +35,42 @@ const ExtractionSchema = z.object({
   businesses: z.array(BusinessEntitySchema),
 });
 
-export async function extractBusinessData(url: string) {
-  // 1. Fetch the raw HTML (simplified for prototype)
-  const res = await fetch(url);
+/**
+ * Fetches and aggressively cleans a web page for token-efficient LLM ingestion.
+ * Strips out head, scripts, styles, and other non-content tags. 
+ */
+export async function fetchAndCleanHTML(url: string, limit: number = 100000): Promise<string> {
+  const res = await fetch(url, {
+    headers: {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+      "Accept-Language": "en-US,en;q=0.5"
+    }
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch URL: ${res.status} ${res.statusText}`);
+  }
+
   const html = await res.text();
 
-  // Truncate to avoid token limits, focus on main content
-  const content = html.slice(0, 30000);
+  let cleanedContent = html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, "")
+    .replace(/<svg\b[^<]*(?:(?!<\/svg>)<[^<]*)*<\/svg>/gi, "")
+    .replace(/<!--[\s\S]*?-->/g, "");
+
+  const bodyMatch = cleanedContent.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+  if (bodyMatch) {
+    cleanedContent = bodyMatch[1];
+  }
+
+  return cleanedContent.slice(0, limit);
+}
+
+export async function extractBusinessData(url: string) {
+  // 1. Fetch the raw HTML and clean it 
+  const content = await fetchAndCleanHTML(url);
 
   // 2. AI Extraction
   const { object } = await generateObject({

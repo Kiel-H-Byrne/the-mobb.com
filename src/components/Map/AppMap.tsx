@@ -114,6 +114,8 @@ const MapContent = memo(
             position,
             content: el,
             zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count,
+            collisionBehavior:
+              google.maps.CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY,
           });
         },
       };
@@ -241,7 +243,9 @@ const AppMap = memo(
             // Re-calculate the absolute nearest marker for the mobile floating card based on actual device location
             if (setClosestListing) {
               if (browserLocation) {
-                const start = new (window as any).google.maps.LatLng(browserLocation);
+                const start = new (window as any).google.maps.LatLng(
+                  browserLocation,
+                );
                 let closestMarker: Listing | null = null;
                 let shortestDistance = Infinity;
 

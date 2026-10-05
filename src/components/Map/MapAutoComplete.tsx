@@ -6,7 +6,6 @@ import { css } from "@styled/css";
 import React, { Dispatch, SetStateAction, memo, useEffect, useState } from "react";
 
 interface OwnProps {
-  listings: Listing[];
   categories?: any[];
   mapInstance: any;
   setactiveListing: Dispatch<SetStateAction<any>>;
@@ -14,12 +13,10 @@ interface OwnProps {
 }
 
 const MapAutoComplete = ({
-  listings,
   mapInstance,
   setactiveListing,
   setisDrawerOpen,
 }: OwnProps) => {
-  let count = listings?.length ?? 0;
   const [active, setActive] = useState(0);
   const [filtered, setFiltered] = useState<Listing[]>([]);
   const [input, setInput] = useState("");
@@ -109,7 +106,7 @@ const MapAutoComplete = ({
             color: "white", fontFamily: "body", fontSize: "sm",
             _placeholder: { color: "gray.500" }
           })}
-          placeholder={`Search ${count ? count + " " : ""}businesses...`}
+          placeholder={`Search all businesses...`}
           aria-label="Search The MOBB"
           onChange={onChange}
           onKeyDown={onKeyDown}

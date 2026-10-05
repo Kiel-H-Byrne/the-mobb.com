@@ -62,19 +62,19 @@ export async function scanBusinessUrl(url: string) {
   }
 
   // Truncate HTML to save tokens (Head + Body intro usually has the info)
-  const context = htmlText.slice(0, 15000);
-  console.log('context length', context.length);
+  // const context = htmlText.slice(0, 15000);
+  // console.log('context length', context.length);
   // 3. AI Extraction
   const { object } = await generateObject({
     model: openai("gpt-4o"),
     schema: BusinessSchema,
     prompt: `
-      Analyze this HTML content for a business directory.
-      Extract the business contact details, especially address and website and phone number. 
-      Look for specific cultural indicators or 'About Us' text to determine if it is Black-owned.
+      Analyze this HTML content for a business listing or directory.
+      Extract the business contact details, especially addresses, websites and phone numbers. 
+      Look for specific cultural indicators or 'About Us' text to ensure the business(es) is/are Black-owned.
       
       HTML Context:
-      ${context}
+      ${htmlText}
     `,
   });
 

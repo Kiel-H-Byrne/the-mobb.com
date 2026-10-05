@@ -37,8 +37,10 @@ export async function submitListing(formData: any) {
 
         return { success: true, message: "Listing submitted for review!" };
     } catch (error: any) {
-        if (error && error.errors && Array.isArray(error.errors)) {
-            return { success: false, error: error.errors[0].message };
+        // Zod v4 uses `.issues`, v3 used `.errors` — handle both
+        const zodIssues = error?.issues ?? error?.errors;
+        if (zodIssues && Array.isArray(zodIssues) && zodIssues.length > 0) {
+            return { success: false, error: zodIssues[0].message };
         }
         return { success: false, error: "An unexpected error occurred." };
     }
