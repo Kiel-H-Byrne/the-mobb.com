@@ -1,8 +1,10 @@
 "use server";
 
 import clientPromise, { DB_NAME } from "@/db/mongodb";
+import { CurationReport, PendingListing } from "@/db/Types";
 import { fetchLinkPreview, LinkPreviewData } from "@/util/linkPreview";
-import { ObjectId } from "mongodb";
+import { runScout, ScoutResult } from "@/util/scout";
+import { Db, ObjectId } from "mongodb";
 import { revalidatePath } from "next/cache";
 
 // Temporary Simple Auth Mock
@@ -424,25 +426,13 @@ export async function updatePendingListing(id: string, updatedData: any) {
   }
 }
 
-export async function manuallyRunScout() {
+export async function manuallyRunScout(): Promise<ScoutResult> {
   if (!(await checkAdmin())) return { success: false, error: "Unauthorized" };
 
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    (process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000");
-
   try {
-    const res = await fetch(`${baseUrl}/api/cron/scout`, {
-      method: "GET",
-      headers: {
-        authorization: `Bearer ${process.env.CRON_SECRET || ""}`,
-      },
-    });
-
-    // We try to parse the JSON response from the scout cron API
-    const data = await res.json();
+    // Run the scout in-process rather than fetching our own /api/cron/scout
+    // route, which needs a reachable public URL that isn't reliably available.
+    const data = await runScout("manual");
     revalidatePath("/admin/reviews");
     return data;
   } catch (error: any) {
@@ -683,4 +673,309 @@ export async function batchClearAndAutoFindListings(ids: string[]) {
   }
 
   return { success: true, successCount, failedCount };
+}
+
+// Optional: set ATLAS_COLLECTION_URL to a Data Explorer collection URL with a
+// {collection} placeholder, e.g. the URL you see when browsing a collection in
+// Atlas with the collection name swapped for {collection}.
+function buildAtlasCollectionUrl(collection: string) {
+  const template = process.env.ATLAS_COLLECTION_URL;
+  return template ? template.replace("{collection}", collection) : null;
+}
+
+export async function getScoutRuns(limit = 20) {
+  if (!(await checkAdmin())) return { success: false, error: "Unauthorized" };
+
+  try {
+    const client = await clientPromise;
+    const db = client.db(DB_NAME);
+    const runs = await db
+      .collection("scout_runs")
+      .find({})
+      .sort({ startedAt: -1 })
+      .limit(limit)
+      .toArray();
+
+    // Tally decisions per run from the listings the run produced
+    const tallies = await db
+      .collection("pending_listings")
+      .aggregate([
+        {
+          $match: { "curation.runId": { $in: runs.map((r) => String(r._id)) } },
+        },
+        {
+          $group: {
+            _id: { runId: "$curation.runId", decision: "$curation.decision" },
+            count: { $sum: 1 },
+          },
+        },
+      ])
+      .toArray();
+
+    const data = runs.map((r) => {
+      const runId = String(r._id);
+      const countFor = (decision: string) =>
+        tallies.find(
+          (t) => t._id.runId === runId && t._id.decision === decision,
+        )?.count ?? 0;
+      return {
+        _id: runId,
+        trigger: r.trigger as "cron" | "manual",
+        query: r.query as string,
+        status: r.status as string,
+        error: r.error as string | undefined,
+        startedAt: r.startedAt as Date,
+        finishedAt: r.finishedAt as Date | undefined,
+        urls: (r.urls || []) as {
+          url: string;
+          status: string;
+          count: number;
+          error?: string;
+        }[],
+        autoApproved: countFor("AUTO_APPROVED"),
+        pendingReview: countFor("PENDING_REVIEW"),
+      };
+    });
+
+    return { success: true, data };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: "Failed to fetch scout runs" };
+  }
+}
+
+export async function getScoutRunReport(runId: string) {
+  if (!(await checkAdmin())) return { success: false, error: "Unauthorized" };
+
+  try {
+    const client = await clientPromise;
+    const db = client.db(DB_NAME);
+    const listings = await db
+      .collection("pending_listings")
+      .find({ "curation.runId": runId })
+      .sort({ "curation.decision": 1, name: 1 })
+      .toArray();
+
+    const data = listings.map((l: any) => ({
+      ...l,
+      _id: l._id.toString(),
+    })) as PendingListing[];
+
+    return {
+      success: true,
+      data,
+      atlas: {
+        pendingListingsUrl: buildAtlasCollectionUrl("pending_listings"),
+        listingsUrl: buildAtlasCollectionUrl("listings"),
+      },
+    };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: "Failed to fetch run report" };
+  }
+}
+
+// Auto-approval stamps createdAt, approvedAt and the live listing's `submitted`
+// within the same loop iteration, so close timestamps identify them.
+const AUTO_APPROVAL_WINDOW_MS = 5 * 60 * 1000;
+
+async function findLegacyLiveListingId(db: Db, pending: any) {
+  const createdAt = new Date(pending.createdAt).getTime();
+  const live = await db.collection("listings").findOne({
+    name: pending.name,
+    submitted: {
+      $gte: new Date(createdAt - AUTO_APPROVAL_WINDOW_MS),
+      $lte: new Date(createdAt + AUTO_APPROVAL_WINDOW_MS),
+    },
+  });
+  return live ? String(live._id) : undefined;
+}
+
+// Reconstructs reports for AI auto-approvals made before curation data was
+// recorded. Confidence/evidence weren't stored; the source URL is inferred from
+// scanned_urls, which is stamped right after a page's listings are saved.
+export async function getLegacyAutoApprovalReport(days = 30) {
+  if (!(await checkAdmin())) return { success: false, error: "Unauthorized" };
+
+  try {
+    const client = await clientPromise;
+    const db = client.db(DB_NAME);
+    const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+
+    const listings = await db
+      .collection("pending_listings")
+      .find({
+        source: "AI_SCAN",
+        status: "APPROVED",
+        curation: { $exists: false },
+        approvedAt: { $exists: true },
+        createdAt: { $gte: since },
+        // Excludes AI finds that a person approved later by hand
+        $expr: {
+          $lte: [
+            { $subtract: ["$approvedAt", "$createdAt"] },
+            AUTO_APPROVAL_WINDOW_MS,
+          ],
+        },
+      })
+      .sort({ createdAt: -1 })
+      .limit(200)
+      .toArray();
+
+    const scanned = listings.length
+      ? await db
+          .collection("scanned_urls")
+          .find({
+            status: { $ne: "error" },
+            lastScanned: {
+              $gte: listings[listings.length - 1].createdAt,
+              $lte: new Date(
+                listings[0].createdAt.getTime() + 2 * AUTO_APPROVAL_WINDOW_MS,
+              ),
+            },
+          })
+          .sort({ lastScanned: 1 })
+          .toArray()
+      : [];
+
+    const liveMatches = listings.length
+      ? await db
+          .collection("listings")
+          .find(
+            { name: { $in: listings.map((l) => l.name) } },
+            { projection: { name: 1, submitted: 1 } },
+          )
+          .toArray()
+      : [];
+
+    const data = listings.map((l: any) => {
+      const createdAt = new Date(l.createdAt).getTime();
+      const source = scanned.find((s) => {
+        const t = new Date(s.lastScanned).getTime();
+        return t >= createdAt && t - createdAt <= 2 * AUTO_APPROVAL_WINDOW_MS;
+      });
+      const live = liveMatches.find(
+        (m) =>
+          m.name === l.name &&
+          m.submitted &&
+          Math.abs(new Date(m.submitted).getTime() - createdAt) <=
+            AUTO_APPROVAL_WINDOW_MS,
+      );
+      const hasCoords = (l.locations || []).some(
+        (loc: any) => loc.lat && loc.lng,
+      );
+      const category = l.category || "Uncategorized";
+
+      const curation: CurationReport = {
+        sourceUrl: source?.url || "",
+        model: "unknown",
+        blackOwnedConfidence: null,
+        blackOwnedEvidence: null,
+        locationMethod: l.isOnlineOnly
+          ? "online_only"
+          : hasCoords
+            ? "unknown"
+            : "none",
+        geocodeResults: [],
+        hasWebsite: Boolean(l.website),
+        hasOgData: false,
+        checks: [
+          {
+            key: "blackOwned",
+            label: "AI flagged as Black-owned",
+            passed: Boolean(l.isBlackOwned),
+          },
+          {
+            key: "category",
+            label: "Has a category",
+            passed: category !== "Uncategorized",
+            detail: category,
+          },
+          {
+            key: "location",
+            label: l.isOnlineOnly
+              ? "Online only (no street address required)"
+              : "Has a mapped location",
+            passed: Boolean(l.isOnlineOnly || hasCoords),
+          },
+        ],
+        decision: "AUTO_APPROVED",
+        liveListingId: live ? String(live._id) : undefined,
+        evaluatedAt: l.createdAt,
+        legacy: {
+          sourceUrlInferred: Boolean(source),
+          liveListingInferred: Boolean(live),
+        },
+      };
+
+      return { ...l, _id: l._id.toString(), curation } as PendingListing;
+    });
+
+    return {
+      success: true,
+      data,
+      atlas: {
+        pendingListingsUrl: buildAtlasCollectionUrl("pending_listings"),
+        listingsUrl: buildAtlasCollectionUrl("listings"),
+      },
+    };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: "Failed to build legacy report" };
+  }
+}
+
+// Undo an AI auto-approval: unpublish the live listing it created and put the
+// pending listing back in the review queue so it can be edited and re-approved.
+export async function revertAutoApproval(id: string) {
+  if (!(await checkAdmin())) return { success: false, error: "Unauthorized" };
+
+  try {
+    const client = await clientPromise;
+    const db = client.db(DB_NAME);
+    const pending = await db
+      .collection<PendingListing>("pending_listings")
+      .findOne({ _id: new ObjectId(id) });
+
+    if (!pending || pending.status !== "APPROVED") {
+      return { success: false, error: "Listing is not currently approved." };
+    }
+
+    const liveId =
+      pending.curation?.liveListingId ??
+      (pending.curation
+        ? undefined
+        : await findLegacyLiveListingId(db, pending));
+    if (liveId) {
+      const live = await db
+        .collection("listings")
+        .findOne({ _id: new ObjectId(liveId) });
+      if (live?.claims?.length) {
+        return {
+          success: false,
+          error: "The live listing has been claimed; edit it directly instead.",
+        };
+      }
+      await db.collection("listings").deleteOne({ _id: new ObjectId(liveId) });
+    }
+
+    await db.collection("pending_listings").updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          status: "PENDING_REVIEW",
+          "curation.revertedAt": new Date(),
+        },
+        $unset: { approvedAt: "", "curation.liveListingId": "" },
+      },
+    );
+
+    revalidatePath("/admin/reviews");
+    revalidatePath("/admin/reports");
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: "Failed to revert approval." };
+  }
 }
