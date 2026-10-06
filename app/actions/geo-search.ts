@@ -240,7 +240,7 @@ export async function countGlobalListings(
   );
 }
 
-export const getCachedCategoryCounts = unstable_cache(
+const getCachedCategoryCounts = unstable_cache(
   async (
     scope: DirectoryScope = "all",
     location: DirectoryLocation | null = null,
@@ -362,7 +362,7 @@ export async function fetchOnlineOnlyListings(
 }
 
 // Caching strategies
-export const getCachedCategories = unstable_cache(
+const getCachedCategories = unstable_cache(
   async () => {
     const client = await clientPromise;
     const db = client.db("vercel-db");
@@ -395,7 +395,7 @@ const rankSearchMatch = (listing: Listing, term: string) => {
 // Plain indexed-collection scan rather than Atlas Search: the cluster has no
 // Atlas Search index, so `$search` silently returned nothing. At ~1k listings
 // this is fast; revisit with an Atlas index if the directory grows a lot.
-export const getCachedSearchResults = unstable_cache(
+const getCachedSearchResults = unstable_cache(
   async (query: string): Promise<Listing[]> => {
     const client = await clientPromise;
     const db = client.db("vercel-db");
