@@ -117,19 +117,76 @@ const NearestCardContainer = ({ listings }: { listings: Listing[] }) => {
   );
 };
 
-const FloatingAddButton = () => {
-  const setIsAddListingOpen = useAppStore((s) => s.setIsAddListingOpen);
+// The detail sheet takes over the bottom of the screen on mobile, so the
+// view toggle and the bottom stack step aside while it's open.
+const useIsDetailSheetOpen = () => {
+  const activeListing = useAppStore((s) => s.activeListing);
+  const isDrawerOpen = useAppStore((s) => s.isDrawerOpen);
+  return Boolean(activeListing && isDrawerOpen);
+};
+
+const ViewToggleContainer = () => {
+  const viewMode = useAppStore((s) => s.viewMode);
+  const setViewMode = useAppStore((s) => s.setViewMode);
+  const isDetailSheetOpen = useIsDetailSheetOpen();
+  return (
+    <EcosystemToggle
+      activeView={viewMode}
+      setActiveView={setViewMode}
+      hiddenOnMobile={isDetailSheetOpen}
+    />
+  );
+};
+
+/**
+ * Mobile-only column that stacks the "+" button and nearest card directly
+ * above the view toggle, so they never overlap it or each other.
+ * Bottom offset = toggle's bottom (16px) + its height (~58px) + 12px gap.
+ */
+const MobileBottomStack = ({ children }: { children: React.ReactNode }) => {
+  const isDetailSheetOpen = useIsDetailSheetOpen();
   return (
     <div
       className={css({
         position: "fixed",
-        bottom: "6",
-        right: "6",
-        zIndex: 50,
-        animation: "floatAnim",
-        animationDelay: "1s",
-        pointerEvents: "auto",
+        left: "4",
+        right: "4",
+        bottom: "86px",
+        zIndex: 40,
+        display: { base: "flex", md: "none" },
+        flexDirection: "column",
+        alignItems: "stretch",
+        gap: "3",
+        pointerEvents: "none",
+        opacity: isDetailSheetOpen ? 0 : 1,
+        visibility: isDetailSheetOpen ? "hidden" : "visible",
+        transition: "opacity 0.3s, visibility 0.3s",
+        "& > *": { pointerEvents: "auto" },
       })}
+    >
+      {children}
+    </div>
+  );
+};
+
+const FloatingAddButton = ({ inStack = false }: { inStack?: boolean }) => {
+  const setIsAddListingOpen = useAppStore((s) => s.setIsAddListingOpen);
+  return (
+    <div
+      className={
+        inStack
+          ? css({ alignSelf: "flex-end" })
+          : css({
+              display: { base: "none", md: "block" },
+              position: "fixed",
+              bottom: "6",
+              right: "6",
+              zIndex: 50,
+              animation: "floatAnim",
+              animationDelay: "1s",
+              pointerEvents: "auto",
+            })
+      }
     >
       <button
         onClick={() => setIsAddListingOpen(true)}
@@ -310,7 +367,7 @@ const ClientHome = React.memo(
           pointerEvents: "none",
         })}
       >
-        <EcosystemToggle activeView={viewMode} setActiveView={setViewMode} />
+        <ViewToggleContainer />
 
         {viewMode === "GRID" && <GlobalGrid />}
         {viewMode === "ORBIT" && <OnlineOrbit />}
@@ -373,8 +430,6 @@ const ClientHome = React.memo(
               setisDrawerOpen={setIsDrawerOpen}
             />
 
-            <NearestCardContainer listings={mapListings} />
-
             <MobileClosestListingsPanel
               listings={mobileNearest.listings}
               totalCount={mobileNearest.total}
@@ -430,6 +485,11 @@ const ClientHome = React.memo(
               />
             )}
         </main>
+
+        <MobileBottomStack>
+          <FloatingAddButton inStack />
+          {showRadarUI && <NearestCardContainer listings={mapListings} />}
+        </MobileBottomStack>
 
         <DetailPanelContainer />
         <FloatingAddButton />

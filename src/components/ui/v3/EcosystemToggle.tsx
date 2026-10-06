@@ -7,17 +7,24 @@ export type ViewMode = "RADAR" | "GRID" | "ORBIT";
 interface OwnProps {
   activeView: ViewMode;
   setActiveView: (view: ViewMode) => void;
+  /** Slides the dock off-screen on mobile (e.g. while a bottom sheet is open). */
+  hiddenOnMobile?: boolean;
 }
 
-export const EcosystemToggle = React.memo(({ activeView, setActiveView }: OwnProps) => {
+export const EcosystemToggle = React.memo(({ activeView, setActiveView, hiddenOnMobile = false }: OwnProps) => {
   return (
     <div
       className={css({
         position: "fixed",
         top: { base: "auto", md: "8" },
-        bottom: { base: "8", md: "auto" },
+        bottom: { base: "4", md: "auto" },
         left: "50%",
-        transform: "translateX(-50%)",
+        transform: {
+          base: hiddenOnMobile ? "translate(-50%, 150%)" : "translateX(-50%)",
+          md: "translateX(-50%)",
+        },
+        opacity: { base: hiddenOnMobile ? 0 : 1, md: 1 },
+        transition: "transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s",
         zIndex: 2000,
         display: "flex",
         alignItems: "center",
@@ -29,7 +36,7 @@ export const EcosystemToggle = React.memo(({ activeView, setActiveView }: OwnPro
         borderColor: "white/10",
         borderRadius: "full",
         boxShadow: "0 20px 40px rgba(0,0,0,0.5)",
-        pointerEvents: "auto",
+        pointerEvents: { base: hiddenOnMobile ? "none" : "auto", md: "auto" },
       })}
     >
       {[

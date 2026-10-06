@@ -12,8 +12,8 @@ interface MobileNearestCardProps {
 
 /**
  * The Immediate Opportunity
- * A dynamic, bottom-aligned single card indicating the immediate closest location.
- * Positioned just above the MobileNav.
+ * A single card indicating the immediate closest location. Rendered inside
+ * the mobile bottom stack (see ClientHome), which places it above the view toggle.
  */
 export const MobileNearestCard = ({
     listing,
@@ -47,11 +47,7 @@ export const MobileNearestCard = ({
     return (
         <div
             className={css({
-                position: "fixed",
-                bottom: "6", // Moved to bottom since MobileNav is gone
-                left: "4",
-                right: "4",
-                zIndex: 40,
+                position: "relative",
                 display: { base: "flex", md: "none" },
                 pointerEvents: "auto",
             })}
