@@ -58,6 +58,7 @@ export default defineConfig({
           pulseSlow: { value: 'pulseStrong 3s cubic-bezier(0.4, 0, 0.6, 1) infinite' },
           floatAnim: { value: 'float 6s ease-in-out infinite' },
           glowPulse: { value: 'glowPulse 2s alternate infinite' },
+          pillPing: { value: 'pillPing 1.2s ease-out 2 both' },
           fadeIn: { value: 'fadeIn 0.3s ease-out' },
           slideUp: { value: 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)' },
           slideInRight: { value: 'slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1)' },
@@ -79,6 +80,10 @@ export default defineConfig({
         glowPulse: {
           '0%': { boxShadow: '0 0 10px rgba(255, 90, 0, 0.2)' },
           '100%': { boxShadow: '0 0 30px rgba(255, 90, 0, 0.6)' }
+        },
+        pillPing: {
+          '0%': { transform: 'scale(1)', opacity: '0.6' },
+          '100%': { transform: 'scale(1.12)', opacity: '0' }
         },
         pulseStrong: {
           '0%': { transform: 'scale(0.5)', opacity: '1' },

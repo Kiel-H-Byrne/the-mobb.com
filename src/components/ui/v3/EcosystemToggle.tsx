@@ -73,7 +73,21 @@ export const EcosystemToggle = React.memo(({ activeView, setActiveView }: OwnPro
                   borderRadius: "full",
                   boxShadow: "0 0 20px rgba(255, 90, 0, 0.4)",
                   zIndex: -1,
-                  animation: "pulseSlow",
+                })}
+              ></div>
+            )}
+            {/* Brief ping ring on activation */}
+            {isActive && (
+              <div
+                className={css({
+                  position: "absolute",
+                  inset: 0,
+                  border: "2px solid",
+                  borderColor: "brand.orange",
+                  borderRadius: "full",
+                  zIndex: -1,
+                  pointerEvents: "none",
+                  animation: "pillPing",
                 })}
               ></div>
             )}
