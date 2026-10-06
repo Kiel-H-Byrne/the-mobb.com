@@ -50,6 +50,7 @@ export const ListingDetailPanel3D = ({
                 borderColor: "border.light",
                 boxShadow: "glow",
                 borderRadius: "2xl",
+                borderBottomRadius: { base: "0", md: "2xl" },
                 display: "flex",
                 flexDirection: "column",
                 zIndex: 50,
