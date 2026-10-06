@@ -100,7 +100,10 @@ function buildDirectoryQuery(
   scope: DirectoryScope = "all",
   location: DirectoryLocation | null = null,
 ) {
-  const base = scope === "online" ? { isOnlineOnly: true } : {};
+  // The global directory ("all") lists physical locations only; online-only
+  // listings have their own scope.
+  const base =
+    scope === "online" ? { isOnlineOnly: true } : { isOnlineOnly: { $ne: true } };
   return mergeQueries(
     base,
     buildCategoryQuery(selectedCategories),
@@ -270,7 +273,7 @@ export const getCachedCategoryCounts = unstable_cache(
     }
     return sortCategoryCounts(counts);
   },
-  ["category-counts-v4"],
+  ["category-counts-v5"],
   { revalidate: 3600 },
 );
 

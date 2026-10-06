@@ -176,7 +176,7 @@ describe("Geo-Search Server Actions", () => {
 
       await fetchGlobalListings(1, 20, []);
 
-      expect(collection.find).toHaveBeenCalledWith({});
+      expect(collection.find).toHaveBeenCalledWith({ isOnlineOnly: { $ne: true } });
     });
 
     it("calculates the correct skip value for pagination", async () => {
@@ -203,6 +203,7 @@ describe("Geo-Search Server Actions", () => {
       await fetchGlobalListings(1, 20, ["Tech", "Uncategorized"]);
 
       expect(collection.find).toHaveBeenCalledWith({
+        isOnlineOnly: { $ne: true },
         $or: [
           { categories: { $in: ["Tech", "Uncategorized"] } },
           { categories: { $exists: false } },
@@ -223,7 +224,20 @@ describe("Geo-Search Server Actions", () => {
 
       expect(total).toBe(42);
       expect((collection as any).countDocuments).toHaveBeenCalledWith({
+        isOnlineOnly: { $ne: true },
         categories: { $in: ["Retail"] },
+      });
+    });
+  });
+
+  describe("global scope", () => {
+    it("excludes online-only listings from the global directory", async () => {
+      const collection = await getCollectionMock("listings");
+
+      await fetchCategoryCounts();
+
+      expect((collection as any).aggregate.mock.calls[0][0][0]).toEqual({
+        $match: { isOnlineOnly: { $ne: true } },
       });
     });
   });
@@ -266,6 +280,7 @@ describe("Geo-Search Server Actions", () => {
       await fetchGlobalListings(1, 24, [], chicago);
 
       expect(collection.find).toHaveBeenCalledWith({
+        isOnlineOnly: { $ne: true },
         coordinates: {
           $nearSphere: {
             $geometry: { type: "Point", coordinates: [-87.63, 41.88] },
@@ -282,6 +297,7 @@ describe("Geo-Search Server Actions", () => {
       await countGlobalListings(["Retail"], "all", chicago);
 
       expect((collection as any).countDocuments).toHaveBeenCalledWith({
+        isOnlineOnly: { $ne: true },
         categories: { $in: ["Retail"] },
         coordinates: {
           $geoWithin: { $centerSphere: [[-87.63, 41.88], 25 / 3963.2] },
@@ -316,7 +332,9 @@ describe("Geo-Search Server Actions", () => {
 
       await countGlobalListings([], "all", { kind: "radius", lat: 999 } as any);
 
-      expect((collection as any).countDocuments).toHaveBeenCalledWith({});
+      expect((collection as any).countDocuments).toHaveBeenCalledWith({
+        isOnlineOnly: { $ne: true },
+      });
     });
   });
 
