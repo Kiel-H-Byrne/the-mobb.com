@@ -557,6 +557,23 @@ export default function AdminReviewsPage() {
             Database Migrations
           </Link>
           <Link
+            href="/admin/reports"
+            className={css({
+              bg: "teal.600",
+              color: "white",
+              p: "2 4",
+              borderRadius: "md",
+              fontWeight: "bold",
+              cursor: "pointer",
+              textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              _hover: { bg: "teal.700" },
+            })}
+          >
+            Curation Reports
+          </Link>
+          <Link
             href="/"
             className={css({
               bg: "brand.orange",

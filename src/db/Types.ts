@@ -89,7 +89,49 @@ export interface PendingListing {
   createdAt: Date;
   google_search_attempted?: boolean;
   google_search_found?: boolean;
+  curation?: CurationReport;
 }
+
+export type CurationCheck = {
+  key: "blackOwned" | "category" | "location";
+  label: string;
+  passed: boolean;
+  detail?: string;
+};
+
+// Audit trail of how the curator scored a listing; stored on pending_listings.curation
+export type CurationReport = {
+  runId?: string;
+  sourceUrl: string;
+  sourceType?: "single_business" | "listicle_directory";
+  model: string;
+  blackOwnedConfidence: number | null;
+  blackOwnedEvidence: string | null;
+  locationMethod:
+    | "online_only"
+    | "geocoded_address"
+    | "places_name_search"
+    | "none"
+    // Legacy listings: a location exists but how it was found wasn't recorded
+    | "unknown";
+  geocodeResults: {
+    query: string;
+    formattedAddress?: string;
+    types: string[];
+    isStreetLevel: boolean;
+  }[];
+  hasWebsite: boolean;
+  hasOgData: boolean;
+  checks: CurationCheck[];
+  decision: "AUTO_APPROVED" | "PENDING_REVIEW";
+  liveListingId?: string;
+  duplicateOfLiveListingId?: string;
+  publishSkippedReason?: string;
+  revertedAt?: Date;
+  // Set on reports reconstructed for listings approved before curation was recorded
+  legacy?: { sourceUrlInferred: boolean; liveListingInferred: boolean };
+  evaluatedAt: Date;
+};
 
 export interface User {
   _id?: any;

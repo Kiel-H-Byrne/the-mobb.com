@@ -2,7 +2,7 @@
 "use server";
 
 import clientPromise, { DB_NAME } from "@/db/mongodb";
-import { PendingListing } from "@/db/Types";
+import { CurationReport, PendingListing } from "@/db/Types";
 import { fetchLinkPreview, LinkPreviewData } from "@/util/linkPreview";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateObject } from "ai";
@@ -26,8 +26,21 @@ const BusinessEntitySchema = z.object({
     .nullable()
     .describe("Social media handle if available"),
   isBlackOwned: z.boolean().describe("Confidence based on text indicators"),
+  blackOwnedConfidence: z
+    .number()
+    .describe(
+      "0-100: how confident you are that this business is Black-owned, based only on evidence on this page",
+    ),
+  blackOwnedEvidence: z
+    .string()
+    .nullable()
+    .describe(
+      "Short verbatim quote from the page supporting Black ownership, or null if none",
+    ),
   isOnlineOnly: z.boolean().describe("Online Only"),
 });
+
+const CURATOR_MODEL = "gpt-4o";
 
 // Define the schema for the AI's response (It might find ONE or MANY)
 const ExtractionSchema = z.object({
@@ -68,13 +81,16 @@ export async function fetchAndCleanHTML(url: string, limit: number = 100000): Pr
   return cleanedContent.slice(0, limit);
 }
 
-export async function extractBusinessData(url: string) {
-  // 1. Fetch the raw HTML and clean it 
+export async function extractBusinessData(
+  url: string,
+  options: { runId?: string } = {},
+) {
+  // 1. Fetch the raw HTML and clean it
   const content = await fetchAndCleanHTML(url);
 
   // 2. AI Extraction
   const { object } = await generateObject({
-    model: openai("gpt-4o"),
+    model: openai(CURATOR_MODEL),
     schema: ExtractionSchema,
     system: `
       You are an expert Data Curator for the MOBB (Map of Black Businesses) App.
@@ -86,6 +102,7 @@ export async function extractBusinessData(url: string) {
       - DO NOT save an address if it is just a city and state (e.g. "Washington, D.C."). If no street address is found, leave the address field empty or mark as "online only" if applicable.
       - If there are multiple locations to a business and more than one address is found, save it as an array of addresses.
       - Look for "Black-owned" keywords (Black-led, minority-owned, cultural context).
+      - Rate blackOwnedConfidence 0-100 and quote the supporting text in blackOwnedEvidence. A page that only implies it (e.g. a generic "minority-owned" list) should score lower than an explicit "Black-owned" statement about this specific business.
       - Normalize addresses where possible.
       - If the business is online only (no physical storefront), label it as such "isOnlineOnly:true".
     `,
@@ -109,6 +126,10 @@ export async function extractBusinessData(url: string) {
       );
       const locations: any[] = [];
       let hasValidStreetLocation = false;
+      let locationMethod: CurationReport["locationMethod"] = biz.isOnlineOnly
+        ? "online_only"
+        : "none";
+      const geocodeResults: CurationReport["geocodeResults"] = [];
 
       const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
 
@@ -150,7 +171,20 @@ export async function extractBusinessData(url: string) {
 
                   if (lat && lng && isStreet) {
                     hasValidStreetLocation = true;
+                    locationMethod = "geocoded_address";
                   }
+                  geocodeResults.push({
+                    query: addr,
+                    formattedAddress,
+                    types,
+                    isStreetLevel: Boolean(lat && lng && isStreet),
+                  });
+                } else {
+                  geocodeResults.push({
+                    query: addr,
+                    types: [],
+                    isStreetLevel: false,
+                  });
                 }
               } catch (err) {
                 console.error("Geocoding fetch error for AI Curator:", err);
@@ -202,14 +236,22 @@ export async function extractBusinessData(url: string) {
                     ].includes(t),
                   );
 
-                  if (
+                  const isStreetLevel = Boolean(
                     isSpecificPlace &&
-                    !isGeneral &&
-                    bestMatch.geometry.location.lat &&
-                    bestMatch.geometry.location.lng
-                  ) {
+                      !isGeneral &&
+                      bestMatch.geometry.location.lat &&
+                      bestMatch.geometry.location.lng,
+                  );
+                  if (isStreetLevel) {
                     hasValidStreetLocation = true;
+                    locationMethod = "places_name_search";
                   }
+                  geocodeResults.push({
+                    query: biz.name,
+                    formattedAddress: newAddr,
+                    types,
+                    isStreetLevel,
+                  });
                 }
               }
             } catch (err) {
@@ -267,6 +309,46 @@ export async function extractBusinessData(url: string) {
         finalStatus = "PENDING_REVIEW";
       }
 
+      const rawConfidence = Number(biz.blackOwnedConfidence);
+      const curation: CurationReport = {
+        runId: options.runId,
+        sourceUrl: url,
+        sourceType: object.sourceType,
+        model: CURATOR_MODEL,
+        blackOwnedConfidence: Number.isFinite(rawConfidence)
+          ? Math.min(100, Math.max(0, Math.round(rawConfidence)))
+          : null,
+        blackOwnedEvidence: biz.blackOwnedEvidence ?? null,
+        locationMethod,
+        geocodeResults,
+        hasWebsite: Boolean(bizWebsite),
+        hasOgData: Boolean(ogData),
+        checks: [
+          {
+            key: "blackOwned",
+            label: "AI flagged as Black-owned",
+            passed: Boolean(biz.isBlackOwned),
+            detail: biz.blackOwnedEvidence ?? undefined,
+          },
+          {
+            key: "category",
+            label: "Has a category",
+            passed: finalCategory !== "Uncategorized",
+            detail: finalCategory,
+          },
+          {
+            key: "location",
+            label: biz.isOnlineOnly
+              ? "Online only (no street address required)"
+              : "Street-level location verified",
+            passed: hasValidStreetLocation,
+            detail: locationMethod,
+          },
+        ],
+        decision: finalStatus === "APPROVED" ? "AUTO_APPROVED" : "PENDING_REVIEW",
+        evaluatedAt: new Date(),
+      };
+
       const pendingInsertData: any = {
         name: biz.name,
         category: finalCategory,
@@ -279,6 +361,7 @@ export async function extractBusinessData(url: string) {
         source: "AI_SCAN",
         status: finalStatus,
         createdAt: new Date(),
+        curation,
       };
 
       if (approvedAt) {
@@ -329,8 +412,15 @@ export async function extractBusinessData(url: string) {
         const liveCollection = db.collection("listings");
         const dupInLive = await liveCollection.findOne({ name: biz.name });
         if (!dupInLive) {
-          await liveCollection.insertOne(liveListingToInsert);
+          const { insertedId } =
+            await liveCollection.insertOne(liveListingToInsert);
+          curation.liveListingId = String(insertedId);
           console.log(`🤖 AI Auto-Approved and Published: ${biz.name}`);
+        } else {
+          // Not ours to revert, so keep it out of liveListingId
+          curation.duplicateOfLiveListingId = String(dupInLive._id);
+          curation.publishSkippedReason =
+            "A live listing with this name already exists";
         }
       }
 

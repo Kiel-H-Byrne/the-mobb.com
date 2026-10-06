@@ -122,6 +122,8 @@ describe("AI Curator: extractBusinessData", () => {
           category: "Restaurant",
           address: ["565 Lawton St SW, Atlanta, GA 30310"],
           isBlackOwned: true,
+          blackOwnedConfidence: 92.4,
+          blackOwnedEvidence: "Black-owned vegan burger joint",
           isOnlineOnly: false,
           description: "Plant-based soul food.",
           website: null,
@@ -138,7 +140,7 @@ describe("AI Curator: extractBusinessData", () => {
     const listings = await getCollectionMock("listings");
     const pending = await getCollectionMock("pending_listings");
 
-    const res = await extractBusinessData("https://slutvegan.com");
+    const res = await extractBusinessData("https://slutvegan.com", { runId: "run-1" });
 
     expect(res.success).toBe(true);
     expect(listings.insertOne).toHaveBeenCalledWith(
@@ -149,6 +151,19 @@ describe("AI Curator: extractBusinessData", () => {
         expect.objectContaining({ status: "APPROVED", name: "Slutty Vegan ATL" }),
       ]),
     );
+    // Curation report records why it was auto-approved and which live doc it created
+    const pendingDoc = (pending.insertMany as any).mock.calls[0][0][0];
+    expect(pendingDoc.curation).toMatchObject({
+      runId: "run-1",
+      sourceUrl: "https://slutvegan.com",
+      decision: "AUTO_APPROVED",
+      blackOwnedConfidence: 92,
+      blackOwnedEvidence: "Black-owned vegan burger joint",
+      locationMethod: "geocoded_address",
+      liveListingId: "fake-id",
+    });
+    expect(pendingDoc.curation.checks.every((c: any) => c.passed)).toBe(true);
+
     // ── SNAPSHOT: Auto-approved live listing schema ────────────────────────
     // This is the exact document written to the live `listings` collection.
     // Validates the 2dsphere locations[] structure and approvedAt field presence.
@@ -255,6 +270,12 @@ describe("AI Curator: extractBusinessData", () => {
         expect.objectContaining({ status: "PENDING_REVIEW", category: "Uncategorized" }),
       ]),
     );
+    const pendingDoc = (pending.insertMany as any).mock.calls[0][0][0];
+    expect(pendingDoc.curation.decision).toBe("PENDING_REVIEW");
+    expect(pendingDoc.curation.liveListingId).toBeUndefined();
+    expect(
+      pendingDoc.curation.checks.find((c: any) => c.key === "category").passed,
+    ).toBe(false);
   });
 
   // ── Missing address → PENDING_REVIEW ──────────────────────────────────────
