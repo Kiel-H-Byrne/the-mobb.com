@@ -1,5 +1,6 @@
 import { Listing } from "@/db/Types";
-import { BookmarkIcon, MapPinIcon, NavigationArrowIcon, PhoneIcon, TagIcon, XIcon } from "@phosphor-icons/react";
+import { useAppStore } from "@/store/useAppStore";
+import { BookmarkIcon, FlagIcon, MapPinIcon, NavigationArrowIcon, PhoneIcon, TagIcon, XIcon } from "@phosphor-icons/react";
 import { css } from "@styled/css";
 import ListingCoverImage from "@/components/ListingCoverImage";
 import { Dispatch, SetStateAction } from "react";
@@ -23,6 +24,12 @@ export const ListingDetailPanel3D = ({
 
     const { url, name, image, description, phone, address, categories, og_title, og_description, og_image } = listing;
 
+    const currentUser = useAppStore((s) => s.currentUser);
+    const setIsAuthModalOpen = useAppStore((s) => s.setIsAuthModalOpen);
+    const setAuthModalSuccessCallback = useAppStore((s) => s.setAuthModalSuccessCallback);
+    const setIsReportModalOpen = useAppStore((s) => s.setIsReportModalOpen);
+    const setReportingListing = useAppStore((s) => s.setReportingListing);
+
     const isSaved = savedListings?.some(l => (l as any)._id === (listing as any)._id || l.name === listing.name);
 
     const toggleSave = () => {
@@ -31,6 +38,18 @@ export const ListingDetailPanel3D = ({
             setSavedListings(savedListings.filter(l => (l as any)._id !== (listing as any)._id && l.name !== listing.name));
         } else {
             setSavedListings([...savedListings, listing]);
+        }
+    };
+
+    const handleOpenReport = () => {
+        setReportingListing(listing);
+        if (!currentUser) {
+            setAuthModalSuccessCallback(() => {
+                setIsReportModalOpen(true);
+            });
+            setIsAuthModalOpen(true);
+        } else {
+            setIsReportModalOpen(true);
         }
     };
 
@@ -66,6 +85,20 @@ export const ListingDetailPanel3D = ({
                     BUSINESS DETAILS
                 </h2>
                 <div className={css({ display: "flex", alignItems: "center", gap: "3" })}>
+                    <button
+                        onClick={handleOpenReport}
+                        className={css({
+                            color: "gray.400",
+                            cursor: "pointer",
+                            bg: "transparent",
+                            border: "none",
+                            _hover: { color: "red.400", transform: "scale(1.1)" },
+                            transition: "all 0.2s"
+                        })}
+                        title="Report Inaccuracy / Downvote"
+                    >
+                        <FlagIcon weight="bold" size={20} />
+                    </button>
                     <button
                         onClick={toggleSave}
                         className={css({
@@ -170,6 +203,26 @@ export const ListingDetailPanel3D = ({
                         >
                             <NavigationArrowIcon weight="fill" size={18} /> Get Directions
                         </a>
+                    </div>
+
+                    <div className={css({ mt: "4", display: "flex", justifyContent: "center" })}>
+                        <button
+                            onClick={handleOpenReport}
+                            className={css({
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "1.5",
+                                color: "gray.500",
+                                fontSize: "xs",
+                                bg: "transparent",
+                                border: "none",
+                                cursor: "pointer",
+                                _hover: { color: "red.400" },
+                                transition: "color 0.2s",
+                            })}
+                        >
+                            <FlagIcon weight="bold" size={14} /> Report inaccurate details or closed business
+                        </button>
                     </div>
                 </div>
             </div>

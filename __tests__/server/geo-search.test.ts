@@ -73,6 +73,9 @@ describe("Geo-Search Server Actions", () => {
               "$maxDistance": 8000,
             },
           },
+          "isDelisted": {
+            "$ne": true,
+          },
         }
       `);
     });
@@ -127,6 +130,7 @@ describe("Geo-Search Server Actions", () => {
       await fetchMapListings();
 
       expect(collection.find).toHaveBeenCalledWith({
+        isDelisted: { $ne: true },
         isOnlineOnly: { $ne: true },
         $or: [
           { "coordinates.coordinates.1": { $exists: true } },
@@ -176,7 +180,10 @@ describe("Geo-Search Server Actions", () => {
 
       await fetchGlobalListings(1, 20, []);
 
-      expect(collection.find).toHaveBeenCalledWith({ isOnlineOnly: { $ne: true } });
+      expect(collection.find).toHaveBeenCalledWith({
+        isDelisted: { $ne: true },
+        isOnlineOnly: { $ne: true },
+      });
     });
 
     it("calculates the correct skip value for pagination", async () => {
@@ -203,6 +210,7 @@ describe("Geo-Search Server Actions", () => {
       await fetchGlobalListings(1, 20, ["Tech", "Uncategorized"]);
 
       expect(collection.find).toHaveBeenCalledWith({
+        isDelisted: { $ne: true },
         isOnlineOnly: { $ne: true },
         $or: [
           { categories: { $in: ["Tech", "Uncategorized"] } },
@@ -224,6 +232,7 @@ describe("Geo-Search Server Actions", () => {
 
       expect(total).toBe(42);
       expect((collection as any).countDocuments).toHaveBeenCalledWith({
+        isDelisted: { $ne: true },
         isOnlineOnly: { $ne: true },
         categories: { $in: ["Retail"] },
       });
@@ -237,7 +246,7 @@ describe("Geo-Search Server Actions", () => {
       await fetchCategoryCounts();
 
       expect((collection as any).aggregate.mock.calls[0][0][0]).toEqual({
-        $match: { isOnlineOnly: { $ne: true } },
+        $match: { isDelisted: { $ne: true }, isOnlineOnly: { $ne: true } },
       });
     });
   });
@@ -249,6 +258,7 @@ describe("Geo-Search Server Actions", () => {
       await countGlobalListings(["Retail"], "online");
 
       expect((collection as any).countDocuments).toHaveBeenCalledWith({
+        isDelisted: { $ne: true },
         isOnlineOnly: true,
         categories: { $in: ["Retail"] },
       });
@@ -260,7 +270,7 @@ describe("Geo-Search Server Actions", () => {
       await fetchCategoryCounts("online");
 
       expect((collection as any).aggregate.mock.calls[0][0][0]).toEqual({
-        $match: { isOnlineOnly: true },
+        $match: { isDelisted: { $ne: true }, isOnlineOnly: true },
       });
     });
   });
@@ -280,6 +290,7 @@ describe("Geo-Search Server Actions", () => {
       await fetchGlobalListings(1, 24, [], chicago);
 
       expect(collection.find).toHaveBeenCalledWith({
+        isDelisted: { $ne: true },
         isOnlineOnly: { $ne: true },
         coordinates: {
           $nearSphere: {
@@ -297,6 +308,7 @@ describe("Geo-Search Server Actions", () => {
       await countGlobalListings(["Retail"], "all", chicago);
 
       expect((collection as any).countDocuments).toHaveBeenCalledWith({
+        isDelisted: { $ne: true },
         isOnlineOnly: { $ne: true },
         categories: { $in: ["Retail"] },
         coordinates: {
@@ -333,6 +345,7 @@ describe("Geo-Search Server Actions", () => {
       await countGlobalListings([], "all", { kind: "radius", lat: 999 } as any);
 
       expect((collection as any).countDocuments).toHaveBeenCalledWith({
+        isDelisted: { $ne: true },
         isOnlineOnly: { $ne: true },
       });
     });
@@ -433,6 +446,7 @@ describe("Geo-Search Server Actions", () => {
 
       // ── SNAPSHOT: Combined online-only + category filter shape ────────────
       expect(collection.find).toHaveBeenCalledWith({
+        isDelisted: { $ne: true },
         isOnlineOnly: true,
         categories: { $in: ["Tech"] },
       });
@@ -442,6 +456,9 @@ describe("Geo-Search Server Actions", () => {
             "$in": [
               "Tech",
             ],
+          },
+          "isDelisted": {
+            "$ne": true,
           },
           "isOnlineOnly": true,
         }

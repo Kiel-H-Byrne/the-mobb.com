@@ -41,6 +41,20 @@ interface AppState {
   // New Global Architecture States
   viewMode: "RADAR" | "GRID" | "ORBIT";
   setViewMode: (mode: "RADAR" | "GRID" | "ORBIT") => void;
+
+  // Registered User Auth State
+  currentUser: { id: string; email: string; name?: string; role?: string } | null;
+  setCurrentUser: (user: { id: string; email: string; name?: string; role?: string } | null) => void;
+  isAuthModalOpen: boolean;
+  setIsAuthModalOpen: (open: boolean) => void;
+  authModalSuccessCallback: (() => void) | null;
+  setAuthModalSuccessCallback: (cb: (() => void) | null) => void;
+
+  // Crowdsourced Report Modal State
+  isReportModalOpen: boolean;
+  setIsReportModalOpen: (open: boolean) => void;
+  reportingListing: Listing | null;
+  setReportingListing: (listing: Listing | null) => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -85,4 +99,16 @@ export const useAppStore = create<AppState>((set) => ({
 
   viewMode: "RADAR",
   setViewMode: (viewMode) => set({ viewMode }),
+
+  currentUser: null,
+  setCurrentUser: (currentUser) => set({ currentUser }),
+  isAuthModalOpen: false,
+  setIsAuthModalOpen: (isAuthModalOpen) => set({ isAuthModalOpen }),
+  authModalSuccessCallback: null,
+  setAuthModalSuccessCallback: (authModalSuccessCallback) => set({ authModalSuccessCallback }),
+
+  isReportModalOpen: false,
+  setIsReportModalOpen: (isReportModalOpen) => set({ isReportModalOpen }),
+  reportingListing: null,
+  setReportingListing: (reportingListing) => set({ reportingListing }),
 }));

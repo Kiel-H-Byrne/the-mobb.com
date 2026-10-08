@@ -1,7 +1,7 @@
 "use server";
 
 import clientPromise, { DB_NAME } from "@/db/mongodb";
-import { CurationReport, PendingListing } from "@/db/Types";
+import { CurationReport, ListingReport, PendingListing } from "@/db/Types";
 import { fetchLinkPreview, LinkPreviewData } from "@/util/linkPreview";
 import { runScout, ScoutResult } from "@/util/scout";
 import { Db, ObjectId } from "mongodb";
@@ -977,5 +977,147 @@ export async function revertAutoApproval(id: string) {
   } catch (error) {
     console.error(error);
     return { success: false, error: "Failed to revert approval." };
+  }
+}
+
+export async function getReportedListings() {
+  if (!(await checkAdmin())) return { success: false, error: "Unauthorized" };
+
+  try {
+    const client = await clientPromise;
+    const db = client.db(DB_NAME);
+
+    // Find all live listings with reports or marked as delisted
+    const reported = await db
+      .collection("listings")
+      .find({
+        $or: [
+          { deverifierCount: { $gt: 0 } },
+          { isDelisted: true },
+          { deverifiers: { $exists: true, $not: { $size: 0 } } },
+        ],
+      })
+      .sort({ isDelisted: -1, deverifierCount: -1, lastReportedAt: -1 })
+      .toArray();
+
+    if (reported.length === 0) {
+      return { success: true, data: [] };
+    }
+
+    const listingIds = reported.map((l) => String(l._id));
+
+    // Fetch reports associated with these listings
+    const reports = await db
+      .collection<ListingReport>("listing_reports")
+      .find({
+        listingId: { $in: listingIds },
+        status: { $ne: "DISMISSED" },
+      })
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    const data = reported.map((listing: any) => {
+      const listingIdStr = String(listing._id);
+      const matchingReports = reports.filter((r) => r.listingId === listingIdStr);
+      return {
+        ...listing,
+        _id: listingIdStr,
+        reports: matchingReports.map((r: any) => ({
+          ...r,
+          _id: String(r._id),
+        })),
+      };
+    });
+
+    return { success: true, data };
+  } catch (error: any) {
+    console.error("Failed to fetch reported listings:", error);
+    return { success: false, error: "Failed to fetch reported listings." };
+  }
+}
+
+export async function dismissListingReports(listingId: string) {
+  if (!(await checkAdmin())) return { success: false, error: "Unauthorized" };
+
+  try {
+    const client = await clientPromise;
+    const db = client.db(DB_NAME);
+
+    let queryId: any;
+    try {
+      queryId = new ObjectId(listingId);
+    } catch {
+      queryId = listingId;
+    }
+
+    // Reset delisting and deverifiers
+    await db.collection("listings").updateOne(
+      { $or: [{ _id: queryId }, { _id: listingId }] },
+      {
+        $set: {
+          isDelisted: false,
+          deverifierCount: 0,
+          deverifiers: [],
+        },
+        $unset: { delistedAt: "" },
+      },
+    );
+
+    // Dismiss audit reports
+    await db.collection("listing_reports").updateMany(
+      { listingId },
+      {
+        $set: {
+          status: "DISMISSED",
+          dismissedAt: new Date(),
+        },
+      },
+    );
+
+    revalidatePath("/admin/reviews");
+    revalidatePath("/");
+    return { success: true };
+  } catch (error: any) {
+    console.error("Failed to dismiss listing reports:", error);
+    return { success: false, error: "Failed to dismiss reports." };
+  }
+}
+
+export async function confirmDelistListing(listingId: string) {
+  if (!(await checkAdmin())) return { success: false, error: "Unauthorized" };
+
+  try {
+    const client = await clientPromise;
+    const db = client.db(DB_NAME);
+
+    let queryId: any;
+    try {
+      queryId = new ObjectId(listingId);
+    } catch {
+      queryId = listingId;
+    }
+
+    // Permanently remove listing from public live collection
+    await db
+      .collection("listings")
+      .deleteOne({ $or: [{ _id: queryId }, { _id: listingId }] });
+
+    // Mark reports as actioned
+    await db.collection("listing_reports").updateMany(
+      { listingId },
+      {
+        $set: {
+          status: "ACTIONED",
+          actionedAt: new Date(),
+        },
+      },
+    );
+
+    revalidatePath("/admin/reviews");
+    revalidatePath("/");
+    return { success: true };
+  } catch (error: any) {
+    console.error("Failed to remove reported listing:", error);
+    return { success: false, error: "Failed to remove listing." };
   }
 }
