@@ -30,6 +30,7 @@ export async function findBusinessesNearby(
     // MongoDB 2dsphere $near operator
     const businesses = await collection
       .find({
+        isDelisted: { $ne: true },
         coordinates: {
           $near: {
             $geometry: {
@@ -80,6 +81,7 @@ export async function fetchMapListings(): Promise<Listing[]> {
 
   const listings = await collection
     .find({
+      isDelisted: { $ne: true },
       isOnlineOnly: { $ne: true },
       $or: [
         { "coordinates.coordinates.1": { $exists: true } },
@@ -101,9 +103,11 @@ function buildDirectoryQuery(
   location: DirectoryLocation | null = null,
 ) {
   // The global directory ("all") lists physical locations only; online-only
-  // listings have their own scope.
+  // listings have their own scope. Both exclude delisted listings.
   const base =
-    scope === "online" ? { isOnlineOnly: true } : { isOnlineOnly: { $ne: true } };
+    scope === "online"
+      ? { isOnlineOnly: true, isDelisted: { $ne: true } }
+      : { isOnlineOnly: { $ne: true }, isDelisted: { $ne: true } };
   return mergeQueries(
     base,
     buildCategoryQuery(selectedCategories),
@@ -407,6 +411,7 @@ export const getCachedSearchResults = unstable_cache(
     const pattern = new RegExp(escapeRegex(query), "i");
     const candidates = await collection
       .find({
+        isDelisted: { $ne: true },
         $or: [{ name: pattern }, { categories: pattern }, { address: pattern }],
       })
       .project({ places_details: 0 })

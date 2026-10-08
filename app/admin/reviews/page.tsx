@@ -1,6 +1,7 @@
 "use client";
 
 import AddListingDrawer from "@/components/Map/AddListingDrawer";
+import { CurationJobMonitor } from "@/components/admin/CurationJobMonitor";
 import { toaster } from "@/components/ui/Toast";
 import { PendingListing } from "@/db/Types";
 import {
@@ -8,8 +9,11 @@ import {
   autoFindPendingListingAddress,
   batchClearAndAutoFindListings,
   clearPendingListingGeolocation,
+  confirmDelistListing,
   deleteMultiplePendingListings,
+  dismissListingReports,
   getPendingListings,
+  getReportedListings,
   getWeeklyApprovedStats,
   loginAdmin,
   logoutAdmin,
@@ -72,12 +76,18 @@ export default function AdminReviewsPage() {
   const [stats, setStats] = useState<{ total: number; aiScanned: number; manual: number; startOfWeek: Date } | undefined>();
   const [selectedListingIds, setSelectedListingIds] = useState<string[]>([]);
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
+  const [reportedListings, setReportedListings] = useState<any[]>([]);
 
   const toggleSection = (key: string) => {
     setCollapsedSections((prev) => ({
       ...prev,
       [key]: !prev[key],
     }));
+  };
+
+  const loadReported = async () => {
+    const repRes = await getReportedListings();
+    if (repRes.success) setReportedListings(repRes.data || []);
   };
 
   useEffect(() => {
@@ -89,6 +99,8 @@ export default function AdminReviewsPage() {
 
         const statsRes = await getWeeklyApprovedStats();
         if (statsRes.success) setStats(statsRes.data);
+
+        await loadReported();
       } else if (res.error === "Unauthorized") {
         setIsLoggedIn(false);
       }
@@ -107,9 +119,37 @@ export default function AdminReviewsPage() {
 
       const statsRes = await getWeeklyApprovedStats();
       if (statsRes.success) setStats(statsRes.data);
+
+      await loadReported();
     } else {
       setLoginError(res.error || "Login failed");
     }
+  };
+
+  const handleDismissReports = async (listingId: string) => {
+    if (!confirm("Dismiss all reports and restore this listing to the live map?")) return;
+    setIsLoading(true);
+    const res = await dismissListingReports(listingId);
+    if (res.success) {
+      setReportedListings((prev) => prev.filter((item) => item._id !== listingId));
+      toaster.create({ title: "Reports dismissed; listing restored to public map.", type: "success" });
+    } else {
+      toaster.create({ title: res.error || "Failed to dismiss reports", type: "error" });
+    }
+    setIsLoading(false);
+  };
+
+  const handleConfirmDeleteReported = async (listingId: string) => {
+    if (!confirm("Permanently delete this business from the database? This cannot be undone.")) return;
+    setIsLoading(true);
+    const res = await confirmDelistListing(listingId);
+    if (res.success) {
+      setReportedListings((prev) => prev.filter((item) => item._id !== listingId));
+      toaster.create({ title: "Listing permanently removed from database.", type: "success" });
+    } else {
+      toaster.create({ title: res.error || "Failed to remove listing", type: "error" });
+    }
+    setIsLoading(false);
   };
 
   const openEditor = (listing: PendingListing) => {
@@ -644,6 +684,222 @@ export default function AdminReviewsPage() {
       <div
         className={css({ display: "flex", flexDirection: "column", gap: "4" })}
       >
+        {/* Component 5: Batch URL Ingestion & Live Job Monitor */}
+        <CurationJobMonitor
+          onBatchCompleted={async () => {
+            const res = await getPendingListings();
+            if (res.success) setListings(res.data || []);
+            const rep = await getReportedListings();
+            if (rep.success) setReportedListings(rep.data || []);
+          }}
+        />
+
+        {/* Component 2 & 4: Community Reported & Delisted Listings Moderation Section */}
+        {reportedListings.length > 0 && (
+          <div
+            id="section-reported"
+            className={css({
+              bg: "bg.surface",
+              border: "2px solid",
+              borderColor: "red.500/40",
+              borderRadius: "xl",
+              p: "5",
+              display: "flex",
+              flexDirection: "column",
+              gap: "4",
+              boxShadow: "sm",
+            })}
+          >
+            <div className={css({ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "2" })}>
+              <div>
+                <div className={css({ display: "flex", alignItems: "center", gap: "2" })}>
+                  <span className={css({ w: "3", h: "3", borderRadius: "full", bg: "red.500", display: "inline-block" })} />
+                  <h2 className={css({ fontSize: "lg", fontWeight: "bold", color: "text.main" })}>
+                    Community Reported & Delisted Listings ({reportedListings.length})
+                  </h2>
+                </div>
+                <p className={css({ fontSize: "xs", color: "text.muted", mt: "0.5" })}>
+                  Listings flagged by registered members for inaccuracies. Listings with 3+ reports are automatically de-listed.
+                </p>
+              </div>
+              <button
+                onClick={loadReported}
+                className={css({
+                  fontSize: "xs",
+                  bg: "bg.canvas",
+                  border: "1px solid",
+                  borderColor: "border.light",
+                  color: "text.main",
+                  px: "3",
+                  py: "1.5",
+                  borderRadius: "md",
+                  cursor: "pointer",
+                  _hover: { bg: "bg.surface" },
+                })}
+              >
+                Refresh Reports
+              </button>
+            </div>
+
+            <div className={css({ display: "flex", flexDirection: "column", gap: "3" })}>
+              {reportedListings.map((l: any) => {
+                const reportCount = l.deverifierCount || (l.deverifiers || []).length || 0;
+                const isDelisted = Boolean(l.isDelisted || reportCount >= 3);
+                const reportsList: any[] = l.reports || [];
+
+                return (
+                  <div
+                    key={l._id}
+                    className={css({
+                      p: "4",
+                      borderRadius: "lg",
+                      bg: "bg.canvas",
+                      border: "1px solid",
+                      borderColor: isDelisted ? "red.500/30" : "border.light",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "3",
+                    })}
+                  >
+                    <div className={css({ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "2" })}>
+                      <div>
+                        <div className={css({ display: "flex", alignItems: "center", gap: "2" })}>
+                          <span className={css({ fontSize: "md", fontWeight: "bold", color: "text.main" })}>
+                            {l.name}
+                          </span>
+                          <span
+                            className={css({
+                              fontSize: "10px",
+                              fontWeight: "bold",
+                              px: "2",
+                              py: "0.5",
+                              borderRadius: "full",
+                              bg: isDelisted ? "red.500/20" : "yellow.500/20",
+                              color: isDelisted ? "red.400" : "yellow.400",
+                            })}
+                          >
+                            {isDelisted ? "DELISTED (Hidden from Map)" : `FLAGGED (${reportCount}/3 reports)`}
+                          </span>
+                        </div>
+                        <div className={css({ fontSize: "xs", color: "text.muted", mt: "1" })}>
+                          {l.address || "Online Only"}
+                          {l.categories && l.categories.length > 0 && ` • ${l.categories.join(", ")}`}
+                          {l.url && (
+                            <a
+                              href={l.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className={css({ color: "brand.orange", ml: "2", textDecoration: "underline" })}
+                            >
+                              Website
+                            </a>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className={css({ display: "flex", gap: "2", flexWrap: "wrap" })}>
+                        <button
+                          disabled={isLoading}
+                          onClick={() => handleDismissReports(l._id)}
+                          className={css({
+                            fontSize: "xs",
+                            bg: "green.600",
+                            color: "white",
+                            px: "3",
+                            py: "1.5",
+                            borderRadius: "md",
+                            fontWeight: "bold",
+                            border: "none",
+                            cursor: "pointer",
+                            _hover: { bg: "green.700" },
+                          })}
+                        >
+                          Dismiss & Restore
+                        </button>
+                        <button
+                          disabled={isLoading}
+                          onClick={() => openEditor(l)}
+                          className={css({
+                            fontSize: "xs",
+                            bg: "blue.600",
+                            color: "white",
+                            px: "3",
+                            py: "1.5",
+                            borderRadius: "md",
+                            fontWeight: "bold",
+                            border: "none",
+                            cursor: "pointer",
+                            _hover: { bg: "blue.700" },
+                          })}
+                        >
+                          Edit Details
+                        </button>
+                        <button
+                          disabled={isLoading}
+                          onClick={() => handleConfirmDeleteReported(l._id)}
+                          className={css({
+                            fontSize: "xs",
+                            bg: "red.600",
+                            color: "white",
+                            px: "3",
+                            py: "1.5",
+                            borderRadius: "md",
+                            fontWeight: "bold",
+                            border: "none",
+                            cursor: "pointer",
+                            _hover: { bg: "red.700" },
+                          })}
+                        >
+                          Confirm & Delete
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Reports List */}
+                    {reportsList.length > 0 ? (
+                      <div className={css({ bg: "rgba(255,255,255,0.02)", p: "3", borderRadius: "md", border: "1px solid", borderColor: "white/5" })}>
+                        <div className={css({ fontSize: "11px", fontWeight: "bold", color: "text.muted", mb: "2" })}>
+                          Member Feedback History ({reportsList.length} submissions):
+                        </div>
+                        <div className={css({ display: "flex", flexDirection: "column", gap: "2" })}>
+                          {reportsList.map((r: any, rIdx: number) => (
+                            <div key={rIdx} className={css({ fontSize: "xs", display: "flex", alignItems: "flex-start", gap: "2" })}>
+                              <span
+                                className={css({
+                                  fontSize: "10px",
+                                  px: "1.5",
+                                  py: "0.5",
+                                  borderRadius: "sm",
+                                  bg: "red.500/15",
+                                  color: "red.400",
+                                  fontWeight: "bold",
+                                  flexShrink: 0,
+                                })}
+                              >
+                                {r.reason?.replace(/_/g, " ")}
+                              </span>
+                              <span className={css({ color: "gray.300", flex: 1 })}>
+                                {r.comment ? `"${r.comment}"` : "No comment provided"}
+                              </span>
+                              <span className={css({ color: "gray.500", fontSize: "10px", flexShrink: 0 })}>
+                                by {r.userEmail || "Registered Member"} • {new Date(r.createdAt).toLocaleDateString()}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className={css({ fontSize: "xs", color: "text.muted", fontStyle: "italic" })}>
+                        Flagged with {reportCount} reports (legacy/system count).
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {selectedListingIds.length > 0 && (
           <div
             className={css({
@@ -761,6 +1017,25 @@ export default function AdminReviewsPage() {
             <span className={css({ fontSize: "sm", fontWeight: "bold", mr: "2" })}>
               Quick Jump:
             </span>
+            {reportedListings.length > 0 && (
+              <a
+                href="#section-reported"
+                className={css({
+                  fontSize: "xs",
+                  bg: "red.500/20",
+                  p: "1 3",
+                  borderRadius: "full",
+                  color: "red.400",
+                  fontWeight: "bold",
+                  textDecoration: "none",
+                  border: "1px solid",
+                  borderColor: "red.500/40",
+                  _hover: { bg: "red.500/30" },
+                })}
+              >
+                Reported & Delisted ({reportedListings.length})
+              </a>
+            )}
             {Object.entries(groupedListings).map(([key, groupList]) => {
               if (groupList.length === 0) return null;
               const labels: Record<string, string> = {

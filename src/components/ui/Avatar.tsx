@@ -26,6 +26,15 @@ const avatarStyle = cva({
 })
 
 export const Avatar = styled('div', avatarStyle)
+export const AvatarFallback = styled('span', {
+    base: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        w: 'full',
+        h: 'full',
+    }
+})
 export const AvatarImage = styled('img', {
     base: {
         w: 'full',

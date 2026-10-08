@@ -27,17 +27,18 @@ export async function runScout(
   const db = client.db(DB_NAME);
   const scannedUrlsCollection = db.collection("scanned_urls");
 
+  const currentYear = new Date().getFullYear();
   const searchConfigs = [
-    { q: "black owned near me", tbs: "qdr:m", filter: 0 }, //within month
-    { q: "black owned business directory", filter: 0 },
-    { q: 'intitle:"black owned" businesses', tbs: "qdr:y", filter: 0 },
-    { q: "black owned cafes and bakeries near me", tbs: "qdr:y" },
-    { q: 'inurl:listicle "black owned" stores', filter: 0 },
-    { q: "black owned bookstores", filter: 0 },
-    { q: "black owned retail stores", tbs: "qdr:m", filter: 0 }, // Super fresh - last month
-    { q: "black owned beauty supply stores", filter: 0 },
-    { q: "new black owned businesses", tbs: "qdr:w", filter: 0 }, // Very fresh - last week
-    { q: "black owned restaurants", tbs: "qdr:y", filter: 0 },
+    { q: '"black owned" businesses -site:yelp.com -site:yellowpages.com -site:wikipedia.org', tbs: "qdr:w", filter: 0 }, // Super fresh - last week
+    { q: '"black owned" businesses (blog OR article OR roundup OR "newly opened")', tbs: "qdr:m", filter: 0 }, // Fresh editorial roundups - last month
+    { q: 'new "black owned" businesses -site:yelp.com -site:yellowpages.com', tbs: "qdr:w", filter: 0 }, // New businesses - last week
+    { q: 'recent "black owned" restaurants -site:yelp.com', tbs: "qdr:m", filter: 0 }, // Recent restaurant openings
+    { q: '"black owned" shops opening -site:yelp.com', tbs: "qdr:m", filter: 0 }, // New retail openings
+    { q: '"black owned" (cafe OR bakery OR bookstore OR boutique)', tbs: "qdr:m", filter: 0 }, // Fresh specialty spots
+    { q: `best new "black owned" businesses ${currentYear}`, tbs: "qdr:m", filter: 0 }, // Current year features
+    { q: 'intitle:"black owned" (businesses OR restaurants OR brands)', tbs: "qdr:m", filter: 0 }, // Targeted title matches
+    { q: '"black owned" brand spotlight OR feature', tbs: "qdr:m", filter: 0 }, // Editorial features
+    { q: 'new "black owned" eateries OR stores near me', tbs: "qdr:w", filter: 0 }, // Super fresh local spots
   ];
 
   const selectedConfig =

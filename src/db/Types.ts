@@ -23,6 +23,9 @@ export interface Listing {
   verifierCount?: number;
   deverifiers?: string[];
   deverifierCount?: number;
+  isDelisted?: boolean;
+  delistedAt?: Date;
+  lastReportedAt?: Date;
   description?: string;
   image?: { url: string };
   og_title?: string;
@@ -139,4 +142,49 @@ export interface User {
   password?: string;
   role: "ADMIN" | "USER";
   name?: string;
+  createdAt?: Date;
+}
+
+export type ReportReason =
+  | "CLOSED"
+  | "INCORRECT_ADDRESS"
+  | "NOT_BLACK_OWNED"
+  | "WRONG_CONTACT"
+  | "OTHER";
+
+export interface ListingReport {
+  _id?: any;
+  listingId: string;
+  listingName: string;
+  userId: string;
+  userEmail: string;
+  reason: ReportReason;
+  comment?: string;
+  createdAt: Date;
+  status: "PENDING" | "DISMISSED" | "ACTIONED";
+}
+
+export interface CurationJobUrl {
+  url: string;
+  status: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
+  listingsFound?: number;
+  sourceType?: string;
+  error?: string;
+  processedAt?: Date;
+}
+
+export interface CurationJob {
+  _id?: any;
+  type: "BATCH_URLS";
+  status: "QUEUED" | "PROCESSING" | "COMPLETED" | "FAILED" | "CANCELLED";
+  createdAt: Date;
+  startedAt?: Date;
+  finishedAt?: Date;
+  totalUrls: number;
+  processedUrls: number;
+  successCount: number;
+  failedCount: number;
+  listingsExtracted: number;
+  urls: CurationJobUrl[];
+  error?: string;
 }
