@@ -1,9 +1,16 @@
+import { trackListingViewed } from "@/util/analytics";
 import { css } from "@styled/css";
 import { InfoWindow } from "@vis.gl/react-google-maps";
-import React from "react";
+import React, { useEffect } from "react";
 import CondensedCard from "./CondensedCard";
 
-const ListingInfoWindow = ({ activeListing }) => {
+const ListingInfoWindow = ({ activeListing }: { activeListing: any }) => {
+  useEffect(() => {
+    if (activeListing) {
+      trackListingViewed(activeListing, "info_window");
+    }
+  }, [activeListing]);
+
   const { coordinates } = activeListing;
   let loc = coordinates.coordinates;
   let locObj = { lat: loc[1], lng: loc[0] };

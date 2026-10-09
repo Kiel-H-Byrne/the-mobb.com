@@ -1,4 +1,5 @@
 import type { CategoryCount } from "@/util/categories";
+import { trackSearchExecuted } from "@/util/analytics";
 import {
   CaretDownIcon,
   MagnifyingGlassIcon,
@@ -34,7 +35,16 @@ const Pill = memo(
     <button
       type="button"
       aria-pressed={isOn}
-      onClick={() => onToggle(name)}
+      onClick={() => {
+        if (!isOn) {
+          trackSearchExecuted({
+            searchTerm: name,
+            searchType: "category",
+            resultCount: count,
+          });
+        }
+        onToggle(name);
+      }}
       className={css({
         display: "inline-flex",
         alignItems: "center",

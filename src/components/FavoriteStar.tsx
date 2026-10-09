@@ -1,3 +1,4 @@
+import { trackPlaceSaved } from "@/util/analytics";
 import { css } from "@styled/css";
 import { useState } from "react";
 import { MdFavorite, MdFavoriteBorder } from "react-icons/md";
@@ -18,7 +19,9 @@ const FavoriteStar = (props: Props) => {
 
   const handleClick = () => {
     let userId = 1;
-    if (inFavorites(_id)) {
+    const isCurrentlyFav = inFavorites(_id);
+    trackPlaceSaved({ _id, name: "Favorite Place" } as any, !isCurrentlyFav);
+    if (isCurrentlyFav) {
       usersUpdate(userId, {
         $pull: { "profile.favorites": _id },
       });

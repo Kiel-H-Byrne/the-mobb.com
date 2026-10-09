@@ -1,4 +1,5 @@
 import { Listing } from "@/db/Types";
+import { trackSearchExecuted } from "@/util/analytics";
 import { targetClient } from "@/util/functions";
 import { searchBusinesses } from "@app/actions/geo-search";
 import { MagnifyingGlassIcon, MapPinIcon } from "@phosphor-icons/react";
@@ -47,6 +48,11 @@ const MapAutoComplete = ({
         const results = await searchBusinesses(input);
         setFiltered(results);
         setIsMenuOpen(true);
+        trackSearchExecuted({
+          searchTerm: input,
+          searchType: "text",
+          resultCount: results.length,
+        });
       } catch (error) {
         console.error("Error searching businesses:", error);
       }
@@ -59,6 +65,13 @@ const MapAutoComplete = ({
 
   const handleSelect = (index: number) => {
     const listing = filtered[index];
+    if (listing) {
+      trackSearchExecuted({
+        searchTerm: listing.name,
+        searchType: "text",
+        resultCount: 1,
+      });
+    }
     setActive(index);
     setFiltered([]);
     setInput("");
