@@ -3,6 +3,7 @@ import { css } from "@styled/css";
 import ListingCoverImage from "@/components/ListingCoverImage";
 import { memo, useCallback } from "react";
 import { Listing } from "@/db/Types";
+import { trackClickThrough } from "@/util/analytics";
 import { useAppStore } from "@/store/useAppStore";
 import DirectoryView from "./DirectoryView";
 
@@ -191,6 +192,15 @@ const DigitalStorefrontCard = memo(
             </div>
 
             <button
+              onClick={(e) => {
+                if (listing.url) {
+                  e.stopPropagation();
+                  trackClickThrough(listing, "website", listing.url);
+                  window.open(listing.url, "_blank", "noopener,noreferrer");
+                }
+              }}
+              title="Visit Digital Storefront"
+              aria-label={`Visit ${listing.name} website`}
               className={css({
                 w: "10",
                 h: "10",

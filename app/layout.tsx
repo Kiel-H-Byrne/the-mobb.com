@@ -1,5 +1,6 @@
 import { ThemeProvider } from "@/components/ui/ThemeProvider";
 import { Toaster } from "@/components/ui/Toast";
+import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
 import "@/style/index.css";
 import { Metadata } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
@@ -68,6 +69,7 @@ export default function RootLayout({
 
       </head>
       <body suppressHydrationWarning className={`antialiased bg-black text-white overflow-hidden font-sans ${inter.variable} ${spaceGrotesk.variable}`}>
+        <GoogleAnalytics />
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

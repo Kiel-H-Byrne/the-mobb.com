@@ -26,6 +26,7 @@ import { UserAuthModal } from "@/components/ui/v3/UserAuthModal";
 
 import { listingMatchesCategories } from "@/util/categories";
 import { nearestListings } from "@/util/location";
+import { trackSearchExecuted } from "@/util/analytics";
 
 import { PlusIcon } from "@phosphor-icons/react";
 
@@ -295,6 +296,10 @@ const ClientHome = React.memo(
             const lat = position.coords.latitude;
             const lng = position.coords.longitude;
             setUserLocation({ lat, lng });
+            trackSearchExecuted({
+              searchTerm: "Near Me",
+              searchType: "nearby",
+            });
 
             // All map listings are already loaded; just focus the map here.
             // The side lists sort by distance from userLocation.

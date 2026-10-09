@@ -1,4 +1,5 @@
 import { geocodeLocation } from "@app/actions/geo-search";
+import { trackSearchExecuted } from "@/util/analytics";
 import {
   DEFAULT_RADIUS_MILES,
   DirectoryLocation,
@@ -88,6 +89,10 @@ export const LocationFilter = ({ value, onChange }: LocationFilterProps) => {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setBusy(null);
+        trackSearchExecuted({
+          searchTerm: "Near Me",
+          searchType: "nearby",
+        });
         apply({
           kind: "radius",
           lat: pos.coords.latitude,
@@ -115,6 +120,10 @@ export const LocationFilter = ({ value, onChange }: LocationFilterProps) => {
         setError(`Couldn't find "${query.trim()}".`);
         return;
       }
+      trackSearchExecuted({
+        searchTerm: place.label || query.trim(),
+        searchType: "location",
+      });
       if (place.isRegion && place.bounds) {
         apply({
           kind: "region",

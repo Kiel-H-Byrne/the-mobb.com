@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { toaster } from "@/components/ui/Toast";
 import { PendingListing } from "@/db/Types";
+import { trackNewSubmission, trackScanInitiated } from "@/util/analytics";
 import { scanBusinessUrl } from "@app/actions/scanBusiness";
 import { submitListing } from "@app/actions/submitListing";
 import { Tabs } from "@ark-ui/react/tabs";
@@ -197,6 +198,7 @@ const AddListingDrawer = ({
     setIsScanning(true);
     setError("");
     setResult(null);
+    trackScanInitiated({ url });
 
     try {
       const res = await scanBusinessUrl(url);
@@ -227,6 +229,13 @@ const AddListingDrawer = ({
         source: "AI_SCAN",
       });
       if (res.success) {
+        trackNewSubmission({
+          name: result.name,
+          category: result.category,
+          source: "AI_SCAN",
+          isBlackOwned: result.isBlackOwnedDetected,
+          isOnlineOnly: false,
+        });
         toaster.create({
           title: "Listing submitted successfully for review!",
           type: "success",
@@ -287,6 +296,13 @@ const AddListingDrawer = ({
         source: "MANUAL",
       });
       if (res.success) {
+        trackNewSubmission({
+          name: normalizedManualData.name,
+          category: normalizedManualData.category,
+          source: "MANUAL",
+          isBlackOwned: normalizedManualData.isBlackOwned,
+          isOnlineOnly: normalizedManualData.isOnlineOnly,
+        });
         toaster.create({
           title: "Listing submitted successfully for review!",
           type: "success",

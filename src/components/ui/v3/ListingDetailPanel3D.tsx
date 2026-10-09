@@ -1,9 +1,24 @@
 import { Listing } from "@/db/Types";
 import { useAppStore } from "@/store/useAppStore";
-import { BookmarkIcon, FlagIcon, MapPinIcon, NavigationArrowIcon, PhoneIcon, TagIcon, XIcon } from "@phosphor-icons/react";
+import {
+  trackClickThrough,
+  trackDirectionsTriggered,
+  trackListingViewed,
+  trackPlaceSaved,
+} from "@/util/analytics";
+import {
+  BookmarkIcon,
+  FlagIcon,
+  GlobeIcon,
+  MapPinIcon,
+  NavigationArrowIcon,
+  PhoneIcon,
+  TagIcon,
+  XIcon,
+} from "@phosphor-icons/react";
 import { css } from "@styled/css";
 import ListingCoverImage from "@/components/ListingCoverImage";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useEffect } from "react";
 
 interface ListingDetailPanel3DProps {
     listing: Listing;
@@ -20,23 +35,31 @@ export const ListingDetailPanel3D = ({
     savedListings,
     setSavedListings,
 }: ListingDetailPanel3DProps) => {
-    if (!isOpen) return null;
-
-    const { url, name, image, description, phone, address, categories, og_title, og_description, og_image } = listing;
-
     const currentUser = useAppStore((s) => s.currentUser);
     const setIsAuthModalOpen = useAppStore((s) => s.setIsAuthModalOpen);
     const setAuthModalSuccessCallback = useAppStore((s) => s.setAuthModalSuccessCallback);
     const setIsReportModalOpen = useAppStore((s) => s.setIsReportModalOpen);
     const setReportingListing = useAppStore((s) => s.setReportingListing);
 
+    useEffect(() => {
+        if (isOpen && listing) {
+            trackListingViewed(listing, "detail_panel");
+        }
+    }, [isOpen, listing]);
+
+    if (!isOpen || !listing) return null;
+
+    const { url, name, image, description, phone, address, categories, og_title, og_description, og_image } = listing;
+
     const isSaved = savedListings?.some(l => (l as any)._id === (listing as any)._id || l.name === listing.name);
 
     const toggleSave = () => {
         if (!setSavedListings || !savedListings) return;
         if (isSaved) {
+            trackPlaceSaved(listing, false);
             setSavedListings(savedListings.filter(l => (l as any)._id !== (listing as any)._id && l.name !== listing.name));
         } else {
+            trackPlaceSaved(listing, true);
             setSavedListings([...savedListings, listing]);
         }
     };
@@ -133,7 +156,16 @@ export const ListingDetailPanel3D = ({
                 {/* Holographic Image Frame */}
                 <div className={css({ position: "relative", w: "full", h: "240px", bg: "brand.greyDark", overflow: "hidden" })}>
                     <div className={css({ position: "absolute", inset: 0, bg: "linear-gradient(to bottom, transparent, #0B0B0E)", zIndex: 1 })} />
-                    <a href={url} title="Listing Image" rel="noopener noreferrer" target="_blank" className={css({ display: "block", w: "full", h: "full", position: "absolute", inset: 0 })}>
+                    <a
+                        href={url}
+                        title="Listing Image"
+                        rel="noopener noreferrer"
+                        target="_blank"
+                        onClick={() => {
+                            if (url) trackClickThrough(listing, "website", url);
+                        }}
+                        className={css({ display: "block", w: "full", h: "full", position: "absolute", inset: 0 })}
+                    >
                         <ListingCoverImage listing={listing} priority className={css({ opacity: 0.8, filter: "contrast(1.1) saturate(1.2)" })} />
                     </a>
                     {/* Overlay Tech Grid */}
@@ -165,7 +197,13 @@ export const ListingDetailPanel3D = ({
                     </div>
 
                     <div className={css({ display: "flex", flexDirection: "column", gap: "4", mt: "2" })}>
-                        <a href={`tel:${phone}`} className={css({ display: "flex", alignItems: "center", gap: "3", color: "white", textDecoration: "none", p: "3", borderRadius: "lg", bg: "rgba(255,255,255,0.03)", border: "1px solid transparent", _hover: { borderColor: "brand.orange/50", bg: "brand.orangeMuted" }, transition: "all 0.2s" })}>
+                        <a
+                            href={`tel:${phone}`}
+                            onClick={() => {
+                                if (phone) trackClickThrough(listing, "phone", phone);
+                            }}
+                            className={css({ display: "flex", alignItems: "center", gap: "3", color: "white", textDecoration: "none", p: "3", borderRadius: "lg", bg: "rgba(255,255,255,0.03)", border: "1px solid transparent", _hover: { borderColor: "brand.orange/50", bg: "brand.orangeMuted" }, transition: "all 0.2s" })}
+                        >
                             <div className={css({ display: "flex", alignItems: "center", justifyContent: "center", w: "10", h: "10", borderRadius: "full", bg: "brand.greyDark", color: "brand.orange" })}>
                                 <PhoneIcon weight="fill" size={18} />
                             </div>
@@ -186,11 +224,12 @@ export const ListingDetailPanel3D = ({
                         </div>
                     </div>
 
-                    <div className={css({ mt: "4" })}>
+                    <div className={css({ mt: "4", display: "flex", flexDirection: "column", gap: "2" })}>
                         <a
                             href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address || name)}`}
                             target="_blank"
                             rel="noopener noreferrer"
+                            onClick={() => trackDirectionsTriggered(listing, address || name)}
                             className={css({
                                 display: "flex", alignItems: "center", justifyContent: "center", gap: "2",
                                 w: "full", py: "4", borderRadius: "xl",
@@ -203,6 +242,27 @@ export const ListingDetailPanel3D = ({
                         >
                             <NavigationArrowIcon weight="fill" size={18} /> Get Directions
                         </a>
+
+                        {url && (
+                            <a
+                                href={url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={() => trackClickThrough(listing, "website", url)}
+                                className={css({
+                                    display: "flex", alignItems: "center", justifyContent: "center", gap: "2",
+                                    w: "full", py: "3", borderRadius: "xl",
+                                    bg: "rgba(255,255,255,0.06)", color: "white",
+                                    fontWeight: "600", fontSize: "sm",
+                                    textDecoration: "none", cursor: "pointer",
+                                    border: "1px solid", borderColor: "white/10",
+                                    transition: "all 0.2s",
+                                    _hover: { bg: "rgba(255,255,255,0.12)", borderColor: "brand.orange/50", transform: "translateY(-1px)" }
+                                })}
+                            >
+                                <GlobeIcon weight="bold" size={18} /> Visit Website
+                            </a>
+                        )}
                     </div>
 
                     <div className={css({ mt: "4", display: "flex", justifyContent: "center" })}>

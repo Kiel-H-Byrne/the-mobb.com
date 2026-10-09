@@ -1,3 +1,4 @@
+import { trackClickThrough, trackDirectionsTriggered } from "@/util/analytics";
 import { css } from "@styled/css";
 import { MdDirections, MdInfoOutline, MdLink, MdPhone } from "react-icons/md";
 
@@ -52,13 +53,18 @@ const ClosestCard = ({ closestListing }) => {
               rel="noopener noreferrer"
               title="Website"
               href={url}
+              onClick={() => trackClickThrough(closestListing, "website", url)}
               className={css({ color: "white" })}
             >
               <MdLink size={24} />
             </a>
           )}
           {phone && (
-            <a href={`tel:+1${phone}`} className={css({ color: "white" })}>
+            <a
+              href={`tel:+1${phone}`}
+              onClick={() => trackClickThrough(closestListing, "phone", phone)}
+              className={css({ color: "white" })}
+            >
               <MdPhone size={24} />
             </a>
           )}
@@ -78,11 +84,12 @@ const ClosestCard = ({ closestListing }) => {
             boxShadow: "md",
             _hover: { backgroundColor: "brand.orangeDark" },
           })}
-          onClick={() =>
+          onClick={() => {
+            trackDirectionsTriggered(closestListing, address || name);
             window.open(
               `https://www.google.com/maps/dir/Current+Location/${coordinates?.coordinates[1]},${coordinates?.coordinates[0]}`
-            )
-          }
+            );
+          }}
         >
           <MdDirections size={24} />
         </button>

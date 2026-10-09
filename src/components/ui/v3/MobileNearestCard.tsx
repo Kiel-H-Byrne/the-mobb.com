@@ -1,5 +1,6 @@
 import ListingCoverImage from "@/components/ListingCoverImage";
 import { Listing } from "@/db/Types";
+import { trackClickThrough, trackDirectionsTriggered } from "@/util/analytics";
 import { CheckCircleIcon, NavigationArrowIcon, ShareNetworkIcon, XIcon } from "@phosphor-icons/react";
 import { css } from "@styled/css";
 import React, { Dispatch, SetStateAction } from "react";
@@ -31,6 +32,7 @@ export const MobileNearestCard = ({
 
     const handleShare = (e: React.MouseEvent) => {
         e.stopPropagation();
+        trackClickThrough(listing, "share");
         if (navigator.share) {
             navigator.share({
                 title: `Check out ${listing.name} on The MOBB`,
@@ -179,7 +181,10 @@ export const MobileNearestCard = ({
                         href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(listing.address || listing.name)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()} // Prevent opening details drawer
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            trackDirectionsTriggered(listing, listing.address || listing.name);
+                        }}
                         className={css({
                             w: "10",
                             h: "10",
