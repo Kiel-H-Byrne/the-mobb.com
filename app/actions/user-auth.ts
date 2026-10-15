@@ -3,9 +3,10 @@
 
 import clientPromise, { DB_NAME } from "@/db/mongodb";
 import { User } from "@/db/Types";
+import { sendLoginNotificationEmail, sendWelcomeEmail } from "@/util/email";
 import crypto from "crypto";
 import { ObjectId } from "mongodb";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { z } from "zod";
 
 const COOKIE_NAME = "mobb_user_session";
@@ -110,6 +111,12 @@ export async function registerUser(input: {
       path: "/",
     });
 
+    // Send welcome email (non-blocking)
+    sendWelcomeEmail({
+      email: normalizedEmail,
+      name: newUser.name,
+    }).catch((err) => console.error("Welcome email error:", err));
+
     return {
       success: true,
       user: sessionPayload,
@@ -163,6 +170,28 @@ export async function loginUser(input: {
       maxAge: 60 * 60 * 24 * 30, // 30 days
       path: "/",
     });
+
+    // Extract request metadata for security notification
+    let ipAddress = "Unknown location";
+    let userAgent = "Web Browser";
+    try {
+      const headersList = await headers();
+      ipAddress =
+        headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+        headersList.get("x-real-ip") ||
+        "Unknown location";
+      userAgent = headersList.get("user-agent") || "Web Browser";
+    } catch {
+      // headers() may throw in mock or test environments
+    }
+
+    // Send login security alert (non-blocking)
+    sendLoginNotificationEmail({
+      email: normalizedEmail,
+      name: user.name,
+      ipAddress,
+      userAgent,
+    }).catch((err) => console.error("Login notification email error:", err));
 
     return {
       success: true,
