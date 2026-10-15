@@ -4,31 +4,57 @@
 import { toaster } from "@/components/ui/Toast";
 import { useAppStore } from "@/store/useAppStore";
 import { loginUser, registerUser } from "@app/actions/user-auth";
-import { LockKeyIcon, UserIcon, XIcon } from "@phosphor-icons/react";
+import {
+  EnvelopeSimpleIcon,
+  EyeIcon,
+  EyeSlashIcon,
+  LockKeyIcon,
+  SpinnerGapIcon,
+  UserIcon,
+  WarningCircleIcon,
+  XIcon,
+} from "@phosphor-icons/react";
 import { css } from "@styled/css";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 export const UserAuthModal = () => {
   const isAuthModalOpen = useAppStore((s) => s.isAuthModalOpen);
   const setIsAuthModalOpen = useAppStore((s) => s.setIsAuthModalOpen);
   const setCurrentUser = useAppStore((s) => s.setCurrentUser);
-  const authModalSuccessCallback = useAppStore((s) => s.authModalSuccessCallback);
-  const setAuthModalSuccessCallback = useAppStore((s) => s.setAuthModalSuccessCallback);
+  const authModalSuccessCallback = useAppStore(
+    (s) => s.authModalSuccessCallback,
+  );
+  const setAuthModalSuccessCallback = useAppStore(
+    (s) => s.setAuthModalSuccessCallback,
+  );
 
   const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-
-  if (!isAuthModalOpen) return null;
 
   const handleClose = () => {
     setIsAuthModalOpen(false);
     setErrorMessage("");
+    setPassword("");
     setAuthModalSuccessCallback(null);
   };
+
+  useEffect(() => {
+    if (!isAuthModalOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        handleClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isAuthModalOpen]);
+
+  if (!isAuthModalOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,12 +71,15 @@ export const UserAuthModal = () => {
             type: "success",
           });
           setIsAuthModalOpen(false);
+          setPassword("");
           if (authModalSuccessCallback) {
             authModalSuccessCallback();
             setAuthModalSuccessCallback(null);
           }
         } else {
-          setErrorMessage(res.error || "Login failed. Please check your credentials.");
+          setErrorMessage(
+            res.error || "Login failed. Please check your credentials.",
+          );
         }
       } else {
         const res = await registerUser({ email, password, name });
@@ -58,10 +87,12 @@ export const UserAuthModal = () => {
           setCurrentUser(res.user);
           toaster.create({
             title: "Account created successfully!",
-            description: "You can now participate in community listing accuracy & moderation.",
+            description:
+              "You can now participate in community listing accuracy & moderation.",
             type: "success",
           });
           setIsAuthModalOpen(false);
+          setPassword("");
           if (authModalSuccessCallback) {
             authModalSuccessCallback();
             setAuthModalSuccessCallback(null);
@@ -79,6 +110,10 @@ export const UserAuthModal = () => {
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="auth-modal-title"
+      onClick={handleClose}
       className={css({
         position: "fixed",
         inset: 0,
@@ -94,6 +129,7 @@ export const UserAuthModal = () => {
       })}
     >
       <div
+        onClick={(e) => e.stopPropagation()}
         className={css({
           w: "full",
           maxW: "420px",
@@ -131,12 +167,22 @@ export const UserAuthModal = () => {
             >
               COMMUNITY AUTHENTICATION
             </span>
-            <h2 className={css({ fontSize: "xl", fontWeight: "bold", color: "white" })}>
-              {mode === "login" ? "Sign In to The MOBB" : "Create Community Account"}
+            <h2
+              id="auth-modal-title"
+              className={css({
+                fontSize: "xl",
+                fontWeight: "bold",
+                color: "white",
+              })}
+            >
+              {mode === "login"
+                ? "Sign In to The MOBB"
+                : "Create Community Account"}
             </h2>
           </div>
           <button
             onClick={handleClose}
+            aria-label="Close authentication modal"
             className={css({
               color: "gray.400",
               cursor: "pointer",
@@ -145,15 +191,23 @@ export const UserAuthModal = () => {
               p: "1",
               borderRadius: "full",
               _hover: { color: "white", bg: "white/10" },
+              transition: "all 0.15s",
             })}
           >
             <XIcon size={20} weight="bold" />
           </button>
         </div>
 
-        <p className={css({ fontSize: "xs", color: "gray.400", lineHeight: "relaxed" })}>
-          Only registered and logged-in users can submit reports and participate in community
-          moderation to keep listings accurate.
+        <p
+          className={css({
+            fontSize: "xs",
+            color: "gray.400",
+            lineHeight: "relaxed",
+          })}
+        >
+          {mode === "login"
+            ? "Sign in to save favorite businesses, report inaccuracies, and support community group economics."
+            : "Register to participate in community listing accuracy, moderation, and economic equity."}
         </p>
 
         {/* Tab switch */}
@@ -172,6 +226,7 @@ export const UserAuthModal = () => {
             onClick={() => {
               setMode("login");
               setErrorMessage("");
+              setPassword("");
             }}
             className={css({
               flex: 1,
@@ -193,6 +248,7 @@ export const UserAuthModal = () => {
             onClick={() => {
               setMode("register");
               setErrorMessage("");
+              setPassword("");
             }}
             className={css({
               flex: 1,
@@ -214,11 +270,17 @@ export const UserAuthModal = () => {
         {/* Form */}
         <form
           onSubmit={handleSubmit}
-          className={css({ display: "flex", flexDirection: "column", gap: "3", mt: "1" })}
+          className={css({
+            display: "flex",
+            flexDirection: "column",
+            gap: "3",
+            mt: "1",
+          })}
         >
           {mode === "register" && (
             <div>
               <label
+                htmlFor="auth-display-name"
                 className={css({
                   display: "block",
                   fontSize: "xs",
@@ -230,10 +292,14 @@ export const UserAuthModal = () => {
               </label>
               <div className={css({ position: "relative" })}>
                 <input
+                  id="auth-display-name"
                   type="text"
                   placeholder="Your Name or Alias"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    if (errorMessage) setErrorMessage("");
+                  }}
                   className={css({
                     w: "full",
                     p: "2.5 3 2.5 9",
@@ -254,6 +320,7 @@ export const UserAuthModal = () => {
                     top: "50%",
                     transform: "translateY(-50%)",
                     color: "gray.500",
+                    pointerEvents: "none",
                   })}
                 />
               </div>
@@ -262,6 +329,7 @@ export const UserAuthModal = () => {
 
           <div>
             <label
+              htmlFor="auth-email"
               className={css({
                 display: "block",
                 fontSize: "xs",
@@ -271,48 +339,86 @@ export const UserAuthModal = () => {
             >
               Email Address
             </label>
-            <input
-              type="email"
-              required
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className={css({
-                w: "full",
-                p: "2.5 3",
-                bg: "rgba(0,0,0,0.5)",
-                border: "1px solid",
-                borderColor: "white/15",
-                borderRadius: "lg",
-                color: "white",
-                fontSize: "sm",
-                _focus: { borderColor: "brand.orange", outline: "none" },
-              })}
-            />
-          </div>
-
-          <div>
-            <label
-              className={css({
-                display: "block",
-                fontSize: "xs",
-                color: "gray.400",
-                mb: "1",
-              })}
-            >
-              Password
-            </label>
             <div className={css({ position: "relative" })}>
               <input
-                type="password"
+                id="auth-email"
+                type="email"
                 required
-                minLength={6}
-                placeholder="At least 6 characters"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (errorMessage) setErrorMessage("");
+                }}
                 className={css({
                   w: "full",
                   p: "2.5 3 2.5 9",
+                  bg: "rgba(0,0,0,0.5)",
+                  border: "1px solid",
+                  borderColor: "white/15",
+                  borderRadius: "lg",
+                  color: "white",
+                  fontSize: "sm",
+                  _focus: { borderColor: "brand.orange", outline: "none" },
+                })}
+              />
+              <EnvelopeSimpleIcon
+                size={16}
+                className={css({
+                  position: "absolute",
+                  left: "3",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  color: "gray.500",
+                  pointerEvents: "none",
+                })}
+              />
+            </div>
+          </div>
+
+          <div>
+            <div
+              className={css({
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: "1",
+              })}
+            >
+              <label
+                htmlFor="auth-password"
+                className={css({
+                  fontSize: "xs",
+                  color: "gray.400",
+                })}
+              >
+                Password
+              </label>
+              {mode === "register" && (
+                <span className={css({ fontSize: "11px", color: "gray.500" })}>
+                  Min 6 characters
+                </span>
+              )}
+            </div>
+            <div className={css({ position: "relative" })}>
+              <input
+                id="auth-password"
+                type={showPassword ? "text" : "password"}
+                required
+                minLength={mode === "register" ? 6 : 1}
+                placeholder={
+                  mode === "register"
+                    ? "At least 6 characters"
+                    : "Enter your password"
+                }
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (errorMessage) setErrorMessage("");
+                }}
+                className={css({
+                  w: "full",
+                  p: "2.5 9 2.5 9",
                   bg: "rgba(0,0,0,0.5)",
                   border: "1px solid",
                   borderColor: "white/15",
@@ -330,8 +436,35 @@ export const UserAuthModal = () => {
                   top: "50%",
                   transform: "translateY(-50%)",
                   color: "gray.500",
+                  pointerEvents: "none",
                 })}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                className={css({
+                  position: "absolute",
+                  right: "3",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  color: "gray.400",
+                  bg: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  p: "1",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  _hover: { color: "white" },
+                })}
+              >
+                {showPassword ? (
+                  <EyeSlashIcon size={16} />
+                ) : (
+                  <EyeIcon size={16} />
+                )}
+              </button>
             </div>
           </div>
 
@@ -344,9 +477,13 @@ export const UserAuthModal = () => {
                 border: "1px solid rgba(239, 68, 68, 0.3)",
                 color: "red.400",
                 fontSize: "xs",
+                display: "flex",
+                alignItems: "center",
+                gap: "2",
               })}
             >
-              {errorMessage}
+              <WarningCircleIcon size={16} weight="fill" />
+              <span>{errorMessage}</span>
             </div>
           )}
 
@@ -368,16 +505,88 @@ export const UserAuthModal = () => {
               opacity: isLoading ? 0.7 : 1,
               _hover: { filter: "brightness(1.1)" },
               transition: "all 0.2s",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "2",
             })}
           >
-            {isLoading
-              ? "Authenticating..."
-              : mode === "login"
-                ? "Sign In"
-                : "Create Account"}
+            {isLoading && (
+              <SpinnerGapIcon
+                size={18}
+                className={css({ animation: "spin 1s linear infinite" })}
+              />
+            )}
+            <span>
+              {isLoading
+                ? "Authenticating..."
+                : mode === "login"
+                  ? "Sign In"
+                  : "Create Account"}
+            </span>
           </button>
         </form>
+
+        {/* Footer switch prompt */}
+        <div
+          className={css({
+            textAlign: "center",
+            fontSize: "xs",
+            color: "gray.400",
+            pt: "1",
+          })}
+        >
+          {mode === "login" ? (
+            <span>
+              New to The MOBB?{" "}
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("register");
+                  setErrorMessage("");
+                  setPassword("");
+                }}
+                className={css({
+                  bg: "transparent",
+                  border: "none",
+                  color: "brand.orange",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                  p: 0,
+                  _hover: { textDecoration: "underline" },
+                })}
+              >
+                Register here
+              </button>
+            </span>
+          ) : (
+            <span>
+              Already have an account?{" "}
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("login");
+                  setErrorMessage("");
+                  setPassword("");
+                }}
+                className={css({
+                  bg: "transparent",
+                  border: "none",
+                  color: "brand.orange",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                  p: 0,
+                  _hover: { textDecoration: "underline" },
+                })}
+              >
+                Sign in here
+              </button>
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );
 };
+
+export default UserAuthModal;

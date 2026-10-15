@@ -22,7 +22,6 @@ import { MobileTopSearch } from "@/components/ui/v3/MobileTopSearch";
 import OnlineOrbit from "@/components/ui/v3/OnlineOrbit";
 import { ReportListingModal } from "@/components/ui/v3/ReportListingModal";
 import SidebarHUD from "@/components/ui/v3/SidebarHUD";
-import { UserAuthModal } from "@/components/ui/v3/UserAuthModal";
 
 import { listingMatchesCategories } from "@/util/categories";
 import { nearestListings } from "@/util/location";
@@ -501,7 +500,6 @@ const ClientHome = React.memo(
         <DetailPanelContainer />
         <FloatingAddButton />
         <AddListingContainer />
-        <UserAuthModal />
         <ReportListingModal />
       </div>
     );

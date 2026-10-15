@@ -1,3 +1,4 @@
+import { AuthInitializer } from "@/components/auth/AuthInitializer";
 import { ThemeProvider } from "@/components/ui/ThemeProvider";
 import { Toaster } from "@/components/ui/Toast";
 import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
@@ -75,6 +76,7 @@ export default function RootLayout({
           defaultTheme="dark"
           disableTransitionOnChange
         >
+          <AuthInitializer />
           {children}
           <Toaster />
         </ThemeProvider>

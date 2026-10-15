@@ -7,8 +7,16 @@ import { useAppStore } from "@/store/useAppStore";
 import { getCurrentUser, logoutUser } from "@app/actions/user-auth";
 import { Menu } from "@ark-ui/react";
 import { css } from "@styled/css";
+import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
-import { MdInfoOutline, MdLogin, MdLogout, MdShare } from "react-icons/md";
+import {
+  MdAdminPanelSettings,
+  MdCode,
+  MdInfoOutline,
+  MdLogin,
+  MdLogout,
+  MdShare,
+} from "react-icons/md";
 
 const menuStyles = {
   content: css({
@@ -50,7 +58,12 @@ const menuStyles = {
   }),
 };
 
-const Mavatar = () => {
+interface MavatarProps {
+  size?: "sm" | "md" | "lg";
+}
+
+const Mavatar = ({ size = "lg" }: MavatarProps) => {
+  const router = useRouter();
   const currentUser = useAppStore((s) => s.currentUser);
   const setCurrentUser = useAppStore((s) => s.setCurrentUser);
   const setIsAuthModalOpen = useAppStore((s) => s.setIsAuthModalOpen);
@@ -95,16 +108,19 @@ const Mavatar = () => {
           border: "none",
           background: "transparent",
           padding: "0",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         })}
       >
-        <Avatar size="lg">
+        <Avatar size={size}>
           {currentUser ? (
             <AvatarFallback
               className={css({
                 bg: "brand.orange",
                 color: "black",
                 fontWeight: "bold",
-                fontSize: "xs",
+                fontSize: size === "sm" ? "10px" : "xs",
                 fontFamily: "tech",
               })}
             >
@@ -129,24 +145,64 @@ const Mavatar = () => {
             >
               <div
                 className={css({
-                  fontSize: "xs",
-                  fontWeight: "bold",
-                  color: "white",
-                  lineClamp: 1,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "2",
                 })}
               >
-                {currentUser.name || "Community Member"}
+                <span
+                  className={css({
+                    fontSize: "xs",
+                    fontWeight: "bold",
+                    color: "white",
+                    lineClamp: 1,
+                  })}
+                >
+                  {currentUser.name || "Community Member"}
+                </span>
+                <span
+                  className={css({
+                    fontSize: "9px",
+                    px: "1.5",
+                    py: "0.5",
+                    borderRadius: "md",
+                    bg:
+                      currentUser.role === "ADMIN"
+                        ? "rgba(239, 68, 68, 0.2)"
+                        : "rgba(255, 90, 0, 0.2)",
+                    color:
+                      currentUser.role === "ADMIN" ? "red.400" : "brand.orange",
+                    fontFamily: "tech",
+                    fontWeight: "bold",
+                    letterSpacing: "wider",
+                  })}
+                >
+                  {currentUser.role === "ADMIN" ? "ADMIN" : "MEMBER"}
+                </span>
               </div>
               <div
                 className={css({
                   fontSize: "11px",
                   color: "gray.400",
                   lineClamp: 1,
+                  mt: "0.5",
                 })}
               >
                 {currentUser.email}
               </div>
             </div>
+          )}
+
+          {currentUser?.role === "ADMIN" && (
+            <Menu.Item
+              value="admin"
+              className={menuStyles.item}
+              onClick={() => router.push("/admin/reviews")}
+            >
+              <MdAdminPanelSettings style={{ marginRight: "8px" }} size={18} />
+              <span>Admin Dashboard</span>
+            </Menu.Item>
           )}
 
           {currentUser ? (
@@ -168,6 +224,15 @@ const Mavatar = () => {
               <span>Sign In / Register</span>
             </Menu.Item>
           )}
+
+          <Menu.Item
+            value="tech-stack"
+            className={menuStyles.item}
+            onClick={() => router.push("/tech-stack")}
+          >
+            <MdCode style={{ marginRight: "8px" }} size={18} />
+            <span>Tech Stack</span>
+          </Menu.Item>
 
           <Menu.Item value="share" className={menuStyles.item}>
             <MdShare style={{ marginRight: "8px" }} size={18} />
@@ -211,7 +276,13 @@ const Mavatar = () => {
             </div>
           </Menu.Item>
 
-          <Menu.Item value="about" className={menuStyles.item}>
+          <Menu.Item
+            value="about"
+            className={menuStyles.item}
+            onClick={() => {
+              window.open("https://mobb.kielbyrne.com", "_blank", "noreferrer");
+            }}
+          >
             <MdInfoOutline style={{ marginRight: "8px" }} size={18} />
             <span>About The MOBB</span>
           </Menu.Item>

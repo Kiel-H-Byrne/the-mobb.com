@@ -1,3 +1,4 @@
+import MAvatar from "@/components/Nav/Mavatar";
 import MapAutoComplete from "@/components/Map/MapAutoComplete";
 import { Category, Listing } from "@/db/Types";
 import { countCategories, toggleCategory } from "@/util/categories";
@@ -70,6 +71,26 @@ export const MobileTopSearch = ({
             setactiveListing={setactiveListing}
             setisDrawerOpen={setisDrawerOpen}
           />
+        </div>
+        <div
+          className={css({
+            width: "44px",
+            height: "44px",
+            borderRadius: "2xl",
+            bg: "#15151A",
+            border: "1px solid",
+            borderColor: "white/10",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+            boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+            cursor: "pointer",
+            _hover: { borderColor: "brand.orange/50" },
+            transition: "all 0.2s",
+          })}
+        >
+          <MAvatar size="sm" />
         </div>
       </div>
 

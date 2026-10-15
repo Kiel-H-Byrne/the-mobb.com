@@ -148,10 +148,10 @@ export async function loginUser(input: {
     }
 
     const sessionPayload = {
-      id: user._id.toString(),
+      id: String(user._id),
       email: user.email,
       name: user.name,
-      role: user.role,
+      role: user.role || "USER",
     };
 
     const token = createSessionToken(sessionPayload);
@@ -195,6 +195,7 @@ export async function logoutUser() {
   try {
     const cookieStore = await cookies();
     cookieStore.delete(COOKIE_NAME);
+    cookieStore.delete("mobb_admin_token");
     return { success: true };
   } catch {
     return { success: false };

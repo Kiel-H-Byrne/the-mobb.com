@@ -1,6 +1,5 @@
 "use client";
 
-import { useAuth0 } from "@auth0/auth0-react";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { APIProvider, Map, useMap } from "@vis.gl/react-google-maps";
 import { useTheme } from "next-themes";
@@ -62,8 +61,6 @@ const MapContent = memo(
   }: any) => {
     const map = useMap("GMap");
     const [clusterer, setClusterer] = useState<MarkerClusterer>();
-    const { isAuthenticated, loginWithRedirect } = useAuth0();
-    const [isAddListingOpen, setIsAddListingOpen] = useState(false);
 
     useEffect(() => {
       if (!map) return;
