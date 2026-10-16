@@ -4,16 +4,18 @@ import {
   sendWelcomeEmail,
 } from "@/util/email";
 import { Resend } from "resend";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+const sendMock = vi.fn();
 
 vi.mock("resend", () => {
-  const sendMock = vi.fn();
   return {
-    Resend: vi.fn(() => ({
-      emails: {
+    Resend: vi.fn(function (this: any) {
+      this.emails = {
         send: sendMock,
-      },
-    })),
+      };
+      return this;
+    }),
   };
 });
 
@@ -22,6 +24,7 @@ describe("Email Service (Resend API)", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    sendMock.mockReset();
     delete process.env.RESEND_API_KEY;
   });
 
@@ -44,13 +47,13 @@ describe("Email Service (Resend API)", () => {
 
     expect(res.success).toBe(false);
     expect(res.error).toContain("RESEND_API_KEY is not configured");
+    expect(sendMock).not.toHaveBeenCalled();
   });
 
   it("calls Resend API when RESEND_API_KEY is configured", async () => {
     process.env.RESEND_API_KEY = "re_test_123456789";
 
-    const mockResendInstance = new (Resend as any)();
-    mockResendInstance.emails.send.mockResolvedValueOnce({
+    sendMock.mockResolvedValueOnce({
       data: { id: "email-id-123" },
       error: null,
     });
@@ -63,7 +66,7 @@ describe("Email Service (Resend API)", () => {
 
     expect(res.success).toBe(true);
     expect(res.id).toBe("email-id-123");
-    expect(mockResendInstance.emails.send).toHaveBeenCalledWith(
+    expect(sendMock).toHaveBeenCalledWith(
       expect.objectContaining({
         to: "member@example.com",
         subject: "Hello from The MOBB",
@@ -74,8 +77,7 @@ describe("Email Service (Resend API)", () => {
   it("handles Resend API error response gracefully", async () => {
     process.env.RESEND_API_KEY = "re_test_123456789";
 
-    const mockResendInstance = new (Resend as any)();
-    mockResendInstance.emails.send.mockResolvedValueOnce({
+    sendMock.mockResolvedValueOnce({
       data: null,
       error: { message: "Domain not verified" },
     });
@@ -93,8 +95,7 @@ describe("Email Service (Resend API)", () => {
   it("sends formatted Welcome email with brand details", async () => {
     process.env.RESEND_API_KEY = "re_test_123456789";
 
-    const mockResendInstance = new (Resend as any)();
-    mockResendInstance.emails.send.mockResolvedValueOnce({
+    sendMock.mockResolvedValueOnce({
       data: { id: "welcome-id" },
       error: null,
     });
@@ -105,7 +106,7 @@ describe("Email Service (Resend API)", () => {
     });
 
     expect(res.success).toBe(true);
-    expect(mockResendInstance.emails.send).toHaveBeenCalledWith(
+    expect(sendMock).toHaveBeenCalledWith(
       expect.objectContaining({
         to: "newmember@example.com",
         subject: expect.stringContaining("Welcome to The MOBB"),
@@ -117,8 +118,7 @@ describe("Email Service (Resend API)", () => {
   it("sends formatted Login Security Notification email with IP and client details", async () => {
     process.env.RESEND_API_KEY = "re_test_123456789";
 
-    const mockResendInstance = new (Resend as any)();
-    mockResendInstance.emails.send.mockResolvedValueOnce({
+    sendMock.mockResolvedValueOnce({
       data: { id: "login-alert-id" },
       error: null,
     });
@@ -131,7 +131,7 @@ describe("Email Service (Resend API)", () => {
     });
 
     expect(res.success).toBe(true);
-    expect(mockResendInstance.emails.send).toHaveBeenCalledWith(
+    expect(sendMock).toHaveBeenCalledWith(
       expect.objectContaining({
         to: "member@example.com",
         subject: expect.stringContaining("Security Alert"),
