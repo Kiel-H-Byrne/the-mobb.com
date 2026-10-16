@@ -281,7 +281,7 @@ export const ListingDetailPanel3D = ({
                                 transition: "color 0.2s",
                             })}
                         >
-                            <FlagIcon weight="bold" size={14} /> Report inaccurate details or closed business
+                            <FlagIcon weight="bold" size={14} /> Suggest an edit or report closed
                         </button>
                     </div>
                 </div>

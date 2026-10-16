@@ -169,7 +169,7 @@ export const MobileClosestListingsPanel = ({
                             borderTopRadius: "3xl",
                         })}>
                             <h2 className={css({ color: "brand.orange", fontFamily: "tech", fontSize: "sm", fontWeight: "bold", letterSpacing: "widest" })}>
-                                LOCAL ECOSYSTEM
+                                BUSINESSES NEAR YOU
                             </h2>
                         </div>
 

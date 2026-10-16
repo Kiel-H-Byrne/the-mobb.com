@@ -265,8 +265,8 @@ export const OnlineOrbit = () => {
               letterSpacing: "tight",
             })}
           >
-            The Digital{" "}
-            <span className={css({ color: "brand.orange" })}>Orbit</span>
+            Online &{" "}
+            <span className={css({ color: "brand.orange" })}>Everywhere</span>
           </h1>
           <p
             className={css({
@@ -277,8 +277,8 @@ export const OnlineOrbit = () => {
               lineHeight: "relaxed",
             })}
           >
-            Discover global digital storefronts and online-only services built
-            by the diaspora. No borders, just pure digital commerce.
+            Shop Black-owned brands, digital storefronts, and online services
+            you can support from anywhere.
           </p>
         </>
       }

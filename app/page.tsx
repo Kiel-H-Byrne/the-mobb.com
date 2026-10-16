@@ -17,16 +17,16 @@ export async function generateMetadata({
 
   if (viewMode === "GRID") {
     return {
-      title: "Global Directory | MOBB",
+      title: "Directory | MOBB",
       description:
-        "Explore verified Black-owned businesses across the world without physical boundaries. The Global Directory on MOBB.",
+        "Browse and support verified Black-owned businesses across the country and around the world.",
       alternates: {
         canonical: "/?view=directory",
       },
       openGraph: {
-        title: "Global Directory | MOBB",
+        title: "Directory | MOBB",
         description:
-          "Explore verified Black-owned businesses across the world without physical boundaries.",
+          "Browse and support verified Black-owned businesses across the country and around the world.",
         url: "https://mobb.kielbyrne.com/?view=directory",
       },
     };
@@ -34,16 +34,16 @@ export async function generateMetadata({
 
   if (viewMode === "ORBIT") {
     return {
-      title: "Digital Orbit | Online Only Black-Owned Businesses | MOBB",
+      title: "Online Brands & Stores | MOBB",
       description:
-        "Discover global digital storefronts and online-only services built by the diaspora. No borders, just pure digital commerce.",
+        "Shop Black-owned brands, digital storefronts, and online services you can support from anywhere.",
       alternates: {
         canonical: "/?view=online",
       },
       openGraph: {
-        title: "Digital Orbit | MOBB",
+        title: "Online Brands & Stores | MOBB",
         description:
-          "Discover global digital storefronts and online-only services built by the diaspora.",
+          "Shop Black-owned brands, digital storefronts, and online services you can support from anywhere.",
         url: "https://mobb.kielbyrne.com/?view=online",
       },
     };

@@ -52,7 +52,7 @@ export const GlobalGrid = () => {
               mb: "4",
             })}
           >
-            The Global{" "}
+            The MOBB{" "}
             <span className={css({ color: "brand.orange" })}>Directory</span>
           </h1>
           <p
@@ -63,8 +63,8 @@ export const GlobalGrid = () => {
               fontSize: { base: "md", md: "lg" },
             })}
           >
-            Explore the entire MOBB ecosystem without physical boundaries.
-            Discover verified Black-owned businesses across the world.
+            Browse and support verified Black-owned businesses across the country
+            and around the world.
           </p>
         </>
       }
