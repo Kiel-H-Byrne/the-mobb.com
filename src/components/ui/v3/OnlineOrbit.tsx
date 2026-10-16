@@ -27,20 +27,23 @@ const DigitalStorefrontCard = memo(
         onClick={handleClick}
         className={`group ${css({
           h: "full",
-          bg: "rgba(20, 20, 25, 0.4)",
+          bg: { base: "rgba(255, 255, 255, 0.92)", _dark: "rgba(20, 20, 25, 0.4)" },
           backdropFilter: "blur(20px)",
           borderRadius: "3xl",
           border: "1px solid",
-          borderColor: "white/5",
+          borderColor: "border.light",
+          boxShadow: { base: "0 4px 20px rgba(0,0,0,0.06)", _dark: "none" },
           overflow: "hidden",
           position: "relative",
           cursor: "pointer",
           transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
           _hover: {
             transform: "translateY(-4px)",
-            borderColor: "rgba(255,90,0,0.3)",
-            boxShadow:
-              "0 20px 40px rgba(0,0,0,0.6), 0 0 40px rgba(255,90,0,0.1)",
+            borderColor: "brand.orange",
+            boxShadow: {
+              base: "0 20px 40px rgba(0,0,0,0.1), 0 0 20px rgba(194,65,12,0.1)",
+              _dark: "0 20px 40px rgba(0,0,0,0.6), 0 0 40px rgba(255,90,0,0.1)",
+            },
           },
         })}`}
       >
@@ -49,7 +52,7 @@ const DigitalStorefrontCard = memo(
             h: { base: "200px", md: "260px" },
             w: "full",
             position: "relative",
-            bg: "gray.900",
+            bg: { base: "gray.100", _dark: "gray.900" },
             overflow: "hidden",
           })}
         >
@@ -86,8 +89,10 @@ const DigitalStorefrontCard = memo(
             className={css({
               position: "absolute",
               inset: 0,
-              background:
-                "linear-gradient(to top, #141419 0%, transparent 60%)",
+              background: {
+                base: "linear-gradient(to top, rgba(255,255,255,0.9) 0%, transparent 60%)",
+                _dark: "linear-gradient(to top, #141419 0%, transparent 60%)",
+              },
             })}
           />
 
@@ -131,7 +136,7 @@ const DigitalStorefrontCard = memo(
               fontSize: "2xl",
               fontWeight: "bold",
               fontFamily: "tech",
-              color: "white",
+              color: "text.main",
               mb: "2",
               lineClamp: "1",
               transition: "color 0.3s",
@@ -143,7 +148,7 @@ const DigitalStorefrontCard = memo(
 
           <p
             className={css({
-              color: "gray.400",
+              color: "text.muted",
               fontSize: "sm",
               mb: "4",
               lineClamp: "2",
@@ -177,13 +182,13 @@ const DigitalStorefrontCard = memo(
                     alignItems: "center",
                     gap: "1",
                     fontSize: "xs",
-                    color: "gray.300",
-                    bg: "white/5",
+                    color: { base: "gray.700", _dark: "gray.300" },
+                    bg: { base: "black/5", _dark: "white/5" },
                     px: "3",
                     py: "1",
                     borderRadius: "md",
                     border: "1px solid",
-                    borderColor: "white/10",
+                    borderColor: "border.light",
                   })}
                 >
                   <TagIcon /> {cat.replace(/_/g, " ")}
@@ -205,15 +210,15 @@ const DigitalStorefrontCard = memo(
                 w: "10",
                 h: "10",
                 borderRadius: "full",
-                bg: "white/5",
+                bg: { base: "black/5", _dark: "white/5" },
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                color: "white",
+                color: "text.main",
                 transition: "all 0.3s",
                 _groupHover: {
                   bg: "brand.orange",
-                  color: "black",
+                  color: { base: "white", _dark: "black" },
                   transform: "scale(1.1)",
                 },
               })}
@@ -255,10 +260,9 @@ export const OnlineOrbit = () => {
               fontSize: { base: "4xl", md: "7xl" },
               fontFamily: "tech",
               fontWeight: "bold",
-              color: "white",
+              color: "text.main",
               mb: "4",
               letterSpacing: "tight",
-              textShadow: "0 0 40px rgba(255, 90, 0, 0.2)",
             })}
           >
             The Digital{" "}
@@ -266,7 +270,7 @@ export const OnlineOrbit = () => {
           </h1>
           <p
             className={css({
-              color: "gray.400",
+              color: "text.muted",
               mb: "8",
               maxW: "2xl",
               fontSize: { base: "md", md: "lg" },

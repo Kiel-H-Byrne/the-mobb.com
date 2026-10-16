@@ -57,24 +57,26 @@ const Pill = memo(
         fontSize: { base: "xs", lg: "11px" },
         borderRadius: "full",
         border: "1px solid",
-        borderColor: isOn ? "brand.orange" : "white/10",
+        borderColor: isOn ? "brand.orange" : "border.light",
         // Floating pills sit over the map, so they need an opaque glass fill.
         bg: isOn
           ? "brand.orange"
           : floating
-            ? "rgba(21, 21, 26, 0.85)"
-            : "white/5",
+            ? { base: "rgba(255, 255, 255, 0.92)", _dark: "rgba(21, 21, 26, 0.85)" }
+            : { base: "black/5", _dark: "white/5" },
         backdropFilter: floating ? "blur(12px)" : "none",
-        boxShadow: floating ? "0 4px 12px rgba(0,0,0,0.35)" : "none",
-        color: isOn ? "black" : "gray.300",
+        boxShadow: floating
+          ? { base: "0 2px 8px rgba(0,0,0,0.08)", _dark: "0 4px 12px rgba(0,0,0,0.35)" }
+          : "none",
+        color: isOn ? { base: "white", _dark: "black" } : { base: "gray.800", _dark: "gray.300" },
         fontWeight: isOn ? "bold" : "medium",
         whiteSpace: "nowrap",
         cursor: "pointer",
         transition:
           "background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s",
         _hover: {
-          borderColor: isOn ? "brand.orange" : "brand.orange/50",
-          color: isOn ? "black" : "white",
+          borderColor: "brand.orange",
+          color: isOn ? { base: "white", _dark: "black" } : { base: "text.main", _dark: "white" },
         },
         _active: { transform: "scale(0.95)" },
         _focusVisible: {
@@ -92,8 +94,8 @@ const Pill = memo(
           px: "1.5",
           py: "0.5",
           borderRadius: "full",
-          bg: isOn ? "black/15" : "white/5",
-          color: isOn ? "black" : "gray.500",
+          bg: isOn ? { base: "white/25", _dark: "black/15" } : { base: "black/6", _dark: "white/5" },
+          color: isOn ? { base: "white", _dark: "black" } : { base: "gray.600", _dark: "gray.500" },
         })}
       >
         {count.toLocaleString()}
@@ -234,14 +236,14 @@ export const CategoryPills = ({
               fontSize: { base: "xs", lg: "11px" },
               borderRadius: "full",
               border: "1px solid",
-              borderColor: "brand.orange/40",
-              bg: floating ? "rgba(21, 21, 26, 0.85)" : "transparent",
+              borderColor: "brand.orange",
+              bg: floating ? { base: "rgba(255, 255, 255, 0.92)", _dark: "rgba(21, 21, 26, 0.85)" } : { base: "brand.orangeMuted", _dark: "transparent" },
               color: "brand.orange",
               fontWeight: "bold",
               whiteSpace: "nowrap",
               cursor: "pointer",
               animation: "fadeIn",
-              _hover: { borderColor: "brand.orange" },
+              _hover: { borderColor: "brand.orangeHover" },
             })}
           >
             Clear ({selected.size})
@@ -279,14 +281,14 @@ export const CategoryPills = ({
             fontSize: { base: "xs", lg: "11px" },
             borderRadius: "full",
             border: "1px solid",
-            borderColor: expanded ? "brand.orange/60" : "white/15",
-            bg: floating ? "rgba(21, 21, 26, 0.9)" : "white/5",
+            borderColor: expanded ? "brand.orange" : "border.light",
+            bg: floating ? { base: "rgba(255, 255, 255, 0.92)", _dark: "rgba(21, 21, 26, 0.9)" } : { base: "black/5", _dark: "white/5" },
             backdropFilter: floating ? "blur(12px)" : "none",
             color: "brand.orange",
             fontWeight: "bold",
             whiteSpace: "nowrap",
             cursor: "pointer",
-            _hover: { borderColor: "brand.orange/50" },
+            _hover: { borderColor: "brand.orangeHover" },
           })}
         >
           {expanded ? "Close" : `+${hiddenCount}`}
@@ -317,11 +319,14 @@ export const CategoryPills = ({
             gap: "3",
             p: "3",
             borderRadius: "2xl",
-            bg: "rgba(11, 11, 14, 0.96)",
+            bg: { base: "rgba(255, 255, 255, 0.98)", _dark: "rgba(11, 11, 14, 0.96)" },
             backdropFilter: "blur(16px)",
             border: "1px solid",
-            borderColor: "white/10",
-            boxShadow: "0 20px 40px rgba(0,0,0,0.5)",
+            borderColor: "border.light",
+            boxShadow: {
+              base: "0 20px 40px rgba(0,0,0,0.12)",
+              _dark: "0 20px 40px rgba(0,0,0,0.5)",
+            },
             animation: "fadeIn",
           })}
         >
@@ -333,11 +338,11 @@ export const CategoryPills = ({
               h: { base: "9", lg: "8" },
               px: "3",
               borderRadius: "xl",
-              bg: "white/5",
+              bg: { base: "black/4", _dark: "white/5" },
               border: "1px solid",
-              borderColor: "white/10",
-              color: "gray.400",
-              _focusWithin: { borderColor: "brand.orange/50" },
+              borderColor: "border.light",
+              color: { base: "gray.600", _dark: "gray.400" },
+              _focusWithin: { borderColor: "brand.orange" },
             })}
           >
             <MagnifyingGlassIcon size={14} />
@@ -352,8 +357,9 @@ export const CategoryPills = ({
                 bg: "transparent",
                 border: "none",
                 outline: "none",
-                color: "white",
+                color: "text.main",
                 fontSize: "sm",
+                _placeholder: { color: { base: "gray.500", _dark: "gray.500" } },
               })}
             />
           </label>
@@ -377,7 +383,7 @@ export const CategoryPills = ({
               />
             ))}
             {searched.length === 0 && (
-              <span className={css({ color: "gray.500", fontSize: "sm" })}>
+              <span className={css({ color: { base: "gray.600", _dark: "gray.500" }, fontSize: "sm" })}>
                 No categories match &ldquo;{query}&rdquo;.
               </span>
             )}

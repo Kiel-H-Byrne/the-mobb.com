@@ -69,7 +69,7 @@ export default function RootLayout({
         />
 
       </head>
-      <body suppressHydrationWarning className={`antialiased bg-black text-white overflow-hidden font-sans ${inter.variable} ${spaceGrotesk.variable}`}>
+      <body suppressHydrationWarning className={`antialiased overflow-hidden font-sans ${inter.variable} ${spaceGrotesk.variable}`}>
         <GoogleAnalytics />
         <ThemeProvider
           attribute="class"

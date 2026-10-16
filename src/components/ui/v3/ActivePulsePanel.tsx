@@ -55,11 +55,12 @@ export const ListingCard3D = React.memo(
       <div
         onClick={handleClick}
         className={`group ${css({
-          bg: "rgba(21, 21, 26, 0.8)",
+          bg: { base: "rgba(255, 255, 255, 0.92)", _dark: "rgba(21, 21, 26, 0.8)" },
           backdropFilter: "blur(24px)",
           borderRadius: "2xl",
           border: "1px solid",
-          borderColor: "white/5",
+          borderColor: "border.light",
+          boxShadow: { base: "0 4px 16px rgba(0,0,0,0.06)", _dark: "none" },
           p: "5",
           cursor: "pointer",
           transition: "all 0.3s",
@@ -70,8 +71,11 @@ export const ListingCard3D = React.memo(
           height: fullWidth ? "100%" : "auto",
           _hover: {
             transform: "translateY(-5px) scale(1.02)",
-            borderColor: "rgba(255,90,0,0.4)",
-            boxShadow: "0 20px 40px rgba(255,90,0,0.1)",
+            borderColor: "brand.orange",
+            boxShadow: {
+              base: "0 16px 36px rgba(194, 65, 12, 0.12), 0 4px 12px rgba(0,0,0,0.05)",
+              _dark: "0 20px 40px rgba(255,90,0,0.1)",
+            },
           },
         })}`}
       >
@@ -79,7 +83,10 @@ export const ListingCard3D = React.memo(
           className={css({
             position: "absolute",
             inset: 0,
-            bg: "linear-gradient(to right, rgba(255,90,0,0.1), transparent)",
+            bg: {
+              base: "linear-gradient(to right, rgba(194,65,12,0.06), transparent)",
+              _dark: "linear-gradient(to right, rgba(255,90,0,0.1), transparent)",
+            },
             transition: "opacity 0.3s",
             _groupHover: { opacity: 1 },
           })}
@@ -99,9 +106,9 @@ export const ListingCard3D = React.memo(
               w: "20",
               h: "20",
               borderRadius: "xl",
-              bg: "gray.800",
+              bg: { base: "gray.100", _dark: "gray.800" },
               border: "1px solid",
-              borderColor: "white/10",
+              borderColor: "border.light",
               overflow: "hidden",
               position: "relative",
               flexShrink: 0,
@@ -143,13 +150,12 @@ export const ListingCard3D = React.memo(
               <h3
                 className={css({
                   fontWeight: "bold",
-                  color: "white",
+                  color: "text.main",
                   fontSize: "lg",
                   lineHeight: "tight",
                   lineClamp: "2",
                   _groupHover: {
-                    color: "brand.glow",
-                    textShadow: "0 0 20px rgba(255, 90, 0, 0.6)",
+                    color: "brand.orange",
                   },
                   transition: "colors",
                 })}
@@ -168,6 +174,8 @@ export const ListingCard3D = React.memo(
                   px: "2",
                   py: "1",
                   borderRadius: "md",
+                  border: "1px solid",
+                  borderColor: { base: "rgba(194, 65, 12, 0.2)", _dark: "transparent" },
                   flexShrink: 0,
                 })}
               >
@@ -178,7 +186,7 @@ export const ListingCard3D = React.memo(
             <p
               className={css({
                 fontSize: "xs",
-                color: "gray.400",
+                color: { base: "gray.600", _dark: "gray.400" },
                 mt: "1",
                 lineClamp: "1",
               })}
@@ -198,7 +206,7 @@ export const ListingCard3D = React.memo(
               <span
                 className={css({
                   fontSize: "10px",
-                  color: "gray.500",
+                  color: { base: "gray.600", _dark: "gray.500" },
                   fontFamily: "tech",
                   textTransform: "uppercase",
                   letterSpacing: "wider",
@@ -215,8 +223,9 @@ export const ListingCard3D = React.memo(
                     py: "1",
                     borderRadius: "sm",
                     border: "1px solid",
-                    borderColor: "white/10",
-                    color: "gray.400",
+                    borderColor: "border.light",
+                    color: { base: "gray.700", _dark: "gray.400" },
+                    bg: { base: "black/4", _dark: "transparent" },
                     ml: "auto",
                   })}
                 >
@@ -301,7 +310,7 @@ export const ActivePulsePanel = React.memo(
           className={css({
             p: { base: "4", md: "6" },
             borderBottom: "1px solid",
-            borderColor: "white/5",
+            borderColor: "border.light",
             display: "flex",
             flexDir: "column",
             gap: { base: "3", md: "6" },
@@ -320,7 +329,7 @@ export const ActivePulsePanel = React.memo(
                   fontSize: "3xl",
                   fontFamily: "tech",
                   fontWeight: "bold",
-                  color: "white",
+                  color: "text.main",
                   letterSpacing: "tight",
                 })}
               >
@@ -330,7 +339,7 @@ export const ActivePulsePanel = React.memo(
               <div
                 className={css({
                   fontSize: "sm",
-                  color: "gray.400",
+                  color: { base: "gray.600", _dark: "gray.400" },
                   mt: "1",
                   display: "flex",
                   alignItems: "center",
@@ -409,11 +418,11 @@ export const ActivePulsePanel = React.memo(
               <GlobeHemisphereEastIcon
                 weight="duotone"
                 size={64}
-                className={css({ color: "brand.orange", mb: 4, opacity: 0.7 })}
+                className={css({ color: "brand.orange", mb: 4, opacity: 0.8 })}
               />
               <h3
                 className={css({
-                  color: "white",
+                  color: "text.main",
                   fontSize: "xl",
                   fontWeight: "bold",
                   mb: 2,
@@ -423,7 +432,7 @@ export const ActivePulsePanel = React.memo(
               </h3>
               <p
                 className={css({
-                  color: "gray.400",
+                  color: "text.muted",
                   fontSize: "sm",
                   mb: 6,
                   maxWidth: "300px",
@@ -437,7 +446,7 @@ export const ActivePulsePanel = React.memo(
                 className={css({
                   w: "full",
                   bg: "brand.orange",
-                  color: "black",
+                  color: { base: "white", _dark: "black" },
                   px: "6",
                   py: "3",
                   borderRadius: "full",
@@ -449,7 +458,7 @@ export const ActivePulsePanel = React.memo(
                     transform: "scale(1.02)",
                   },
                   transition: "all 0.2s",
-                  boxShadow: "glow",
+                  boxShadow: { base: "0 4px 14px rgba(194, 65, 12, 0.35)", _dark: "glow" },
                   mb: 3,
                   display: "flex",
                   alignItems: "center",
@@ -463,17 +472,17 @@ export const ActivePulsePanel = React.memo(
                 onClick={() => setIsAddListingOpen(true)}
                 className={css({
                   w: "full",
-                  bg: "white/5",
+                  bg: { base: "black/5", _dark: "white/5" },
                   border: "1px solid",
-                  borderColor: "white/10",
-                  color: "white",
+                  borderColor: "border.light",
+                  color: "text.main",
                   px: "6",
                   py: "3",
                   borderRadius: "full",
                   fontSize: "sm",
                   fontWeight: "bold",
                   cursor: "pointer",
-                  _hover: { bg: "white/10" },
+                  _hover: { bg: { base: "black/10", _dark: "white/10" } },
                   transition: "all 0.2s",
                   display: "flex",
                   alignItems: "center",
@@ -505,12 +514,12 @@ export const ActivePulsePanel = React.memo(
                     className={css({
                       color: "brand.orange",
                       mb: 4,
-                      opacity: 0.7,
+                      opacity: 0.8,
                     })}
                   />
                   <h3
                     className={css({
-                      color: "white",
+                      color: "text.main",
                       fontSize: "lg",
                       fontWeight: "bold",
                       mb: 2,
@@ -520,7 +529,7 @@ export const ActivePulsePanel = React.memo(
                   </h3>
                   <p
                     className={css({
-                      color: "gray.400",
+                      color: "text.muted",
                       fontSize: "sm",
                       mb: 6,
                     })}
@@ -536,12 +545,12 @@ export const ActivePulsePanel = React.memo(
                     className={css({
                       color: "brand.orange",
                       mb: 4,
-                      opacity: 0.7,
+                      opacity: 0.8,
                     })}
                   />
                   <h3
                     className={css({
-                      color: "white",
+                      color: "text.main",
                       fontSize: "lg",
                       fontWeight: "bold",
                       mb: 2,
@@ -551,7 +560,7 @@ export const ActivePulsePanel = React.memo(
                   </h3>
                   <p
                     className={css({
-                      color: "gray.400",
+                      color: "text.muted",
                       fontSize: "sm",
                       mb: 6,
                     })}
@@ -563,7 +572,7 @@ export const ActivePulsePanel = React.memo(
                     onClick={() => setIsAddListingOpen(true)}
                     className={css({
                       bg: "brand.orange",
-                      color: "black",
+                      color: { base: "white", _dark: "black" },
                       px: "6",
                       py: "3",
                       borderRadius: "full",
@@ -575,7 +584,7 @@ export const ActivePulsePanel = React.memo(
                         transform: "scale(1.05)",
                       },
                       transition: "all 0.2s",
-                      boxShadow: "glow",
+                      boxShadow: { base: "0 4px 14px rgba(194, 65, 12, 0.35)", _dark: "glow" },
                     })}
                   >
                     <PlusIcon weight="bold" size={18} className="mr-2" /> Add a
@@ -594,7 +603,7 @@ export const ActivePulsePanel = React.memo(
                     flexShrink: 0,
                     fontSize: "xs",
                     fontFamily: "tech",
-                    color: "gray.500",
+                    color: { base: "gray.600", _dark: "gray.500" },
                   })}
                 >
                   {visibleListings.length < matchingCount

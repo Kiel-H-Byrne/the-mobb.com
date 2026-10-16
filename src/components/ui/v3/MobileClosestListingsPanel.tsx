@@ -54,10 +54,10 @@ export const MobileClosestListingsPanel = ({
                 <button
                     onClick={handleTabClick}
                     className={css({
-                        bg: "rgba(21, 21, 26, 0.9)",
+                        bg: { base: "rgba(255, 255, 255, 0.95)", _dark: "rgba(21, 21, 26, 0.9)" },
                         backdropFilter: "blur(12px)",
                         border: "1px solid",
-                        borderColor: "brand.orange/50",
+                        borderColor: { base: "rgba(0, 0, 0, 0.15)", _dark: "brand.orange/50" },
                         borderRight: "none",
                         borderTopLeftRadius: "xl",
                         borderBottomLeftRadius: "xl",
@@ -68,10 +68,10 @@ export const MobileClosestListingsPanel = ({
                         alignItems: "center",
                         justifyContent: "center",
                         gap: "2",
-                        boxShadow: "-5px 0 20px rgba(0,0,0,0.5)",
+                        boxShadow: { base: "-4px 0 16px rgba(0,0,0,0.1)", _dark: "-5px 0 20px rgba(0,0,0,0.5)" },
                         cursor: "pointer",
                         transition: "all 0.2s",
-                        _hover: { pr: "2", bg: "rgba(21, 21, 26, 1)" },
+                        _hover: { pr: "2", bg: { base: "rgba(255, 255, 255, 1)", _dark: "rgba(21, 21, 26, 1)" } },
                     })}
                 >
                     <i className="ph-fill ph-caret-left text-brand-orange text-xl"></i>
@@ -79,7 +79,7 @@ export const MobileClosestListingsPanel = ({
                         className={css({
                             writingMode: "vertical-rl",
                             textOrientation: "mixed",
-                            color: "white",
+                            color: "text.main",
                             fontFamily: "tech",
                             fontSize: "10px",
                             fontWeight: "bold",
@@ -122,11 +122,11 @@ export const MobileClosestListingsPanel = ({
                             position: "relative",
                             width: "100%", 
                             height: "60dvh",
-                            bg: "bg.glass",
+                            bg: "bg.glassCard",
                             borderTop: "1px solid",
-                            borderColor: "brand.orange/30",
+                            borderColor: "border.light",
                             borderTopRadius: "3xl",
-                            boxShadow: "0 -10px 40px rgba(0,0,0,0.5)",
+                            boxShadow: "0 -10px 40px rgba(0,0,0,0.3)",
                             display: "flex",
                             flexDirection: "column",
                             animation: "slideUp",
@@ -143,15 +143,15 @@ export const MobileClosestListingsPanel = ({
                                 w: "36px",
                                 h: "36px",
                                 borderRadius: "full",
-                                bg: "gray.800",
+                                bg: { base: "white", _dark: "gray.800" },
                                 border: "1px solid",
-                                borderColor: "brand.orange/50",
+                                borderColor: "border.light",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                color: "gray.300",
-                                boxShadow: "0 4px 10px rgba(0,0,0,0.5)",
-                                _hover: { color: "white", bg: "gray.700" },
+                                color: "text.main",
+                                boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+                                _hover: { color: "brand.orange", bg: { base: "gray.100", _dark: "gray.700" } },
                                 zIndex: 10,
                             })}
                         >
@@ -161,11 +161,11 @@ export const MobileClosestListingsPanel = ({
                         <div className={css({
                             p: "4",
                             borderBottom: "1px solid",
-                            borderColor: "white/10",
+                            borderColor: "border.light",
                             display: "flex",
                             justifyContent: "center",
                             alignItems: "center",
-                            bg: "rgba(11, 11, 14, 0.8)",
+                            bg: { base: "rgba(255, 255, 255, 0.9)", _dark: "rgba(11, 11, 14, 0.8)" },
                             borderTopRadius: "3xl",
                         })}>
                             <h2 className={css({ color: "brand.orange", fontFamily: "tech", fontSize: "sm", fontWeight: "bold", letterSpacing: "widest" })}>
@@ -181,7 +181,7 @@ export const MobileClosestListingsPanel = ({
                             flexDir: "column",
                             gap: "4",
                         })}>
-                            <p className={css({ fontSize: "xs", color: "gray.400", mb: "2" })}>
+                            <p className={css({ fontSize: "xs", color: "text.muted", mb: "2" })}>
                                 {totalCount !== undefined && totalCount > listings.length
                                     ? `The ${listings.length} nearest of ${totalCount.toLocaleString()} businesses.`
                                     : `Found ${listings.length} verified businesses in your sector.`}

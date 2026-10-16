@@ -30,12 +30,15 @@ export const EcosystemToggle = React.memo(({ activeView, setActiveView, hiddenOn
         alignItems: "center",
         gap: "1",
         p: "1.5",
-        bg: "rgba(11, 11, 14, 0.75)",
+        bg: { base: "rgba(255, 255, 255, 0.90)", _dark: "rgba(11, 11, 14, 0.75)" },
         backdropFilter: "blur(24px)",
         border: "1px solid",
-        borderColor: "white/10",
+        borderColor: "border.light",
         borderRadius: "full",
-        boxShadow: "0 20px 40px rgba(0,0,0,0.5)",
+        boxShadow: {
+          base: "0 10px 30px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05)",
+          _dark: "0 20px 40px rgba(0,0,0,0.5)",
+        },
         pointerEvents: { base: hiddenOnMobile ? "none" : "auto", md: "auto" },
       })}
     >
@@ -57,7 +60,7 @@ export const EcosystemToggle = React.memo(({ activeView, setActiveView, hiddenOn
               px: { base: "4", md: "6" },
               py: "3",
               borderRadius: "full",
-              color: isActive ? "black" : "gray.400",
+              color: isActive ? { base: "white", _dark: "black" } : { base: "gray.700", _dark: "gray.400" },
               fontFamily: "tech",
               fontSize: "xs",
               fontWeight: "bold",
@@ -66,7 +69,7 @@ export const EcosystemToggle = React.memo(({ activeView, setActiveView, hiddenOn
               cursor: "pointer",
               transition: "all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)",
               _hover: {
-                color: isActive ? "black" : "white",
+                color: isActive ? { base: "white", _dark: "black" } : { base: "text.main", _dark: "white" },
               },
             })}`}
           >
@@ -78,7 +81,10 @@ export const EcosystemToggle = React.memo(({ activeView, setActiveView, hiddenOn
                   inset: 0,
                   bg: "brand.orange",
                   borderRadius: "full",
-                  boxShadow: "0 0 20px rgba(255, 90, 0, 0.4)",
+                  boxShadow: {
+                    base: "0 4px 14px rgba(194, 65, 12, 0.35)",
+                    _dark: "0 0 20px rgba(255, 90, 0, 0.4)",
+                  },
                   zIndex: -1,
                 })}
               ></div>
@@ -101,10 +107,10 @@ export const EcosystemToggle = React.memo(({ activeView, setActiveView, hiddenOn
 
             <div
               className={css({
-                color: isActive ? "black" : "brand.orange",
+                color: isActive ? { base: "white", _dark: "black" } : "brand.orange",
                 transition: "color 0.3s",
                 _groupHover: {
-                  color: isActive ? "black" : "brand.orangeHover",
+                  color: isActive ? { base: "white", _dark: "black" } : "brand.orangeHover",
                 },
               })}
             >

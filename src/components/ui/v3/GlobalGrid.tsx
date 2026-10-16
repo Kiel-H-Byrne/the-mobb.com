@@ -48,7 +48,7 @@ export const GlobalGrid = () => {
               fontSize: { base: "4xl", md: "6xl" },
               fontFamily: "tech",
               fontWeight: "bold",
-              color: "white",
+              color: "text.main",
               mb: "4",
             })}
           >
@@ -57,7 +57,7 @@ export const GlobalGrid = () => {
           </h1>
           <p
             className={css({
-              color: "gray.400",
+              color: "text.muted",
               mb: "8",
               maxW: "2xl",
               fontSize: { base: "md", md: "lg" },

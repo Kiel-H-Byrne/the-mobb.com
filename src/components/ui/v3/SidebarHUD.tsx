@@ -51,7 +51,7 @@ const SidebarHUD = ({ activeNav = "nearme", onNearMeClick, onExploreClick, onSav
             {/* Functional App Logo Avatar */}
             <div className={css({
                 width: "40px", height: "40px", borderRadius: "full",
-                bg: "brand.surface", border: "1px solid", borderColor: "white/10",
+                bg: { base: "black/5", _dark: "brand.surface" }, border: "1px solid", borderColor: "border.light",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 flexShrink: 0, overflow: "hidden", cursor: "pointer", _hover: { borderColor: "brand.orange" }
             })}>
@@ -122,9 +122,11 @@ const SidebarHUD = ({ activeNav = "nearme", onNearMeClick, onExploreClick, onSav
                     onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                     className={css({
                         width: "36px", height: "36px", borderRadius: "full",
-                        bg: "border.light", border: "1px solid", borderColor: "border.light",
+                        bg: { base: "black/5", _dark: "border.light" },
+                        border: "1px solid", borderColor: "border.light",
                         display: "flex", alignItems: "center", justifyContent: "center",
-                        color: "text.muted", cursor: "pointer", _hover: { color: "text.main", bg: "bg.surface" },
+                        color: "text.muted", cursor: "pointer",
+                        _hover: { color: "text.main", bg: { base: "black/10", _dark: "bg.surface" } },
                         transition: "all 0.3s"
                     })}
                     title="Toggle Theme"

@@ -41,10 +41,10 @@ export const MobileSavedListingsPanel = ({
                 <button
                     onClick={() => setIsOpen(true)}
                     className={css({
-                        bg: "rgba(21, 21, 26, 0.9)",
+                        bg: { base: "rgba(255, 255, 255, 0.95)", _dark: "rgba(21, 21, 26, 0.9)" },
                         backdropFilter: "blur(12px)",
                         border: "1px solid",
-                        borderColor: "white/20",
+                        borderColor: { base: "rgba(0, 0, 0, 0.15)", _dark: "white/20" },
                         borderRight: "none",
                         borderTopLeftRadius: "xl",
                         borderBottomLeftRadius: "xl",
@@ -55,18 +55,18 @@ export const MobileSavedListingsPanel = ({
                         alignItems: "center",
                         justifyContent: "center",
                         gap: "2",
-                        boxShadow: "-5px 0 20px rgba(0,0,0,0.5)",
+                        boxShadow: { base: "-4px 0 16px rgba(0,0,0,0.1)", _dark: "-5px 0 20px rgba(0,0,0,0.5)" },
                         cursor: "pointer",
                         transition: "all 0.2s",
-                        _hover: { pr: "2", bg: "rgba(21, 21, 26, 1)" },
+                        _hover: { pr: "2", bg: { base: "rgba(255, 255, 255, 1)", _dark: "rgba(21, 21, 26, 1)" } },
                     })}
                 >
-                    <BookmarksIcon weight="fill" size={20} className={css({ color: "gray.300" })} />
+                    <BookmarksIcon weight="fill" size={20} className={css({ color: "brand.orange" })} />
                     <span
                         className={css({
                             writingMode: "vertical-rl",
                             textOrientation: "mixed",
-                            color: "gray.300",
+                            color: "text.main",
                             fontFamily: "tech",
                             fontSize: "10px",
                             fontWeight: "bold",
@@ -76,7 +76,7 @@ export const MobileSavedListingsPanel = ({
                     >
                         SAVED
                     </span>
-                    <div className={css({ w: "6px", h: "6px", borderRadius: "full", bg: "gray.300", animation: "pulseSlow" })}></div>
+                    <div className={css({ w: "6px", h: "6px", borderRadius: "full", bg: "brand.orange", animation: "pulseSlow" })}></div>
                 </button>
             </div>
 
@@ -109,11 +109,11 @@ export const MobileSavedListingsPanel = ({
                             position: "relative",
                             width: "100%",
                             height: "60dvh",
-                            bg: "bg.glass",
+                            bg: "bg.glassCard",
                             borderTop: "1px solid",
-                            borderColor: "white/20",
+                            borderColor: "border.light",
                             borderTopRadius: "3xl",
-                            boxShadow: "0 -10px 40px rgba(0,0,0,0.5)",
+                            boxShadow: "0 -10px 40px rgba(0,0,0,0.3)",
                             display: "flex",
                             flexDirection: "column",
                             animation: "slideUp",
@@ -130,15 +130,15 @@ export const MobileSavedListingsPanel = ({
                                 w: "36px",
                                 h: "36px",
                                 borderRadius: "full",
-                                bg: "gray.800",
+                                bg: { base: "white", _dark: "gray.800" },
                                 border: "1px solid",
-                                borderColor: "white/20",
+                                borderColor: "border.light",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                color: "gray.300",
-                                boxShadow: "0 4px 10px rgba(0,0,0,0.5)",
-                                _hover: { color: "white", bg: "gray.700" },
+                                color: "text.main",
+                                boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+                                _hover: { color: "brand.orange", bg: { base: "gray.100", _dark: "gray.700" } },
                                 zIndex: 10,
                             })}
                         >
@@ -148,14 +148,14 @@ export const MobileSavedListingsPanel = ({
                         <div className={css({
                             p: "4",
                             borderBottom: "1px solid",
-                            borderColor: "white/10",
+                            borderColor: "border.light",
                             display: "flex",
                             justifyContent: "center",
                             alignItems: "center",
-                            bg: "rgba(11, 11, 14, 0.8)",
+                            bg: { base: "rgba(255, 255, 255, 0.9)", _dark: "rgba(11, 11, 14, 0.8)" },
                             borderTopRadius: "3xl",
                         })}>
-                            <h2 className={css({ color: "white", fontFamily: "tech", fontSize: "sm", fontWeight: "bold", letterSpacing: "widest" })}>
+                            <h2 className={css({ color: "text.main", fontFamily: "tech", fontSize: "sm", fontWeight: "bold", letterSpacing: "widest" })}>
                                 SAVED BOOKMARKS
                             </h2>
                         </div>
@@ -170,7 +170,7 @@ export const MobileSavedListingsPanel = ({
                         })}>
                             {listings?.length > 0 ? (
                                 <>
-                                    <p className={css({ fontSize: "xs", color: "gray.400", mb: "2" })}>
+                                    <p className={css({ fontSize: "xs", color: "text.muted", mb: "2" })}>
                                         You have {listings.length} saved business{listings.length !== 1 && 'es'}.
                                     </p>
 
@@ -186,14 +186,14 @@ export const MobileSavedListingsPanel = ({
                                     ))}
                                 </>
                             ) : (
-                                <div className={css({ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", h: "full", textAlign: "center", color: "gray.400", gap: "4", px: "6" })}>
-                                    <div className={css({ w: "16", h: "16", borderRadius: "full", bg: "white/5", display: "flex", alignItems: "center", justifyContent: "center", color: "gray.500" })}>
+                                <div className={css({ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", h: "full", textAlign: "center", color: "text.muted", gap: "4", px: "6" })}>
+                                    <div className={css({ w: "16", h: "16", borderRadius: "full", bg: { base: "black/5", _dark: "white/5" }, display: "flex", alignItems: "center", justifyContent: "center", color: "text.muted" })}>
                                         <BookmarksIcon weight="duotone" size={32} />
                                     </div>
-                                    <p className={css({ fontSize: "sm", lineHeight: "relaxed" })}>
+                                    <p className={css({ fontSize: "sm", lineHeight: "relaxed", color: "text.main" })}>
                                         You haven't saved any businesses yet.
                                     </p>
-                                    <div className={css({ fontSize: "xs", bg: "rgba(255,255,255,0.03)", p: "3", borderRadius: "lg", border: "1px solid white/5", display: "flex", alignItems: "center", justifyContent: "center", gap: "1" })}>
+                                    <div className={css({ fontSize: "xs", bg: { base: "black/4", _dark: "rgba(255,255,255,0.03)" }, p: "3", borderRadius: "lg", border: "1px solid", borderColor: "border.light", display: "flex", alignItems: "center", justifyContent: "center", gap: "1", color: "text.muted" })}>
                                         Tap the <BookmarkIcon weight="bold" size={14} className={css({ color: "brand.orange" })} /> bookmark icon on any business profile to save it here for quick access later.
                                     </div>
                                 </div>

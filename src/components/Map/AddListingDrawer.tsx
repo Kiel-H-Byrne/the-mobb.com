@@ -354,7 +354,7 @@ const AddListingDrawer = ({
               className={css({
                 fontSize: "xl",
                 fontWeight: "bold",
-                color: "brand.grey",
+                color: "text.main",
               })}
             >
               {mode === "edit" ? "Edit Listing" : "Add a Listing"}

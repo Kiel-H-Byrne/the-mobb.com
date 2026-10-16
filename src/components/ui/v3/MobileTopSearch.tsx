@@ -77,16 +77,19 @@ export const MobileTopSearch = ({
             width: "44px",
             height: "44px",
             borderRadius: "2xl",
-            bg: "#15151A",
+            bg: { base: "#FFFFFF", _dark: "#15151A" },
             border: "1px solid",
-            borderColor: "white/10",
+            borderColor: "border.light",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             flexShrink: 0,
-            boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+            boxShadow: {
+              base: "0 4px 16px rgba(0,0,0,0.08)",
+              _dark: "0 4px 16px rgba(0,0,0,0.4)",
+            },
             cursor: "pointer",
-            _hover: { borderColor: "brand.orange/50" },
+            _hover: { borderColor: "brand.orange" },
             transition: "all 0.2s",
           })}
         >
