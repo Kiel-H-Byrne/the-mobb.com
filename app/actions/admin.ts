@@ -7,6 +7,7 @@ import { runScout, ScoutResult } from "@/util/scout";
 import { Db, ObjectId } from "mongodb";
 import { revalidatePath } from "next/cache";
 
+import { getCurrentUser } from "@app/actions/user-auth";
 // Temporary Simple Auth Mock
 import { cookies } from "next/headers";
 
@@ -25,10 +26,14 @@ function normalizeAddress(address: any) {
 export async function checkAdmin() {
   const cookieStore = await cookies();
   const isAdmin = cookieStore.get("mobb_admin_token");
-  if (!isAdmin || isAdmin.value !== "true") {
-    return false;
+  if (isAdmin && isAdmin.value === "true") {
+    return true;
   }
-  return true;
+  const user = await getCurrentUser();
+  if (user && user.role === "ADMIN") {
+    return true;
+  }
+  return false;
 }
 
 export async function loginAdmin(password: string) {
