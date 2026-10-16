@@ -1,3 +1,6 @@
+import { Listing } from "@/db/Types";
+import { CategoryCount } from "@/util/categories";
+import { DirectoryLocation } from "@/util/location";
 import {
   DirectoryScope,
   countGlobalListings,
@@ -5,9 +8,6 @@ import {
   fetchGlobalListings,
   fetchOnlineOnlyListings,
 } from "@app/actions/geo-search";
-import { Listing } from "@/db/Types";
-import { CategoryCount } from "@/util/categories";
-import { DirectoryLocation } from "@/util/location";
 import { ArrowUpIcon, SpinnerGapIcon } from "@phosphor-icons/react";
 import { css } from "@styled/css";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
@@ -40,7 +40,8 @@ const SkeletonCard = ({ tall }: { tall?: boolean }) => (
       borderColor: "border.light",
       bg: {
         base: "linear-gradient(90deg, rgba(0,0,0,0.04) 25%, rgba(0,0,0,0.08) 50%, rgba(0,0,0,0.04) 75%)",
-        _dark: "linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.03) 75%)"
+        _dark:
+          "linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.03) 75%)",
       },
       backgroundSize: "200% 100%",
       animation: "shimmer",
@@ -250,7 +251,7 @@ export const DirectoryView = ({
         inset: 0,
         zIndex: 5,
         overflowY: "auto",
-        pt: { base: "10", md: "28" },
+        pt: { base: "0", md: "20" },
         pb: "32",
         px: { base: "4", md: "12" },
         bg: "bg.canvas",
@@ -265,16 +266,19 @@ export const DirectoryView = ({
         <div
           className={css({
             position: "sticky",
-            top: { base: "0", md: "24" },
+            top: { base: "0", md: "0" },
             zIndex: 10,
             mx: { base: "-4", md: "-12" },
             px: { base: "4", md: "12" },
             py: "4",
             mb: "6",
-            bg: { base: "rgba(248, 249, 250, 0.92)", _dark: "rgba(11, 11, 14, 0.85)" },
+            bg: {
+              base: "rgba(248, 249, 250, 0.92)",
+              _dark: "rgba(11, 11, 14, 0.85)",
+            },
             backdropFilter: "blur(16px)",
             borderBottom: "1px solid",
-            borderColor: "border.light",
+            borderColor: "border.neon",
           })}
         >
           <div
@@ -495,7 +499,7 @@ export const DirectoryView = ({
           top: 0,
           left: 0,
           right: 0,
-          h: "24",
+          h: "20",
           zIndex: 9,
           bg: "bg.canvas",
           pointerEvents: "none",
@@ -519,12 +523,18 @@ export const DirectoryView = ({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            bg: { base: "rgba(255, 255, 255, 0.95)", _dark: "rgba(21, 21, 26, 0.9)" },
+            bg: {
+              base: "rgba(255, 255, 255, 0.95)",
+              _dark: "rgba(21, 21, 26, 0.9)",
+            },
             backdropFilter: "blur(12px)",
             border: "1px solid",
             borderColor: "border.light",
             color: "text.main",
-            boxShadow: { base: "0 4px 14px rgba(0,0,0,0.12)", _dark: "0 4px 14px rgba(0,0,0,0.5)" },
+            boxShadow: {
+              base: "0 4px 14px rgba(0,0,0,0.12)",
+              _dark: "0 4px 14px rgba(0,0,0,0.5)",
+            },
             cursor: "pointer",
             animation: "fadeIn",
             _hover: { borderColor: "brand.orange", color: "brand.orange" },
