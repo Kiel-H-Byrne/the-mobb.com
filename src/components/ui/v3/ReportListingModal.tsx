@@ -168,11 +168,11 @@ export const ReportListingModal = () => {
                   color: "brand.orange",
                 })}
               >
-                COMMUNITY MODERATION
+                COMMUNITY UPDATE
               </span>
             </div>
             <h2 className={css({ fontSize: "xl", fontWeight: "bold", color: "text.main" })}>
-              Report Inaccuracy
+              Suggest an Edit
             </h2>
           </div>
           <button

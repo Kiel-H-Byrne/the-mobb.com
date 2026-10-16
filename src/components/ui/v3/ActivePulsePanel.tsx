@@ -565,8 +565,7 @@ export const ActivePulsePanel = React.memo(
                       mb: 6,
                     })}
                   >
-                    We couldn't locate any businesses matching these parameters
-                    in this area.
+                    We couldn&apos;t find any businesses in this category nearby.
                   </p>
                   <button
                     onClick={() => setIsAddListingOpen(true)}

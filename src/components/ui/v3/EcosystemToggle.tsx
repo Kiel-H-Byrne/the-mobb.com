@@ -45,8 +45,8 @@ export const EcosystemToggle = React.memo(({ activeView, setActiveView, hiddenOn
       })}
     >
       {[
-        { id: "RADAR", label: "Local Radar", icon: <TargetIcon weight={activeView === "RADAR" ? "fill" : "regular"} size={20} /> },
-        { id: "GRID", label: "Global Grid", icon: <GridFourIcon weight={activeView === "GRID" ? "fill" : "regular"} size={20} /> },
+        { id: "RADAR", label: "Local Map", icon: <TargetIcon weight={activeView === "RADAR" ? "fill" : "regular"} size={20} /> },
+        { id: "GRID", label: "Directory", icon: <GridFourIcon weight={activeView === "GRID" ? "fill" : "regular"} size={20} /> },
         { id: "ORBIT", label: "Online Only", icon: <GlobeHemisphereWestIcon weight={activeView === "ORBIT" ? "fill" : "regular"} size={20} /> }
       ].map((item) => {
         const viewId = item.id as ViewMode;

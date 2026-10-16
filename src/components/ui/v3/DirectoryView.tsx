@@ -355,7 +355,7 @@ export const DirectoryView = ({
             })}
           >
             <p className={css({ fontSize: "lg", color: "text.main", mb: "2" })}>
-              No {noun} match these filters.
+              We couldn&apos;t find any {noun} matching these filters.
             </p>
             <button
               onClick={clearAll}
@@ -478,7 +478,7 @@ export const DirectoryView = ({
                     fontFamily: "tech",
                   })}
                 >
-                  You&apos;ve reached the end.
+                  You&apos;ve seen all the {noun} in this list.
                 </span>
               )
             )}
