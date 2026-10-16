@@ -135,18 +135,22 @@ const MapAutoComplete = ({
       <div className={css({
         position: "relative",
         display: "flex", alignItems: "center",
-        bg: "#15151A", borderRadius: "2xl",
-        border: "1px solid", borderColor: "white/10",
+        bg: { base: "rgba(255, 255, 255, 0.95)", _dark: "#15151A" },
+        borderRadius: "2xl",
+        border: "1px solid",
+        borderColor: "border.light",
+        boxShadow: { base: "0 4px 20px rgba(0,0,0,0.06)", _dark: "none" },
         px: "4", py: "3",
-        _focusWithin: { borderColor: "brand.orange/50" }, transition: "colors"
+        _focusWithin: { borderColor: "brand.orange" },
+        transition: "all 0.2s"
       })}>
         <MagnifyingGlassIcon size={20} className={css({ color: "brand.orange", mr: 3 })} />
         <input
           ref={inputRef}
           className={css({
             flex: "1", bg: "transparent", border: "none", outline: "none",
-            color: "white", fontFamily: "body", fontSize: "sm",
-            _placeholder: { color: "gray.500" }
+            color: "text.main", fontFamily: "body", fontSize: "sm",
+            _placeholder: { color: { base: "gray.500", _dark: "gray.500" } }
           })}
           placeholder={`Search all businesses...`}
           aria-label="Search The MOBB"
@@ -158,7 +162,12 @@ const MapAutoComplete = ({
         />
         <div className={css({
           display: { base: "none", md: "flex" }, alignItems: "center", gap: "2", fontSize: "xs",
-          fontFamily: "tech", color: "gray.500", bg: "white/5", px: "2", py: "1", borderRadius: "md"
+          fontFamily: "tech",
+          color: { base: "gray.600", _dark: "gray.400" },
+          bg: { base: "black/5", _dark: "white/5" },
+          border: "1px solid",
+          borderColor: { base: "black/10", _dark: "white/10" },
+          px: "2", py: "1", borderRadius: "md"
         })}>
           {isMac ? (
             <>
@@ -174,8 +183,11 @@ const MapAutoComplete = ({
       {isMenuOpen && (
         <div className={css({
           position: "absolute", top: "calc(100% + 8px)", left: "0", width: "100%",
-          backgroundColor: "#15151A", border: "1px solid", borderColor: "white/10",
-          boxShadow: "glow", borderRadius: "xl", overflow: "hidden", zIndex: 1300
+          backgroundColor: { base: "#FFFFFF", _dark: "#15151A" },
+          border: "1px solid",
+          borderColor: "border.light",
+          boxShadow: { base: "0 10px 30px rgba(0,0,0,0.12)", _dark: "glow" },
+          borderRadius: "xl", overflow: "hidden", zIndex: 1300
         })}>
           <div className={css({ maxHeight: "300px", overflowY: "auto" })}>
             {filtered.length > 0 ? (
@@ -184,10 +196,14 @@ const MapAutoComplete = ({
                   key={listing._id}
                   onClick={() => handleSelect(index)}
                   className={css({
-                    padding: "3", cursor: "pointer", color: "white", display: "flex", alignItems: "center", gap: "3",
-                    borderBottom: "1px solid", borderColor: "white/5",
-                    backgroundColor: index === active ? "rgba(255, 90, 0, 0.15)" : "transparent",
-                    _hover: { backgroundColor: "rgba(255, 90, 0, 0.2)" }, transition: "background 0.2s"
+                    padding: "3", cursor: "pointer",
+                    color: "text.main",
+                    display: "flex", alignItems: "center", gap: "3",
+                    borderBottom: "1px solid",
+                    borderColor: { base: "black/5", _dark: "white/5" },
+                    backgroundColor: index === active ? { base: "rgba(194, 65, 12, 0.1)", _dark: "rgba(255, 90, 0, 0.15)" } : "transparent",
+                    _hover: { backgroundColor: { base: "rgba(194, 65, 12, 0.15)", _dark: "rgba(255, 90, 0, 0.2)" } },
+                    transition: "background 0.2s"
                   })}
                 >
                   <MapPinIcon weight="fill" size={16} className={css({ color: "brand.orange" })} />
@@ -195,7 +211,7 @@ const MapAutoComplete = ({
                 </div>
               ))
             ) : (
-              <div className={css({ padding: "4", fontSize: "sm", color: "gray.500", textAlign: "center" })}>
+              <div className={css({ padding: "4", fontSize: "sm", color: { base: "gray.600", _dark: "gray.400" }, textAlign: "center" })}>
                 {input.length > 2 ? "No matching entities found." : `Enter ${3 - input.length} more character${(3 - input.length) > 1 ? 's' : ''}`}
               </div>
             )}

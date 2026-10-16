@@ -55,8 +55,10 @@ const RadarOverlay = () => {
           w: "full",
           h: "full",
           borderRadius: "full",
-          background:
-            "conic-gradient(from 0deg, transparent 70%, rgba(255, 90, 0, 0.4) 100%)",
+          background: {
+            base: "conic-gradient(from 0deg, transparent 70%, rgba(194, 65, 12, 0.25) 100%)",
+            _dark: "conic-gradient(from 0deg, transparent 70%, rgba(255, 90, 0, 0.4) 100%)",
+          },
           animation: isMapActive ? "radarSpin" : "none",
           pointerEvents: "none",
         })}
@@ -198,13 +200,13 @@ const FloatingAddButton = ({ inStack = false }: { inStack?: boolean }) => {
           borderRadius: "full",
           bg: "brand.orange",
           border: "2px solid",
-          borderColor: "rgba(255, 90, 0, 0.3)",
-          boxShadow: "0 0 20px rgba(255,90,0,0.6)",
+          borderColor: { base: "rgba(194, 65, 12, 0.4)", _dark: "rgba(255, 90, 0, 0.3)" },
+          boxShadow: { base: "0 4px 16px rgba(194,65,12,0.4)", _dark: "0 0 20px rgba(255,90,0,0.6)" },
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           cursor: "pointer",
-          color: "black",
+          color: { base: "white", _dark: "black" },
           _hover: { transform: "scale(1.05)", filter: "brightness(1.1)" },
           transition: "all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
         })}
@@ -394,8 +396,10 @@ const ClientHome = React.memo(
             className={css({
               position: "absolute",
               inset: 0,
-              background:
-                "linear-gradient(to top, #0B0B0E, transparent, #0B0B0E)",
+              background: {
+                base: "linear-gradient(to top, rgba(248, 249, 250, 0.75), transparent 25%, transparent 75%, rgba(248, 249, 250, 0.75))",
+                _dark: "linear-gradient(to top, #0B0B0E, transparent, #0B0B0E)",
+              },
               pointerEvents: "none",
             })}
           />

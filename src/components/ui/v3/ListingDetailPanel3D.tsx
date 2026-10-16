@@ -103,7 +103,7 @@ export const ListingDetailPanel3D = ({
             })}
         >
             {/* Header / Dismiss */}
-            <div className={css({ p: "4", borderBottom: "1px solid", borderColor: "white/10", display: "flex", justifyContent: "space-between", alignItems: "center", bg: "rgba(11, 11, 14, 0.4)" })}>
+            <div className={css({ p: "4", borderBottom: "1px solid", borderColor: "border.light", display: "flex", justifyContent: "space-between", alignItems: "center", bg: { base: "rgba(255, 255, 255, 0.8)", _dark: "rgba(11, 11, 14, 0.4)" } })}>
                 <h2 className={css({ color: "brand.orange", fontFamily: "tech", fontSize: "sm", letterSpacing: "widest" })}>
                     BUSINESS DETAILS
                 </h2>
@@ -111,7 +111,7 @@ export const ListingDetailPanel3D = ({
                     <button
                         onClick={handleOpenReport}
                         className={css({
-                            color: "gray.400",
+                            color: { base: "gray.600", _dark: "gray.400" },
                             cursor: "pointer",
                             bg: "transparent",
                             border: "none",
@@ -125,11 +125,11 @@ export const ListingDetailPanel3D = ({
                     <button
                         onClick={toggleSave}
                         className={css({
-                            color: isSaved ? "brand.orange" : "gray.400",
+                            color: isSaved ? "brand.orange" : { base: "gray.600", _dark: "gray.400" },
                             cursor: "pointer",
                             bg: "transparent",
                             border: "none",
-                            _hover: { color: isSaved ? "brand.orangeMuted" : "white", transform: "scale(1.1)" },
+                            _hover: { color: isSaved ? "brand.orangeMuted" : "text.main", transform: "scale(1.1)" },
                             transition: "all 0.2s"
                         })}
                         title={isSaved ? "Remove from Saved" : "Save Business"}
@@ -139,11 +139,11 @@ export const ListingDetailPanel3D = ({
                     <button
                         onClick={() => setOpen(false)}
                         className={css({
-                            color: "gray.400",
+                            color: { base: "gray.600", _dark: "gray.400" },
                             cursor: "pointer",
                             bg: "transparent",
                             border: "none",
-                            _hover: { color: "white", transform: "scale(1.1)" },
+                            _hover: { color: "text.main", transform: "scale(1.1)" },
                             transition: "all 0.2s"
                         })}
                     >
@@ -154,8 +154,8 @@ export const ListingDetailPanel3D = ({
 
             <div className={css({ flex: "1", overflowY: "auto", pb: "6" })}>
                 {/* Holographic Image Frame */}
-                <div className={css({ position: "relative", w: "full", h: "240px", bg: "brand.greyDark", overflow: "hidden" })}>
-                    <div className={css({ position: "absolute", inset: 0, bg: "linear-gradient(to bottom, transparent, #0B0B0E)", zIndex: 1 })} />
+                <div className={css({ position: "relative", w: "full", h: "240px", bg: { base: "gray.100", _dark: "brand.greyDark" }, overflow: "hidden" })}>
+                    <div className={css({ position: "absolute", inset: 0, bg: { base: "linear-gradient(to bottom, transparent, rgba(255,255,255,0.9))", _dark: "linear-gradient(to bottom, transparent, #0B0B0E)" }, zIndex: 1 })} />
                     <a
                         href={url}
                         title="Listing Image"
@@ -170,7 +170,7 @@ export const ListingDetailPanel3D = ({
                     </a>
                     {/* Overlay Tech Grid */}
                     <div className={css({ position: "absolute", top: 4, right: 4, zIndex: 2, display: "flex", gap: "2" })}>
-                        <span className={css({ bg: "brand.orangeMuted", color: "brand.orange", px: "3", py: "1", borderRadius: "full", fontSize: "xs", fontWeight: "bold", fontFamily: "tech", border: "1px solid rgba(255,90,0,0.3)" })}>
+                        <span className={css({ bg: "brand.orangeMuted", color: "brand.orange", px: "3", py: "1", borderRadius: "full", fontSize: "xs", fontWeight: "bold", fontFamily: "tech", border: "1px solid", borderColor: { base: "rgba(194,65,12,0.3)", _dark: "rgba(255,90,0,0.3)" } })}>
                             Verified
                         </span>
                     </div>
@@ -179,17 +179,17 @@ export const ListingDetailPanel3D = ({
                 {/* Content Body */}
                 <div className={css({ p: "4", display: "flex", flexDirection: "column", gap: "4" })}>
                     <div>
-                        <h1 className={css({ fontSize: "2xl", fontWeight: "bold", color: "white", lineHeight: "tight", mb: "2", textShadow: "0 0 20px rgba(255,255,255,0.1)" })}>
+                        <h1 className={css({ fontSize: "2xl", fontWeight: "bold", color: "text.main", lineHeight: "tight", mb: "2" })}>
                             {name || og_title}
                         </h1>
-                        <p className={css({ color: "gray.400", fontSize: "sm", lineHeight: "relaxed" })}>
+                        <p className={css({ color: "text.muted", fontSize: "sm", lineHeight: "relaxed" })}>
                             {description || og_description || "No description available for this business."}
                         </p>
                     </div>
 
                     <div className={css({ display: "flex", flexWrap: "wrap", gap: "2" })}>
                         {categories?.map((cat, idx) => (
-                            <span key={idx} className={css({ fontSize: "xs", px: "3", py: "1", borderRadius: "md", border: "1px solid", borderColor: "white/10", color: "gray.300", bg: "rgba(255,255,255,0.05)" })}>
+                            <span key={idx} className={css({ fontSize: "xs", px: "3", py: "1", borderRadius: "md", border: "1px solid", borderColor: "border.light", color: { base: "gray.700", _dark: "gray.300" }, bg: { base: "black/5", _dark: "rgba(255,255,255,0.05)" } })}>
                                 <TagIcon weight="fill" size={14} className={css({ color: "brand.orange", mr: 1, display: "inline-block", verticalAlign: "middle" })} />
                                 {cat.replace(/_/g, " ")}
                             </span>
@@ -202,23 +202,23 @@ export const ListingDetailPanel3D = ({
                             onClick={() => {
                                 if (phone) trackClickThrough(listing, "phone", phone);
                             }}
-                            className={css({ display: "flex", alignItems: "center", gap: "3", color: "white", textDecoration: "none", p: "3", borderRadius: "lg", bg: "rgba(255,255,255,0.03)", border: "1px solid transparent", _hover: { borderColor: "brand.orange/50", bg: "brand.orangeMuted" }, transition: "all 0.2s" })}
+                            className={css({ display: "flex", alignItems: "center", gap: "3", color: "text.main", textDecoration: "none", p: "3", borderRadius: "lg", bg: { base: "black/4", _dark: "rgba(255,255,255,0.03)" }, border: "1px solid", borderColor: "border.light", _hover: { borderColor: "brand.orange", bg: "brand.orangeMuted" }, transition: "all 0.2s" })}
                         >
-                            <div className={css({ display: "flex", alignItems: "center", justifyContent: "center", w: "10", h: "10", borderRadius: "full", bg: "brand.greyDark", color: "brand.orange" })}>
+                            <div className={css({ display: "flex", alignItems: "center", justifyContent: "center", w: "10", h: "10", borderRadius: "full", bg: { base: "black/5", _dark: "brand.greyDark" }, color: "brand.orange" })}>
                                 <PhoneIcon weight="fill" size={18} />
                             </div>
                             <div className={css({ flex: 1 })}>
-                                <div className={css({ fontSize: "xs", color: "gray.500", textTransform: "uppercase", letterSpacing: "wider", mb: "0.5" })}>Contact</div>
+                                <div className={css({ fontSize: "xs", color: { base: "gray.600", _dark: "gray.500" }, textTransform: "uppercase", letterSpacing: "wider", mb: "0.5" })}>Contact</div>
                                 <div className={css({ fontSize: "sm", fontWeight: "bold", letterSpacing: "widest" })}>{phone || "N/A"}</div>
                             </div>
                         </a>
 
-                        <div className={css({ display: "flex", alignItems: "center", gap: "3", color: "white", p: "3", borderRadius: "lg", bg: "rgba(255,255,255,0.03)" })}>
-                            <div className={css({ display: "flex", alignItems: "center", justifyContent: "center", w: "10", h: "10", borderRadius: "full", bg: "brand.greyDark", color: "brand.orange" })}>
+                        <div className={css({ display: "flex", alignItems: "center", gap: "3", color: "text.main", p: "3", borderRadius: "lg", bg: { base: "black/4", _dark: "rgba(255,255,255,0.03)" }, border: "1px solid", borderColor: "border.light" })}>
+                            <div className={css({ display: "flex", alignItems: "center", justifyContent: "center", w: "10", h: "10", borderRadius: "full", bg: { base: "black/5", _dark: "brand.greyDark" }, color: "brand.orange" })}>
                                 <MapPinIcon weight="fill" size={18} />
                             </div>
                             <div className={css({ flex: 1 })}>
-                                <div className={css({ fontSize: "xs", color: "gray.500", textTransform: "uppercase", letterSpacing: "wider", mb: "0.5" })}>Address</div>
+                                <div className={css({ fontSize: "xs", color: { base: "gray.600", _dark: "gray.500" }, textTransform: "uppercase", letterSpacing: "wider", mb: "0.5" })}>Address</div>
                                 <div className={css({ fontSize: "sm", lineHeight: "1.4" })}>{address}</div>
                             </div>
                         </div>
@@ -233,10 +233,10 @@ export const ListingDetailPanel3D = ({
                             className={css({
                                 display: "flex", alignItems: "center", justifyContent: "center", gap: "2",
                                 w: "full", py: "4", borderRadius: "xl",
-                                bg: "brand.orange", color: "white",
+                                bg: "brand.orange", color: { base: "white", _dark: "black" },
                                 fontWeight: "bold", fontSize: "md",
                                 textDecoration: "none", cursor: "pointer",
-                                boxShadow: "glow", border: "1px solid rgba(255,255,255,0.2)",
+                                boxShadow: { base: "0 4px 14px rgba(194, 65, 12, 0.35)", _dark: "glow" }, border: "1px solid", borderColor: { base: "rgba(194, 65, 12, 0.3)", _dark: "rgba(255,255,255,0.2)" },
                                 transition: "all 0.2s", _hover: { filter: "brightness(1.1)", transform: "translateY(-2px)" }
                             })}
                         >
@@ -252,12 +252,12 @@ export const ListingDetailPanel3D = ({
                                 className={css({
                                     display: "flex", alignItems: "center", justifyContent: "center", gap: "2",
                                     w: "full", py: "3", borderRadius: "xl",
-                                    bg: "rgba(255,255,255,0.06)", color: "white",
+                                    bg: { base: "black/5", _dark: "rgba(255,255,255,0.06)" }, color: "text.main",
                                     fontWeight: "600", fontSize: "sm",
                                     textDecoration: "none", cursor: "pointer",
-                                    border: "1px solid", borderColor: "white/10",
+                                    border: "1px solid", borderColor: "border.light",
                                     transition: "all 0.2s",
-                                    _hover: { bg: "rgba(255,255,255,0.12)", borderColor: "brand.orange/50", transform: "translateY(-1px)" }
+                                    _hover: { bg: { base: "black/10", _dark: "rgba(255,255,255,0.12)" }, borderColor: "brand.orange", transform: "translateY(-1px)" }
                                 })}
                             >
                                 <GlobeIcon weight="bold" size={18} /> Visit Website

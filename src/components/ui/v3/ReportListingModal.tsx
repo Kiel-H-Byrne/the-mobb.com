@@ -136,12 +136,12 @@ export const ReportListingModal = () => {
         className={css({
           w: "full",
           maxW: "460px",
-          bg: "bg.glass",
+          bg: { base: "rgba(255, 255, 255, 0.98)", _dark: "bg.glass" },
           backdropFilter: "blur(24px)",
           border: "1px solid",
-          borderColor: "white/15",
+          borderColor: "border.light",
           borderRadius: "2xl",
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.7)",
+          boxShadow: { base: "0 25px 50px -12px rgba(0, 0, 0, 0.25)", _dark: "0 25px 50px -12px rgba(0, 0, 0, 0.7)" },
           p: "6",
           display: "flex",
           flexDirection: "column",
@@ -171,20 +171,20 @@ export const ReportListingModal = () => {
                 COMMUNITY MODERATION
               </span>
             </div>
-            <h2 className={css({ fontSize: "xl", fontWeight: "bold", color: "white" })}>
+            <h2 className={css({ fontSize: "xl", fontWeight: "bold", color: "text.main" })}>
               Report Inaccuracy
             </h2>
           </div>
           <button
             onClick={handleClose}
             className={css({
-              color: "gray.400",
+              color: "text.muted",
               cursor: "pointer",
               bg: "transparent",
               border: "none",
               p: "1",
               borderRadius: "full",
-              _hover: { color: "white", bg: "white/10" },
+              _hover: { color: "text.main", bg: { base: "black/5", _dark: "white/10" } },
             })}
           >
             <XIcon size={20} weight="bold" />
@@ -196,21 +196,21 @@ export const ReportListingModal = () => {
           className={css({
             p: "3",
             borderRadius: "xl",
-            bg: "rgba(255,255,255,0.03)",
+            bg: { base: "gray.50", _dark: "rgba(255,255,255,0.03)" },
             border: "1px solid",
-            borderColor: "white/10",
+            borderColor: "border.light",
           })}
         >
-          <div className={css({ fontSize: "sm", fontWeight: "bold", color: "white" })}>
+          <div className={css({ fontSize: "sm", fontWeight: "bold", color: "text.main" })}>
             {reportingListing.name || reportingListing.og_title}
           </div>
-          <div className={css({ fontSize: "xs", color: "gray.400", mt: "0.5" })}>
+          <div className={css({ fontSize: "xs", color: "text.muted", mt: "0.5" })}>
             {reportingListing.address || "Online Only"}
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className={css({ display: "flex", flexDirection: "column", gap: "3" })}>
-          <label className={css({ fontSize: "xs", fontWeight: "bold", color: "gray.300" })}>
+          <label className={css({ fontSize: "xs", fontWeight: "bold", color: "text.main" })}>
             What is inaccurate about this listing?
           </label>
 
@@ -226,13 +226,13 @@ export const ReportListingModal = () => {
                     borderRadius: "xl",
                     cursor: "pointer",
                     border: "1px solid",
-                    borderColor: isSelected ? "brand.orange" : "white/10",
-                    bg: isSelected ? "rgba(255,90,0,0.12)" : "rgba(255,255,255,0.02)",
+                    borderColor: isSelected ? "brand.orange" : "border.light",
+                    bg: isSelected ? "brand.orangeMuted" : { base: "transparent", _dark: "rgba(255,255,255,0.02)" },
                     transition: "all 0.15s",
                     display: "flex",
                     alignItems: "flex-start",
                     gap: "3",
-                    _hover: { borderColor: isSelected ? "brand.orange" : "white/30" },
+                    _hover: { borderColor: "brand.orange" },
                   })}
                 >
                   <input
@@ -247,12 +247,12 @@ export const ReportListingModal = () => {
                       className={css({
                         fontSize: "xs",
                         fontWeight: "bold",
-                        color: isSelected ? "brand.orange" : "white",
+                        color: isSelected ? "brand.orange" : "text.main",
                       })}
                     >
                       {r.label}
                     </div>
-                    <div className={css({ fontSize: "11px", color: "gray.400", mt: "0.5" })}>
+                    <div className={css({ fontSize: "11px", color: "text.muted", mt: "0.5" })}>
                       {r.desc}
                     </div>
                   </div>
@@ -262,7 +262,7 @@ export const ReportListingModal = () => {
           </div>
 
           <div>
-            <label className={css({ display: "block", fontSize: "xs", color: "gray.400", mb: "1" })}>
+            <label className={css({ display: "block", fontSize: "xs", color: "text.muted", mb: "1" })}>
               Additional Details / Evidence (Optional)
             </label>
             <textarea
@@ -274,11 +274,11 @@ export const ReportListingModal = () => {
               className={css({
                 w: "full",
                 p: "2.5",
-                bg: "rgba(0,0,0,0.5)",
+                bg: { base: "gray.50", _dark: "rgba(0,0,0,0.5)" },
                 border: "1px solid",
-                borderColor: "white/15",
+                borderColor: "border.light",
                 borderRadius: "lg",
-                color: "white",
+                color: "text.main",
                 fontSize: "xs",
                 resize: "none",
                 _focus: { borderColor: "brand.orange", outline: "none" },

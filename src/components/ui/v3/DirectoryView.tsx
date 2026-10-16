@@ -37,8 +37,11 @@ const SkeletonCard = ({ tall }: { tall?: boolean }) => (
       h: tall ? "80" : "36",
       borderRadius: "2xl",
       border: "1px solid",
-      borderColor: "white/5",
-      bg: "linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.03) 75%)",
+      borderColor: "border.light",
+      bg: {
+        base: "linear-gradient(90deg, rgba(0,0,0,0.04) 25%, rgba(0,0,0,0.08) 50%, rgba(0,0,0,0.04) 75%)",
+        _dark: "linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.03) 75%)"
+      },
       backgroundSize: "200% 100%",
       animation: "shimmer",
       _motionReduce: { animation: "none" },
@@ -250,7 +253,7 @@ export const DirectoryView = ({
         pt: { base: "10", md: "28" },
         pb: "32",
         px: { base: "4", md: "12" },
-        bg: "#0B0B0E",
+        bg: "bg.canvas",
         pointerEvents: "auto",
         animation: "fadeIn",
       })}
@@ -268,10 +271,10 @@ export const DirectoryView = ({
             px: { base: "4", md: "12" },
             py: "4",
             mb: "6",
-            bg: "rgba(11, 11, 14, 0.85)",
+            bg: { base: "rgba(248, 249, 250, 0.92)", _dark: "rgba(11, 11, 14, 0.85)" },
             backdropFilter: "blur(16px)",
             borderBottom: "1px solid",
-            borderColor: "white/5",
+            borderColor: "border.light",
           })}
         >
           <div
@@ -298,7 +301,7 @@ export const DirectoryView = ({
               <span
                 aria-live="polite"
                 className={css({
-                  color: "gray.400",
+                  color: { base: "gray.600", _dark: "gray.400" },
                   fontSize: "sm",
                   fontFamily: "tech",
                 })}
@@ -347,11 +350,11 @@ export const DirectoryView = ({
             className={css({
               py: "20",
               textAlign: "center",
-              color: "gray.400",
+              color: "text.muted",
               animation: "fadeIn",
             })}
           >
-            <p className={css({ fontSize: "lg", color: "white", mb: "2" })}>
+            <p className={css({ fontSize: "lg", color: "text.main", mb: "2" })}>
               No {noun} match these filters.
             </p>
             <button
@@ -427,10 +430,10 @@ export const DirectoryView = ({
                   px: "5",
                   py: "2",
                   borderRadius: "xl",
-                  bg: "white/5",
+                  bg: { base: "black/5", _dark: "white/5" },
                   border: "1px solid",
-                  borderColor: "white/10",
-                  color: "white",
+                  borderColor: "border.light",
+                  color: "text.main",
                   fontSize: "sm",
                   cursor: "pointer",
                 })}
@@ -448,13 +451,13 @@ export const DirectoryView = ({
                   px: "5",
                   py: "2",
                   borderRadius: "xl",
-                  bg: "white/5",
+                  bg: { base: "black/5", _dark: "white/5" },
                   border: "1px solid",
-                  borderColor: "white/10",
-                  color: "white",
+                  borderColor: "border.light",
+                  color: "text.main",
                   fontSize: "sm",
                   cursor: "pointer",
-                  _hover: { borderColor: "brand.orange/50" },
+                  _hover: { borderColor: "brand.orange" },
                   _disabled: { opacity: 0.6, cursor: "default" },
                 })}
               >
@@ -470,7 +473,7 @@ export const DirectoryView = ({
               items.length > PAGE_SIZE && (
                 <span
                   className={css({
-                    color: "gray.500",
+                    color: { base: "gray.600", _dark: "gray.500" },
                     fontSize: "sm",
                     fontFamily: "tech",
                   })}
@@ -494,7 +497,7 @@ export const DirectoryView = ({
           right: 0,
           h: "24",
           zIndex: 9,
-          bg: "#0B0B0E",
+          bg: "bg.canvas",
           pointerEvents: "none",
         })}
       />
@@ -516,14 +519,15 @@ export const DirectoryView = ({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            bg: "rgba(21, 21, 26, 0.9)",
+            bg: { base: "rgba(255, 255, 255, 0.95)", _dark: "rgba(21, 21, 26, 0.9)" },
             backdropFilter: "blur(12px)",
             border: "1px solid",
-            borderColor: "white/10",
-            color: "white",
+            borderColor: "border.light",
+            color: "text.main",
+            boxShadow: { base: "0 4px 14px rgba(0,0,0,0.12)", _dark: "0 4px 14px rgba(0,0,0,0.5)" },
             cursor: "pointer",
             animation: "fadeIn",
-            _hover: { borderColor: "brand.orange/50", color: "brand.orange" },
+            _hover: { borderColor: "brand.orange", color: "brand.orange" },
           })}
         >
           <ArrowUpIcon weight="bold" size={18} />

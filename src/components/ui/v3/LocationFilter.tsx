@@ -32,13 +32,14 @@ const optionButton = css({
   px: "3",
   borderRadius: "xl",
   border: "1px solid",
-  borderColor: "white/10",
-  bg: "white/5",
-  color: "white",
+  borderColor: "border.light",
+  bg: { base: "black/5", _dark: "white/5" },
+  color: "text.main",
   fontSize: "sm",
   cursor: "pointer",
   textAlign: "left",
-  _hover: { borderColor: "brand.orange/50" },
+  transition: "all 0.2s",
+  _hover: { borderColor: "brand.orange", bg: { base: "black/8", _dark: "white/10" } },
   _disabled: { opacity: 0.6, cursor: "default" },
 });
 
@@ -164,9 +165,9 @@ export const LocationFilter = ({ value, onChange }: LocationFilterProps) => {
           h: { base: "8", lg: "7" },
           borderRadius: "full",
           border: "1px solid",
-          borderColor: value ? "brand.orange" : "white/15",
-          bg: value ? "brand.orangeMuted" : "white/5",
-          color: value ? "brand.orange" : "gray.300",
+          borderColor: value ? "brand.orange" : "border.light",
+          bg: value ? "brand.orangeMuted" : { base: "black/5", _dark: "white/5" },
+          color: value ? "brand.orange" : { base: "gray.800", _dark: "gray.300" },
           fontSize: { base: "xs", lg: "11px" },
           fontWeight: "bold",
           transition: "border-color 0.2s, background 0.2s",
@@ -241,11 +242,14 @@ export const LocationFilter = ({ value, onChange }: LocationFilterProps) => {
             gap: "3",
             p: "3",
             borderRadius: "2xl",
-            bg: "rgba(11, 11, 14, 0.96)",
+            bg: { base: "rgba(255, 255, 255, 0.98)", _dark: "rgba(11, 11, 14, 0.96)" },
             backdropFilter: "blur(16px)",
             border: "1px solid",
-            borderColor: "white/10",
-            boxShadow: "0 20px 40px rgba(0,0,0,0.5)",
+            borderColor: "border.light",
+            boxShadow: {
+              base: "0 20px 40px rgba(0,0,0,0.12)",
+              _dark: "0 20px 40px rgba(0,0,0,0.5)",
+            },
             animation: "fadeIn",
           })}
         >
@@ -279,11 +283,11 @@ export const LocationFilter = ({ value, onChange }: LocationFilterProps) => {
               h: "9",
               px: "3",
               borderRadius: "xl",
-              bg: "white/5",
+              bg: { base: "black/4", _dark: "white/5" },
               border: "1px solid",
-              borderColor: "white/10",
-              color: "gray.400",
-              _focusWithin: { borderColor: "brand.orange/50" },
+              borderColor: "border.light",
+              color: { base: "gray.600", _dark: "gray.400" },
+              _focusWithin: { borderColor: "brand.orange" },
             })}
           >
             <MagnifyingGlassIcon size={14} />
@@ -299,8 +303,9 @@ export const LocationFilter = ({ value, onChange }: LocationFilterProps) => {
                 bg: "transparent",
                 border: "none",
                 outline: "none",
-                color: "white",
+                color: "text.main",
                 fontSize: "sm",
+                _placeholder: { color: { base: "gray.500", _dark: "gray.500" } },
               })}
             />
             {busy === "search" ? (
@@ -319,7 +324,7 @@ export const LocationFilter = ({ value, onChange }: LocationFilterProps) => {
                   fontSize: "xs",
                   fontWeight: "bold",
                   cursor: "pointer",
-                  _disabled: { color: "gray.600", cursor: "default" },
+                  _disabled: { color: { base: "gray.400", _dark: "gray.600" }, cursor: "default" },
                 })}
               >
                 Go
@@ -331,7 +336,7 @@ export const LocationFilter = ({ value, onChange }: LocationFilterProps) => {
             <div
               className={css({ display: "flex", flexDir: "column", gap: "2" })}
             >
-              <span className={css({ fontSize: "xs", color: "gray.500" })}>
+              <span className={css({ fontSize: "xs", color: { base: "gray.600", _dark: "gray.500" } })}>
                 Radius
               </span>
               <div
@@ -353,9 +358,9 @@ export const LocationFilter = ({ value, onChange }: LocationFilterProps) => {
                         h: "8",
                         borderRadius: "lg",
                         border: "1px solid",
-                        borderColor: isOn ? "brand.orange" : "white/10",
-                        bg: isOn ? "brand.orange" : "white/5",
-                        color: isOn ? "black" : "gray.300",
+                        borderColor: isOn ? "brand.orange" : "border.light",
+                        bg: isOn ? "brand.orange" : { base: "black/5", _dark: "white/5" },
+                        color: isOn ? { base: "white", _dark: "black" } : { base: "gray.700", _dark: "gray.300" },
                         fontSize: "xs",
                         fontWeight: "bold",
                         cursor: "pointer",

@@ -59,12 +59,15 @@ export const MobileNearestCard = ({
                 className={css({
                     w: "100%",
                     display: "flex",
-                    bg: "rgba(21, 21, 26, 0.95)",
+                    bg: { base: "rgba(255, 255, 255, 0.95)", _dark: "rgba(21, 21, 26, 0.95)" },
                     backdropFilter: "blur(24px)",
                     borderRadius: "2xl",
                     border: "1px solid",
-                    borderColor: "brand.orange/30",
-                    boxShadow: "0 10px 40px rgba(0,0,0,0.5), 0 -5px 20px rgba(255,90,0,0.15)",
+                    borderColor: { base: "rgba(0, 0, 0, 0.12)", _dark: "brand.orange/30" },
+                    boxShadow: {
+                        base: "0 10px 30px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)",
+                        _dark: "0 10px 40px rgba(0,0,0,0.5), 0 -5px 20px rgba(255,90,0,0.15)"
+                    },
                     p: "3",
                     gap: "3",
                     alignItems: "center",
@@ -84,29 +87,30 @@ export const MobileNearestCard = ({
                         w: "28px",
                         h: "28px",
                         borderRadius: "full",
-                        bg: "gray.800",
+                        bg: { base: "white", _dark: "gray.800" },
                         border: "1px solid",
-                        borderColor: "white/20",
+                        borderColor: "border.light",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        color: "gray.400",
-                        boxShadow: "0 4px 10px rgba(0,0,0,0.5)",
-                        _hover: { color: "white", bg: "gray.700" },
+                        color: "text.muted",
+                        boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+                        _hover: { color: "text.main", bg: { base: "gray.100", _dark: "gray.700" } },
                         zIndex: 10,
                     })}
                 >
                     <XIcon weight="bold" size={14} />
                 </button>
+
                 {/* Image Thumbnail */}
                 <div
                     className={css({
                         w: "14",
                         h: "14",
                         borderRadius: "xl",
-                        bg: "gray.800",
+                        bg: { base: "gray.100", _dark: "gray.800" },
                         border: "1px solid",
-                        borderColor: "white/10",
+                        borderColor: "border.light",
                         overflow: "hidden",
                         position: "relative",
                         flexShrink: 0,
@@ -128,7 +132,8 @@ export const MobileNearestCard = ({
                             py: "0.5",
                             borderRadius: "sm",
                             letterSpacing: "wider",
-                            border: "1px solid rgba(255,90,0,0.2)"
+                            border: "1px solid",
+                            borderColor: "brand.orangeMuted"
                         })}>
                             <CheckCircleIcon weight="fill" size={10} className="mr-1 inline-block vertical-align-middle" />VERIFIED
                         </span>
@@ -138,7 +143,7 @@ export const MobileNearestCard = ({
                     <h3
                         className={css({
                             fontWeight: "bold",
-                            color: "white",
+                            color: "text.main",
                             fontSize: "sm",
                             lineClamp: "1",
                             lineHeight: "tight",
@@ -149,7 +154,7 @@ export const MobileNearestCard = ({
 
                     <p className={css({
                         fontSize: "xs",
-                        color: "gray.400",
+                        color: "text.muted",
                         lineClamp: "1",
                     })}>
                         {(listing as any).category?.replace(/_/g, " ") || (listing.categories && listing.categories[0]?.replace(/_/g, " ")) || "Business"}
@@ -164,13 +169,13 @@ export const MobileNearestCard = ({
                             w: "10",
                             h: "10",
                             borderRadius: "full",
-                            bg: "white/5",
+                            bg: { base: "black/5", _dark: "white/5" },
                             border: "1px solid",
-                            borderColor: "white/10",
+                            borderColor: "border.light",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            color: "gray.300",
+                            color: "text.main",
                             _hover: { color: "brand.orange", bg: "brand.orangeMuted" },
                         })}
                     >
@@ -193,7 +198,7 @@ export const MobileNearestCard = ({
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            color: "black",
+                            color: { base: "white", _dark: "black" },
                             boxShadow: "0 0 15px rgba(255,90,0,0.4)",
                         })}
                     >

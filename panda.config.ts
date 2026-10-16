@@ -22,10 +22,10 @@ export default defineConfig({
       tokens: {
         colors: {
           brand: {
-            orange: { value: "#FF5A00" }, // 2030 Neon Orange
+            orangeNeon: { value: "#FF5A00" }, // Raw 2030 Neon Orange
+            orangeDeep: { value: "#C2410C" }, // Accessible deep orange for high contrast on light
             orangeDark: { value: "#D94A00" },
             orangeLight: { value: "#FF8A00" }, // Glow orange
-            orangeMuted: { value: "rgba(255, 90, 0, 0.2)" },
             black: { value: "#0B0B0E" }, // 2030 Deep Space Black
             grey: { value: "#2D2D35" }, // 2030 Metallic Grey
             greyDark: { value: "#15151A" }, // Panel bg
@@ -120,22 +120,35 @@ export default defineConfig({
       },
       semanticTokens: {
         colors: {
+          brand: {
+            orange: { value: { base: "#C2410C", _dark: "{colors.brand.orangeNeon}" } },
+            orangeHover: { value: { base: "#9A3412", _dark: "{colors.brand.orangeLight}" } },
+            orangeMuted: { value: { base: "rgba(194, 65, 12, 0.12)", _dark: "rgba(255, 90, 0, 0.2)" } },
+          },
           bg: {
-            canvas: { value: { base: "#FFFFFF", _dark: "{colors.brand.black}" } },
-            surface: { value: { base: "#F3F4F6", _dark: "{colors.brand.greyDark}" } },
+            canvas: { value: { base: "#F8F9FA", _dark: "{colors.brand.black}" } },
+            surface: { value: { base: "#FFFFFF", _dark: "{colors.brand.greyDark}" } },
             glass: {
               value: {
-                base: "linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.70) 100%)",
+                base: "linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(248, 249, 250, 0.88) 100%)",
                 _dark: "linear-gradient(135deg, rgba(21, 21, 26, 0.85) 0%, rgba(21, 21, 26, 0.70) 100%)"
               }
             },
+            glassCard: {
+              value: {
+                base: "rgba(255, 255, 255, 0.94)",
+                _dark: "rgba(21, 21, 26, 0.8)"
+              }
+            }
           },
           text: {
-            main: { value: { base: "{colors.brand.black}", _dark: "{colors.brand.white}" } },
-            muted: { value: { base: "#6B7280", _dark: "{colors.brand.grey}" } },
+            main: { value: { base: "#0B0B0E", _dark: "{colors.brand.white}" } },
+            muted: { value: { base: "#4B5563", _dark: "#9CA3AF" } },
+            subtle: { value: { base: "#6B7280", _dark: "#6B7280" } },
           },
           border: {
-            light: { value: { base: "rgba(0, 0, 0, 0.08)", _dark: "rgba(255, 255, 255, 0.08)" } },
+            light: { value: { base: "rgba(0, 0, 0, 0.12)", _dark: "rgba(255, 255, 255, 0.08)" } },
+            medium: { value: { base: "rgba(0, 0, 0, 0.20)", _dark: "rgba(255, 255, 255, 0.16)" } },
             neon: { value: "{colors.brand.orangeMuted}" }
           },
         },
