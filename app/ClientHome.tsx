@@ -5,6 +5,8 @@ import { css } from "@styled/css";
 import React, { useEffect, useMemo } from "react";
 
 import { Category, Listing } from "@/db/Types";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { PARAM_TO_VIEW, VIEW_TO_PARAM, type ViewMode } from "@/util/view";
 
 // Store
 import { useAppStore } from "@/store/useAppStore";
@@ -129,14 +131,21 @@ const useIsDetailSheetOpen = () => {
   return Boolean(activeListing && isDrawerOpen);
 };
 
-const ViewToggleContainer = () => {
+const ViewToggleContainer = ({
+  onChange,
+}: {
+  onChange?: (view: ViewMode) => void;
+}) => {
   const viewMode = useAppStore((s) => s.viewMode);
   const setViewMode = useAppStore((s) => s.setViewMode);
   const isDetailSheetOpen = useIsDetailSheetOpen();
   return (
     <EcosystemToggle
       activeView={viewMode}
-      setActiveView={setViewMode}
+      setActiveView={(nextView) => {
+        setViewMode(nextView);
+        onChange?.(nextView);
+      }}
       hiddenOnMobile={isDetailSheetOpen}
     />
   );
@@ -249,16 +258,19 @@ const MapContainer = ({ initialListings }: { initialListings: Listing[] }) => {
     />
   );
 };
-
 // --- Main Page Client Component --- //
 
 interface ClientHomeProps {
   initialListings: Listing[];
   initialCategories: Category[];
+  initialView?: ViewMode;
 }
 
 const ClientHome = React.memo(
-  ({ initialListings, initialCategories }: ClientHomeProps) => {
+  ({ initialListings, initialCategories, initialView = "RADAR" }: ClientHomeProps) => {
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
     const listings = useAppStore((state) => state.listings);
     const categories = useAppStore((state) => state.categories);
     const setCategories = useAppStore((state) => state.setCategories);
@@ -287,10 +299,37 @@ const ClientHome = React.memo(
     );
     const savedListings = useAppStore((state) => state.savedListings);
 
+    // Update view mode when URL search parameter changes
+    useEffect(() => {
+      const viewParam = searchParams?.get("view");
+      if (viewParam && PARAM_TO_VIEW[viewParam.toLowerCase()]) {
+        setViewMode(PARAM_TO_VIEW[viewParam.toLowerCase()]);
+      } else if (!viewParam && initialView) {
+        setViewMode(initialView);
+      }
+    }, [searchParams, initialView, setViewMode]);
+
+    const updateViewUrl = React.useCallback(
+      (newMode: ViewMode) => {
+        const param = VIEW_TO_PARAM[newMode];
+        const currentParams = new URLSearchParams(searchParams?.toString() || "");
+        if (param === "map") {
+          currentParams.delete("view");
+        } else {
+          currentParams.set("view", param);
+        }
+        const qs = currentParams.toString();
+        const url = qs ? `${pathname}?${qs}` : pathname || "/";
+        window.history.pushState(null, "", url);
+      },
+      [searchParams, pathname],
+    );
+
     const handleNearMeClick = React.useCallback(async () => {
       setActiveNav("nearme");
       setIsPanelVisible(true);
       setViewMode("RADAR");
+      updateViewUrl("RADAR");
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           async (position) => {
@@ -320,6 +359,7 @@ const ClientHome = React.memo(
       setIsPanelVisible,
       setUserLocation,
       setViewMode,
+      updateViewUrl,
     ]);
 
     const handleExploreClick = React.useCallback(() => {
@@ -327,7 +367,8 @@ const ClientHome = React.memo(
       setIsPanelVisible(false);
       setIsMapActive(true);
       setViewMode("RADAR");
-    }, [setActiveNav, setIsPanelVisible, setIsMapActive, setViewMode]);
+      updateViewUrl("RADAR");
+    }, [setActiveNav, setIsPanelVisible, setIsMapActive, setViewMode, updateViewUrl]);
 
     const handleSavedClick = React.useCallback(() => {
       setActiveNav("saved");
@@ -375,7 +416,7 @@ const ClientHome = React.memo(
           pointerEvents: "none",
         })}
       >
-        <ViewToggleContainer />
+        <ViewToggleContainer onChange={updateViewUrl} />
 
         {viewMode === "GRID" && <GlobalGrid />}
         {viewMode === "ORBIT" && <OnlineOrbit />}
