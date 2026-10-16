@@ -1,8 +1,10 @@
 import { GlobeHemisphereWestIcon, GridFourIcon, TargetIcon } from "@phosphor-icons/react";
 import { css } from "@styled/css";
+import Link from "next/link";
 import React from "react";
+import { VIEW_TO_PARAM, type ViewMode } from "@/util/view";
 
-export type ViewMode = "RADAR" | "GRID" | "ORBIT";
+export type { ViewMode };
 
 interface OwnProps {
   activeView: ViewMode;
@@ -47,11 +49,18 @@ export const EcosystemToggle = React.memo(({ activeView, setActiveView, hiddenOn
         { id: "GRID", label: "Global Grid", icon: <GridFourIcon weight={activeView === "GRID" ? "fill" : "regular"} size={20} /> },
         { id: "ORBIT", label: "Online Only", icon: <GlobeHemisphereWestIcon weight={activeView === "ORBIT" ? "fill" : "regular"} size={20} /> }
       ].map((item) => {
-        const isActive = activeView === item.id;
+        const viewId = item.id as ViewMode;
+        const isActive = activeView === viewId;
+        const param = VIEW_TO_PARAM[viewId];
+        const href = param === "map" ? "/" : `/?view=${param}`;
         return (
-          <button
+          <Link
             key={item.id}
-            onClick={() => setActiveView(item.id as ViewMode)}
+            href={href}
+            onClick={(e) => {
+              e.preventDefault();
+              setActiveView(viewId);
+            }}
             className={`group ${css({
               position: "relative",
               display: "flex",
@@ -123,7 +132,7 @@ export const EcosystemToggle = React.memo(({ activeView, setActiveView, hiddenOn
             })}>
               {item.label}
             </span>
-          </button>
+          </Link>
         );
       })}
     </div>
