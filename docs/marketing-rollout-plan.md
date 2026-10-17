@@ -31,6 +31,7 @@ For decades, travelers relied on word-of-mouth or fragmented social media lists 
 | **The Diaspora Shopper** | Wants to buy Black-owned beauty, apparel, books, and specialty goods online. | **Online Only** (`?view=online`) | Discovering verified Black-owned online brands with direct links to storefronts. |
 | **The Black Business Owner** | Wants foot traffic, visibility, and direct customer discovery without paying pay-to-play ad fees. | **Add a Business** drawer | Being drowned out by big-budget corporate chains on mainstream discovery platforms. |
 | **The Tech & Open-Source Community** | Engineers, designers, and creators who care about ethical tech, modern Next.js/React architecture, and civic tech. | **Tech Stack** (`/tech-stack`) | Seeing how modern engineering (Next.js 16, MongoDB 2dsphere, AI curation) solves community problems. |
+| **Third-Party Builders & Civic Tech** | Developers, event planners, and travel tech founders wanting to embed Black-owned business data into their applications. | **Developer API** (Roadmap) | Lack of structured, verified geospatial APIs for minority-owned business discovery. |
 
 ---
 
@@ -216,6 +217,7 @@ What we built:
   3. Online & Everywhere: Curated index of diaspora e-commerce businesses.
 • Autonomous AI Scout & Community Curation: An intelligent data ingestion pipeline that constantly surfaces emerging businesses while empowering community members to report updates.
 • Modern Architecture: Engineered with Next.js 16, React 19, Panda CSS for zero-runtime styling overhead, and strict TypeScript/Zod validation.
+• Developer API (Coming Soon): We are building a public API with tiered access so third-party travel apps, civic tech creators, and community builders can tap into our verified business data and embed it in their own platforms.
 
 Our goal is simple: make The MOBB an indispensable daily staple for travelers, entrepreneurs, and conscious consumers practicing group economics across the diaspora.
 
@@ -231,7 +233,7 @@ Take a look, bookmark it for your next trip, and share your feedback:
 1. **The Intent-to-Action Gap:** The trillion-dollar spending power of the Black diaspora and why friction kills conscious consumerism.
 2. **The Modern Green Book Concept:** Historical precedent of Victor Hugo Green’s guide and why software engineering must step up to solve this today.
 3. **Engineering for Trust & Speed:** Why directories fail (stale data, slow UI, bad search) and how v3.0 tackles this with server actions, real-time geospatial queries, and AI scanning.
-4. **The Road Ahead:** Empowering local merchants, building travel community partnerships, and scaling the autonomous curator.
+4. **The Road Ahead:** Empowering local merchants, building travel community partnerships, scaling the autonomous curator, and opening a public developer API to democratize access to diaspora business data.
 
 ---
 
@@ -286,6 +288,7 @@ Tech Stack & Architecture Highlights:
 - **Mapping:** @vis.gl/react-google-maps with custom marker clustering and dark/light mode JSON styles.
 - **Autonomous Curation:** Background Vercel cron job running SerpAPI + Vercel AI SDK to scout editorial listicles, extract structured business metadata with Zod schemas, and submit for human admin review.
 - **State & URL Sync:** Zustand for client HUD state, synchronized with query parameters (`?view=map|directory|online`) for SSR metadata and SEO crawlers.
+- **Developer API (Roadmap):** We are also preparing a controlled public developer API (with rate limits and API keys) to allow civic developers, travel platforms, and diaspora creators to query and embed verified business data into their own apps.
 
 Check it out live: https://mobb.kielbyrne.com
 Tech stack breakdown: https://mobb.kielbyrne.com/tech-stack
@@ -399,7 +402,17 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
 
 ---
 
-## 5. Conclusion & Open Source Community
+## 5. The Roadmap: Controlled Public Developer API ("MOBB Connect")
+A critical part of our long-term vision is recognizing that economic infrastructure shouldn't be a walled garden. 
+
+We are actively developing a public developer API with tiered access:
+- **Civic & Community Access:** Generous rate limits for non-profits, student projects, and cultural preservation initiatives.
+- **Controlled & Safeguarded:** Rate-limited and authenticated via API keys to prevent predatory scraping or spam while allowing legitimate travel apps and event platforms to embed Black-owned business data.
+- **Key Endpoints:** Geospatial search (`/api/v1/listings/nearby`), category filters (`/api/v1/listings/search`), and city roundups.
+
+---
+
+## 6. Conclusion & Open Source Community
 Technology is at its best when it solves tangible community challenges. By pairing modern performance tooling with civic intention, we can transform casual consumer intent into lasting economic empowerment.
 
 Explore the app live at [mobb.kielbyrne.com](https://mobb.kielbyrne.com) or inspect our stack at [/tech-stack](https://mobb.kielbyrne.com/tech-stack).
@@ -431,9 +444,11 @@ The MOBB solves this with one tap.
 • High-speed geospatial discovery powered by Next.js & MongoDB
 • Community powered: add your favorite spots or suggest edits in seconds
 
-5/6 🛠️ For developers: we engineered this with Next.js 16, React 19, MongoDB 2dsphere indexing, Panda CSS, and autonomous AI scouts for data curation. 
+5/6 🛠️ For developers: we engineered this with Next.js 16, React 19, MongoDB 2dsphere indexing, Panda CSS, and autonomous AI scouts. 
 
-Check our full stack at: https://mobb.kielbyrne.com/tech-stack
+PLUS: We're developing a public API so other apps & travel platforms can integrate our verified data. 
+
+Check our stack: https://mobb.kielbyrne.com/tech-stack
 
 6/6 Give your dollar the choice to make a difference. 
 
@@ -484,7 +499,39 @@ flowchart TD
 
 ---
 
-## 6. Retention & Community Ambassador Playbook
+## 6. Developer Platform & Public API Roadmap ("MOBB Connect")
+
+### The Rationale: Digital Infrastructure, Not a Walled Garden
+To truly practice group economics and expand community discovery, our data must be accessible to other diaspora creators, civic technologists, and travel innovators. Rather than keeping our verified listings trapped inside a single interface, **The MOBB API** will allow external platforms to query and integrate Black-owned business data—to an extent that empowers builders while fiercely protecting merchant trust and data integrity.
+
+### Safeguards & Access Boundaries ("To an Extent")
+Opening data requires intentional safeguards to prevent exploitation, spam, and uncompensated mass-harvesting:
+- **No Unauthenticated Full-Dumps:** The API will expose granular query endpoints (`nearby`, `search`, `category`, `city`), not bulk raw-table downloads.
+- **Tiered Authentication & API Keys:**
+  - **Civic & Open-Source Tier (Free):** Generous rate-limiting (e.g., 60 requests/min, 2,500 requests/day) for student developers, non-profits, hackathon projects, and community activists.
+  - **Commercial & Travel Partner Tier:** Authenticated partner keys for travel booking platforms, corporate DEI programs, and regional tourism boards, requiring public brand attribution (*"Powered by The MOBB"* with a backlink) and commercial usage terms.
+- **Privacy & Anti-Harassment Safeguards:** Merchant contact details (personal phone numbers, submission emails) will be stripped from public API payloads; only public storefront information, coordinates, verified categories, and direct links will be served.
+- **Automated Rate-Limiting & Bot Mitigation:** Token-bucket rate limiting via Edge middleware to prevent adversarial scraping.
+
+### Planned Endpoints & Capabilities
+1. `GET /api/v1/listings/nearby`
+   - **Parameters:** `lng`, `lat`, `maxDistance` (meters), `category` (optional)
+   - **Returns:** Closest verified businesses sorted by distance using MongoDB `$near`.
+2. `GET /api/v1/listings/search`
+   - **Parameters:** `q`, `city`, `state`, `category`, `limit`, `skip`
+   - **Returns:** Filtered business entities with verified metadata.
+3. `GET /api/v1/categories`
+   - **Returns:** Standardized MOBB taxonomy of 25+ business categories.
+4. `POST /api/v1/listings/suggest` (Partner Webhook)
+   - Allows trusted partner apps to submit new community business discoveries into MOBB's AI ingestion and admin review queue.
+
+### Developer Outreach Strategy
+- **Civic Hackathons & HBCU Tech Challenges:** Sponsor hackathon tracks (*"Build a diaspora travel or shopping tool with the MOBB API"*).
+- **Travel Tech Integrations:** Pitch integrations to independent Black travel apps, city guides, and conference organizers wanting to provide attendees with nearby Black-owned dining, coworking, and coffee options.
+
+---
+
+## 7. Retention & Community Ambassador Playbook
 
 ### 1. The "Black Travel Influencer" Kit
 - Gift digital VIP ambassador status to 25 key creators on TikTok, Instagram, and YouTube (e.g., solo travelers, couples travel, food critics).
@@ -506,7 +553,7 @@ Align marketing pushes with peak travel and cultural moments:
 
 ---
 
-## 7. Action Checklist for Day 1 Launch
+## 8. Action Checklist for Day 1 Launch
 
 - [ ] **Step 1: Final Asset Preparation**
   - Capture 4 clean UI screenshots (Local Map near me, Directory category view, Online Only grid, Add a Business modal).
